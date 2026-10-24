@@ -140,6 +140,7 @@ Incendios_PY/
 │   ├── modelo.py                  # LightGBM regional y calibradores isotónicos
 │   ├── metricas.py                # Optimización Youden J, F0.5 y Brier Skill Score
 │   ├── alerta.py                  # Inferencia y despacho diario operativo en tiempo real
+│   ├── espaciotemporal.py         # Contagio causal t-1, ecotono y prior espacial histórico
 │   └── raster.py                  # Rasterización matricial a GeoTIFF estándar (EPSG:32721)
 │
 ├── scripts/                       # Pipelines secuenciales numerados
@@ -148,19 +149,20 @@ Incendios_PY/
 │   ├── 02_descargar_clima_era5.py    # Ingesta meteorológica ERA5-Land y cálculo de FWI/VPD
 │   ├── 03_procesar_combustible.py    # Reclasificación funcional de biomasa MapBiomas
 │   ├── 04_construir_dataset.py       # Unificación DuckDB y Two-Stage Gating de candidatos
-│   ├── 05_muestrear_ausencias.py     # Muestreo negativo con Dead-Zone Buffer (Train/Val/Test)
-│   ├── 06_entrenar_modelos.py        # Entrenamiento LightGBM y calibración isotónica
+│   ├── 05_muestrear_ausencias.py     # Muestreo negativo con Dead-Zone Buffer y enriquecimiento causal t-1
+│   ├── 06_entrenar_modelos.py        # Entrenamiento LightGBM y calibración monótona de Platt
 │   ├── 07_evaluacion_test_2024.py    # Evaluación ciega out-of-time (Test set 2024)
 │   ├── 08_analisis_shap.py           # Interpretabilidad global y local con TreeSHAP (XAI)
 │   ├── 09_servicio_alerta.py         # Pipeline de inferencia diaria y despacho de boletines
 │   ├── 10_generar_figuras_manuscrito.py # Renderizado de figuras científicas vectoriales
 │   ├── 11_exportar_geotiff.py        # Conversión a ráster GeoTIFF (QGIS / ArcGIS / GEE)
-│   └── 12_generar_dashboard_interactivo.py # Portal interactivo web (Leaflet + Chart.js)
+│   ├── 12_generar_dashboard_interactivo.py # Portal interactivo web (Leaflet + Chart.js)
+│   └── 13_benchmarking_modelos.py    # Benchmarking internacional: Incendios_PY vs. FWI vs. INPE
 │
 ├── modelos/                       # Pesos compilados (.booster) y calibradores (.joblib)
 ├── figuras/                       # Salidas vectoriales de alta resolución (PNG y PDF 300 DPI)
 ├── tablas/                        # Tablas de métricas y evaluación estadística (CSV y MD)
-└── tests/                         # Suite de 31 pruebas unitarias exhaustivas
+└── tests/                         # Suite de 37 pruebas unitarias exhaustivas
 ```
 
 ---

@@ -52,7 +52,14 @@ NOMBRES_LEGIBLES = {
     "es_fin_de_semana": "Efecto Fin de Semana (Antrópico)",
     "dia_semana": "Día de la Semana",
     "mes": "Estacionalidad (Mes)",
-    "dia_del_anio": "Día del Año"
+    "dia_del_anio": "Día del Año",
+    # Dinámica espaciotemporal y ecotono (2024-2026)
+    "indice_ecotono": "Índice Fragmentación Ecotono Bosque-Pastura",
+    "dist_foco_t1_km": "Distancia a Foco Previo t-1 (km)",
+    "focos_25km_t1": "Densidad de Focos t-1 (Radio 25 km)",
+    "frp_25km_t1": "Potencia Radiativa t-1 (FRP en 25 km)",
+    "dist_foco_hist_km": "Distancia a Fuego Histórico (km)",
+    "densidad_hist_25km": "Densidad Histórica de Ignición (25 km)"
 }
 
 def ejecutar_analisis_shap():

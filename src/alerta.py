@@ -31,10 +31,11 @@ from src.constantes import (
     UMBRAL_LLUVIA_48H_MM
 )
 from src.modelo import FEATURES_CHACO, FEATURES_ORIENTAL
+from src.espaciotemporal import enriquecer_dataset_espaciotemporal
 
-# Umbrales óptimos derivados de calibración en validación out-of-time (F0.5 / Youden)
-UMBRAL_CORTE_CHACO = 0.096
-UMBRAL_CORTE_ORIENTAL = 0.143
+# Umbrales óptimos derivados de calibración en validación out-of-time (F0.5 de máxima precisión)
+UMBRAL_CORTE_CHACO = 0.145
+UMBRAL_CORTE_ORIENTAL = 0.097
 
 def cargar_artefactos_modelos() -> dict:
     """Carga los ensambles nativos C++ y los calibradores isotónicos regionales."""
@@ -110,6 +111,25 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
         (pl.col("vpd_max_kpa") * (pl.col("dias_secos_consecutivos") + 1.0)).alias("deficit_hidrico_acumulado"),
         ((pl.col("viento_max_kmh") / 10.0).pow(2)).alias("potencial_viento_cuadratico")
     ])
+
+    # 4. Enriquecimiento espaciotemporal (Ecotono, Contagio t-1 y Prior histórico)
+    path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
+    if path_focos.exists():
+        df_focos = pl.read_parquet(path_focos)
+    else:
+        df_focos = pl.DataFrame()
+
+    ruta_coords_hist = DIR_MODELOS / "fuegos_train_coords.npy"
+    if ruta_coords_hist.exists():
+        fuegos_train_coords = np.load(ruta_coords_hist)
+    else:
+        fuegos_train_coords = None
+
+    df_nacional = enriquecer_dataset_espaciotemporal(
+        df_nacional,
+        df_focos,
+        fuegos_train_coords
+    )
 
     return df_nacional
 
