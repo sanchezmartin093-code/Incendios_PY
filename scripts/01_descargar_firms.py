@@ -22,6 +22,13 @@ from src.firms import procesar_focos_firms_a_grilla, agregar_focos_diarios
 # URLs abiertas de NASA FIRMS para pases de Sudamérica (Ventana NRT 7 días)
 URL_VIIRS_SNPP_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_South_America_7d.csv"
 URL_VIIRS_NOAA20_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_South_America_7d.csv"
+URL_VIIRS_NOAA21_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_South_America_7d.csv"
+
+SENSORES_DISPONIBLES = [
+    ("Suomi-NPP", URL_VIIRS_SNPP_7D, "viirs_suomi-npp_nrt_7d.csv"),
+    ("NOAA-20", URL_VIIRS_NOAA20_7D, "viirs_noaa-20_nrt_7d.csv"),
+    ("NOAA-21", URL_VIIRS_NOAA21_7D, "viirs_noaa-21_nrt_7d.csv")
+]
 
 def descargar_e_ingestar_firms():
     print("=" * 65)
@@ -41,31 +48,21 @@ def descargar_e_ingestar_firms():
 
     dfs_crudos = []
 
-    # 1. Comprobar si existen archivos históricos locales descargados en datos/raw/firms/
-    archivos_locales = list(dir_firms_raw.glob("*.csv")) + list(dir_firms_raw.glob("*.parquet"))
-    if archivos_locales:
-        print(f"\nSe encontraron {len(archivos_locales)} archivo(s) histórico(s) local(es) en {dir_firms_raw}:")
-        for arch in archivos_locales:
-            print(f" - Leyendo: {arch.name}")
-            if arch.suffix == ".csv":
-                dfs_crudos.append(pd.read_csv(arch))
-            elif arch.suffix == ".parquet":
-                dfs_crudos.append(pd.read_parquet(arch))
-    else:
-        print("\nNo se detectaron archivos históricos offline en datos/raw/firms/.")
-        print("Descargando transmisiones satelitales NRT activas de los últimos 7 días desde NASA FIRMS...")
-        
-        for nombre_sensor, url in [("Suomi-NPP", URL_VIIRS_SNPP_7D), ("NOAA-20", URL_VIIRS_NOAA20_7D)]:
-            print(f" - Solicitando {nombre_sensor}...")
+    # 1. Comprobar / Descargar archivos de sensores satelitales
+    for nombre_sensor, url, archivo_nom in SENSORES_DISPONIBLES:
+        ruta_archivo = dir_firms_raw / archivo_nom
+        if ruta_archivo.exists():
+            print(f" - Cargando archivo local existente: {archivo_nom}")
+            dfs_crudos.append(pd.read_csv(ruta_archivo))
+        else:
+            print(f" - Descargando transmisión satelital NRT de {nombre_sensor}...")
             try:
                 df_temp = pd.read_csv(url)
                 print(f"   ✓ {len(df_temp):,} detecciones recibidas para Sudamérica.")
-                # Guardar copia cruda inmutable
-                archivo_guardado = dir_firms_raw / f"viirs_{nombre_sensor.lower()}_nrt_7d.csv"
-                df_temp.to_csv(archivo_guardado, index=False)
+                df_temp.to_csv(ruta_archivo, index=False)
                 dfs_crudos.append(df_temp)
             except Exception as e:
-                print(f"   ✗ Error al conectar con {url}: {e}")
+                print(f"   ✗ Error al descargar {nombre_sensor}: {e}")
 
     if not dfs_crudos:
         print("No se pudieron cargar datos de focos térmicos.")

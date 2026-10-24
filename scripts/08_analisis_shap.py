@@ -32,6 +32,9 @@ from src.modelo import preparar_matrices_xy
 NOMBRES_LEGIBLES = {
     "vpd_max_kpa": "Déficit de Presión de Vapor (VPD, kPa)",
     "interaccion_viento_vpd": "Interacción Viento × VPD",
+    "rango_termico_diario": "Amplitud Térmica Diaria (°C)",
+    "deficit_hidrico_acumulado": "Déficit Hídrico Acumulado (VPD × CDD)",
+    "potencial_viento_cuadratico": "Presión Dinámica del Viento (v²)",
     "viento_max_kmh": "Velocidad de Viento Máx (km/h)",
     "rafaga_max_kmh": "Ráfaga Máxima de Viento (km/h)",
     "ffmc": "Índice Hojarasca Fina (FWI FFMC)",
