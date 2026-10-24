@@ -78,10 +78,18 @@ FEATURES_BASE = [
     "es_fin_de_semana",
     "mes",
     "dia_del_anio",
-    # Coberturas de biomasa
+    # Coberturas de biomasa y ecotono desmonte
     "pct_pastura",
     "pct_sabana_pastizal",
-    "pct_humedal_palmar"
+    "pct_humedal_palmar",
+    "indice_ecotono",
+    # Dinámica espaciotemporal y contagio causal t-1
+    "dist_foco_t1_km",
+    "focos_25km_t1",
+    "frp_25km_t1",
+    # Prior geográfico histórico
+    "dist_foco_hist_km",
+    "densidad_hist_25km"
 ]
 
 FEATURES_CHACO = FEATURES_BASE + ["pct_bosque_seco"]
