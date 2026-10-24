@@ -223,6 +223,26 @@ El sistema clasifica el territorio en cuatro categorías de acción compatibles 
 
 ---
 
+# Trabajo Futuro y Perspectivas de Expansión
+
+A partir de los resultados obtenidos y de las necesidades operativas identificadas durante los megaincendios del Chaco paraguayo, se proyectan tres líneas de desarrollo para la evolución continua de `Incendios_PY`:
+
+## 1. Integración de Verificación Satelital Multiespectral Tri-Modal
+Actualmente, el sistema emite el pronóstico preventivo a 24 horas a escala celda-día. Como siguiente paso de ingeniería, se integrará un bucle de retroalimentación continua (*closed-loop online verification*) con teledetección multiespectral tri-modal para las celdas clasificadas en Alerta Roja ($P > c^*$):
+1. **Monitoreo Sub-Horario de Penachos de Humo (GOES-16 ABI):** Secuencias cada 10 a 15 minutos en los canales GeoColor e infrarrojo térmico de 3.9 µm para detectar el momento exacto del despegue convectivo de la columna de humo y proyectar el transporte de material particulado ($PM_{2.5}$) hacia poblaciones vulnerables.
+2. **Georreferenciación Térmica de Alta Precisión (VIIRS 375m):** Sobreimpresión automatizada de los pases orbitales diurnos (13:30h) y nocturnos (01:30h) para verificar si las celdas alertadas registraron anomalías térmicas activas en superficie.
+3. **Penetración Óptica de Humo por Infrarrojo de Onda Corta (SWIR):** Composición en falso color (bandas SWIR de 1.6 a 2.2 µm, tales como la composición M11-I2-I1 en VIIRS o B12-B8A-B4 en Sentinel-2) para atravesar el manto denso de humo, aislar el frente de llama viva incandescente frente a la cicatriz calcinada y guiar las maniobras de aviones hidrantes sin interferencia visual (@fig-trimodal).
+
+![Figura 6. Mosaico de verificación satelital tri-modal para celdas críticas: Vista regional de transporte de humo (Panel A), detección térmica VIIRS 375m (Panel B) y penetración de humo por infrarrojo de onda corta SWIR (Panel C).](figuras/fig06_comparativa_satelital_tres_modos.png){#fig-trimodal width=95%}
+
+## 2. Ingesta Dinámica de Humedad de Suelo y Vegetación (SMAP y Sentinel-3)
+La incorporación de datos satelitales de microondas como NASA SMAP (humedad del estrato superficial de suelo a 0–5 cm) y series temporales de agua en canopia (NDWI / Sentinel-3) permitirá cuantificar directamente la inercia hídrica de combustibles leñosos pesados (100-hr y 1000-hr) en el bosque xerofítico chaqueño.
+
+## 3. Infraestructura de Datos Espaciales Abierta (OGC WMS/WFS/STAC)
+Transformar las salidas GeoTIFF estáticas en un servidor dinámico de mapas bajo estándares del *Open Geospatial Consortium* (OGC), habilitando el consumo directo de las probabilidades de riesgo desde los sistemas SIG de la Dirección de Meteorología e Hidrología (DMH), la SEN y las gobernaciones departamentales.
+
+---
+
 # Conclusiones
 
 Este trabajo demuestra que la integración de principios biofísicos de primer orden (gating determinista de baja complejidad) con algoritmos de aprendizaje de gradiente (LightGBM) calibrados isotónicamente supera las deficiencias históricas de los índices empíricos estándar para la predicción de incendios forestales en Paraguay.

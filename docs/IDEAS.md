@@ -36,3 +36,26 @@
 
 ### C. Superación del Cuello de Botella Operativo
 * **Propósito del proyecto:** Desarrollar este sistema bajo los principios de **código abierto, reproducibilidad estricta y rigor de publicación científica** demuestra empíricamente cómo la tecnología contemporánea puede superar la dependencia de reportes estáticos diarios en PDF (que llegan con 12 a 24 horas de retraso) y transformar la gestión de desastres en Paraguay de una postura puramente reactiva a una preventiva y anticipatoria.
+
+---
+
+## 🛰️ 3. Integración Operativa de Verificación Satelital Multiespectral Tri-Modal
+
+> **Idea para incorporación al pipeline:** Cerrar el ciclo entre el pronóstico predictivo ($t+24\text{h}$) y la confirmación en tiempo real ($t+0\text{h}$ a $t+3\text{h}$) integrando un bucle de verificación satelital tri-modal multiescala para cada nodo o celda en Alerta Roja ($P > 93\%$).
+
+### Las 3 Capas de Verificación Satelital:
+1. **Nivel 1: Detección Continua Sub-Horaria (GOES-16 ABI - Cada 10 a 15 min):**
+   * *Función:* Monitoreo dinámico del despegue de la pluma de humo (GeoColor) y de la anomalía infrarroja de 3.9 µm en tiempo real.
+   * *Utilidad:* Permite a la SEN y cuerpos de bomberos validar si el nodo alertado a las 06:00 AM inició efectivamente actividad convectiva durante la siesta, alertando hacia dónde se desplazará el humo ($PM_{2.5}$).
+2. **Nivel 2: Detección Térmica de Alta Precisión (VIIRS 375m Suomi-NPP / NOAA-20 / NOAA-21):**
+   * *Función:* Descarga automatizada vía API de NASA LANCE / FIRMS de los pases orbitales (13:30h y 01:30h).
+   * *Utilidad:* Superposición de píxeles térmicos activos (banda I4 de 3.75 µm y potencia radiativa FRP) sobre la grilla UTM de 1 km² para confirmar avance del frente de fuego y auditar la tasa de acierto del modelo en tiempo casi real.
+3. **Nivel 3: Penetración Óptica de Humo en Infrarrojo de Onda Corta (SWIR / Sentinel-2 & VIIRS M11-I2-I1):**
+   * *Función:* Descomposición radiativa en falso color SWIR (1.6 a 2.2 µm). A estas longitudes de onda, las partículas de humo se vuelven prácticamente transparentes (*smoke penetration*).
+   * *Utilidad:* Aísla la línea de llama activa (resplandor incandescente naranja/rojo) frente a la cicatriz de quema fría (marrón oscuro/negro) y la vegetación sana intacta (verde brillante). Fundamental para cuantificar hectáreas netas quemadas y coordinar ataque aéreo en zonas donde el humo ciega a los pilotos de hidrantes.
+
+### Arquitectura de Implementación Propuesta:
+* Script automatizado `scripts/14_verificacion_satelital_alerta.py` que:
+  1. Lea el boletín diario y extraiga las celdas con `probabilidad_fuego >= 0.80` (Alerta Roja).
+  2. Consulte las APIs WMS/WMTS de NASA GIBS y Copernicus Dataspace.
+  3. Genere automáticamente el tríptico de verificación satelital (`fig06_comparativa_satelital_tres_modos.png`) y lo adjunte como anexo visual al boletín técnico diario para las autoridades.
