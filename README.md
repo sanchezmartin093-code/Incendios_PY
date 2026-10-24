@@ -139,7 +139,8 @@ Incendios_PY/
 │   ├── muestreo.py                # Muestreo estratificado con Dead-Zone Buffer (20 km)
 │   ├── modelo.py                  # LightGBM regional y calibradores isotónicos
 │   ├── metricas.py                # Optimización Youden J, F0.5 y Brier Skill Score
-│   └── alerta.py                  # Inferencia y despacho diario operativo en tiempo real
+│   ├── alerta.py                  # Inferencia y despacho diario operativo en tiempo real
+│   └── raster.py                  # Rasterización matricial a GeoTIFF estándar (EPSG:32721)
 │
 ├── scripts/                       # Pipelines secuenciales numerados
 │   ├── 00_generar_grilla_nacional.py # Construcción de la grilla de 1 km² (400.006 celdas)
@@ -152,12 +153,14 @@ Incendios_PY/
 │   ├── 07_evaluacion_test_2024.py    # Evaluación ciega out-of-time (Test set 2024)
 │   ├── 08_analisis_shap.py           # Interpretabilidad global y local con TreeSHAP (XAI)
 │   ├── 09_servicio_alerta.py         # Pipeline de inferencia diaria y despacho de boletines
-│   └── 10_generar_figuras_manuscrito.py # Renderizado de figuras científicas vectoriales
+│   ├── 10_generar_figuras_manuscrito.py # Renderizado de figuras científicas vectoriales
+│   ├── 11_exportar_geotiff.py        # Conversión a ráster GeoTIFF (QGIS / ArcGIS / GEE)
+│   └── 12_generar_dashboard_interactivo.py # Portal interactivo web (Leaflet + Chart.js)
 │
 ├── modelos/                       # Pesos compilados (.booster) y calibradores (.joblib)
 ├── figuras/                       # Salidas vectoriales de alta resolución (PNG y PDF 300 DPI)
 ├── tablas/                        # Tablas de métricas y evaluación estadística (CSV y MD)
-└── tests/                         # Suite de 29 pruebas unitarias exhaustivas
+└── tests/                         # Suite de 31 pruebas unitarias exhaustivas
 ```
 
 ---
@@ -184,6 +187,8 @@ python scripts/07_evaluacion_test_2024.py
 python scripts/08_analisis_shap.py
 python scripts/09_servicio_alerta.py
 python scripts/10_generar_figuras_manuscrito.py
+python scripts/11_exportar_geotiff.py
+python scripts/12_generar_dashboard_interactivo.py
 ```
 
 ### 6.3. Compilar el Manuscrito Científico con Quarto
