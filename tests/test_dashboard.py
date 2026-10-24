@@ -1,0 +1,24 @@
+import unittest
+import importlib
+from pathlib import Path
+from src.constantes import ROOT_DIR
+
+class TestDashboardInteractivo(unittest.TestCase):
+    def test_generacion_dashboard_html(self):
+        """Verifica que el dashboard interactivo se genere, no esté vacío y contenga los componentes clave."""
+        mod = importlib.import_module("scripts.12_generar_dashboard_interactivo")
+        generar_dashboard_interactivo = mod.generar_dashboard_interactivo
+
+        p_html = ROOT_DIR / "_output" / "dashboard_alerta_interactivo.html"
+        res = generar_dashboard_interactivo()
+        self.assertTrue(res.exists())
+        self.assertEqual(res, p_html)
+        self.assertGreater(p_html.stat().st_size, 50000)
+
+        contenido = p_html.read_text(encoding="utf-8")
+        self.assertIn("SAT-Incendios PY", contenido)
+        self.assertIn("chartRiesgo", contenido)
+        self.assertIn("leaflet", contenido.lower())
+
+if __name__ == "__main__":
+    unittest.main()
