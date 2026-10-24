@@ -116,6 +116,10 @@ def construir_dataset_unificado(
             cli.ffmc,
             cli.isi,
             cli.interaccion_viento_vpd,
+            -- Nuevas variables biofísicas de desecación no lineal
+            (cli.temp_max_c - cli.temp_min_c) AS rango_termico_diario,
+            (cli.vpd_max_kpa * (cli.dias_secos_consecutivos + 1.0)) AS deficit_hidrico_acumulado,
+            POW(cli.viento_max_kmh / 10.0, 2) AS potencial_viento_cuadratico,
             -- Etiquetas de fuego
             COALESCE(f.fuego, 0) AS fuego,
             COALESCE(f.num_focos_dia, 0) AS num_focos_dia,

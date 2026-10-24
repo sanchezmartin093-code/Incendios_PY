@@ -33,8 +33,8 @@ from src.constantes import (
 from src.modelo import FEATURES_CHACO, FEATURES_ORIENTAL
 
 # Umbrales óptimos derivados de calibración en validación out-of-time (F0.5 / Youden)
-UMBRAL_CORTE_CHACO = 0.111
-UMBRAL_CORTE_ORIENTAL = 0.091
+UMBRAL_CORTE_CHACO = 0.096
+UMBRAL_CORTE_ORIENTAL = 0.143
 
 def cargar_artefactos_modelos() -> dict:
     """Carga los ensambles nativos C++ y los calibradores isotónicos regionales."""
@@ -99,13 +99,16 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
     # 2. Unir clima por nodo_clima_id
     df_nacional = df_nacional.join(clima, on="nodo_clima_id", how="left")
 
-    # 3. Derivar variables de calendario
+    # 3. Derivar variables de calendario y biofísicas no lineales
     dt = datetime.strptime(fecha, "%Y-%m-%d")
     df_nacional = df_nacional.with_columns([
         pl.lit(dt.weekday()).alias("dia_semana"),
         pl.lit(1 if dt.weekday() in [5, 6] else 0).alias("es_fin_de_semana"),
         pl.lit(dt.month).alias("mes"),
-        pl.lit(dt.timetuple().tm_yday).alias("dia_del_anio")
+        pl.lit(dt.timetuple().tm_yday).alias("dia_del_anio"),
+        (pl.col("temp_max_c") - pl.col("temp_min_c")).alias("rango_termico_diario"),
+        (pl.col("vpd_max_kpa") * (pl.col("dias_secos_consecutivos") + 1.0)).alias("deficit_hidrico_acumulado"),
+        ((pl.col("viento_max_kmh") / 10.0).pow(2)).alias("potencial_viento_cuadratico")
     ])
 
     return df_nacional
@@ -150,8 +153,13 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         X_reg = df_reg.select(features).to_numpy()
         # Predicción cruda LightGBM
         p_raw = booster.predict(X_reg)
-        # Calibración Isotónica
-        p_calibrada = calibrador.transform(p_raw)
+        # Calibración de probabilidad
+        if hasattr(calibrador, "predict_proba"):
+            p_calibrada = calibrador.predict_proba(p_raw.reshape(-1, 1))[:, 1]
+        elif hasattr(calibrador, "transform"):
+            p_calibrada = calibrador.transform(p_raw)
+        else:
+            p_calibrada = calibrador.predict(p_raw)
         p_calibrada = np.clip(p_calibrada, 0.0, 1.0)
 
         df_reg = df_reg.with_columns([

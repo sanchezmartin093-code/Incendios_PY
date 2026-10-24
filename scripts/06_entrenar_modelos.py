@@ -69,24 +69,33 @@ def entrenar_pipeline():
             print(f"Aviso: Sin datos positivos suficientes para entrenar {region}.")
             continue
 
-        # 2. Entrenar LightGBM
-        print(" • Ajustando árboles de gradiente (Early Stopping)...")
+        # 2. Entrenar LightGBM con hiperparámetros optimizados por ecorregión
+        print(" • Ajustando árboles de gradiente...")
+        lr = 0.03
+        leaves = 15
+        spw = 1.0 if region == "Chaco" else 2.0
+        n_rounds = 20 if region == "Chaco" else 40
+        min_samples = 20 if region == "Chaco" else 10
+
         booster = entrenar_modelo_lightgbm(
             X_train=X_train,
             y_train=y_train,
             X_val=X_val,
             y_val=y_val,
             nombres_features=feats,
-            scale_pos_weight=10.0,
-            num_boost_round=150,
-            early_stopping_rounds=15,
+            scale_pos_weight=spw,
+            learning_rate=lr,
+            num_leaves=leaves,
+            min_child_samples=min_samples,
+            num_boost_round=n_rounds,
+            early_stopping_rounds=None,
             semilla=42
         )
-        print(f"   ✓ Mejor iteración alcanzada: {booster.best_iteration}")
+        print(f"   ✓ Iteraciones completadas: {booster.current_iteration()}")
 
-        # 3. Calibración Isotónica
-        print(" • Ajustando calibrador isotónico de probabilidades...")
-        calibrador = calibrar_probabilidades_isotonica(booster, X_val, y_val)
+        # 3. Calibración Probabilística de Platt Monótona
+        print(" • Ajustando calibrador sigmoide de Platt (monótono)...")
+        calibrador = calibrar_probabilidades_isotonica(booster, X_val, y_val, metodo="platt_monotono")
 
         # 4. Inferencia y Evaluación en Validación
         probs_val = predecir_probabilidad(booster, calibrador, X_val)
