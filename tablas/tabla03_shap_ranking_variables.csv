@@ -1,57 +1,47 @@
 region,feature,nombre_legible,shap_importancia_media,ranking
-Chaco,dist_foco_hist_km,Distancia a Fuego Histórico (km),0.316889507575647,1
-Chaco,densidad_hist_25km,Densidad Histórica de Ignición (25 km),0.035053902956102674,2
-Chaco,dist_foco_t1_km,Distancia a Foco Previo t-1 (km),0.011806060115200762,3
-Chaco,temp_min_c,Temperatura Mínima (°C),0.006160262445429121,4
-Chaco,precipitacion_mm,Precipitación Diaria (mm),0.0036876864546911284,5
-Chaco,interaccion_viento_vpd,Interacción Viento × VPD,0.0032400080010270378,6
-Chaco,temp_max_c,Temperatura Máxima (°C),0.0029550781243235335,7
-Chaco,pct_humedal_palmar,Palmares de Karanda'y (%),0.0027593104798904035,8
-Chaco,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.0024967483116074985,9
-Chaco,viento_max_kmh,Velocidad de Viento Máx (km/h),0.0024120813244057617,10
-Chaco,rafaga_max_kmh,Ráfaga Máxima de Viento (km/h),0.0021511281801844012,11
-Chaco,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.0010119019589630944,12
-Chaco,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.0003515039769299622,13
-Chaco,pct_bosque_seco,Bosque Xerofítico Chaqueño (%),0.0003472564492296825,14
-Chaco,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.0002451521423658732,15
-Chaco,ffmc,Índice Hojarasca Fina (FWI FFMC),0.00024143966001862407,16
-Chaco,rango_termico_diario,Amplitud Térmica Diaria (°C),5.508185993784731e-05,17
-Chaco,isi,Índice Propagación Inicial (FWI ISI),0.0,18
-Chaco,es_fin_de_semana,Efecto Fin de Semana (Antrópico),0.0,19
-Chaco,mes,Estacionalidad (Mes),0.0,20
-Chaco,dia_del_anio,Día del Año,0.0,21
-Chaco,pct_pastura,Cobertura de Pastura (%),0.0,22
-Chaco,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.0,23
-Chaco,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.0,24
-Chaco,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.0,25
-Chaco,focos_25km_t1,Densidad de Focos t-1 (Radio 25 km),0.0,26
-Chaco,frp_25km_t1,Potencia Radiativa t-1 (FRP en 25 km),0.0,27
-Chaco,dia_semana,Día de la Semana,0.0,28
-Oriental,dist_foco_hist_km,Distancia a Fuego Histórico (km),0.36827845926530506,1
-Oriental,densidad_hist_25km,Densidad Histórica de Ignición (25 km),0.17612552602926787,2
-Oriental,frp_25km_t1,Potencia Radiativa t-1 (FRP en 25 km),0.03713355953291855,3
-Oriental,isi,Índice Propagación Inicial (FWI ISI),0.026870425062023556,4
-Oriental,temp_min_c,Temperatura Mínima (°C),0.025177688032731033,5
-Oriental,ffmc,Índice Hojarasca Fina (FWI FFMC),0.020770637265482988,6
-Oriental,dist_foco_t1_km,Distancia a Foco Previo t-1 (km),0.01728226551756325,7
-Oriental,interaccion_viento_vpd,Interacción Viento × VPD,0.011560354793776735,8
-Oriental,rango_termico_diario,Amplitud Térmica Diaria (°C),0.011196508426146355,9
-Oriental,precipitacion_mm,Precipitación Diaria (mm),0.00965780095855756,10
-Oriental,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.005916852547796063,11
-Oriental,temp_max_c,Temperatura Máxima (°C),0.005032899483748465,12
-Oriental,dia_del_anio,Día del Año,0.004501506400024601,13
-Oriental,rafaga_max_kmh,Ráfaga Máxima de Viento (km/h),0.004329558222480919,14
-Oriental,viento_max_kmh,Velocidad de Viento Máx (km/h),0.003938002901178018,15
-Oriental,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.0028128462205699576,16
-Oriental,pct_pastura,Cobertura de Pastura (%),0.0020197460279977207,17
-Oriental,pct_bosque_humedo,Bosque Atlántico BAAPA (%),0.00176018242743389,18
-Oriental,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.0017588386453054486,19
-Oriental,focos_25km_t1,Densidad de Focos t-1 (Radio 25 km),0.0014197163549694402,20
-Oriental,mes,Estacionalidad (Mes),0.0,21
-Oriental,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.0,22
+Chaco,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.14543153792953945,1
+Chaco,isi,Índice Propagación Inicial (FWI ISI),0.08179131969911707,2
+Chaco,ffmc,Índice Hojarasca Fina (FWI FFMC),0.0783405508464784,3
+Chaco,viento_max_kmh,Velocidad de Viento Máx (km/h),0.06896461846298899,4
+Chaco,rafaga_max_kmh,Ráfaga Máxima de Viento (km/h),0.06762586452418144,5
+Chaco,temp_max_c,Temperatura Máxima (°C),0.05741324573440712,6
+Chaco,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.04867981838821277,7
+Chaco,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.048515126359481624,8
+Chaco,rango_termico_diario,Amplitud Térmica Diaria (°C),0.044413931551333066,9
+Chaco,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.035408951478987774,10
+Chaco,temp_min_c,Temperatura Mínima (°C),0.021597344295338144,11
+Chaco,interaccion_viento_vpd,Interacción Viento × VPD,0.011637408339506092,12
+Chaco,pct_humedal_palmar,Palmares de Karanda'y (%),0.009364805949987884,13
+Chaco,dia_del_anio,Día del Año,0.00788234295533501,14
+Chaco,pct_pastura,Cobertura de Pastura (%),0.005657975800563112,15
+Chaco,dia_semana,Día de la Semana,0.002848866659798126,16
+Chaco,precipitacion_mm,Precipitación Diaria (mm),0.0017162819598101255,17
+Chaco,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.0010938090141269451,18
+Chaco,pct_bosque_seco,Bosque Xerofítico Chaqueño (%),0.0007374295891342513,19
+Chaco,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.00037132495784750945,20
+Chaco,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.0,21
+Chaco,es_fin_de_semana,Efecto Fin de Semana (Antrópico),0.0,22
+Chaco,mes,Estacionalidad (Mes),0.0,23
+Oriental,ffmc,Índice Hojarasca Fina (FWI FFMC),0.2210349982908049,1
+Oriental,rango_termico_diario,Amplitud Térmica Diaria (°C),0.1715543089661427,2
+Oriental,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.14464947196901629,3
+Oriental,precipitacion_mm,Precipitación Diaria (mm),0.12345416349635453,4
+Oriental,isi,Índice Propagación Inicial (FWI ISI),0.12149018156547735,5
+Oriental,rafaga_max_kmh,Ráfaga Máxima de Viento (km/h),0.08172959901260976,6
+Oriental,temp_max_c,Temperatura Máxima (°C),0.04988223687001207,7
+Oriental,interaccion_viento_vpd,Interacción Viento × VPD,0.041978240148888464,8
+Oriental,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.038490945700809166,9
+Oriental,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.02350775154060568,10
+Oriental,temp_min_c,Temperatura Mínima (°C),0.022223852978070054,11
+Oriental,viento_max_kmh,Velocidad de Viento Máx (km/h),0.017160052298893818,12
+Oriental,dia_del_anio,Día del Año,0.014627088773771248,13
+Oriental,pct_pastura,Cobertura de Pastura (%),0.009800628311852848,14
+Oriental,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.009507749215011897,15
+Oriental,pct_bosque_humedo,Bosque Atlántico BAAPA (%),0.005145277888937974,16
+Oriental,dia_semana,Día de la Semana,0.00331801663726249,17
+Oriental,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.0016871508327940218,18
+Oriental,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.0006940226973682895,19
+Oriental,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.0006511463760042325,20
+Oriental,es_fin_de_semana,Efecto Fin de Semana (Antrópico),0.0,21
+Oriental,mes,Estacionalidad (Mes),0.0,22
 Oriental,pct_humedal_palmar,Palmares de Karanda'y (%),0.0,23
-Oriental,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.0,24
-Oriental,es_fin_de_semana,Efecto Fin de Semana (Antrópico),0.0,25
-Oriental,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.0,26
-Oriental,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.0,27
-Oriental,dia_semana,Día de la Semana,0.0,28

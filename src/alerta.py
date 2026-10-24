@@ -30,30 +30,56 @@ from src.constantes import (
     UMBRAL_VPD_MINIMO_KPA,
     UMBRAL_LLUVIA_48H_MM
 )
-from src.modelo import FEATURES_CHACO, FEATURES_ORIENTAL
+from src.modelo import (
+    FEATURES_CHACO,
+    FEATURES_ORIENTAL,
+    FEATURES_IGNICION_CHACO,
+    FEATURES_IGNICION_ORIENTAL,
+    FEATURES_PROPAGACION_CHACO,
+    FEATURES_PROPAGACION_ORIENTAL,
+    predecir_probabilidad
+)
 from src.espaciotemporal import enriquecer_dataset_espaciotemporal
 
 # Umbrales óptimos derivados de calibración en validación out-of-time (F0.5 de máxima precisión)
-UMBRAL_CORTE_CHACO = 0.145
-UMBRAL_CORTE_ORIENTAL = 0.097
+UMBRAL_CORTE_CHACO = 0.092
+UMBRAL_CORTE_ORIENTAL = 0.162
 
 def cargar_artefactos_modelos() -> dict:
-    """Carga los ensambles nativos C++ y los calibradores isotónicos regionales."""
+    """Carga los ensambles nativos C++ y los calibradores duales (Ignición y Propagación)."""
     artefactos = {}
     for region in ["chaco", "oriental"]:
-        ruta_b = DIR_MODELOS / f"lightgbm_{region}.booster"
-        ruta_c = DIR_MODELOS / "calibradores" / f"calibrador_{region}.joblib"
+        # 1. Capa de Ignición Primaria
+        ruta_b_ign = DIR_MODELOS / f"lightgbm_ignicion_{region}.booster"
+        ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_ignicion_{region}.joblib"
+        if not ruta_b_ign.exists():
+            ruta_b_ign = DIR_MODELOS / f"lightgbm_{region}.booster"
+            ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_{region}.joblib"
 
-        if not ruta_b.exists():
-            raise FileNotFoundError(f"No se encontró el booster en {ruta_b}")
-        if not ruta_c.exists():
-            raise FileNotFoundError(f"No se encontró el calibrador en {ruta_c}")
+        # 2. Capa de Propagación Táctica
+        ruta_b_prop = DIR_MODELOS / f"lightgbm_propagacion_{region}.booster"
+        ruta_c_prop = DIR_MODELOS / "calibradores" / f"calibrador_propagacion_{region}.joblib"
+
+        booster_ign = lgb.Booster(model_file=str(ruta_b_ign))
+        calibrador_ign = joblib.load(ruta_c_ign)
+
+        booster_prop = lgb.Booster(model_file=str(ruta_b_prop)) if ruta_b_prop.exists() else None
+        calibrador_prop = joblib.load(ruta_c_prop) if ruta_c_prop.exists() else None
 
         artefactos[region] = {
-            "booster": lgb.Booster(model_file=str(ruta_b)),
-            "calibrador": joblib.load(ruta_c),
-            "features": FEATURES_CHACO if region == "chaco" else FEATURES_ORIENTAL,
-            "cutoff_f05": UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
+            "booster_ign": booster_ign,
+            "calibrador_ign": calibrador_ign,
+            "features_ign": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
+            "cutoff_ign": 0.092 if region == "chaco" else 0.162,
+            "booster_prop": booster_prop,
+            "calibrador_prop": calibrador_prop,
+            "features_prop": FEATURES_PROPAGACION_CHACO if region == "chaco" else FEATURES_PROPAGACION_ORIENTAL,
+            "cutoff_prop": 0.805 if region == "chaco" else 0.708,
+            # Compatibilidad
+            "booster": booster_ign,
+            "calibrador": calibrador_ign,
+            "features": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
+            "cutoff_f05": 0.092 if region == "chaco" else 0.162
         }
     return artefactos
 
@@ -158,42 +184,43 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
 
     dfs_predichos = []
 
-    # 2. Etapa 2: Inferencia de Ensamble y Calibración Isotónica en Celdas Activas
+    # 2. Etapa 2: Inferencia Dual (Ignición Primaria y Propagación Táctica) en Celdas Activas
     for region_nombre in ["Chaco", "Oriental"]:
         reg_key = region_nombre.lower()
         art = artefactos[reg_key]
-        booster = art["booster"]
-        calibrador = art["calibrador"]
-        features = art["features"]
 
         df_reg = df_activos.filter(pl.col("region") == region_nombre)
         if df_reg.height == 0:
             continue
 
-        X_reg = df_reg.select(features).to_numpy()
-        # Predicción cruda LightGBM
-        p_raw = booster.predict(X_reg)
-        # Calibración de probabilidad
-        if hasattr(calibrador, "predict_proba"):
-            p_calibrada = calibrador.predict_proba(p_raw.reshape(-1, 1))[:, 1]
-        elif hasattr(calibrador, "transform"):
-            p_calibrada = calibrador.transform(p_raw)
+        # Inferencia de Ignición Primaria
+        X_ign = df_reg.select(art["features_ign"]).to_numpy()
+        p_ign = predecir_probabilidad(art["booster_ign"], art["calibrador_ign"], X_ign)
+
+        # Inferencia de Propagación Táctica
+        if art["booster_prop"] is not None and art["calibrador_prop"] is not None:
+            X_prop = df_reg.select(art["features_prop"]).to_numpy()
+            p_prop = predecir_probabilidad(art["booster_prop"], art["calibrador_prop"], X_prop)
         else:
-            p_calibrada = calibrador.predict(p_raw)
-        p_calibrada = np.clip(p_calibrada, 0.0, 1.0)
+            p_prop = p_ign
+
+        # Probabilidad de fuego consolidada (máximo riesgo entre ambas capas)
+        p_fuego = np.maximum(p_ign, p_prop)
+
+        # Asignar niveles de alerta
+        niveles_ign = [categorizar_riesgo(p, region_nombre, True, None) for p in p_ign]
+        niveles_prop = [categorizar_riesgo(p, region_nombre, True, None) for p in p_prop]
+        niveles_tot = [categorizar_riesgo(p, region_nombre, True, None) for p in p_fuego]
 
         df_reg = df_reg.with_columns([
-            pl.Series("probabilidad_fuego", p_calibrada.astype(np.float32)),
-            pl.Series("probabilidad_cruda", p_raw.astype(np.float32))
+            pl.Series("probabilidad_ignicion", p_ign.astype(np.float32)),
+            pl.Series("probabilidad_propagacion", p_prop.astype(np.float32)),
+            pl.Series("probabilidad_fuego", p_fuego.astype(np.float32)),
+            pl.Series("probabilidad_cruda", p_ign.astype(np.float32)),
+            pl.Series("nivel_alerta_ignicion", niveles_ign),
+            pl.Series("nivel_alerta_propagacion", niveles_prop),
+            pl.Series("nivel_alerta", niveles_tot)
         ])
-
-        # Asignar nivel de riesgo
-        cutoff = art["cutoff_f05"]
-        niveles = [
-            categorizar_riesgo(p, region_nombre, True, None)
-            for p in p_calibrada
-        ]
-        df_reg = df_reg.with_columns(pl.Series("nivel_alerta", niveles))
         dfs_predichos.append(df_reg)
 
     # 3. Asignar probabilidad 0.0 y riesgo a las celdas descartadas por el filtro biofísico
@@ -203,8 +230,12 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
             for motivo in df_descartados["estado_gating"]
         ]
         df_descartados = df_descartados.with_columns([
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_ignicion"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_propagacion"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_fuego"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_cruda"),
+            pl.Series("nivel_alerta_ignicion", niveles_desc),
+            pl.Series("nivel_alerta_propagacion", niveles_desc),
             pl.Series("nivel_alerta", niveles_desc)
         ])
         dfs_predichos.append(df_descartados)
