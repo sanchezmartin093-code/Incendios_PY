@@ -80,23 +80,29 @@ Un modelo superior debe mantener $V(\alpha) > 0$ en el rango operativo típico d
 
 ## 📈 5. Resultados Empíricos del Benchmarking (Evaluación Out-of-Time 2024)
 
-Evaluación cuantitativa sobre el conjunto de testeo ciego con Dead-Zone Buffer de 20 km:
+Evaluación cuantitativa sobre el conjunto de testeo ciego con Dead-Zone Buffer de 20 km, desacoplando **Ignición Primaria (Física Pura)** y **Propagación Táctica (Contagio $t-1$)**:
 
-| Región | Modelo Predictivo | ROC-AUC | PR-AUC | Precisión | Sensibilidad | Falsos Positivos | Brier Skill Score | $F_{0.5}$-Score |
+| Región | Modelo Predictivo | ROC-AUC | PR-AUC | Precisión ($F_{0.5}$) | Sensibilidad | Falsos Positivos | Brier Skill Score | $F_{0.5}$-Score |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Chaco** | **Incendios_PY (GeoAI)** | **0.9179** | **0.7772** | **89.84%** | 69.28% | **13** | **+0.3660** | **0.8481** |
-| Chaco | Proxy INPE Risco de Fogo | 0.6457 | 0.1314 | 13.89% | 72.89% | 750 | -8.0707 | 0.1658 |
-| Chaco | Canadian FWI (ISI) | 0.5432 | 0.0967 | 11.25% | 78.31% | 1026 | -0.9321 | 0.1357 |
-| Chaco | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
-| **Oriental** | **Incendios_PY (GeoAI)** | **0.7285** | **0.3297** | **60.00%** | 22.50% | **6** | **+0.0658** | **0.4500** |
+| **Oriental** | **Incendios_PY (Ignición Física)** | **0.7711** | **0.2810** | **34.09%** | 37.50% | **29** | **+0.0740** | **0.3472** |
+| **Oriental** | **Incendios_PY (Propagación Táctica)**| **0.8650** | **0.5430** | **100.00%**| 22.50% | **0** | **+0.2910** | **0.5921** |
 | Oriental | Proxy INPE Risco de Fogo | 0.3995 | 0.0703 | 9.69% | 85.00% | 317 | -8.2341 | 0.1177 |
 | Oriental | Canadian FWI (ISI) | 0.3892 | 0.0779 | 10.25% | 92.50% | 324 | -2.7331 | 0.1247 |
 | Oriental | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
+| **Chaco** | **Incendios_PY (Ignición Física)** | **0.5952** | **0.1290** | **23.88%** | 19.28% | **102** | **+0.0013** | **0.2279** |
+| **Chaco** | **Incendios_PY (Propagación Táctica)**| **0.9410** | **0.8486** | **97.71%** | 77.11% | **3** | **+0.6664** | **0.9275** |
+| Chaco | Proxy INPE Risco de Fogo | 0.6457 | 0.1314 | 13.89% | 72.89% | 750 | -8.0707 | 0.1658 |
+| Chaco | Canadian FWI (ISI) | 0.5432 | 0.0967 | 11.25% | 78.31% | 1026 | -0.9321 | 0.1357 |
+| Chaco | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
 
-### Conclusiones de Rendimiento Operativo:
-1. **Mitigación del 98% en Falsas Alarmas:** En el Chaco, Incendios_PY reduce los falsos positivos de 1.026 (FWI) y 750 (INPE) a tan solo **13 falsas alarmas**, elevando la precisión operativa al **89.84%**.
-2. **Discriminación Superior:** El PR-AUC en el Chaco alcanza **0.7772** (más de 8 veces el azar climatológico de 0.0909), mientras el ROC-AUC se sitúa en **0.9179**.
-3. **Calibración Positiva:** Incendios_PY es el único modelo que obtiene un Brier Skill Score positivo (+0.3660 en Chaco, +0.0658 en Oriental), garantizando que las probabilidades reflejan fielmente el riesgo real sobre el terreno.
+### Conclusiones de Rendimiento y Honestidad Metodológica:
+1. **Desacoplamiento Ignición vs. Propagación:**
+   - La capa de **Ignición Primaria** predice el nacimiento espontáneo o antrópico de fuegos nuevos sin utilizar atajos espaciales ni información de focos previos en $t-1$. En la Región Oriental supera con creces al FWI y al INPE (ROC 0.7711 vs. sub-azar <0.40) y reduce las falsas alarmas en un **91.0%** (29 FP frente a 324 del FWI).
+   - La capa de **Propagación Táctica** modela el avance condicional de frentes de fuego activos ya detectados por satélite ($t-1$), alcanzando un ROC de **0.9410** en el Chaco con una precisión del **97.71%** y solo 3 falsas alarmas sobre 1.660 celdas no quemadas.
+2. **Mitigación Masiva del Desgaste de Cuadrillas:**
+   - Frente a los 1.026 falsos avisos del FWI canadiense y 750 del INPE en el Chaco, la capa de Ignición Física reduce los falsos positivos a 102, y la capa de Propagación los reduce a solo 3, permitiendo una asignación quirúrgica de aeronaves y camiones cisterna de la SEN y el CBVP.
+3. **Calibración Probabilística Real (BSS):**
+   - Incendios_PY es el único modelo que obtiene Brier Skill Score positivo en ambas regiones y capas (+0.0740 / +0.2910 en Oriental, +0.0013 / +0.6664 en Chaco), mientras que el FWI y el INPE exhiben descalibraciones severas ($BSS < -0.90$).
 
 ---
 

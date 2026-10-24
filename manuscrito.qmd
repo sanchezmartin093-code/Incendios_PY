@@ -130,20 +130,24 @@ Para entrenar modelos binarios sobre eventos raros evitando el sesgo de selecci�
 
 ## Evaluación Out-of-Time sobre el Conjunto Ciego (Test Set 2024)
 
-En la evaluación sobre el conjunto ciego de 2024, se contrastó el umbral estándar de la industria ($P \ge 0.50$) frente al umbral balanceado de Youden ($J = \text{Sensibilidad} + \text{Especificidad} - 1$) y el **umbral óptimo de máxima precisión $F_{0.5}$** ($\beta = 0.5$), el cual penaliza las falsas alarmas el doble de lo que pondera los falsos negativos.
+Para garantizar la máxima honestidad y rigor científico, el sistema desacopla la predicción en dos capas analíticas independientes:
+1. **Capa de Peligro de Ignición Primaria ($P_{\text{ignición}}$):** Modelo guiado exclusivamente por variables biofísicas, meteorología dinámica de reanálisis (ERA5-Land), coberturas de biomasa (MapBiomas), fragmentación de ecotono y calendario antrópico, sin atajos espaciales ni dependencias de fuego previo en $t-1$. Modela la probabilidad de que nazca un incendio nuevo de forma espontánea o antrópica.
+2. **Capa de Propagación / Continuidad Táctica ($P_{\text{propagación}}$):** Modelo condicional a los focos de calor satelitales (VIIRS) detectados el día inmediatamente anterior ($t-1$) en un radio de 25 km. Modela el avance y persistencia de frentes de fuego activos ya existentes.
 
-| Ecorregión | Estrategia de Umbral | Cutoff ($c^*$) | ROC-AUC | PR-AUC | Brier Score | Sensibilidad | Especificidad | Precisión | $F_{0.5}$-Score |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Chaco** | Estándar (0.50) | 0.500 | 0.918 | 0.777 | 0.052 | 0.319 | **0.999** | **0.964** | 0.686 |
-| **Chaco** | Youden J ($c^*$) | 0.089 | 0.918 | 0.777 | 0.052 | **0.874** | 0.872 | 0.406 | 0.455 |
-| **Chaco** | Alta Precisión $F_{0.5}$ | 0.145 | 0.918 | 0.777 | 0.052 | 0.693 | 0.992 | **0.898** | **0.848** |
-| **Oriental**| Estándar (0.50) | 0.500 | 0.729 | 0.330 | 0.077 | 0.075 | **0.998** | **0.750** | 0.268 |
-| **Oriental**| Youden J ($c^*$) | 0.097 | 0.729 | 0.330 | 0.077 | **0.650** | 0.848 | 0.299 | 0.335 |
-| **Oriental**| Alta Precisión $F_{0.5}$ | 0.113 | 0.729 | 0.330 | 0.077 | 0.225 | 0.985 | **0.600** | **0.450** |
+| Ecorregión | Capa Analítica | Estrategia de Umbral | Cutoff ($c^*$) | ROC-AUC | PR-AUC | Brier Score | Sensibilidad | Especificidad | Precisión | $F_{0.5}$-Score |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Oriental**| **Ignición Primaria** | Estándar (0.50) | 0.500 | **0.771** | **0.281** | 0.077 | 0.125 | **0.978** | 0.357 | 0.260 |
+| **Oriental**| Ignición Primaria | Youden J ($c^*$) | 0.064 | **0.771** | **0.281** | 0.077 | **0.825** | 0.680 | 0.205 | 0.241 |
+| **Oriental**| Ignición Primaria | Alta Precisión $F_{0.5}$ | 0.162 | **0.771** | **0.281** | 0.077 | 0.375 | 0.928 | **0.341** | **0.347** |
+| **Oriental**| **Propagación Táctica** | Alta Precisión $F_{0.5}$ | 0.708 | **0.865** | **0.543** | 0.059 | 0.225 | **1.000** | **1.000** | **0.592** |
+| **Chaco** | **Ignición Primaria** | Estándar (0.50) | 0.500 | **0.595** | **0.129** | 0.083 | 0.000 | **1.000** | 0.000 | 0.000 |
+| **Chaco** | Ignición Primaria | Youden J ($c^*$) | 0.087 | **0.595** | **0.129** | 0.083 | **0.735** | 0.433 | 0.115 | 0.138 |
+| **Chaco** | Ignición Primaria | Alta Precisión $F_{0.5}$ | 0.092 | **0.595** | **0.129** | 0.083 | 0.193 | 0.939 | **0.239** | **0.228** |
+| **Chaco** | **Propagación Táctica** | Alta Precisión $F_{0.5}$ | 0.805 | **0.941** | **0.849** | 0.028 | **0.771** | **0.998** | **0.977** | **0.928** |
 
 : Tabla 1. Desempeño predictivo comparativo en el conjunto ciego de test out-of-time (2024). {#tbl-metricas}
 
-Como se evidencia en la @tbl-metricas y en la @fig-curvas, la calibración y ajuste hacia el punto $F_{0.5}$ ($c^* = 0.145$ en el Chaco y $c^* = 0.113$ en la Región Oriental) alcanza una precisión del **89.84% en el Chaco** (con una sensibilidad del 69.28% y $F_{0.5} = 0.848$) y del **60.00% en la Región Oriental**, reduciendo los falsos positivos a un mínimo histórico sin comprometer la detección temprana.
+Como se evidencia en la @tbl-metricas y en la @fig-curvas, en la Región Oriental el modelo de Ignición Primaria alcanza de forma puramente física un ROC-AUC de **0.7711** y un PR-AUC de **0.2810** (más de 3 veces la prevalencia basal). En el Chaco, donde los fuegos son megaincendios que avanzan durante días continuos, la capa de propagación táctica basada en contagio $t-1$ alcanza un ROC-AUC de **0.9410** y un PR-AUC de **0.8486** con una precisión del **97.71%**, reduciendo las falsas alarmas a solo 3 eventos sobre 1.660 celdas no quemadas.
 
 ![Figura 2. Curvas Receiver Operating Characteristic (ROC) y Precision-Recall (PR) sobre el conjunto ciego de test out-of-time (2024).](figuras/fig02_curvas_roc_pr_test.png){#fig-curvas width=95%}
 
@@ -153,13 +157,15 @@ Para validar el valor agregado de la arquitectura GeoAI de `Incendios_PY`, se ev
 
 | Ecorregión | Modelo Predictivo | ROC-AUC | PR-AUC | Precisión | Sensibilidad | Falsos Positivos | Brier Skill Score | $F_{0.5}$-Score |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Oriental** | **Incendios_PY (GeoAI)** | **0.7285** | **0.3297** | **60.00%** | 22.50% | **6** | **+0.0658** | **0.4500** |
-| Oriental | Proxy INPE Risco de Fogo | 0.3995 | 0.0703 | 9.69% | 85.00% | 317 | -8.2341 | 0.1177 |
+| **Oriental** | **Incendios_PY (Ignición Física)** | **0.7711** | **0.2810** | **34.09%** | 37.50% | **29** | **+0.0740** | **0.3472** |
+| **Oriental** | **Incendios_PY (Propagación Táctica)**| **0.8650** | **0.5430** | **100.00%**| 22.50% | **0** | **+0.2910** | **0.5921** |
+| Oriental | Proxy INPE Risco de Fogo | 0.3995 | 0.0703 | 9.69% | **85.00%** | 317 | -8.2341 | 0.1177 |
 | Oriental | Canadian FWI (ISI) | 0.3892 | 0.0779 | 10.25% | **92.50%** | 324 | -2.7331 | 0.1247 |
 | Oriental | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
-| **Chaco** | **Incendios_PY (GeoAI)** | **0.9179** | **0.7772** | **89.84%** | 69.28% | **13** | **+0.3660** | **0.8481** |
+| **Chaco** | **Incendios_PY (Ignición Física)** | **0.5952** | **0.1290** | **23.88%** | 19.28% | **102** | **+0.0013** | **0.2279** |
+| **Chaco** | **Incendios_PY (Propagación Táctica)**| **0.9410** | **0.8486** | **97.71%** | 77.11% | **3** | **+0.6664** | **0.9275** |
 | Chaco | Proxy INPE Risco de Fogo | 0.6457 | 0.1314 | 13.89% | 72.89% | 750 | -8.0707 | 0.1658 |
-| Chaco | Canadian FWI (ISI) | 0.5432 | 0.0967 | 11.25% | **78.31%** | 1026 | -0.9321 | 0.1357 |
+| Chaco | Canadian FWI (ISI) | 0.5432 | 0.0967 | 11.25% | 78.31% | 1026 | -0.9321 | 0.1357 |
 | Chaco | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
 
 : Tabla 2. Benchmarking internacional cuantitativo sobre el conjunto ciego de test out-of-time (2024). {#tbl-benchmark}
@@ -167,37 +173,37 @@ Para validar el valor agregado de la arquitectura GeoAI de `Incendios_PY`, se ev
 ![Figura 3. Benchmarking cuantitativo internacional: Curvas ROC y Precision-Recall comparando Incendios_PY frente al Canadian FWI puro, INPE Risco de Fogo y Azar Climatológico.](figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width=95%}
 
 El contraste empírico arroja tres conclusiones fundamentales:
-1. **Colapso del Canadian FWI en la Región Oriental:** El FWI puro exhibe un ROC-AUC sub-azar (0.3892) y genera **324 falsas alarmas frente a solo 6 de Incendios_PY** (una reducción del 98.1% en falsos avisos). Esto confirma que un índice diseñado para coníferas boreales no puede capturar la dinámica de quema de pastizales y remanentes atlánticos en Paraguay.
-2. **Mitigación Masiva de Falsas Alarmas en el Chaco:** Mientras el FWI canadiense genera 1.026 falsas alarmas y el INPE genera 750, **Incendios_PY reduce los falsos positivos a solo 13**, logrando una precisión del **89.84%** y un Brier Skill Score positivo de **+0.3660**, preservando la capacidad operativa y de combustible de los cuerpos de bomberos voluntarios (CBVP) y cuadrillas de la SEN.
-3. **Discriminación Sólida y Ganancia en Precisión:** En el Chaco, el PR-AUC de Incendios_PY alcanza **0.7772** (más de 8 veces la prevalencia basal de 0.0909), logrando un $F_{0.5}$-Score de 0.8481 frente a 0.1357 del FWI y 0.1658 del INPE.
+1. **Superación del Colapso del FWI en la Región Oriental:** Frente al fracaso del Canadian FWI (ROC-AUC sub-azar de 0.3892 con 324 falsas alarmas), la capa de Ignición Física de Incendios_PY alcanza un ROC-AUC de **0.7711**, reduciendo los falsos avisos de 324 a solo 29 (una reducción del 91.0%), mientras la capa táctica anula por completo los falsos positivos (0 FP).
+2. **Control Extremo de Falsas Alarmas en el Chaco:** El modelo de Ignición Física reduce los falsos positivos a 102 frente a los 1.026 del FWI y 750 del INPE. Asimismo, para frentes activos en propagación, la capa táctica los reduce a **solo 3 falsos positivos**, logrando una precisión del **97.71%** y un Brier Skill Score positivo de **+0.6664**.
+3. **Discriminación Probabilística Positiva:** Incendios_PY es el único sistema que exhibe Brier Skill Scores estrictamente positivos en ambas ecorregiones y capas, frente a los valores fuertemente negativos del FWI y el INPE que reflejan una descalibración severa.
 
 ---
 
 # Interpretabilidad de Drivers Biofísicos con TreeSHAP
 
-Para comprender la física interna aprendida por los ensambles y garantizar que las decisiones del algoritmo sean explicables para los tomadores de decisiones de la SEN e INFONA, se calcularon las contribuciones marginales aditivas exactas mediante el algoritmo **TreeSHAP** (Lundberg et al., 2020) sobre el conjunto de validación.
+Para comprender la física interna aprendida por el modelo de Ignición Primaria (libre de atajos espaciales) y garantizar que las decisiones sean explicables para los tomadores de decisiones de la SEN e INFONA, se calcularon las contribuciones marginales aditivas exactas mediante el algoritmo **TreeSHAP** (Lundberg et al., 2020) sobre el conjunto de validación.
 
-![Figura 4. Comparativa regional del impacto medio absoluto de variables biofísicas (|SHAP|) en la ignición y propagación de fuegos.](figuras/fig04_shap_comparativa_chaco_vs_oriental.png){#fig-shap width=95%}
+![Figura 4. Comparativa regional del impacto medio absoluto de variables biofísicas (|SHAP|) en la ignición primaria de fuegos.](figuras/fig04_shap_comparativa_chaco_vs_oriental.png){#fig-shap width=95%}
 
 | Ranking | Variable Biofísica | Nombre Técnico | Impacto Medio Chaco | Impacto Medio Oriental |
 | :---: | :--- | :--- | :---: | :---: |
-| 1 | Distancia a Fuego Histórico | `dist_foco_hist_km` | **0.3169** | **0.3683** |
-| 2 | Densidad Histórica de Ignición | `densidad_hist_25km` | **0.0351** | **0.1761** |
-| 3 | Potencia Radiativa t-1 / Distancia t-1 | `frp_25km_t1` / `dist_foco_t1_km` | **0.0118** | **0.0371** |
-| 4 | Temperatura Mínima Nocturna | `temp_min_c` | 0.0062 | 0.0252 |
-| 5 | Índice Propagación Inicial (FWI) | `isi` | 0.0000 | 0.0269 |
-| 6 | Índice Hojarasca Fina (FWI) | `ffmc` | 0.0002 | 0.0208 |
-| 7 | Precipitación Diaria | `precipitacion_mm` | 0.0037 | 0.0097 |
-| 8 | Interacción Viento × VPD | `interaccion_viento_vpd` | 0.0032 | 0.0116 |
-| 9 | Temperatura Máxima | `temp_max_c` | 0.0030 | 0.0050 |
-| 10 | Amplitud Térmica Diaria | `rango_termico_diario` | 0.0001 | 0.0112 |
+| 1 | Déficit de Presión de Vapor | `vpd_max_kpa` | **0.1454** | 0.0812 |
+| 2 | Índice Propagación Inicial (FWI) | `isi` | **0.0818** | **0.1215** |
+| 3 | Índice Hojarasca Fina (FWI) | `ffmc` | **0.0783** | **0.2210** |
+| 4 | Velocidad de Viento Máx | `viento_max_kmh` | 0.0690 | 0.0345 |
+| 5 | Ráfaga Máxima de Viento | `rafaga_max_kmh` | 0.0676 | 0.0298 |
+| 6 | Amplitud Térmica Diaria | `rango_termico_diario` | 0.0412 | **0.1716** |
+| 7 | Déficit Hídrico Acumulado | `deficit_hidrico_acumulado` | 0.0389 | **0.1446** |
+| 8 | Precipitación Diaria | `precipitacion_mm` | 0.0312 | **0.1235** |
+| 9 | Temperatura Mínima Nocturna | `temp_min_c` | 0.0245 | 0.0489 |
+| 10 | Cobertura de Pastura | `pct_pastura` | 0.0198 | 0.0312 |
 
 : Tabla 3. Ranking de importancia biofísica global por ecorregión derivado de TreeSHAP. {#tbl-shap}
 
 ## Hallazgos Físicos Fundamentales
 
-1. **Régimen de Viento y Sequía en el Chaco:** En la Región Occidental, el ISI (0.1793) y el VPD atmosférico (0.1201) dominan de manera abrumadora el peligro. En presencia de vientos fuertes y aire seco ($VPD > 2.5\text{ kPa}$), la vegetación xerofítica pierde rápidamente su contenido de agua foliar, permitiendo que las chispas avancen con velocidades de propagación descontroladas.
-2. **Régimen Antrópico y Pasturas en la Región Oriental:** En la Región Oriental, el FFMC (0.0784) supera notablemente al VPD (0.0281). Esto refleja que la ignición no depende de sequías regionales profundas, sino de la desecación superficial de pasturas en lotes agropecuarios antes del uso del fuego como herramienta de limpieza de campo.
+1. **Régimen Atmosférico y Eólico en el Chaco:** En la Región Occidental, el Déficit de Presión de Vapor (VPD: 0.1454) y los vectores de viento e ISI dominan el peligro de ignición. La combinación de aire extremadamente seco y ráfagas fuertes deseca rápidamente el dosel xerofítico, creando condiciones donde cualquier foco accidental se transforma en megaincendio.
+2. **Régimen de Combustible Fino y Estrés Hídrico en la Región Oriental:** En la Región Oriental, el FFMC (0.2210), la amplitud térmica (0.1716) y el déficit hídrico acumulado ($VPD \times CDD$: 0.1446) gobiernan la ignición. Esto demuestra que el fuego en la Región Oriental responde a la desecación acelerada de la vegetación herbácea en lotes de pastura y rastrojo antes de quemas de manejo.
 
 ---
 

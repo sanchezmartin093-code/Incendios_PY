@@ -55,9 +55,14 @@ class CalibradorPlattMonotono:
     def transform(self, p_raw: np.ndarray) -> np.ndarray:
         return self.predict(p_raw)
 
-# Lista canónica de variables predictoras (Features)
-FEATURES_BASE = [
-    # Clima dinámico y desecación física
+# =====================================================================
+# LISTAS CANÓNICAS DE VARIABLES PREDICTORAS (ARQUITECTURA DUAL)
+# =====================================================================
+
+# 1. Variables de Peligro de Ignición Primaria (Física pura, clima, biomasa y ecotono)
+# Sin atajos espaciales de fuego previo t-1 ni memoria de corto plazo
+FEATURES_IGNICION_BASE = [
+    # Clima dinámico y desecación física (ERA5-Land)
     "temp_max_c",
     "temp_min_c",
     "rango_termico_diario",
@@ -78,29 +83,47 @@ FEATURES_BASE = [
     "es_fin_de_semana",
     "mes",
     "dia_del_anio",
-    # Coberturas de biomasa y ecotono desmonte
+    # Coberturas de biomasa (MapBiomas) y fragmentación de ecotono
     "pct_pastura",
     "pct_sabana_pastizal",
     "pct_humedal_palmar",
-    "indice_ecotono",
-    # Dinámica espaciotemporal y contagio causal t-1
-    "dist_foco_t1_km",
-    "focos_25km_t1",
-    "frp_25km_t1",
-    # Prior geográfico histórico
-    "dist_foco_hist_km",
-    "densidad_hist_25km"
+    "indice_ecotono"
 ]
 
-FEATURES_CHACO = FEATURES_BASE + ["pct_bosque_seco"]
-FEATURES_ORIENTAL = FEATURES_BASE + ["pct_bosque_humedo"]
+FEATURES_IGNICION_CHACO = FEATURES_IGNICION_BASE + ["pct_bosque_seco"]
+FEATURES_IGNICION_ORIENTAL = FEATURES_IGNICION_BASE + ["pct_bosque_humedo"]
 
-def preparar_matrices_xy(df: pl.DataFrame, region: str) -> tuple[np.ndarray, np.ndarray, list[str]]:
+# 2. Variables de Propagación / Continuidad Táctica (Monitoreo de avance de frentes activos)
+# Condicionales a la presencia de fuego satelital en t-1 dentro de radio de 25 km
+FEATURES_PROPAGACION_BASE = FEATURES_IGNICION_BASE + [
+    "dist_foco_t1_km",
+    "focos_25km_t1",
+    "frp_25km_t1"
+]
+
+FEATURES_PROPAGACION_CHACO = FEATURES_PROPAGACION_BASE + ["pct_bosque_seco"]
+FEATURES_PROPAGACION_ORIENTAL = FEATURES_PROPAGACION_BASE + ["pct_bosque_humedo"]
+
+# Alias de compatibilidad hacia atrás
+FEATURES_BASE = FEATURES_IGNICION_BASE
+FEATURES_CHACO = FEATURES_IGNICION_CHACO
+FEATURES_ORIENTAL = FEATURES_IGNICION_ORIENTAL
+
+def preparar_matrices_xy(
+    df: pl.DataFrame,
+    region: str,
+    modo: str = "ignicion"
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """
-    Filtra el dataset por región, extrae las features correspondientes y la etiqueta dependiente Y.
+    Filtra el dataset por región, extrae las features correspondientes según el modo
+    ('ignicion' para peligro primario, o 'propagacion' para avance táctico) y la etiqueta Y.
     """
     df_reg = df.filter(pl.col("region") == region)
-    features = FEATURES_CHACO if region == "Chaco" else FEATURES_ORIENTAL
+    
+    if modo == "propagacion":
+        features = FEATURES_PROPAGACION_CHACO if region == "Chaco" else FEATURES_PROPAGACION_ORIENTAL
+    else:
+        features = FEATURES_IGNICION_CHACO if region == "Chaco" else FEATURES_IGNICION_ORIENTAL
     
     # Asegurar que todas las columnas existan
     feats_existentes = [f for f in features if f in df_reg.columns]

@@ -69,12 +69,18 @@ def ejecutar_benchmarking():
         prevalencia = n_pos / n_tot
         print(f" • Muestras evaluadas: {n_tot} (Positivos: {n_pos}, Prevalencia: {prevalencia:.2%})")
 
-        # 1. Incendios_PY
-        ruta_b = DIR_MODELOS / f"lightgbm_{region.lower()}.booster"
-        ruta_c = DIR_MODELOS / "calibradores" / f"calibrador_{region.lower()}.joblib"
-        booster, calibrador = cargar_modelo_y_calibrador(ruta_b, ruta_c)
-        X_reg, _, _ = preparar_matrices_xy(df_test, region)
-        p_incendios = predecir_probabilidad(booster, calibrador, X_reg)
+        # 1. Incendios_PY: Capa de Ignición Primaria y Capa de Propagación Táctica
+        ruta_b_ign = DIR_MODELOS / f"lightgbm_ignicion_{region.lower()}.booster"
+        ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_ignicion_{region.lower()}.joblib"
+        b_ign, c_ign = cargar_modelo_y_calibrador(ruta_b_ign, ruta_c_ign)
+        X_ign, _, _ = preparar_matrices_xy(df_test, region, modo="ignicion")
+        p_ign = predecir_probabilidad(b_ign, c_ign, X_ign)
+
+        ruta_b_prop = DIR_MODELOS / f"lightgbm_propagacion_{region.lower()}.booster"
+        ruta_c_prop = DIR_MODELOS / "calibradores" / f"calibrador_propagacion_{region.lower()}.joblib"
+        b_prop, c_prop = cargar_modelo_y_calibrador(ruta_b_prop, ruta_c_prop)
+        X_prop, _, _ = preparar_matrices_xy(df_test, region, modo="propagacion")
+        p_prop = predecir_probabilidad(b_prop, c_prop, X_prop)
 
         # 2. Canadian FWI (ISI normalizado 0 a 1)
         isi_raw = df_reg_test["isi"].to_numpy()
@@ -92,7 +98,8 @@ def ejecutar_benchmarking():
         bs_clim = brier_score_loss(y_true, p_clim)
 
         modelos = [
-            ("Incendios_PY (GeoAI)", p_incendios, "#c0392b" if region == "Chaco" else "#27ae60", "-"),
+            ("Incendios_PY (Ignición Física)", p_ign, "#16a085" if region == "Oriental" else "#d35400", "-"),
+            ("Incendios_PY (Propagación Táctica)", p_prop, "#27ae60" if region == "Oriental" else "#c0392b", "-"),
             ("Proxy INPE Risco de Fogo", p_inpe, "#e67e22", "--"),
             ("Canadian FWI (ISI)", p_fwi, "#2980b9", "-."),
             ("Línea Base Climatológica", p_clim, "#7f8c8d", ":")

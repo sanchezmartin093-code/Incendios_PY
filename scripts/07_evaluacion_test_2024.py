@@ -58,88 +58,101 @@ def evaluar_modelo_en_test():
 
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     regiones = ["Chaco", "Oriental"]
+    modos = [
+        ("ignicion", "Ignición Primaria"),
+        ("propagacion", "Propagación Táctica")
+    ]
     
     filas_metricas = []
-    dfs_predicciones = []
+    preds_por_region = {}
 
     for region in regiones:
-        print(f"\n--- EVALUANDO REGIONAL: {region.upper()} ---")
-        nombre_lower = region.lower()
-        ruta_b = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
-        ruta_c = DIR_MODELOS / "calibradores" / f"calibrador_{nombre_lower}.joblib"
-
-        if not ruta_b.exists() or not ruta_c.exists():
-            print(f"Aviso: No se encontraron los archivos de modelo serializados para {region}.")
-            continue
-
-        # 1. Cargar modelo y calibrador
-        booster, calibrador = cargar_modelo_y_calibrador(ruta_b, ruta_c)
-
-        # 2. Extraer matriz X e y del conjunto de test
         df_reg_test = df_test.filter(pl.col("region") == region)
-        X_test, y_test, feats = preparar_matrices_xy(df_test, region)
+        nombre_lower = region.lower()
+        
+        preds_dict = {}
 
-        n_pos = int(y_test.sum())
-        n_neg = int(len(y_test) - n_pos)
-        print(f" • Muestras evaluadas: {len(y_test):,} (Positivos: {n_pos}, Negativos: {n_neg})")
+        for modo_clave, modo_nombre in modos:
+            print(f"\n--- EVALUANDO: {region.upper()} [{modo_nombre}] ---")
+            ruta_b = DIR_MODELOS / f"lightgbm_{modo_clave}_{nombre_lower}.booster"
+            ruta_c = DIR_MODELOS / "calibradores" / f"calibrador_{modo_clave}_{nombre_lower}.joblib"
 
-        # 3. Predicción probabilística calibrada
-        probs = predecir_probabilidad(booster, calibrador, X_test)
+            if not ruta_b.exists() or not ruta_c.exists():
+                print(f"Aviso: No se encontraron los archivos de modelo serializados para {region} ({modo_clave}).")
+                continue
 
-        # Guardar predicciones enriquecidas
-        df_pred_sub = df_reg_test.with_columns([
-            pl.Series("probabilidad_calibrada", probs)
-        ])
-        dfs_predicciones.append(df_pred_sub)
+            # 1. Cargar modelo y calibrador
+            booster, calibrador = cargar_modelo_y_calibrador(ruta_b, ruta_c)
 
-        # 4. Métricas de discriminación y calibración global
-        auc = float(roc_auc_score(y_test, probs))
-        pr_auc = float(average_precision_score(y_test, probs))
-        bs = float(calcular_brier_score(y_test, probs))
-        bss = float(calcular_brier_skill_score(y_test, probs))
+            # 2. Extraer matriz X e y del conjunto de test
+            X_test, y_test, feats = preparar_matrices_xy(df_test, region, modo=modo_clave)
 
-        print(f" • ROC-AUC:            {auc:.4f}")
-        print(f" • PR-AUC:             {pr_auc:.4f}")
-        print(f" • Brier Score:        {bs:.4f}")
-        print(f" • Brier Skill Score:  {bss:.4f} (Ganancia respecto a la climatología)")
+            n_pos = int(y_test.sum())
+            n_neg = int(len(y_test) - n_pos)
+            print(f" • Muestras evaluadas: {len(y_test):,} (Positivos: {n_pos}, Negativos: {n_neg})")
 
-        # 5. Evaluación en 3 umbrales operativos
-        c_youden, max_j = calcular_umbral_optimo_youden(y_test, probs)
-        c_f05, max_f = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
+            # 3. Predicción probabilística calibrada
+            probs = predecir_probabilidad(booster, calibrador, X_test)
+            preds_dict[f"probabilidad_{modo_clave}"] = probs
+            if modo_clave == "ignicion":
+                preds_dict["probabilidad_calibrada"] = probs
 
-        umbrales = [
-            ("Estándar (0.50)", 0.50),
-            (f"Youden J ({c_youden:.2f})", c_youden),
-            (f"Alta Precisión F0.5 ({c_f05:.2f})", c_f05)
-        ]
+            # 4. Métricas de discriminación y calibración global
+            auc = float(roc_auc_score(y_test, probs))
+            pr_auc = float(average_precision_score(y_test, probs))
+            bs = float(calcular_brier_score(y_test, probs))
+            bss = float(calcular_brier_skill_score(y_test, probs))
 
-        for desc_umbral, cutoff in umbrales:
-            y_pred_bin = (probs >= cutoff).astype(int)
-            tn, fp, fn, tp = confusion_matrix(y_test, y_pred_bin).ravel()
+            print(f" • ROC-AUC:            {auc:.4f}")
+            print(f" • PR-AUC:             {pr_auc:.4f}")
+            print(f" • Brier Score:        {bs:.4f}")
+            print(f" • Brier Skill Score:  {bss:.4f} (Ganancia respecto a la climatología)")
 
-            sensibilidad = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
-            especificidad = float(tn / (tn + fp)) if (tn + fp) > 0 else 0.0
-            precision = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
-            f1 = float(f1_score(y_test, y_pred_bin, zero_division=0))
-            f05 = float(fbeta_score(y_test, y_pred_bin, beta=0.5, zero_division=0))
+            # 5. Evaluación en 3 umbrales operativos
+            c_youden, max_j = calcular_umbral_optimo_youden(y_test, probs)
+            c_f05, max_f = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
 
-            filas_metricas.append({
-                "region": region,
-                "umbral_estrategia": desc_umbral,
-                "cutoff": round(cutoff, 3),
-                "roc_auc": round(auc, 4),
-                "pr_auc": round(pr_auc, 4),
-                "brier_skill_score": round(bss, 4),
-                "sensibilidad_recall": round(sensibilidad, 4),
-                "especificidad": round(especificidad, 4),
-                "precision": round(precision, 4),
-                "f1_score": round(f1, 4),
-                "f05_score": round(f05, 4),
-                "verdaderos_positivos": tp,
-                "falsos_positivos": fp,
-                "verdaderos_negativos": tn,
-                "falsos_negativos": fn
-            })
+            umbrales = [
+                ("Estándar (0.50)", 0.50),
+                (f"Youden J ({c_youden:.2f})", c_youden),
+                (f"Alta Precisión F0.5 ({c_f05:.2f})", c_f05)
+            ]
+
+            for desc_umbral, cutoff in umbrales:
+                y_pred_bin = (probs >= cutoff).astype(int)
+                tn, fp, fn, tp = confusion_matrix(y_test, y_pred_bin).ravel()
+
+                sensibilidad = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
+                especificidad = float(tn / (tn + fp)) if (tn + fp) > 0 else 0.0
+                precision = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
+                f1 = float(f1_score(y_test, y_pred_bin, zero_division=0))
+                f05 = float(fbeta_score(y_test, y_pred_bin, beta=0.5, zero_division=0))
+
+                filas_metricas.append({
+                    "region": region,
+                    "capa_modelo": modo_nombre,
+                    "umbral_estrategia": desc_umbral,
+                    "cutoff": round(cutoff, 3),
+                    "roc_auc": round(auc, 4),
+                    "pr_auc": round(pr_auc, 4),
+                    "brier_skill_score": round(bss, 4),
+                    "sensibilidad_recall": round(sensibilidad, 4),
+                    "especificidad": round(especificidad, 4),
+                    "precision": round(precision, 4),
+                    "f1_score": round(f1, 4),
+                    "f05_score": round(f05, 4),
+                    "verdaderos_positivos": tp,
+                    "falsos_positivos": fp,
+                    "verdaderos_negativos": tn,
+                    "falsos_negativos": fn
+                })
+
+        # Unir columnas de predicción a df_reg_test
+        for col_name, p_vals in preds_dict.items():
+            df_reg_test = df_reg_test.with_columns(pl.Series(col_name, p_vals))
+        preds_por_region[region] = df_reg_test
+
+    dfs_predicciones = list(preds_por_region.values())
 
     # 6. Consolidar tabla de resultados
     df_tabla = pd.DataFrame(filas_metricas)

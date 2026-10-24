@@ -32,7 +32,7 @@ from src.metricas import (
 
 def entrenar_pipeline():
     print("=" * 65)
-    print("ENTRENAMIENTO Y CALIBRACIÓN REGIONAL LIGHTGBM (CHACO & ORIENTAL)")
+    print("ENTRENAMIENTO Y CALIBRACIÓN DUAL (IGNICIÓN & PROPAGACIÓN TÁCTICA)")
     print("=" * 65)
 
     p_train = DIR_PROCESSED / "train_dataset.parquet"
@@ -50,93 +50,110 @@ def entrenar_pipeline():
     dir_calibradores.mkdir(parents=True, exist_ok=True)
 
     regiones = ["Chaco", "Oriental"]
+    modos = [
+        ("ignicion", "IGNICIÓN PRIMARIA (FÍSICA PURA & ECOTONO)"),
+        ("propagacion", "PROPAGACIÓN TÁCTICA (CONTAGIO SATELITAL t-1)")
+    ]
     modelos_resumen = {}
 
-    for region in regiones:
-        print(f"\n--- ENTRENANDO MODELO: {region.upper()} ---")
-        
-        # 1. Preparar matrices X e y
-        X_train, y_train, feats = preparar_matrices_xy(df_train, region)
-        X_val, y_val, _ = preparar_matrices_xy(df_val, region)
+    for modo_clave, modo_nombre in modos:
+        print(f"\n=======================================================")
+        print(f"CAPA MODELIZADA: {modo_nombre}")
+        print(f"=======================================================")
 
-        n_pos_train = int(y_train.sum())
-        n_pos_val = int(y_val.sum())
-        print(f" • Muestras Train: {len(X_train):,} ({n_pos_train} fuegos positivos)")
-        print(f" • Muestras Val:   {len(X_val):,} ({n_pos_val} fuegos positivos)")
-        print(f" • Features activas: {len(feats)}")
+        for region in regiones:
+            print(f"\n--- ENTRENANDO MODELO: {region.upper()} [{modo_clave.upper()}] ---")
+            
+            # 1. Preparar matrices X e y
+            X_train, y_train, feats = preparar_matrices_xy(df_train, region, modo=modo_clave)
+            X_val, y_val, _ = preparar_matrices_xy(df_val, region, modo=modo_clave)
 
-        if len(X_train) == 0 or n_pos_train == 0:
-            print(f"Aviso: Sin datos positivos suficientes para entrenar {region}.")
-            continue
+            n_pos_train = int(y_train.sum())
+            n_pos_val = int(y_val.sum())
+            print(f" • Muestras Train: {len(X_train):,} ({n_pos_train} fuegos positivos)")
+            print(f" • Muestras Val:   {len(X_val):,} ({n_pos_val} fuegos positivos)")
+            print(f" • Features activas: {len(feats)} ({', '.join(feats[:5])}...)")
 
-        # 2. Entrenar LightGBM con hiperparámetros optimizados por ecorregión
-        print(" • Ajustando árboles de gradiente...")
-        lr = 0.03
-        leaves = 15
-        spw = 1.0 if region == "Chaco" else 2.0
-        n_rounds = 20 if region == "Chaco" else 40
-        min_samples = 20 if region == "Chaco" else 10
+            if len(X_train) == 0 or n_pos_train == 0:
+                print(f"Aviso: Sin datos positivos suficientes para entrenar {region}.")
+                continue
 
-        booster = entrenar_modelo_lightgbm(
-            X_train=X_train,
-            y_train=y_train,
-            X_val=X_val,
-            y_val=y_val,
-            nombres_features=feats,
-            scale_pos_weight=spw,
-            learning_rate=lr,
-            num_leaves=leaves,
-            min_child_samples=min_samples,
-            num_boost_round=n_rounds,
-            early_stopping_rounds=None,
-            semilla=42
-        )
-        print(f"   ✓ Iteraciones completadas: {booster.current_iteration()}")
+            # 2. Entrenar LightGBM con hiperparámetros optimizados por ecorregión
+            print(" • Ajustando árboles de gradiente...")
+            lr = 0.03
+            leaves = 15
+            spw = 1.0 if region == "Chaco" else 2.0
+            n_rounds = 20 if region == "Chaco" else 40
+            min_samples = 20 if region == "Chaco" else 10
 
-        # 3. Calibración Probabilística de Platt Monótona
-        print(" • Ajustando calibrador sigmoide de Platt (monótono)...")
-        calibrador = calibrar_probabilidades_isotonica(booster, X_val, y_val, metodo="platt_monotono")
+            booster = entrenar_modelo_lightgbm(
+                X_train=X_train,
+                y_train=y_train,
+                X_val=X_val,
+                y_val=y_val,
+                nombres_features=feats,
+                scale_pos_weight=spw,
+                learning_rate=lr,
+                num_leaves=leaves,
+                min_child_samples=min_samples,
+                num_boost_round=n_rounds,
+                early_stopping_rounds=None,
+                semilla=42
+            )
+            print(f"   ✓ Iteraciones completadas: {booster.current_iteration()}")
 
-        # 4. Inferencia y Evaluación en Validación
-        probs_val = predecir_probabilidad(booster, calibrador, X_val)
-        
-        auc_val = float(roc_auc_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
-        pr_auc_val = float(average_precision_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
-        bss_val = float(calcular_brier_skill_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
+            # 3. Calibración Probabilística de Platt Monótona
+            print(" • Ajustando calibrador sigmoide de Platt (monótono)...")
+            calibrador = calibrar_probabilidades_isotonica(booster, X_val, y_val, metodo="platt_monotono")
 
-        c_youden, max_j = calcular_umbral_optimo_youden(y_val, probs_val)
-        c_f05, max_f = calcular_umbral_optimo_f_beta(y_val, probs_val, beta=0.5)
+            # 4. Inferencia y Evaluación en Validación
+            probs_val = predecir_probabilidad(booster, calibrador, X_val)
+            
+            auc_val = float(roc_auc_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
+            pr_auc_val = float(average_precision_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
+            bss_val = float(calcular_brier_skill_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
 
-        print(f" • Métricas en Validación:")
-        print(f"   - ROC-AUC:            {auc_val:.4f}")
-        print(f"   - PR-AUC:             {pr_auc_val:.4f}")
-        print(f"   - Brier Skill Score:  {bss_val:.4f}")
-        print(f"   - Umbral Youden (J):  {c_youden:.3f} (J={max_j:.3f})")
-        print(f"   - Umbral F0.5 (Prec): {c_f05:.3f} (F0.5={max_f:.3f})")
+            c_youden, max_j = calcular_umbral_optimo_youden(y_val, probs_val)
+            c_f05, max_f = calcular_umbral_optimo_f_beta(y_val, probs_val, beta=0.5)
 
-        # 5. Serializar
-        nombre_lower = region.lower()
-        ruta_b = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
-        ruta_c = dir_calibradores / f"calibrador_{nombre_lower}.joblib"
-        guardar_modelo_y_calibrador(booster, calibrador, ruta_b, ruta_c)
-        print(f"   ✓ Modelo exportado: {ruta_b.name} ({ruta_b.stat().st_size / 1024:.1f} KB)")
-        print(f"   ✓ Calibrador exportado: {ruta_c.name}")
+            print(f" • Métricas en Validación:")
+            print(f"   - ROC-AUC:            {auc_val:.4f}")
+            print(f"   - PR-AUC:             {pr_auc_val:.4f}")
+            print(f"   - Brier Skill Score:  {bss_val:.4f}")
+            print(f"   - Umbral Youden (J):  {c_youden:.3f} (J={max_j:.3f})")
+            print(f"   - Umbral F0.5 (Prec): {c_f05:.3f} (F0.5={max_f:.3f})")
 
-        modelos_resumen[region] = {
-            "roc_auc": auc_val,
-            "pr_auc": pr_auc_val,
-            "bss": bss_val,
-            "c_youden": c_youden,
-            "c_f05": c_f05,
-            "n_train": len(X_train),
-            "n_val": len(X_val)
-        }
+            # 5. Serializar
+            nombre_lower = region.lower()
+            ruta_b_especifica = DIR_MODELOS / f"lightgbm_{modo_clave}_{nombre_lower}.booster"
+            ruta_c_especifica = dir_calibradores / f"calibrador_{modo_clave}_{nombre_lower}.joblib"
+            guardar_modelo_y_calibrador(booster, calibrador, ruta_b_especifica, ruta_c_especifica)
+            print(f"   ✓ Guardado: {ruta_b_especifica.name}")
+
+            # Si es ignicion, también guardar bajo el nombre estándar
+            if modo_clave == "ignicion":
+                ruta_b_std = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
+                ruta_c_std = dir_calibradores / f"calibrador_{nombre_lower}.joblib"
+                guardar_modelo_y_calibrador(booster, calibrador, ruta_b_std, ruta_c_std)
+
+            clave_resumen = f"{region}_{modo_clave}"
+            modelos_resumen[clave_resumen] = {
+                "region": region,
+                "modo": modo_clave,
+                "roc_auc": auc_val,
+                "pr_auc": pr_auc_val,
+                "bss": bss_val,
+                "c_youden": c_youden,
+                "c_f05": c_f05,
+                "n_train": len(X_train),
+                "n_val": len(X_val)
+            }
 
     print("\n" + "=" * 65)
-    print("RESUMEN CONSOLIDADO DE MODELOS REGIONALES")
+    print("RESUMEN CONSOLIDADO DE MODELOS DUALES")
     print("=" * 65)
-    for reg, m in modelos_resumen.items():
-        print(f"[{reg.upper()}] ROC-AUC: {m['roc_auc']:.3f} | PR-AUC: {m['pr_auc']:.3f} | BSS: {m['bss']:.3f} | Corte F0.5: {m['c_f05']:.3f}")
+    for k, m in modelos_resumen.items():
+        print(f"[{m['region'].upper()} | {m['modo'].upper()}] ROC-AUC: {m['roc_auc']:.3f} | PR-AUC: {m['pr_auc']:.3f} | BSS: {m['bss']:.3f} | Corte F0.5: {m['c_f05']:.3f}")
     print("=" * 65)
 
 if __name__ == "__main__":
