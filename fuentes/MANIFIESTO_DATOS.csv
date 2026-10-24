@@ -1,0 +1,12 @@
+archivo,fuente,url_origen,resolucion_espacial,frecuencia_temporal,periodo,sha256_hash,descripcion
+paraguay_firms_viirs_snpp_2018_2024.csv,NASA FIRMS,https://firms.modaps.eosdis.nasa.gov/,375m,Diario (pases 13:30h / 01:30h),2018-2024,PENDIENTE,Focos de calor con FRP e índice de confianza
+paraguay_firms_viirs_noaa20_2018_2024.csv,NASA FIRMS,https://firms.modaps.eosdis.nasa.gov/,375m,Diario (pases 14:15h / 02:15h),2018-2024,PENDIENTE,Focos de calor sensor VIIRS NOAA-20
+era5_land_paraguay_diario.parquet,Copernicus CDS / Open-Meteo,https://open-meteo.com/en/docs/historical-weather-api,9km / 0.1 deg,Horario/Diario,2018-2024,PENDIENTE,Temp máx, humedad mín, viento 10m y precipitación
+mapbiomas_chaco_coleccion4.tif,MapBiomas Chaco,https://chaco.mapbiomas.org/,30m,Anual,2018-2023,PENDIENTE,Cobertura de suelo de la Región Occidental
+mapbiomas_bosque_atlantico.tif,MapBiomas Bosque Atlántico,https://bosqueatlantico.mapbiomas.org/,30m,Anual,2018-2023,PENDIENTE,Cobertura de suelo de la Región Oriental
+paraguay_adm0.geojson,geoBoundaries,https://github.com/wmgeolab/geoBoundaries,Vectorial,Estático,2023,bd59339058c2d8a7acb31119076899723709d874b051cc06a2a8e88dfa99b265,Límite soberano de Paraguay ADM0
+paraguay_adm1_departamentos.geojson,geoBoundaries,https://github.com/wmgeolab/geoBoundaries,Vectorial,Estático,2023,82173f047c41db35fe12651e42ea5f5ed442a538247a4082a4f7edf090e6daab,18 departamentos de Paraguay (17 departamentos + Asunción) ADM1
+mades_areas_silvestres_protegidas.geojson,MADES / GeoINFONA,http://www.mades.gov.py/,Vectorial,Estático,2024,PENDIENTE,Parques Nacionales y Reservas Naturales
+viirs_suomi-npp_nrt_7d.csv,NASA FIRMS,https://firms.modaps.eosdis.nasa.gov/,375m,Diario (Pase 13:30/01:30),2026-10-17_a_2026-10-24,1e7667bdcac8b7dac3099eb8046dbb2e1c94208ce0df2f9e6b81b3f77dd60449,Focos de calor crudos sensor Suomi-NPP ventana NRT
+viirs_noaa-20_nrt_7d.csv,NASA FIRMS,https://firms.modaps.eosdis.nasa.gov/,375m,Diario (Pase 14:15/02:15),2026-10-17_a_2026-10-24,2ef602bee7289739c35a0ff05ff31f8432bf650a9d7794a65c9cda4b51d1c304,Focos de calor crudos sensor NOAA-20 ventana NRT
+era5_land_crudo_2024-09-01_2024-09-10.parquet,Copernicus CDS / Open-Meteo,https://archive-api.open-meteo.com/v1/archive,0.25 deg,Horario/Diario,2024-09-01_a_2024-09-10,1d65e950e053fb8a2be256cdf9d797852763fd2500bf819fc72f838e74199e9a,Series meteorologicas crudas ERA5-Land (temp max/min dew point viento lluvia)

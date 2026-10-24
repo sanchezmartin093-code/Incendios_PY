@@ -1,0 +1,7 @@
+region,umbral_estrategia,cutoff,roc_auc,pr_auc,brier_skill_score,sensibilidad_recall,especificidad,precision,f1_score,f05_score,verdaderos_positivos,falsos_positivos,verdaderos_negativos,falsos_negativos
+Chaco,Estándar (0.50),0.5,0.5182,0.097,-0.01,0.0,1.0,0.0,0.0,0.0,0,0,1280,128
+Chaco,Youden J (0.11),0.111,0.5182,0.097,-0.01,0.6953,0.3547,0.0973,0.1707,0.1175,89,826,454,39
+Chaco,Alta Precisión F0.5 (0.11),0.111,0.5182,0.097,-0.01,0.6953,0.3547,0.0973,0.1707,0.1175,89,826,454,39
+Oriental,Estándar (0.50),0.5,0.5,0.0909,0.0,0.0,1.0,0.0,0.0,0.0,0,0,180,18
+Oriental,Youden J (0.09),0.091,0.5,0.0909,0.0,1.0,0.0,0.0909,0.1667,0.1111,18,180,0,0
+Oriental,Alta Precisión F0.5 (0.09),0.091,0.5,0.0909,0.0,1.0,0.0,0.0909,0.1667,0.1111,18,180,0,0
