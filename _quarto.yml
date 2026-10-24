@@ -1,0 +1,22 @@
+project:
+  type: default
+  output-dir: _output
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true
+    code-fold: show
+  docx:
+    toc: false
+    number-sections: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    number-sections: true
+
+execute:
+  echo: false
+  warning: false
+  message: false

@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches and environments
+.env
+.venv
+env/
+venv/
+ENV/
+.pytest_cache/
+.ipynb_checkpoints/
+.quarto/
+
+# Mac OS files
+.DS_Store
+
+# Heavy raw and intermediate geospatial data
+datos/raw/*
+!datos/raw/.gitkeep
+datos/processed/*
+!datos/processed/.gitkeep
+datos/outputs/*
+!datos/outputs/.gitkeep
+
+# Serialized heavy models (track schema/config, ignore large binaries)
+modelos/*.booster
+modelos/*.pkl
+!modelos/.gitkeep
+modelos/calibradores/*
+!modelos/calibradores/.gitkeep
+
+/.quarto/
+_output/
+**/*.quarto_ipynb
