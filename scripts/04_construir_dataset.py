@@ -98,10 +98,10 @@ def construir_dataset_unificado(
             gc.pct_bosque_humedo,
             gc.pct_humedal_palmar,
             cli.fecha,
-            -- Variables temporales y de calendario antrópico
-            DAYOFWEEK(CAST(cli.fecha AS DATE)) - 1 AS dia_semana, -- 0=Domingo o Lunes según estándar
+            -- Variables temporales y de calendario antrópico (estrictamente alineado con ISO y Python dt.weekday)
+            ISODOW(CAST(cli.fecha AS DATE)) - 1 AS dia_semana, -- 0=Lunes, 1=Martes, ..., 6=Domingo
             CASE 
-                WHEN DAYOFWEEK(CAST(cli.fecha AS DATE)) IN (1, 6, 7) THEN 1 
+                WHEN (ISODOW(CAST(cli.fecha AS DATE)) - 1) IN (5, 6) THEN 1 
                 ELSE 0 
             END AS es_fin_de_semana,
             MONTH(CAST(cli.fecha AS DATE)) AS mes,
