@@ -32,9 +32,9 @@ def filtrar_candidatos_con_buffer_muerto(
     coords_positivos = df_positivos_dia.select(["x_utm", "y_utm"]).to_numpy()
     coords_candidatos = df_candidatos_dia.select(["x_utm", "y_utm"]).to_numpy()
 
-    # Árbol espacial en metros métricos UTM 21S
+    # Árbol espacial en metros métricos UTM 21S con aceleración multihilo C++
     tree = cKDTree(coords_positivos)
-    distancias, _ = tree.query(coords_candidatos, k=1)
+    distancias, _ = tree.query(coords_candidatos, k=1, workers=-1)
 
     buffer_metros = buffer_km * 1000.0
     mascara_segura = distancias >= buffer_metros

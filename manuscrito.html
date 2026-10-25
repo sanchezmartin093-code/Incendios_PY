@@ -2639,6 +2639,10 @@ Utilizado para el ajuste de hiperparámetros de LightGBM, activación de <em>ear
 <li><strong>Conjunto de Test Ciego (Test Out-of-Time: 2024–2025, 1 a 2 años, ~12,5 %):</strong><br>
 Conjunto estrictamente congelado durante el entrenamiento. Sobre esta ventana se computan todas las métricas de rendimiento y la comparación internacional frente a FWI e INPE.</li>
 </ul>
+<blockquote class="blockquote">
+<p>[!NOTE] <strong>Protocolo de Reproducibilidad en el Repositorio Abierto:</strong><br>
+En concordancia con las directrices de reproducibilidad de <em>Computers &amp; Geosciences</em>, el repositorio de código abierto acompaña la metodología completa con un pipeline ejecutable de extremo a extremo (<a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/scripts/00_generar_grilla_nacional.py"><code>scripts/00_...</code></a> a <a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/scripts/15_generar_figura_arquitectura_impacto.py"><code>scripts/15_...</code></a>). Para permitir la clonación y verificación inmediata en cualquier computadora sin descargar terabytes de archivos brutos de NASA Earthdata, los scripts implementan esta idéntica partición cronológica <em>out-of-time</em> secuencial (70 % train, 15 % val, 15 % test congelado) sobre la ventana satelital operativa NRT, verificando empíricamente la estabilidad de todas las invariantes algorítmicas.</p>
+</blockquote>
 </section>
 <section id="control-espacial-dead-zone-buffer-de-20-km" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="control-espacial-dead-zone-buffer-de-20-km"><span class="header-section-number">4.2</span> 4.2 Control Espacial: <em>Dead-Zone Buffer</em> de 20 km</h2>

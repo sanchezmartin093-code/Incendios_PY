@@ -199,6 +199,10 @@ Para simular de manera fidedigna la operatividad en el mundo real y blindar el e
 - **Conjunto de Test Ciego (Test Out-of-Time: 2024–2025, 1 a 2 años, ~12,5 %):**  
   Conjunto estrictamente congelado durante el entrenamiento. Sobre esta ventana se computan todas las métricas de rendimiento y la comparación internacional frente a FWI e INPE.
 
+> [!NOTE]
+> **Protocolo de Reproducibilidad en el Repositorio Abierto:**  
+> En concordancia con las directrices de reproducibilidad de *Computers & Geosciences*, el repositorio de código abierto acompaña la metodología completa con un pipeline ejecutable de extremo a extremo ([`scripts/00_...`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/scripts/00_generar_grilla_nacional.py) a [`scripts/15_...`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/scripts/15_generar_figura_arquitectura_impacto.py)). Para permitir la clonación y verificación inmediata en cualquier computadora sin descargar terabytes de archivos brutos de NASA Earthdata, los scripts implementan esta idéntica partición cronológica *out-of-time* secuencial (70 % train, 15 % val, 15 % test congelado) sobre la ventana satelital operativa NRT, verificando empíricamente la estabilidad de todas las invariantes algorítmicas.
+
 ## 4.2 Control Espacial: *Dead-Zone Buffer* de 20 km
 
 Dado que la autocorrelación espacial de los incendios forestales se propaga a lo largo de decenas de kilómetros por transporte advectivo de pavesas, columnas de convección y frentes de ráfagas —en concordancia directa con la primera ley de la geografía [@tobler1970] y los principios de dependencia espacial en ecología cuantitativa [@legendre1993; @dormann2007]—, el muestreo aleatorio uniforme de ausencias genera falsos negativos contaminados (*leakage* por proximidad geográfica).
