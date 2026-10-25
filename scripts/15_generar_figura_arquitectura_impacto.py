@@ -1,11 +1,9 @@
 """
 Script 15: Generador Automatizado de Figura Científica de Alto Impacto (Nivel Nature / Elsevier Q1).
-- Arquitectura basada en GridSpec anidado: aislamiento geométrico estricto entre mapas y tarjetas.
-- Elimina cualquier superposición espacial entre el mapa de Paraguay y los bloques de texto.
-- Genera la Figura 1 / Graphical Abstract compuesto en 3 fases horizontales:
-  * Phase 1: Multisource Ingestion & Two-Stage Gating (Mapa real + 3 fuentes satelitales + Embudo 92%).
-  * Phase 2: Decoupled Dual GeoAI Engine (Modo 1 Ignición física vs. Modo 2 Propagación táctica t-1).
-  * Phase 3: Sovereign 1-km² Operational Alert & International Benchmarking (Mapa nacional + KPIs + Barras FWI e INPE).
+- Corrección de problemas de maquetación:
+  1. Cuadro de MapBiomas: dimensión calculada con padding inferior (y >= 0.03) para evitar cortes en el borde.
+  2. Cuadro de Métricas Operacionales: rediseñado con proporciones balanceadas y tarjetas KPI estructuradas.
+  3. Flechas de flujo: 100% HORIZONTALES (pendiente 0) conectadas en los canales inter-paneles sin cruzar ejes ni texto.
 - Exporta en formatos de alta resolución: PNG a 300 DPI y PDF vectorial.
 """
 
@@ -29,7 +27,7 @@ def crear_figura_impacto(
     output_pdf: Path | None = None
 ):
     print("=" * 65)
-    print("GENERANDO FIGURA CIENTÍFICA (LAYOUT ANIDADO SIN SUPERPOSICIONES)")
+    print("GENERANDO FIGURA CIENTÍFICA (LAYOUT CORREGIDO: FLECHAS HORIZONTALES Y SIN CORTES)")
     print("=" * 65)
 
     # 1. Cargar datos cartográficos y de prueba reales
@@ -64,6 +62,7 @@ def crear_figura_impacto(
     fig.text(0.97, 0.938, "24-HOUR FORECAST · 1-km² RESOLUTION · SUB-SECOND INFERENCE", fontsize=10, fontweight="bold", color="#64748B", ha="right")
 
     # Grilla principal de 3 paneles horizontales
+    # Gutter ancho entre paneles para dar espacio a flechas y etiquetas horizontales limpias
     gs_main = gridspec.GridSpec(1, 3, width_ratios=[1.18, 1.25, 1.18], wspace=0.18, 
                                 left=0.03, right=0.97, top=0.90, bottom=0.05)
 
@@ -84,11 +83,11 @@ def crear_figura_impacto(
     ax1_bg.text(0.18, 0.96, "Multisource Ingestion & Two-Stage Gating", fontsize=11, fontweight="bold", color="#0F172A", va="center")
 
     # Sub-grilla interna de Panel 1:
-    # Fila 0: Mapa a la izquierda (42%) y 3 tarjetas a la derecha (58%)
+    # Fila 0: Mapa a la izquierda (43%) y 3 tarjetas a la derecha (57%)
     # Fila 1: Gating biofísico horizontal en la base
     gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs_main[0, 0], 
-                                          height_ratios=[0.64, 0.36], width_ratios=[0.42, 0.58], 
-                                          wspace=0.10, hspace=0.14)
+                                          height_ratios=[0.63, 0.37], width_ratios=[0.43, 0.57], 
+                                          wspace=0.10, hspace=0.12)
 
     # Sub-ax 1A: Mapa de Paraguay
     ax1_map = fig.add_subplot(gs1[0, 0])
@@ -96,7 +95,7 @@ def crear_figura_impacto(
     adm0.boundary.plot(ax=ax1_map, color="#0F172A", linewidth=1.2, zorder=3)
     adm1.boundary.plot(ax=ax1_map, color="#94A3B8", linewidth=0.5, linestyle=":", zorder=2)
     
-    # Fijar límites estrictos para asegurar contención y que no desborde a la derecha
+    # Límites estrictos para confinar el mapa a su columna
     ax1_map.set_xlim(-63.0, -53.8)
     ax1_map.set_ylim(-28.0, -18.8)
     ax1_map.set_xticks([])
@@ -117,9 +116,11 @@ def crear_figura_impacto(
 
     ax1_map.set_title("Paraguay (1 km² Grid)\nVIIRS Fire Hotspots", fontsize=8.0, fontweight="bold", color="#0F172A", pad=2)
 
-    # Sub-ax 1B: Tres Tarjetas de Fuentes Satelitales (Alineadas en su propia columna)
+    # Sub-ax 1B: Tres Tarjetas de Fuentes Satelitales (Distribuídas equitativamente sin cortes)
     ax1_cards = fig.add_subplot(gs1[0, 1])
     ax1_cards.set_facecolor("none")
+    ax1_cards.set_xlim(0, 1)
+    ax1_cards.set_ylim(0, 1)
     ax1_cards.set_xticks([])
     ax1_cards.set_yticks([])
     for sp in ax1_cards.spines.values():
@@ -130,17 +131,21 @@ def crear_figura_impacto(
         ("ERA5-Land Reanalysis", "0.25° grid (640 national nodes)\nVPD, Wind, CDD, FFMC, ISI", "#2563EB", "#EFF6FF"),
         ("MapBiomas Collection 4", "30m aggregated to 1 km²\n5 dominant fuel/forest classes", "#16A34A", "#F0FDF4"),
     ]
-    y_card = 0.82
-    for title_f, desc_f, col_f, bg_f in fuentes_info:
-        ax1_cards.add_patch(patches.FancyBboxPatch((0.02, y_card - 0.20), 0.96, 0.23, boxstyle="round,pad=0.02",
+    
+    # 3 tarjetas con altura 0.27 y espaciado de 0.05 (desde y=0.04 hasta y=0.95 -> 0% de corte inferior)
+    card_height = 0.26
+    card_bottoms = [0.68, 0.36, 0.04]
+    for (title_f, desc_f, col_f, bg_f), y_b in zip(fuentes_info, card_bottoms):
+        ax1_cards.add_patch(patches.FancyBboxPatch((0.02, y_b), 0.96, card_height, boxstyle="round,pad=0.02",
                                                    facecolor=bg_f, edgecolor=col_f, linewidth=1.1))
-        ax1_cards.text(0.06, y_card - 0.02, title_f, fontsize=8.2, fontweight="bold", color=col_f)
-        ax1_cards.text(0.06, y_card - 0.15, desc_f, fontsize=7.2, color="#334155", linespacing=1.25)
-        y_card -= 0.33
+        ax1_cards.text(0.06, y_b + card_height - 0.07, title_f, fontsize=8.2, fontweight="bold", color=col_f)
+        ax1_cards.text(0.06, y_b + card_height - 0.20, desc_f, fontsize=7.2, color="#334155", linespacing=1.25)
 
     # Sub-ax 1C: Embudo de Gating Biofísico de Etapa 1
     ax1_gate = fig.add_subplot(gs1[1, :])
     ax1_gate.set_facecolor("none")
+    ax1_gate.set_xlim(0, 1)
+    ax1_gate.set_ylim(0, 1)
     ax1_gate.set_xticks([])
     ax1_gate.set_yticks([])
     for sp in ax1_gate.spines.values():
@@ -169,7 +174,7 @@ def crear_figura_impacto(
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#1D4ED8", edgecolor="none"))
     ax2_bg.text(0.18, 0.96, "Decoupled Dual-Layer GeoAI Engine", fontsize=11, fontweight="bold", color="#0F172A", va="center")
 
-    # Tarjeta Superior: MODO 1 - IGNICIÓN FÍSICA
+    # Tarjeta Superior: MODO 1 - IGNICIÓN FÍSICA (Centrada en y = 0.72)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.04, 0.53), 0.92, 0.38, boxstyle="round,pad=0.02",
                                             facecolor="#F0F9FF", edgecolor="#0284C7", linewidth=1.4))
     
@@ -182,12 +187,12 @@ def crear_figura_impacto(
     ax2_bg.text(0.07, 0.69, "• STRICT CAUSAL ISOLATION: No fire history lags allowed (t-1 = 0).\n• Drivers: VPD max, Thermal amplitude, Wind speed, FFMC, Ecotone.\n• Calibrated via Monotonic Bounded Platt Scaling (w in [0.1, 10.0]).", 
                 fontsize=7.6, color="#334155", linespacing=1.3)
     
-    # Badge de salida Modo 1
+    # Badge de salida Modo 1 (Alineado en y = 0.595)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.07, 0.55), 0.86, 0.09, boxstyle="round,pad=0.015",
                                             facecolor="#E0F2FE", edgecolor="#0284C7", linewidth=0.8))
     ax2_bg.text(0.50, 0.595, "Output: P(Ignition)  -->  Pre-suppression & Forest Patrol", fontsize=8.4, fontweight="bold", color="#0369A1", ha="center")
 
-    # Tarjeta Inferior: MODO 2 - PROPAGACIÓN TÁCTICA
+    # Tarjeta Inferior: MODO 2 - PROPAGACIÓN TÁCTICA (Centrada en y = 0.26)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.04, 0.06), 0.92, 0.40, boxstyle="round,pad=0.02",
                                             facecolor="#FEF2F2", edgecolor="#DC2626", linewidth=1.4))
     
@@ -200,7 +205,7 @@ def crear_figura_impacto(
     ax2_bg.text(0.07, 0.23, "• Causal spatial memory: dist_foco_t1_km, focos_25km_t1, frp_25km_t1.\n• Models convective advection & active flame front advancement.\n• Evaluated with 20-km Dead-Zone spatial buffer to prevent leakage.", 
                 fontsize=7.6, color="#334155", linespacing=1.3)
     
-    # Badge de salida Modo 2
+    # Badge de salida Modo 2 (Alineado en y = 0.135)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.07, 0.09), 0.86, 0.09, boxstyle="round,pad=0.015",
                                             facecolor="#FEE2E2", edgecolor="#DC2626", linewidth=0.8))
     ax2_bg.text(0.50, 0.135, "Output: P(Propagation)  -->  Tactical Firefighting Deployment", fontsize=8.4, fontweight="bold", color="#991B1B", ha="center")
@@ -222,10 +227,10 @@ def crear_figura_impacto(
     ax3_bg.text(0.18, 0.96, "Sovereign Alert & Benchmark Validation", fontsize=11, fontweight="bold", color="#0F172A", va="center")
 
     # Sub-grilla interna de Panel 3:
-    # Fila 0: Mapa a la izquierda (42%) y KPIs a la derecha (58%)
+    # Fila 0: Mapa a la izquierda (45%) y KPIs estructurados a la derecha (55%)
     # Fila 1: Benchmarking internacional en la base (completo)
     gs3 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs_main[0, 2], 
-                                          height_ratios=[0.58, 0.42], width_ratios=[0.42, 0.58], 
+                                          height_ratios=[0.56, 0.44], width_ratios=[0.45, 0.55], 
                                           wspace=0.10, hspace=0.14)
 
     # Sub-ax 3A: Mapa Nacional de Predicción
@@ -247,19 +252,38 @@ def crear_figura_impacto(
 
     ax3_map.set_title("Operational Alert Map\n(1 km² Resolution)", fontsize=8.0, fontweight="bold", color="#0F172A", pad=2)
 
-    # Sub-ax 3B: KPIs Operacionales
+    # Sub-ax 3B: KPIs Operacionales (Rediseñado proporcionalmente sin sobredimensión)
     ax3_kpis = fig.add_subplot(gs3[0, 1])
     ax3_kpis.set_facecolor("none")
+    ax3_kpis.set_xlim(0, 1)
+    ax3_kpis.set_ylim(0, 1)
     ax3_kpis.set_xticks([])
     ax3_kpis.set_yticks([])
     for sp in ax3_kpis.spines.values():
         sp.set_visible(False)
 
-    ax3_kpis.add_patch(patches.FancyBboxPatch((0.02, 0.08), 0.96, 0.88, boxstyle="round,pad=0.02",
+    # Marco exterior del cuadro KPI ajustado al contenido
+    ax3_kpis.add_patch(patches.FancyBboxPatch((0.02, 0.05), 0.96, 0.92, boxstyle="round,pad=0.02",
                                               facecolor="#FFFFFF", edgecolor="#10B981", linewidth=1.2))
-    ax3_kpis.text(0.08, 0.78, "OPERATIONAL METRICS", fontsize=8.5, fontweight="bold", color="#047857")
-    ax3_kpis.text(0.08, 0.22, "• Inference: 0.75 s\n• Grid: 400,006 cells (1 km²)\n• Chaco Spread ROC: 0.941\n• Tactical Precision: 97.71%\n• Oriental Ignition ROC: 0.771", 
-                  fontsize=7.4, color="#1E293B", linespacing=1.35)
+    
+    # Cabecera KPI
+    ax3_kpis.add_patch(patches.FancyBboxPatch((0.05, 0.78), 0.90, 0.15, boxstyle="round,pad=0.01",
+                                              facecolor="#ECFDF5", edgecolor="#10B981", linewidth=0.8))
+    ax3_kpis.text(0.50, 0.855, "OPERATIONAL METRICS", fontsize=8.5, fontweight="bold", color="#047857", ha="center")
+
+    # Cuadrícula interna de 4 métricas clave
+    kpis_data = [
+        ("Inference Latency", "< 0.75 s", "#0F172A"),
+        ("Sovereign Grid", "400,006 cells", "#0F172A"),
+        ("Tactical Precision", "97.71 %", "#15803D"),
+        ("Chaco Spread ROC", "0.941", "#DC2626"),
+        ("Oriental Ignition ROC", "0.771", "#0284C7"),
+    ]
+    y_kpi = 0.65
+    for label_k, val_k, col_k in kpis_data:
+        ax3_kpis.text(0.08, y_kpi, f"• {label_k}:", fontsize=7.2, color="#475569")
+        ax3_kpis.text(0.92, y_kpi, val_k, fontsize=7.4, fontweight="bold", color=col_k, ha="right")
+        y_kpi -= 0.13
 
     # Sub-ax 3C: Gráfico de Barras de Benchmarking Internacional
     ax3_bench = fig.add_subplot(gs3[1, :])
@@ -276,7 +300,7 @@ def crear_figura_impacto(
     ax3_bench.set_ylim(0, 1.05)
     ax3_bench.set_xticks(range(len(modelos)))
     ax3_bench.set_xticklabels(modelos, fontsize=7.4, fontweight="bold")
-    ax3_bench.set_ylabel("ROC-AUC (Blind Out-of-Time)", fontsize=7.8, fontweight="bold", color="#0F172A")
+    ax3_bench.set_ylabel("ROC-AUC (Blind Test)", fontsize=7.6, fontweight="bold", color="#0F172A")
     ax3_bench.grid(axis="y", color="#F1F5F9", linewidth=0.8, zorder=1)
 
     for bar, val in zip(bars, roc_scores):
@@ -286,22 +310,43 @@ def crear_figura_impacto(
     ax3_bench.set_title("International Benchmarking on Blind Out-of-Time Test Set", fontsize=8.2, fontweight="bold", color="#0F172A", pad=4)
 
     # -------------------------------------------------------------
-    # CONECTORES DE FLUJO ENTRE PANELES
+    # FLECHAS DE FLUJO HORIZONTALES ESTRICTAS (PENDIENTE = 0)
+    # Conectan únicamente en los canales inter-paneles (gutters)
     # -------------------------------------------------------------
-    fig.patches.extend([
-        patches.ConnectionPatch(xyA=(0.98, 0.72), coordsA=ax1_bg.transAxes,
-                                xyB=(0.02, 0.72), coordsB=ax2_bg.transAxes,
-                                arrowstyle="-|>", mutation_scale=14, color="#0284C7", linewidth=1.8),
-        patches.ConnectionPatch(xyA=(0.98, 0.26), coordsA=ax1_bg.transAxes,
-                                xyB=(0.02, 0.26), coordsB=ax2_bg.transAxes,
-                                arrowstyle="-|>", mutation_scale=14, color="#DC2626", linewidth=1.8),
-        patches.ConnectionPatch(xyA=(0.98, 0.58), coordsA=ax2_bg.transAxes,
-                                xyB=(0.02, 0.65), coordsB=ax3_bg.transAxes,
-                                arrowstyle="-|>", mutation_scale=14, color="#0284C7", linewidth=1.8),
-        patches.ConnectionPatch(xyA=(0.98, 0.24), coordsA=ax2_bg.transAxes,
-                                xyB=(0.02, 0.35), coordsB=ax3_bg.transAxes,
-                                arrowstyle="-|>", mutation_scale=14, color="#DC2626", linewidth=1.8),
-    ])
+    # 1. Pista Superior (Ignición Física): Horizontal pura en y = 0.72
+    p1_to_p2_top = patches.ConnectionPatch(
+        xyA=(1.0, 0.72), coordsA=ax1_bg.transAxes,
+        xyB=(0.0, 0.72), coordsB=ax2_bg.transAxes,
+        arrowstyle="-|>", mutation_scale=14, color="#0284C7", linewidth=2.0
+    )
+    p2_to_p3_top = patches.ConnectionPatch(
+        xyA=(1.0, 0.72), coordsA=ax2_bg.transAxes,
+        xyB=(0.0, 0.72), coordsB=ax3_bg.transAxes,
+        arrowstyle="-|>", mutation_scale=14, color="#0284C7", linewidth=2.0
+    )
+
+    # 2. Pista Inferior (Propagación Táctica): Horizontal pura en y = 0.26
+    p1_to_p2_bot = patches.ConnectionPatch(
+        xyA=(1.0, 0.26), coordsA=ax1_bg.transAxes,
+        xyB=(0.0, 0.26), coordsB=ax2_bg.transAxes,
+        arrowstyle="-|>", mutation_scale=14, color="#DC2626", linewidth=2.0
+    )
+    p2_to_p3_bot = patches.ConnectionPatch(
+        xyA=(1.0, 0.26), coordsA=ax2_bg.transAxes,
+        xyB=(0.0, 0.26), coordsB=ax3_bg.transAxes,
+        arrowstyle="-|>", mutation_scale=14, color="#DC2626", linewidth=2.0
+    )
+
+    fig.patches.extend([p1_to_p2_top, p2_to_p3_top, p1_to_p2_bot, p2_to_p3_bot])
+
+    # Etiquetas explicativas sobre las flechas horizontales en el canal (gutter)
+    # Canal 1 (entre Panel 1 y Panel 2): x ≈ 0.329
+    fig.text(0.3295, 0.735, "Physical\nDrivers", fontsize=6.8, fontweight="bold", color="#0284C7", ha="center")
+    fig.text(0.3295, 0.275, "Thermal\nFoci (t-1)", fontsize=6.8, fontweight="bold", color="#DC2626", ha="center")
+
+    # Canal 2 (entre Panel 2 y Panel 3): x ≈ 0.670
+    fig.text(0.6705, 0.735, "P(Ignition)\nForecast", fontsize=6.8, fontweight="bold", color="#0284C7", ha="center")
+    fig.text(0.6705, 0.275, "P(Spread)\nValidation", fontsize=6.8, fontweight="bold", color="#DC2626", ha="center")
 
     # Guardar en PNG (300 DPI) y PDF vectorial
     output_png.parent.mkdir(parents=True, exist_ok=True)
