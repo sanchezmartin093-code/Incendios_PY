@@ -2446,8 +2446,8 @@ La derivada de primer orden de <span class="math inline">\(p(z)\)</span> respect
 </section>
 <section id="formulación-acotada-en-incendios_py" class="level3">
 <h3 class="anchored" data-anchor-id="formulación-acotada-en-incendios_py">Formulación Acotada en <code>Incendios_PY</code></h3>
-<p>Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada (algoritmo L-BFGS-B implementado en <a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py"><code>src/modelo.py</code></a>):</p>
-<p><span class="math display">\[\min_{w, b} \mathcal{L}(w, b) \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -20,0 \le b \le 20,0\]</span></p>
+<p>Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en <a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py"><code>src/modelo.py</code></a>):</p>
+<p><span class="math display">\[\min_{w, b} \frac{1}{M} \sum_{i=1}^{M} \left( y_i - \frac{1}{1 + \exp(-(w \cdot z_i + b))} \right)^2 \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -10,0 \le b \le 10,0\]</span></p>
 <p>La cota inferior <span class="math inline">\(w \ge 0,10\)</span> garantiza la monotonicidad estricta y previene el colapso del gradiente en regiones asintóticas.</p>
 <hr>
 </section>
@@ -2751,7 +2751,7 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 <div id="tbl-hiperparametros" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hiperparametros-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo operativo.
+Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo operativo (obtenida con <code>scripts/06_entrenar_modelos.py</code>).
 </figcaption>
 <div aria-describedby="tbl-hiperparametros-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2784,83 +2784,83 @@ Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo op
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>learning_rate</code></td>
-<td style="text-align: center;"><span class="math inline">\([0,01; \, 0,15]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,05\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([0,01; \, 0,10]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,03\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,05\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,03\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,03\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,03\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>num_leaves</code></td>
-<td style="text-align: center;"><span class="math inline">\([15; \, 63]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([10; \, 31]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>max_depth</code></td>
-<td style="text-align: center;"><span class="math inline">\([4; \, 8]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(6\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([3; \, 6]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(5\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(6\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(5\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>min_data_in_leaf</code></td>
-<td style="text-align: center;"><span class="math inline">\([20; \, 200]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(30\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(30\)</span></td>
+<td style="text-align: left;"><code>min_child_samples</code></td>
+<td style="text-align: center;"><span class="math inline">\([10; \, 50]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>scale_pos_weight</code></td>
+<td style="text-align: center;"><span class="math inline">\([1,0; \, 5,0]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2,00\)</span></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"><code>feature_fraction</code></td>
 <td style="text-align: center;"><span class="math inline">\([0,6; \, 1,0]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,85\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,85\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code>bagging_fraction</code></td>
 <td style="text-align: center;"><span class="math inline">\([0,6; \, 1,0]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,90\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,90\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,80\)</span></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;"><code>lambda_l1</code> (L1)</td>
-<td style="text-align: center;"><span class="math inline">\([0,0; \, 10,0]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1,50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1,20\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,50\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>lambda_l2</code> (L2)</td>
-<td style="text-align: center;"><span class="math inline">\([0,0; \, 10,0]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(3,00\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(2,00\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(2,50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1,50\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([0,0; \, 5,0]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,20\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>early_stopping_rounds</code></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(50\)</span></td>
+<td style="text-align: left;"><code>lambda_l2</code> (L2)</td>
+<td style="text-align: center;"><span class="math inline">\([0,0; \, 5,0]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1,00\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>n_estimators</code> (óptimo)</td>
-<td style="text-align: center;"><span class="math inline">\([100; \, 2000]\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(342\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(486\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(289\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(412\)</span></td>
+<td style="text-align: left;"><code>num_boost_round</code></td>
+<td style="text-align: center;"><span class="math inline">\([10; \, 100]\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(40\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(40\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -3071,7 +3071,7 @@ Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en 
 </section>
 <section id="tabla-suplementaria-s4-perfil-de-rendimiento-computacional-y-consumo-de-memoria" class="level1">
 <h1>Tabla Suplementaria S4: Perfil de Rendimiento Computacional y Consumo de Memoria</h1>
-<p>Las pruebas de rendimiento se realizaron en dos entornos de referencia: 1. <strong>Entorno A (Edge / Workstation ARM64):</strong> Apple Silicon M5 (10 núcleos CPU, 16 GB memoria unificada, macOS). 2. <strong>Entorno B (Servidor Cloud x86_64):</strong> Intel Xeon Platinum 8375C (8 vCPU, 32 GB RAM, Ubuntu 22.04 LTS).</p>
+<p>Las pruebas de rendimiento se realizaron en dos entornos de referencia: 1. <strong>Entorno A (Edge / Workstation ARM64):</strong> Apple Silicon ARM64 (Apple M5, 10 núcleos CPU, 16 GB memoria unificada, macOS). 2. <strong>Entorno B (Servidor Cloud x86_64):</strong> Intel Xeon Platinum 8375C (8 vCPU, 32 GB RAM, Ubuntu 22.04 LTS).</p>
 <div id="tbl-computo" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-computo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">

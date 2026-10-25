@@ -91,9 +91,9 @@ $$\text{ROC-AUC}\left(\sigma(w z + b)\right) \equiv \text{ROC-AUC}(z) \quad \for
 En conjuntos de validación con desbalance extremo de clases ($< 1\text{ \%}$ de presencias) o con distribuciones bimodales de margen, el optimizador L-BFGS de la regresión logística estándar puede converger en un mínimo espurio donde $w < 0$. Bajo esta condición, la función se invierte: $\frac{dp}{dz} < 0$, invirtiendo la curva ROC y transformando un modelo con ROC-AUC de $0,77$ en un modelo con ROC-AUC de $0,23$.
 
 ### Formulación Acotada en `Incendios_PY`
-Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada (algoritmo L-BFGS-B implementado en [`src/modelo.py`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py)):
+Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en [`src/modelo.py`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py)):
 
-$$\min_{w, b} \mathcal{L}(w, b) \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -20,0 \le b \le 20,0$$
+$$\min_{w, b} \frac{1}{M} \sum_{i=1}^{M} \left( y_i - \frac{1}{1 + \exp(-(w \cdot z_i + b))} \right)^2 \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -10,0 \le b \le 10,0$$
 
 La cota inferior $w \ge 0,10$ garantiza la monotonicidad estricta y previene el colapso del gradiente en regiones asintóticas.
 
@@ -173,17 +173,17 @@ Los hiperparámetros de los cuatro ensambles LightGBM fueron optimizados mediant
 | Hiperparámetro | Espacio de Búsqueda | Ignición Chaco | Propagación Chaco | Ignición Oriental | Propagación Oriental |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | `objective` | — | `binary` | `binary` | `binary` | `binary` |
-| `learning_rate` | $[0,01; \, 0,15]$ | $0,05$ | $0,03$ | $0,05$ | $0,03$ |
-| `num_leaves` | $[15; \, 63]$ | $31$ | $31$ | $31$ | $31$ |
-| `max_depth` | $[4; \, 8]$ | $6$ | $5$ | $6$ | $5$ |
-| `min_data_in_leaf` | $[20; \, 200]$ | $50$ | $30$ | $50$ | $30$ |
-| `feature_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,85$ | $0,80$ | $0,85$ |
-| `bagging_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,90$ | $0,80$ | $0,90$ |
-| `lambda_l1` (L1) | $[0,0; \, 10,0]$ | $1,50$ | $0,50$ | $1,20$ | $0,50$ |
-| `lambda_l2` (L2) | $[0,0; \, 10,0]$ | $3,00$ | $2,00$ | $2,50$ | $1,50$ |
-| `early_stopping_rounds`| — | $50$ | $50$ | $50$ | $50$ |
-| `n_estimators` (óptimo) | $[100; \, 2000]$ | $342$ | $486$ | $289$ | $412$ |
-: Configuración óptima de hiperparámetros por macro-región y modo operativo. {#tbl-hiperparametros}
+| `learning_rate` | $[0,01; \, 0,10]$ | $0,03$ | $0,03$ | $0,03$ | $0,03$ |
+| `num_leaves` | $[10; \, 31]$ | $15$ | $15$ | $15$ | $15$ |
+| `max_depth` | $[3; \, 6]$ | $5$ | $5$ | $5$ | $5$ |
+| `min_child_samples` | $[10; \, 50]$ | $20$ | $20$ | $10$ | $10$ |
+| `scale_pos_weight` | $[1,0; \, 5,0]$ | $1,00$ | $1,00$ | $2,00$ | $2,00$ |
+| `feature_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ |
+| `bagging_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ |
+| `lambda_l1` (L1) | $[0,0; \, 5,0]$ | $0,20$ | $0,20$ | $0,20$ | $0,20$ |
+| `lambda_l2` (L2) | $[0,0; \, 5,0]$ | $1,00$ | $1,00$ | $1,00$ | $1,00$ |
+| `num_boost_round` | $[10; \, 100]$ | $20$ | $20$ | $40$ | $40$ |
+: Configuración óptima de hiperparámetros por macro-región y modo operativo (obtenida con `scripts/06_entrenar_modelos.py`). {#tbl-hiperparametros}
 
 ---
 
@@ -218,7 +218,7 @@ Métricas evaluadas sobre el conjunto ciego *out-of-time* para los 17 departamen
 # Tabla Suplementaria S4: Perfil de Rendimiento Computacional y Consumo de Memoria
 
 Las pruebas de rendimiento se realizaron en dos entornos de referencia:
-1. **Entorno A (Edge / Workstation ARM64):** Apple Silicon M5 (10 núcleos CPU, 16 GB memoria unificada, macOS).
+1. **Entorno A (Edge / Workstation ARM64):** Apple Silicon ARM64 (Apple M5, 10 núcleos CPU, 16 GB memoria unificada, macOS).
 2. **Entorno B (Servidor Cloud x86_64):** Intel Xeon Platinum 8375C (8 vCPU, 32 GB RAM, Ubuntu 22.04 LTS).
 
 | Etapa del Flujo Computacional | Motor de Cómputo | Memoria RAM Pico (MB) | Tiempo Entorno A (ARM64) | Tiempo Entorno B (x86_64) |

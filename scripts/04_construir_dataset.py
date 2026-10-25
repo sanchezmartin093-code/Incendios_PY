@@ -49,10 +49,13 @@ def construir_dataset_unificado(
 
     filtro_gating = ""
     if aplicar_gating:
+        # Gating biofísico puro: sin leakage de etiquetas de fuego.
+        # Condiciona estrictamente a viabilidad cinemática (combustible presente, sequedad atmosférica y ausencia de lluvia reciente)
         filtro_gating = f"""
             WHERE (
-                (f.fuego = 1) 
-                OR (cli.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA} AND cli.precipitacion_48h_mm < {UMBRAL_LLUVIA_48H_MM})
+                cli.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA} 
+                AND cli.precipitacion_48h_mm < {UMBRAL_LLUVIA_48H_MM}
+                AND gc.es_combustible = true
             )
         """
     else:
