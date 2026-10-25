@@ -67,30 +67,7 @@ format:
 
 # 4. Resumen Gráfico / Graphical Abstract
 
-```mermaid
-flowchart LR
-    subgraph S1["1. INGESTA Y GATING BIOFÍSICO"]
-        G["Grilla Soberana 1 km²<br>(400.006 celdas)"]
-        ERA["ERA5-Land (0.25°)<br>+ MapBiomas 30m"]
-        Gate{"Gating Biofísico<br>VPD ≥ 0.8 kPa<br>Lluvia 48h < 10mm"}
-        G --> Gate
-        ERA --> Gate
-    end
-
-    subgraph S2["2. ARQUITECTURA DUAL DESACOPLADA"]
-        Gate -->|Candidatos Activos| Mod1["MODO 1: Ignición Física<br>P(Ignición) = f(Clima, Ecotono)<br><i>Sin variables de fuego previo</i>"]
-        Gate -->|Focos VIIRS t-1| Mod2["MODO 2: Propagación Táctica<br>P(Propagación) = f(Dist t-1, FRP t-1)<br><i>Kernel de contagio causal</i>"]
-    end
-
-    subgraph S3["3. BENCHMARKING Y ALERTA"]
-        Mod1 --> Out["Calibración Platt Monótona<br>Alerta Nacional Diaria (0.75 s)<br>Supera a Canadian FWI e INPE"]
-        Mod2 --> Out
-    end
-
-    style S1 fill:#f1f5f9,stroke:#94a3b8,color:#0f172a
-    style S2 fill:#eff6ff,stroke:#3b82f6,color:#1e3a8a
-    style S3 fill:#f0fdf4,stroke:#22c55e,color:#14532d
-```
+![Resumen Gráfico: Arquitectura computacional desacoplada de Incendios_PY](figuras/fig01_arquitectura_desacoplada_pele.png){width="100%"}
 
 ---
 
