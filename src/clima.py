@@ -69,7 +69,7 @@ def asignar_nodos_a_grilla(df_grilla: pl.DataFrame, df_nodos: pl.DataFrame) -> p
     tree = cKDTree(df_nodos.select(["x_utm", "y_utm"]).to_numpy())
     puntos_grilla = df_grilla.select(["x_utm", "y_utm"]).to_numpy()
     
-    distancias, indices = tree.query(puntos_grilla, k=1)
+    distancias, indices = tree.query(puntos_grilla, k=1, workers=-1)
     nodos_asignados = df_nodos["nodo_clima_id"].to_numpy()[indices]
 
     return df_grilla.with_columns(
