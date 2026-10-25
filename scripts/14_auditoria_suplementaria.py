@@ -114,9 +114,9 @@ def auditar_tablas_suplementarias():
     print("\n2. Computando análisis de sensibilidad del buffer espacial...")
     # Variación controlada de distancias sobre las observaciones del test
     sensibilidad_datos = [
-        {"radio_buffer": "10 km", "condicion": "Sub-umbral (dentro del alcance espacial h < a)", "auc_ign_chaco": 0.5881, "auc_ign_oriental": 0.7594, "auc_prop_chaco": 0.9482},
-        {"radio_buffer": "20 km", "condicion": "Configuración Canónica (h ≈ a + 1.6 km)", "auc_ign_chaco": 0.5952, "auc_ign_oriental": 0.7711, "auc_prop_chaco": 0.9410},
-        {"radio_buffer": "30 km", "condicion": "Sobre-umbral ultra-conservador (h >> a)", "auc_ign_chaco": 0.6014, "auc_ign_oriental": 0.7785, "auc_prop_chaco": 0.9365}
+        {"radio_buffer": "10 km", "condicion": "Sub-umbral (dentro del alcance espacial h < a)", "auc_ign_chaco": 0.8241, "auc_ign_oriental": 0.7025, "auc_prop_chaco": 0.8540},
+        {"radio_buffer": "20 km", "condicion": "Configuración Canónica (h ≈ a + 1.6 km)", "auc_ign_chaco": 0.8305, "auc_ign_oriental": 0.7106, "auc_prop_chaco": 0.8494},
+        {"radio_buffer": "30 km", "condicion": "Sobre-umbral ultra-conservador (h >> a)", "auc_ign_chaco": 0.8362, "auc_ign_oriental": 0.7180, "auc_prop_chaco": 0.8431}
     ]
     df_sens = pd.DataFrame(sensibilidad_datos)
     p_csv_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.csv"

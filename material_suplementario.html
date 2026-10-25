@@ -2381,7 +2381,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Fecha de última modificación</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">24 de octubre de 2026</p>
+      <p class="date-modified">25 de octubre de 2026</p>
     </div>
   </div>
     
@@ -2486,27 +2486,27 @@ La derivada de primer orden de <span class="math inline">\(p(z)\)</span> respect
 <tr class="odd">
 <td style="text-align: center;"><strong>10 km</strong></td>
 <td style="text-align: left;">Sub-umbral (dentro del alcance espacial <span class="math inline">\(h &lt; a\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(0,5881\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,7594\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,9482\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8241\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,7025\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8540\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>20 km</strong></td>
 <td style="text-align: left;"><strong>Configuración Operativa Canónica</strong> (<span class="math inline">\(h \approx a + 1,6\text{ km}\)</span>)</td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,5952\)</span></strong></td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,7711\)</span></strong></td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,9410\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,8305\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,7106\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,8494\)</span></strong></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><strong>30 km</strong></td>
 <td style="text-align: left;">Sobre-umbral ultra-conservador (<span class="math inline">\(h \gg a\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(0,6014\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,7785\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,9365\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8362\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,7180\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8431\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>Las variaciones en las métricas principales son marginales (<span class="math inline">\(\Delta\text{ROC-AUC} &lt; 0,019\)</span>), demostrando que la superioridad de <code>Incendios_PY</code> frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.</p>
+<p>Las variaciones en las métricas principales son marginales (<span class="math inline">\(\Delta\text{ROC-AUC} &lt; 0,013\)</span>), demostrando que la superioridad de <code>Incendios_PY</code> frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.</p>
 <hr>
 </section>
 </section>
@@ -2875,18 +2875,20 @@ Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo op
 <div id="tbl-departamentos" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-departamentos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego.
+Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego (generada de forma reproducible por <code>scripts/14_auditoria_suplementaria.py</code>).
 </figcaption>
 <div aria-describedby="tbl-departamentos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 15%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 15%">
-<col style="width: 15%">
-<col style="width: 15%">
-<col style="width: 15%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -2894,6 +2896,8 @@ Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en 
 <th style="text-align: left;">Departamento</th>
 <th style="text-align: left;">Macro-Región</th>
 <th style="text-align: center;">Celdas Soberanas (1 km²)</th>
+<th style="text-align: center;">Muestras Test</th>
+<th style="text-align: center;">Fuegos Test</th>
 <th style="text-align: center;">ROC-AUC (Ignición)</th>
 <th style="text-align: center;">ROC-AUC (Propagación)</th>
 <th style="text-align: center;">Precisión Táctica (%)</th>
@@ -2901,165 +2905,113 @@ Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en 
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: center;"><strong>PY-16</strong></td>
-<td style="text-align: left;">Boquerón</td>
-<td style="text-align: left;">Chaco</td>
-<td style="text-align: center;"><span class="math inline">\(91.802\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,612\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,951\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(98,1\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
 <td style="text-align: center;"><strong>PY-17</strong></td>
 <td style="text-align: left;">Alto Paraguay</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: center;"><span class="math inline">\(82.411\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,589\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,938\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(97,4\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(78.613\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(641\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(108\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,939}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,956}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(95,6\text{ \%}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>PY-16</strong></td>
+<td style="text-align: left;">Boquerón</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: center;"><span class="math inline">\(88.623\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(757\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(34\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,662}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,679}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><strong>PY-15</strong></td>
 <td style="text-align: left;">Presidente Hayes</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: center;"><span class="math inline">\(73.114\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,594\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,942\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(97,8\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-01</strong></td>
-<td style="text-align: left;">Concepción</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(18.051\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,782\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,874\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(73.644\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(428\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(24\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,581}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,599}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;"><strong>PY-02</strong></td>
 <td style="text-align: left;">San Pedro</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(20.002\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,794\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,881\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-03</strong></td>
-<td style="text-align: left;">Cordillera</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(4.948\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,741\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,842\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20.854\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(8\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,804}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,616}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;"><strong>PY-04</strong></td>
-<td style="text-align: left;">Guairá</td>
+<td style="text-align: center;"><strong>PY-01</strong></td>
+<td style="text-align: left;">Concepción</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(3.856\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,753\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,839\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-05</strong></td>
-<td style="text-align: left;">Caaguazú</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(11.474\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,768\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,865\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><strong>PY-06</strong></td>
-<td style="text-align: left;">Caazapá</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(9.496\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,779\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,871\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-07</strong></td>
-<td style="text-align: left;">Itapúa</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(16.525\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,762\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,859\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><strong>PY-08</strong></td>
-<td style="text-align: left;">Misiones</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(9.556\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,735\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,830\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-09</strong></td>
-<td style="text-align: left;">Paraguarí</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(8.705\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,748\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,845\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><strong>PY-10</strong></td>
-<td style="text-align: left;">Alto Paraná</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(14.895\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,785\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,879\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><strong>PY-11</strong></td>
-<td style="text-align: left;">Central</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(2.465\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,712\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,810\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><strong>PY-12</strong></td>
-<td style="text-align: left;">Ñeembucú</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(12.147\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,729\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,825\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(18.523\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(274\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,761}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,752}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>PY-13</strong></td>
 <td style="text-align: left;">Amambay</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(12.938\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,802\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,891\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(12.555\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(85\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(11\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,655}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,589}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;"><strong>PY-14</strong></td>
-<td style="text-align: left;">Canindeyú</td>
+<td style="text-align: center;"><strong>PY-05</strong></td>
+<td style="text-align: left;">Caaguazú</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(14.604\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,791\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,886\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(12.901\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(34\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
 <td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"><strong>PY-ASU</strong></td>
-<td style="text-align: left;">Asunción (Capital)</td>
+<td style="text-align: center;"><strong>PY-12</strong></td>
+<td style="text-align: left;">Ñeembucú</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(117\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,684\)</span></td>
-<td style="text-align: center;">— (Sin focos)</td>
+<td style="text-align: center;"><span class="math inline">\(11.672\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-08</strong></td>
+<td style="text-align: left;">Misiones</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(8.157\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Resto ADM1</strong></td>
+<td style="text-align: left;">Otros 9 Deptos.</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(72.100\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;">— (Sin fuegos en test)</td>
+<td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 </tr>
 </tbody>

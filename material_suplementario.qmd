@@ -125,11 +125,11 @@ Para evaluar la estabilidad del diseño experimental frente a la elección del r
 
 | Radio del Buffer ($\text{km}$) | Condición Espacial respecto al Semivariograma | ROC-AUC (Ignición Chaco) | ROC-AUC (Ignición Oriental) | ROC-AUC (Propagación Chaco) |
 | :---: | :--- | :---: | :---: | :---: |
-| **10 km** | Sub-umbral (dentro del alcance espacial $h < a$) | $0,5881$ | $0,7594$ | $0,9482$ |
-| **20 km** | **Configuración Operativa Canónica** ($h \approx a + 1,6\text{ km}$) | **$0,5952$** | **$0,7711$** | **$0,9410$** |
-| **30 km** | Sobre-umbral ultra-conservador ($h \gg a$) | $0,6014$ | $0,7785$ | $0,9365$ |
+| **10 km** | Sub-umbral (dentro del alcance espacial $h < a$) | $0,8241$ | $0,7025$ | $0,8540$ |
+| **20 km** | **Configuración Operativa Canónica** ($h \approx a + 1,6\text{ km}$) | **$0,8305$** | **$0,7106$** | **$0,8494$** |
+| **30 km** | Sobre-umbral ultra-conservador ($h \gg a$) | $0,8362$ | $0,7180$ | $0,8431$ |
 
-Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AUC} < 0,019$), demostrando que la superioridad de `Incendios_PY` frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.
+Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AUC} < 0,013$), demostrando que la superioridad de `Incendios_PY` frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.
 
 ---
 
@@ -191,27 +191,19 @@ Los hiperparámetros de los cuatro ensambles LightGBM fueron optimizados mediant
 
 Métricas evaluadas sobre el conjunto ciego *out-of-time* para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción).
 
-| Código ADM1 | Departamento | Macro-Región | Celdas Soberanas (1 km²) | ROC-AUC (Ignición) | ROC-AUC (Propagación) | Precisión Táctica (%) |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
-| **PY-16** | Boquerón | Chaco | $91.802$ | $0,612$ | $0,951$ | $98,1\text{ \%}$ |
-| **PY-17** | Alto Paraguay | Chaco | $82.411$ | $0,589$ | $0,938$ | $97,4\text{ \%}$ |
-| **PY-15** | Presidente Hayes | Chaco | $73.114$ | $0,594$ | $0,942$ | $97,8\text{ \%}$ |
-| **PY-01** | Concepción | Oriental | $18.051$ | $0,782$ | $0,874$ | $100,0\text{ \%}$ |
-| **PY-02** | San Pedro | Oriental | $20.002$ | $0,794$ | $0,881$ | $100,0\text{ \%}$ |
-| **PY-03** | Cordillera | Oriental | $4.948$ | $0,741$ | $0,842$ | $100,0\text{ \%}$ |
-| **PY-04** | Guairá | Oriental | $3.856$ | $0,753$ | $0,839$ | $100,0\text{ \%}$ |
-| **PY-05** | Caaguazú | Oriental | $11.474$ | $0,768$ | $0,865$ | $100,0\text{ \%}$ |
-| **PY-06** | Caazapá | Oriental | $9.496$ | $0,779$ | $0,871$ | $100,0\text{ \%}$ |
-| **PY-07** | Itapúa | Oriental | $16.525$ | $0,762$ | $0,859$ | $100,0\text{ \%}$ |
-| **PY-08** | Misiones | Oriental | $9.556$ | $0,735$ | $0,830$ | $100,0\text{ \%}$ |
-| **PY-09** | Paraguarí | Oriental | $8.705$ | $0,748$ | $0,845$ | $100,0\text{ \%}$ |
-| **PY-10** | Alto Paraná | Oriental | $14.895$ | $0,785$ | $0,879$ | $100,0\text{ \%}$ |
-| **PY-11** | Central | Oriental | $2.465$ | $0,712$ | $0,810$ | $100,0\text{ \%}$ |
-| **PY-12** | Ñeembucú | Oriental | $12.147$ | $0,729$ | $0,825$ | $100,0\text{ \%}$ |
-| **PY-13** | Amambay | Oriental | $12.938$ | $0,802$ | $0,891$ | $100,0\text{ \%}$ |
-| **PY-14** | Canindeyú | Oriental | $14.604$ | $0,791$ | $0,886$ | $100,0\text{ \%}$ |
-| **PY-ASU**| Asunción (Capital)| Oriental | $117$ | $0,684$ | — (Sin focos) | — |
-: Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego. {#tbl-departamentos}
+| Código ADM1 | Departamento | Macro-Región | Celdas Soberanas (1 km²) | Muestras Test | Fuegos Test | ROC-AUC (Ignición) | ROC-AUC (Propagación) | Precisión Táctica (%) |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **PY-17** | Alto Paraguay | Chaco | $78.613$ | $641$ | $108$ | $\mathbf{0,939}$ | $\mathbf{0,956}$ | $95,6\text{ \%}$ |
+| **PY-16** | Boquerón | Chaco | $88.623$ | $757$ | $34$ | $\mathbf{0,662}$ | $\mathbf{0,679}$ | $100,0\text{ \%}$ |
+| **PY-15** | Presidente Hayes | Chaco | $73.644$ | $428$ | $24$ | $\mathbf{0,581}$ | $\mathbf{0,599}$ | $100,0\text{ \%}$ |
+| **PY-02** | San Pedro | Oriental | $20.854$ | $15$ | $8$ | $\mathbf{0,804}$ | $\mathbf{0,616}$ | $100,0\text{ \%}$ |
+| **PY-01** | Concepción | Oriental | $18.523$ | $274$ | $20$ | $\mathbf{0,761}$ | $\mathbf{0,752}$ | $100,0\text{ \%}$ |
+| **PY-13** | Amambay | Oriental | $12.555$ | $85$ | $11$ | $\mathbf{0,655}$ | $\mathbf{0,589}$ | $100,0\text{ \%}$ |
+| **PY-05** | Caaguazú | Oriental | $12.901$ | $34$ | $0$ | — | — | $100,0\text{ \%}$ |
+| **PY-12** | Ñeembucú | Oriental | $11.672$ | $31$ | $0$ | — | — | $100,0\text{ \%}$ |
+| **PY-08** | Misiones | Oriental | $8.157$ | $1$ | $1$ | — | — | — |
+| **Resto ADM1** | Otros 9 Deptos. | Oriental | $72.100$ | $0$ | $0$ | — (Sin fuegos en test) | — | — |
+: Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego (generada de forma reproducible por `scripts/14_auditoria_suplementaria.py`). {#tbl-departamentos}
 
 ---
 
