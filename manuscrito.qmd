@@ -167,6 +167,10 @@ Las presencias de fuego provienen de la constelación de sensores satelitales VI
 - **ERA5-Land:** Los parámetros meteorológicos horarios se extraen a la resolución nativa de $0,25^\circ$ ($\sim 25\text{ km}$) mediante la API de archivo histórico abierto de Open-Meteo [@munoz2021era5land]. Todo el territorio paraguayo es cubierto de forma exhaustiva con exactamente **640 nodos meteorológicos**. Cada celda de 1 km² se asocia a su nodo meteorológico más cercano mediante un árbol k-dimensional (*cKDTree*) precomputado una sola vez.
 - **MapBiomas Chaco y Bosque Atlántico (30 m):** Las clasificaciones de uso de suelo de MapBiomas (Colección 4) [@mapbiomas2023] se agregan a la grilla de 1 km², calculando las fracciones de cobertura para cinco clases dominantes: pastura cultivada, sabana/pastizal natural, bosque seco xerofítico, bosque húmedo estratificado y humedales/palmares.
 
+La delimitación geográfica, la división macro-regional entre la Región Occidental (Chaco) y Oriental, y los patrones de cobertura vegetal derivados de MapBiomas se detallan en la @fig-area-estudio.
+
+![Estratificación geográfica y ecológica del área de estudio: Macro-regiones (Chaco semiárido vs. Región Oriental húmeda), partición departamental oficial ADM1 y distribución espacial de las clases de cobertura vegetal MapBiomas agregadas a la grilla de 1 km².](figuras/fig01_macro_regiones_cobertura.png){#fig-area-estudio width="85%"}
+
 ## 3.4 Flujo Analítico *Zero-Copy* en DuckDB y Polars
 
 A diferencia de las plataformas centralizadas en la nube como Google Earth Engine [@gorelick2017], que dependen de conectividad permanente a servidores remotos, o de librerías tradicionales en memoria como Scikit-learn [@pedregosa2011] que duplican matrices densas, implementamos una canalización local de alto rendimiento mediante **DuckDB** [@raasveldt2019duckdb] y **Polars**. El ensamble relacional se realiza mediante *streaming out-of-core* en bloques de memoria columnar Apache Arrow, evitando copias redundantes en memoria intermedia (*zero-copy architecture*). Como se detalla en la @tbl-pipeline, el almacenamiento en disco se optimiza mediante compresión Zstandard (ZSTD nivel 7).
@@ -236,6 +240,10 @@ En la capa de **Propagación Táctica**, el modelo alcanza un rendimiento superl
 
 Por su parte, la capa de **Ignición Primaria Física** (que no utiliza ninguna información de fuego previo) alcanza un ROC-AUC de **$0,7711$** en la Región Oriental, prediciendo con notable exactitud dónde surgirán nuevos incendios aislados a partir de variables de estrés hídrico y combustible.
 
+Las curvas de rendimiento empírico Receiver Operating Characteristic (ROC) y Precision-Recall (PR) sobre la partición ciega temporal se detallan en la @fig-curvas-test, evidenciando la marcada separación alcanzada por la capa de propagación táctica y el balance de compromiso en la capa de ignición física.
+
+![Curvas discriminantes de desempeño predictivo sobre el conjunto de prueba ciego out-of-time (2024–2025): Comparación de curvas ROC (izquierda) y Precision-Recall (derecha) para los modelos de Ignición Primaria Física y Propagación Táctica en el Chaco y la Región Oriental.](figuras/fig02_curvas_roc_pr_test.png){#fig-curvas-test width="100%"}
+
 ## 5.2 Benchmarking Comparativo Internacional
 
 La @tbl-benchmark expone la comparación directa entre el modelo de ignición física de `Incendios_PY` y los índices internacionales canónicos.
@@ -252,6 +260,10 @@ La @tbl-benchmark expone la comparación directa entre el modelo de ignición f�
 : Benchmarking internacional comparativo sobre el mismo conjunto de prueba ciego out-of-time. {#tbl-benchmark}
 
 Como se observa, tanto el **Canadian FWI** como el **INPE Risco de Fogo** obtienen un ROC-AUC inferior a 0,50 en la Región Oriental ($0,389$ y $0,399$, respectivamente). Esto indica que en regímenes subtropicales húmedos con fuerte actividad humana, los índices canónicos invierten el ranking de peligro, clasificando erróneamente días con condiciones ideales de quema de pasturas como de "bajo riesgo". `Incendios_PY` supera a ambos sistemas por más de 38 puntos porcentuales de ROC-AUC.
+
+La comparación gráfica exhaustiva de las curvas ROC y Precision-Recall frente al Canadian FWI y al INPE Risco de Fogo se expone en la @fig-benchmark-curvas, destacando la marcada divergencia en la fracción de positivos verdaderos identificados.
+
+![Benchmarking comparativo internacional frente a los sistemas canónicos en el conjunto de prueba ciego: Curvas ROC y Precision-Recall contrastando `Incendios_PY` frente al Canadian FWI (EFFIS/GWIS), INPE Risco de Fogo y la línea base climatológica nula en ambas macro-regiones.](figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark-curvas width="100%"}
 
 ## 5.3 Explicabilidad Biofísica con TreeSHAP
 
@@ -270,6 +282,10 @@ En el **Chaco**, el factor determinante es el **Déficit de Presión de Vapor** 
 
 En contraste, en la **Región Oriental**, el motor principal es el **FFMC** y la **amplitud térmica**, combinados con la cobertura de pasturas. La amplitud térmica actúa como indicador de cielos despejados e insolación intensa que deseca los pastizales implantados en zonas de frontera agrícola.
 
+La descomposición visual de la explicabilidad del ensamble mediante diagramas de dispersión de densidad TreeSHAP (*beeswarm plots*) se expone en la @fig-shap, revelando cómo el gradiente de cada variable incide positiva o negativamente en el logit de ignición.
+
+![Explicabilidad biofísica global mediante descomposiciones TreeSHAP: Distribución de valores Shapley para las 10 características más relevantes en el Chaco semiárido (panel superior) y en la Región Oriental (panel inferior), donde cada punto representa una celda del conjunto ciego coloreada por el valor normalizado de la variable.](figuras/fig04_shap_comparativa_chaco_vs_oriental.png){#fig-shap width="100%"}
+
 ## 5.4 Evaluación de Latencia y Rendimiento en Tiempo Real
 
 El servicio automatizado de alerta ([`src/alerta.py`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/alerta.py)) se evaluó mediante pruebas de estrés sobre la totalidad del país ($400.006$ celdas):
@@ -279,7 +295,9 @@ El servicio automatizado de alerta ([`src/alerta.py`](file:///Users/martinsanche
 - **Exportación tabular y GeoTIFF nacional:** $0,10\text{ s}$.
 - **Tiempo total de ejecución de punta a punta:** **$0,75\text{ segundos}$**.
 
-Este rendimiento garantiza que una agencia estatal (como el Cuerpo de Bomberos o el INFONA) pueda ejecutar predicciones cada hora si se dispone de pronósticos numéricos de alta frecuencia sin requerir infraestructura de supercómputo.
+Este rendimiento garantiza que una agencia estatal (como el Cuerpo de Bomberos o el INFONA) pueda ejecutar predicciones cada hora si se dispone de pronósticos numéricos de alta frecuencia sin requerir infraestructura de supercómputo. La cartografía operativa resultante a resolución nacional de 1 km² se ilustra en la @fig-mapa-operativo.
+
+![Cartografía de predicción del riesgo operativo de incendios a escala soberana (1 km²): Ejemplo del producto espacial nacional generado por el servicio diario `Incendios_PY`, integrando el índice de ignición física desacoplado y la probabilidad táctica de avance de fuego.](figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-mapa-operativo width="85%"}
 
 ---
 
@@ -331,6 +349,10 @@ Como evolución inmediata, proponemos la integración del sistema de predicción
 - **Modo 1 (Regional Sinóptico):** Cartografía nacional diaria del índice de peligro a 1 km².
 - **Modo 2 (Focal VIIRS 375 m):** Detección de anomalías térmicas y clusters de propagación activa.
 - **Modo 3 (Infrarrojo de Onda Corta SWIR / Sentinel-2 / Landsat-9 a 20 m):** Inspección de alta resolución para la delimitación precisa de cicatrices de quemado (*burn scars*) y cálculo del índice normalizado de área quemada ($NBR$).
+
+La estructura operativa de este esquema multiescala y los tres modos de visualización se ilustran en la @fig-trimodal.
+
+![Esquema conceptual y operativo de la verificación satelital tri-modal multiespectral: Modo 1 (Alerta Regional a 1 km²), Modo 2 (Detección térmica focal VIIRS a 375 m) y Modo 3 (Confirmación espectral SWIR de alta resolución en frentes de fuego activos).](figuras/fig06_comparativa_satelital_tres_modos.png){#fig-trimodal width="100%"}
 
 ---
 
