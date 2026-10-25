@@ -136,11 +136,16 @@ def auditar_tablas_suplementarias():
 
     t0 = time.perf_counter()
     # Simular inferencia sobre las 400.006 celdas
-    ruta_b_chaco = DIR_MODELOS / "lightgbm_chaco.booster"
-    ruta_c_chaco = DIR_MODELOS / "calibradores" / "calibrador_chaco.joblib"
+    ruta_b_chaco = DIR_MODELOS / "lightgbm_ignicion_chaco.booster"
+    ruta_c_chaco = DIR_MODELOS / "calibradores" / "calibrador_ignicion_chaco.joblib"
+    if not ruta_b_chaco.exists():
+        ruta_b_chaco = DIR_MODELOS / "lightgbm_chaco.booster"
+        ruta_c_chaco = DIR_MODELOS / "calibradores" / "calibrador_chaco.joblib"
+
     if ruta_b_chaco.exists():
         b_c, c_c = cargar_modelo_y_calibrador(ruta_b_chaco, ruta_c_chaco)
-        X_dummy = np.random.randn(400006, 23).astype(np.float32)
+        num_feats = b_c.num_feature()
+        X_dummy = np.random.randn(400006, num_feats).astype(np.float32)
         _ = predecir_probabilidad(b_c, c_c, X_dummy)
     t_inferencia = time.perf_counter() - t0
 

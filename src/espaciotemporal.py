@@ -92,12 +92,12 @@ def calcular_variables_contagio_lag(
         idx_df_fecha = np.where(fechas_df_arr == f_actual)[0]
         coords_consulta = coords_df[idx_df_fecha]
 
-        # 1. Distancia al foco más cercano
-        dists, _ = tree_ayer.query(coords_consulta, k=1)
+        # 1. Distancia al foco más cercano (multiprocesamiento C++ vectorizado)
+        dists, _ = tree_ayer.query(coords_consulta, k=1, workers=-1)
         dist_t1_km[idx_df_fecha] = np.clip(dists / 1000.0, 0.0, dist_max_km).astype(np.float32)
 
         # 2. Conteo y suma de FRP en radio de 25 km
-        vecinos_por_punto = tree_ayer.query_ball_point(coords_consulta, r=radio_m)
+        vecinos_por_punto = tree_ayer.query_ball_point(coords_consulta, r=radio_m, workers=-1)
         counts = np.array([len(v) for v in vecinos_por_punto], dtype=np.float32)
         frp_sums = np.array([np.sum(frp_ayer[v]) if len(v) > 0 else 0.0 for v in vecinos_por_punto], dtype=np.float32)
 
@@ -125,12 +125,12 @@ def calcular_prior_espacial_historico(
     coords_df = asegurar_coordenadas_utm(df)
     tree_hist = cKDTree(fuegos_train_coords)
 
-    # Distancia al fuego histórico más cercano (k=1)
-    dists, _ = tree_hist.query(coords_df, k=1)
+    # Distancia al fuego histórico más cercano (k=1, multithreaded)
+    dists, _ = tree_hist.query(coords_df, k=1, workers=-1)
     dist_hist_km = np.clip(dists / 1000.0, 0.0, dist_max_km).astype(np.float32)
 
     # Densidad en radio de 25 km con return_length vectorizado O(N)
-    densidad_hist = tree_hist.query_ball_point(coords_df, r=radio_m, return_length=True).astype(np.float32)
+    densidad_hist = tree_hist.query_ball_point(coords_df, r=radio_m, return_length=True, workers=-1).astype(np.float32)
 
     return df.with_columns([
         pl.Series("dist_foco_hist_km", dist_hist_km),

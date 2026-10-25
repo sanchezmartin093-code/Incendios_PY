@@ -87,7 +87,10 @@ FEATURES_IGNICION_BASE = [
     "pct_pastura",
     "pct_sabana_pastizal",
     "pct_humedal_palmar",
-    "indice_ecotono"
+    "indice_ecotono",
+    # Susceptibilidad geográfica histórica (prior libre de data leakage temporal)
+    "dist_foco_hist_km",
+    "densidad_hist_25km"
 ]
 
 FEATURES_IGNICION_CHACO = FEATURES_IGNICION_BASE + ["pct_bosque_seco"]
@@ -133,6 +136,30 @@ def preparar_matrices_xy(
 
     return X, y, feats_existentes
 
+def obtener_restricciones_monotonas(nombres_features: list[str]) -> list[int]:
+    """
+    Define restricciones de monotonicidad biofísica (Physics-Guided Machine Learning):
+    +1: la probabilidad es no-decreciente respecto a sequedad atmosférica o combustible fino
+    -1: la probabilidad es no-creciente respecto a lluvia o distancia al fuego previo
+     0: libre (sin restricción previa)
+    """
+    restricciones = []
+    positivas = {
+        "vpd_max_kpa", "ffmc", "isi", "dias_secos_consecutivos", 
+        "deficit_hidrico_acumulado", "potencial_viento_cuadratico", "densidad_hist_25km"
+    }
+    negativas = {
+        "precipitacion_mm", "precipitacion_48h_mm", "dist_foco_t1_km", "dist_foco_hist_km"
+    }
+    for f in nombres_features:
+        if f in positivas:
+            restricciones.append(1)
+        elif f in negativas:
+            restricciones.append(-1)
+        else:
+            restricciones.append(0)
+    return restricciones
+
 def entrenar_modelo_lightgbm(
     X_train: np.ndarray,
     y_train: np.ndarray,
@@ -145,10 +172,12 @@ def entrenar_modelo_lightgbm(
     min_child_samples: int = 10,
     num_boost_round: int = 100,
     early_stopping_rounds: int | None = 15,
-    semilla: int = 42
+    semilla: int = 42,
+    usar_restricciones_fisicas: bool = True
 ) -> lgb.Booster:
     """
-    Entrena un ensamble LightGBM para clasificación binaria optimizado para eventos raros.
+    Entrena un ensamble LightGBM para clasificación binaria optimizado para eventos raros
+    con soporte nativo de restricciones monótonas biofísicas.
     """
     dtrain = lgb.Dataset(X_train, label=y_train, feature_name=nombres_features, free_raw_data=False)
     dval = lgb.Dataset(X_val, label=y_val, reference=dtrain, feature_name=nombres_features, free_raw_data=False)
@@ -170,6 +199,9 @@ def entrenar_modelo_lightgbm(
         "random_state": semilla,
         "verbose": -1
     }
+
+    if usar_restricciones_fisicas and nombres_features:
+        params["monotone_constraints"] = obtener_restricciones_monotonas(nombres_features)
 
     callbacks = [lgb.log_evaluation(period=0)]
     if early_stopping_rounds:
