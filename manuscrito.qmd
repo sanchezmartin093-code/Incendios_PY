@@ -109,43 +109,7 @@ Definimos dos espacios de variables diferenciados para evitar la contaminación 
 2. **Espacio de Propagación Táctica ($\mathcal{X}_{\text{propagación}}$):**  
    Agrega a $\mathcal{X}_{\text{ignición}}$ el kernel de proximidad espacial al frente de fuego activo más cercano en $t-1$ ($\text{dist\_foco\_t1\_km}$), la densidad local de focos térmicos en un radio de 25 km ($\text{focos\_25km\_t1}$) y la potencia radiativa del fuego acumulada ($\text{frp\_25km\_t1}$).
 
-::: {#fig-arquitectura}
-```{mermaid}
-flowchart TD
-    subgraph Entrada["1. ENTRADA BIOFÍSICA (Celdas Activas)"]
-        X["Variables Meteorológicas ERA5-Land (t)<br>+ Cobertura de Combustible MapBiomas (30m)<br>+ Gradiente de Ecotono"]
-    end
-
-    subgraph Dual["2. ARQUITECTURA DESACOPLADA"]
-        direction TB
-        subgraph ModIgn["MODELO DE IGNICIÓN (Física Pura)"]
-            F1["Features: Clima + Vegetación + Ecotono<br><b>PROHIBIDO Lags de fuego en t-1</b>"]
-            M1["LightGBM Ignición<br>P(Ignición)"]
-        end
-        subgraph ModProp["MODELO DE PROPAGACIÓN (Táctico)"]
-            F2["Features: Físicas + dist_foco_t1<br>+ focos_25km_t1 + frp_25km_t1"]
-            M2["LightGBM Propagación<br>P(Propagación)"]
-        end
-    end
-
-    subgraph Salida["3. INFERENCIA Y ALERTA OPERATIVA"]
-        M1 --> P1["Riesgo de Inicio Nuevo<br>(Prevención y Patrullaje)"]
-        M2 --> P2["Riesgo de Avance de Frente<br>(Combate Activo de Bomberos)"]
-        P1 --> Comb["Índice Compuesto de Alerta Soberana"]
-        P2 --> Comb
-    end
-
-    Entrada --> ModIgn
-    Entrada --> ModProp
-
-    style Entrada fill:#f8fafc,stroke:#64748b,color:#0f172a
-    style ModIgn fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style ModProp fill:#fef2f2,stroke:#dc2626,color:#991b1b
-    style Salida fill:#f0fdf4,stroke:#16a34a,color:#14532d
-```
-
-Arquitectura computacional desacoplada de `Incendios_PY`: separación estricta entre la capa de Ignición Primaria Física y la capa de Propagación Táctica Local.
-:::
+![Arquitectura computacional desacoplada de `Incendios_PY`: separación estricta entre la capa de Ignición Primaria Física y la capa de Propagación Táctica Local, renderizada con tipografía y paleta editorial mediante Pele (*obsidianmd/pele*).](figuras/fig01_arquitectura_desacoplada_pele.png){#fig-arquitectura width="100%"}
 
 ## 2.4 Kernel de Contagio Espaciotemporal Causal $t-1$
 
