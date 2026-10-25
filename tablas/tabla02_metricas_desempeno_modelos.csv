@@ -1,13 +1,13 @@
-region,capa_modelo,umbral_estrategia,cutoff,roc_auc,pr_auc,brier_skill_score,sensibilidad_recall,especificidad,precision,f1_score,f05_score,verdaderos_positivos,falsos_positivos,verdaderos_negativos,falsos_negativos
-Chaco,Ignición Primaria,Estándar (0.50),0.5,0.8305,0.5714,0.3746,0.3193,0.9988,0.9636,0.4796,0.6865,53,2,1658,113
-Chaco,Ignición Primaria,Youden J (0.08),0.085,0.8305,0.5714,0.3746,0.759,0.8163,0.2923,0.4221,0.3333,126,305,1355,40
-Chaco,Ignición Primaria,Alta Precisión F0.5 (0.37),0.373,0.8305,0.5714,0.3746,0.5723,0.9627,0.6051,0.5882,0.5982,95,62,1598,71
-Chaco,Propagación Táctica,Estándar (0.50),0.5,0.8494,0.7057,0.386,0.3193,0.9988,0.9636,0.4796,0.6865,53,2,1658,113
-Chaco,Propagación Táctica,Youden J (0.24),0.243,0.8494,0.7057,0.386,0.6627,0.9928,0.9016,0.7639,0.841,110,12,1648,56
-Chaco,Propagación Táctica,Alta Precisión F0.5 (0.24),0.243,0.8494,0.7057,0.386,0.6627,0.9928,0.9016,0.7639,0.841,110,12,1648,56
-Oriental,Ignición Primaria,Estándar (0.50),0.5,0.7106,0.2741,0.0521,0.075,1.0,1.0,0.1395,0.2885,3,0,400,37
-Oriental,Ignición Primaria,Youden J (0.09),0.087,0.7106,0.2741,0.0521,0.725,0.67,0.1801,0.2886,0.212,29,132,268,11
-Oriental,Ignición Primaria,Alta Precisión F0.5 (0.09),0.095,0.7106,0.2741,0.0521,0.475,0.8975,0.3167,0.38,0.3393,19,41,359,21
-Oriental,Propagación Táctica,Estándar (0.50),0.5,0.6917,0.3031,0.056,0.075,1.0,1.0,0.1395,0.2885,3,0,400,37
-Oriental,Propagación Táctica,Youden J (0.09),0.092,0.6917,0.3031,0.056,0.7,0.725,0.2029,0.3146,0.2365,28,110,290,12
-Oriental,Propagación Táctica,Alta Precisión F0.5 (0.11),0.106,0.6917,0.3031,0.056,0.25,0.975,0.5,0.3333,0.4167,10,10,390,30
+region,capa_modelo,umbral_estrategia,cutoff,roc_auc,roc_ci_95,pr_auc,ece,brier_score,brier_skill_score,sensibilidad_recall,especificidad,precision,f1_score,f05_score,verdaderos_positivos,falsos_positivos,verdaderos_negativos,falsos_negativos
+Chaco,Ignición Primaria,Estándar (0.50),0.5,0.8305,[0.788 - 0.871],0.5714,0.0112,0.0517,0.3746,0.3193,0.9988,0.9636,0.4796,0.6865,53,2,1658,113
+Chaco,Ignición Primaria,Youden J (0.08),0.085,0.8305,[0.788 - 0.871],0.5714,0.0112,0.0517,0.3746,0.759,0.8163,0.2923,0.4221,0.3333,126,305,1355,40
+Chaco,Ignición Primaria,Alta Precisión F0.5 (0.37),0.373,0.8305,[0.788 - 0.871],0.5714,0.0112,0.0517,0.3746,0.5723,0.9627,0.6051,0.5882,0.5982,95,62,1598,71
+Chaco,Propagación Táctica,Estándar (0.50),0.5,0.8494,[0.806 - 0.890],0.7057,0.0615,0.0507,0.386,0.3193,0.9988,0.9636,0.4796,0.6865,53,2,1658,113
+Chaco,Propagación Táctica,Youden J (0.24),0.243,0.8494,[0.806 - 0.890],0.7057,0.0615,0.0507,0.386,0.6627,0.9928,0.9016,0.7639,0.841,110,12,1648,56
+Chaco,Propagación Táctica,Alta Precisión F0.5 (0.24),0.243,0.8494,[0.806 - 0.890],0.7057,0.0615,0.0507,0.386,0.6627,0.9928,0.9016,0.7639,0.841,110,12,1648,56
+Oriental,Ignición Primaria,Estándar (0.50),0.5,0.7106,[0.599 - 0.804],0.2741,0.0106,0.0783,0.0521,0.075,1.0,1.0,0.1395,0.2885,3,0,400,37
+Oriental,Ignición Primaria,Youden J (0.09),0.087,0.7106,[0.599 - 0.804],0.2741,0.0106,0.0783,0.0521,0.725,0.67,0.1801,0.2886,0.212,29,132,268,11
+Oriental,Ignición Primaria,Alta Precisión F0.5 (0.09),0.095,0.7106,[0.599 - 0.804],0.2741,0.0106,0.0783,0.0521,0.475,0.8975,0.3167,0.38,0.3393,19,41,359,21
+Oriental,Propagación Táctica,Estándar (0.50),0.5,0.6917,[0.582 - 0.796],0.3031,0.0216,0.078,0.056,0.075,1.0,1.0,0.1395,0.2885,3,0,400,37
+Oriental,Propagación Táctica,Youden J (0.09),0.092,0.6917,[0.582 - 0.796],0.3031,0.0216,0.078,0.056,0.7,0.725,0.2029,0.3146,0.2365,28,110,290,12
+Oriental,Propagación Táctica,Alta Precisión F0.5 (0.11),0.106,0.6917,[0.582 - 0.796],0.3031,0.0216,0.078,0.056,0.25,0.975,0.5,0.3333,0.4167,10,10,390,30

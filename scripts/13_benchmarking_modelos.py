@@ -35,7 +35,11 @@ from sklearn.metrics import (
 
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_TABLAS, DIR_FIGURAS
 from src.modelo import cargar_modelo_y_calibrador, predecir_probabilidad, preparar_matrices_xy
-from src.metricas import calcular_umbral_optimo_f_beta
+from src.metricas import (
+    calcular_umbral_optimo_f_beta,
+    calcular_expected_calibration_error,
+    calcular_bootstrap_ci_roc
+)
 
 def ejecutar_benchmarking():
     print("=" * 70)
@@ -112,6 +116,8 @@ def ejecutar_benchmarking():
             pr_auc = float(average_precision_score(y_true, p_mod)) if len(np.unique(p_mod)) > 1 else prevalencia
             bs = float(brier_score_loss(y_true, p_mod))
             bss = float(1.0 - (bs / (bs_clim + 1e-9)))
+            ece = float(calcular_expected_calibration_error(y_true, p_mod))
+            ci_low, ci_high = calcular_bootstrap_ci_roc(y_true, p_mod, n_bootstrap=500) if len(np.unique(p_mod)) > 1 else (0.5, 0.5)
 
             # Punto de corte operativo F0.5
             if len(np.unique(p_mod)) > 1:
@@ -129,7 +135,9 @@ def ejecutar_benchmarking():
                 "region": region,
                 "modelo": nombre_mod,
                 "roc_auc": round(auc, 4),
+                "roc_ci_95": f"[{ci_low:.3f} - {ci_high:.3f}]",
                 "pr_auc": round(pr_auc, 4),
+                "ece": round(ece, 4),
                 "brier_score": round(bs, 4),
                 "brier_skill_score": round(bss, 4),
                 "cutoff_f05": round(c_opt, 4),
@@ -148,7 +156,7 @@ def ejecutar_benchmarking():
                 "ls": ls
             })
 
-            print(f" • {nombre_mod:<26}: ROC={auc:.4f} | PR={pr_auc:.4f} | BSS={bss:+.4f} | FP={fp}")
+            print(f" • {nombre_mod:<26}: ROC={auc:.4f} [{ci_low:.3f}-{ci_high:.3f}] | PR={pr_auc:.4f} | ECE={ece:.4f} | BSS={bss:+.4f} | FP={fp}")
 
     # 5. Exportar tablas formales
     df_res = pd.DataFrame(resultados)

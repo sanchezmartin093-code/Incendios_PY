@@ -7,7 +7,9 @@ import numpy as np
 from src.metricas import (
     calcular_umbral_optimo_youden,
     calcular_umbral_optimo_f_beta,
-    calcular_brier_skill_score
+    calcular_brier_skill_score,
+    calcular_expected_calibration_error,
+    calcular_bootstrap_ci_roc
 )
 
 class TestMetricas(unittest.TestCase):
@@ -34,6 +36,23 @@ class TestMetricas(unittest.TestCase):
         # 3. Test BSS
         bss = calcular_brier_skill_score(y_true, y_prob)
         self.assertGreater(bss, 0.0)
+
+    def test_ece_y_bootstrap_ci(self):
+        y_true = np.array([0, 0, 0, 0, 1, 1, 1, 1], dtype=np.float32)
+        # Probabilidades perfectamente calibradas (0.0 para negativos, 1.0 para positivos)
+        p_perfect = np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+        ece_perfect = calcular_expected_calibration_error(y_true, p_perfect)
+        self.assertAlmostEqual(ece_perfect, 0.0, places=4, msg="ECE para predicción perfecta debe ser 0.0")
+
+        # Probabilidades descalibradas (0.9 para todo)
+        p_bad = np.full_like(y_true, 0.9)
+        ece_bad = calcular_expected_calibration_error(y_true, p_bad)
+        self.assertGreater(ece_bad, 0.3)
+
+        # Bootstrap CI
+        inf, sup = calcular_bootstrap_ci_roc(y_true, p_perfect, n_bootstrap=100)
+        self.assertGreaterEqual(inf, 0.99)
+        self.assertLessEqual(sup, 1.01)
 
 if __name__ == "__main__":
     unittest.main()
