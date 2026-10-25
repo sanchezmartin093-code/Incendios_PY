@@ -67,7 +67,7 @@ format:
 
 # 4. Resumen Gráfico / Graphical Abstract
 
-![Resumen Gráfico: Arquitectura computacional desacoplada de Incendios_PY](figuras/fig01_arquitectura_desacoplada_pele.png){width="100%"}
+![Graphical Abstract: Decoupled GeoAI Framework for Operational Wildfire Hazard in Paraguay](figuras/fig01_arquitectura_impacto_nature.png){width="100%"}
 
 ---
 
