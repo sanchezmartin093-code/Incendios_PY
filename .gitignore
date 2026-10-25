@@ -35,3 +35,5 @@ modelos/calibradores/*
 /.quarto/
 _output/
 **/*.quarto_ipynb
+*_files/
+*.html.md
