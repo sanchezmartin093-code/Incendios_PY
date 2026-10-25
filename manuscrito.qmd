@@ -109,7 +109,7 @@ Definimos dos espacios de variables diferenciados para evitar la contaminación 
 2. **Espacio de Propagación Táctica ($\mathcal{X}_{\text{propagación}}$):**  
    Agrega a $\mathcal{X}_{\text{ignición}}$ el kernel de proximidad espacial al frente de fuego activo más cercano en $t-1$ ($\text{dist\_foco\_t1\_km}$), la densidad local de focos térmicos en un radio de 25 km ($\text{focos\_25km\_t1}$) y la potencia radiativa del fuego acumulada ($\text{frp\_25km\_t1}$).
 
-![Arquitectura computacional desacoplada de `Incendios_PY`: separación estricta entre la capa de Ignición Primaria Física y la capa de Propagación Táctica Local, renderizada con tipografía y paleta editorial mediante Pele (*obsidianmd/pele*).](figuras/fig01_arquitectura_desacoplada_pele.png){#fig-arquitectura width="100%"}
+![Decoupled computational architecture of `Incendios_PY`: Multisource biophysical ingestion, Stage-1 kinematic gating, decoupled dual GeoAI modeling (Mode 1 Ignition vs. Mode 2 Tactical Propagation), and international benchmarking against Canadian FWI and INPE.](figuras/fig01_arquitectura_impacto_nature.png){#fig-arquitectura width="100%"}
 
 ## 2.4 Kernel de Contagio Espaciotemporal Causal $t-1$
 
