@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, methodology, or dataset, please cite it as below."
+authors:
+  - family-names: "Sánchez Insfrán"
+    given-names: "Martín"
+    orcid: "https://orcid.org/0000-0003-4138-9668"
+    affiliation: "Independent Researcher / Medical Doctor, Asunción, Paraguay"
+title: "Incendios_PY: Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en Paraguay mediante GeoAI Multiescala"
+version: 1.0.0
+date-released: 2026-10-24
+url: "https://github.com/sanchezmartin093-code/Incendios_PY"
+keywords:
+  - "wildfire prediction"
+  - "GeoAI"
+  - "machine learning"
+  - "LightGBM"
+  - "ERA5-Land"
+  - "NASA FIRMS"
+  - "VIIRS"
+  - "Gran Chaco"
+  - "Paraguay"
+  - "spatial cross-validation"
+  - "TreeSHAP"
+license: "CC-BY-4.0"
