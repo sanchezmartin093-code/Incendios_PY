@@ -1,11 +1,15 @@
 import unittest
 import importlib
 from pathlib import Path
-from src.constantes import ROOT_DIR
+from src.constantes import ROOT_DIR, DIR_OUTPUTS
 
 class TestDashboardInteractivo(unittest.TestCase):
     def test_generacion_dashboard_html(self):
         """Verifica que el dashboard interactivo se genere, no esté vacío y contenga los componentes clave."""
+        dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
+        if not dir_raster.exists() or not list(dir_raster.glob("alerta_nacional_*.parquet")):
+            self.skipTest("Archivos de alerta diaria no disponibles en entorno CI")
+
         mod = importlib.import_module("scripts.12_generar_dashboard_interactivo")
         generar_dashboard_interactivo = mod.generar_dashboard_interactivo
 
