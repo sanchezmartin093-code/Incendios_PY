@@ -53,13 +53,13 @@ def calcular_umbral_optimo_f_beta(y_true: np.ndarray, y_prob: np.ndarray, beta: 
     fp_acum = np.cumsum(1.0 - y_true_ord)
     total_pos = tp_acum[-1]
     
-    precision = np.where((tp_acum + fp_acum) > 0, tp_acum / (tp_acum + fp_acum), 1.0)
-    recall = tp_acum / total_pos if total_pos > 0 else np.zeros_like(tp_acum)
-    
-    numerador = (1.0 + beta ** 2) * (precision * recall)
-    denominador = ((beta ** 2) * precision) + recall
-    
-    f_beta = np.where(denominador > 0, numerador / denominador, 0.0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        precision = np.where((tp_acum + fp_acum) > 0, tp_acum / (tp_acum + fp_acum), 1.0)
+        recall = tp_acum / total_pos if total_pos > 0 else np.zeros_like(tp_acum)
+        
+        numerador = (1.0 + beta ** 2) * (precision * recall)
+        denominador = ((beta ** 2) * precision) + recall
+        f_beta = np.where(denominador > 0, numerador / denominador, 0.0)
     idx_opt = np.argmax(f_beta)
     return float(y_prob_ord[idx_opt]), float(f_beta[idx_opt])
 
