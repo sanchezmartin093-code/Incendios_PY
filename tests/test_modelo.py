@@ -11,7 +11,8 @@ from src.modelo import (
     calibrar_probabilidades_isotonica,
     predecir_probabilidad,
     guardar_modelo_y_calibrador,
-    cargar_modelo_y_calibrador
+    cargar_modelo_y_calibrador,
+    obtener_restricciones_monotonas
 )
 
 class TestModelo(unittest.TestCase):
@@ -70,6 +71,39 @@ class TestModelo(unittest.TestCase):
             b_cargado, c_cargado = cargar_modelo_y_calibrador(ruta_b, ruta_c)
             probs = predecir_probabilidad(b_cargado, c_cargado, self.X_val)
             self.assertEqual(len(probs), len(self.X_val))
+
+    def test_restricciones_monotonas_biofisicas(self):
+        """Verifica la coherencia de signos monótonos y la invariancia física no-decreciente."""
+        feats = ["vpd_max_kpa", "precipitacion_mm", "mes"]
+        restrs = obtener_restricciones_monotonas(feats)
+        self.assertEqual(restrs, [1, -1, 0], "VPD debe ser +1, lluvia -1 y mes neutral 0")
+
+        # Entrenar booster sintético guiado por física
+        X_toy = np.array([
+            [1.0, 30.0],  # bajo VPD, mucha lluvia -> no fuego
+            [1.5, 20.0],
+            [4.0, 0.0],   # alto VPD, cero lluvia -> fuego
+            [4.5, 0.0]
+        ], dtype=np.float32)
+        y_toy = np.array([0.0, 0.0, 1.0, 1.0], dtype=np.float32)
+
+        booster = entrenar_modelo_lightgbm(
+            X_train=X_toy, y_train=y_toy,
+            X_val=X_toy, y_val=y_toy,
+            nombres_features=["vpd_max_kpa", "precipitacion_mm"],
+            num_boost_round=10,
+            usar_restricciones_fisicas=True
+        )
+
+        # Evaluar monotonicidad estricta respecto al VPD (más sequedad -> no decrece riesgo)
+        p_baja_sequedad = booster.predict(np.array([[1.0, 5.0]], dtype=np.float32))[0]
+        p_alta_sequedad = booster.predict(np.array([[4.5, 5.0]], dtype=np.float32))[0]
+        self.assertGreaterEqual(p_alta_sequedad, p_baja_sequedad, "A mayor VPD, el riesgo debe ser no-decreciente")
+
+        # Evaluar monotonicidad estricta respecto a la lluvia (más lluvia -> no aumenta riesgo)
+        p_cero_lluvia = booster.predict(np.array([[3.0, 0.0]], dtype=np.float32))[0]
+        p_mucha_lluvia = booster.predict(np.array([[3.0, 40.0]], dtype=np.float32))[0]
+        self.assertLessEqual(p_mucha_lluvia, p_cero_lluvia, "A mayor precipitación, el riesgo debe ser no-creciente")
 
 if __name__ == "__main__":
     unittest.main()
