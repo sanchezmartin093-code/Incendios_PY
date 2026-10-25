@@ -57,16 +57,18 @@ Operational wildfire forecasting via machine learning in geosciences frequently 
 
 # 1. Introducción
 
-Los incendios de vegetación en el Cono Sur de América del Sur representan una de las principales amenazas para la conservación biológica, la estabilidad climática regional y la salud pública [@jolly2015; @baumann2017]. La región del **Gran Chaco Americano** —el segundo bioma boscoso más extenso del continente tras la Amazonía— experimenta tasas aceleradas de deforestación y cambio de uso de suelo asociadas a la expansión agrícola y ganadera [@vallejos2015]. En este contexto, el uso del fuego como herramienta de limpieza de campos, combinado con sequías sinópticas prolongadas y temperaturas que superan rutinariamente los $42^\circ\text{C}$, genera incendios incontrolados de escala catastrófica, como los eventos récord observados en 2019, 2020 y 2024.
+Los incendios de vegetación en el Cono Sur de América del Sur representan una de las principales amenazas para la conservación biológica, la estabilidad climática regional y la salud pública [@flannigan2009; @jolly2015; @baumann2017]. La región del **Gran Chaco Americano** —el segundo bioma boscoso más extenso del continente tras la Amazonía— experimenta transformaciones de cobertura y cambio de uso de suelo aceleradas por la frontera agropecuaria [@vallejos2015; @alvarado2018]. En este mosaico ecológico, las prácticas tradicionales de desmonte y quema de pasturas, combinadas con sequías sinópticas recurrentes y temperaturas extremas ($> 42^\circ\text{C}$), desatan conflagraciones de escala catastrófica similares a las registradas en biomas vecinos del Pantanal y Cerrado [@pivello2021], con temporadas críticas sin precedentes en 2019, 2020 y 2024.
 
-A nivel internacional, la estimación del peligro de incendios se ha sustentado tradicionalmente en sistemas empíricos semi-mecanicistas formulados hace décadas. Entre ellos, el sistema canadiense *Forest Fire Weather Index* (FWI) [@vanwagner1987; @stocks1989] constituye el estándar operativo adoptado por el sistema europeo EFFIS (*European Forest Fire Information System*) y por la plataforma global GWIS [@sanmiguel2012]. De forma paralela, en Sudamérica el *Instituto Nacional de Pesquisas Espaciais* (INPE) de Brasil desarrolló el índice *Risco de Fogo* [@setzer2019], ampliamente utilizado por las agencias ambientales de Paraguay (MADES e INFONA). Sin embargo, estos índices canónicos fueron calibrados predominantemente para coníferas boreales templadas o para el Cerrado brasileño, exhibiendo graves deficiencias de calibración cuando se extrapolan al régimen hídrico semiárido del Chaco Seco o a la transición con el Bosque Atlántico húmedo.
+A nivel internacional, la estimación del peligro y propagación de incendios se ha sustentado históricamente en dos vertientes: los modelos mecanicistas basados en balances térmicos y dinámica de fluidos de combustibles vegetales [@rothermel1972; @andrews2014], y los sistemas empíricos semi-mecanicistas de peligro meteorológico. Entre estos últimos, el sistema canadiense *Forest Fire Weather Index* (FWI) [@vanwagner1987; @stocks1989] constituye el estándar adoptado por el sistema europeo EFFIS (*European Forest Fire Information System*) y por la plataforma global GWIS [@sanmiguel2012]. Con la consolidación de la teledetección satelital de incendios activos —iniciada por MODIS [@justice2002; @giglio2016] y continuada por VIIRS [@schroeder2014] junto con productos multidecenales de área quemada [@chuvieco2019; @roy2008; @artes2019]—, en Sudamérica el *Instituto Nacional de Pesquisas Espaciais* (INPE) de Brasil desarrolló el índice *Risco de Fogo* [@setzer2019], ampliamente empleado por los organismos ambientales de Paraguay (MADES e INFONA). No obstante, estos índices canónicos fueron formulados para bosques templados de coníferas o sabanas tropicales abiertas, mostrando serias inconsistencias de calibración al extrapolarse a biomas xerofíticos bajo déficit hídrico extremo como el Chaco Seco.
 
-El advenimiento del aprendizaje automático (*Machine Learning*) y la inteligencia artificial geoespacial (*GeoAI*) ha impulsado una proliferación de modelos basados en árboles potenciados por gradiente (GBDT) y redes neuronales profundas para la predicción de fuegos [@chen2016xgboost; @ke2017lightgbm]. No obstante, una revisión crítica de la literatura revela dos patologías metodológicas persistentes:
+El auge de la inteligencia artificial geoespacial (*GeoAI*) y el aprendizaje automático (*Machine Learning*) ha propiciado una amplia gama de algoritmos de detección temprana y modelado predictivo de ignición [@jain2020review; @barmpoutis2020], predominantemente mediante ensambles de árboles de decisión como XGBoost [@chen2016xgboost], LightGBM [@ke2017lightgbm] y CatBoost [@prokhorenkova2018], así como clasificadores biofísicos [@rodrigues2014; @sayad2019; @coffield2019]. Sin embargo, la integración acrítica de estos métodos en geociencias enfrenta dos patologías metodológicas persistentes:
 
-1. **La trampa del atajo espacial (*Spatial Shortcut Learning*) y la fuga de datos (*Data Leakage*):**  
-   Cuando un modelo de machine learning incluye variables espaciales autorregresivas contiguas (distancia al fuego del día anterior, densidad local de focos térmicos) sin desacoplar el origen del evento, el algoritmo aprende que *"si hay fuego al lado, hoy habrá fuego"*. Aunque esto genera métricas de validación infladas artificialmente (ROC-AUC $> 0,95$), el modelo se vuelve completamente ciego ante **igniciones primarias espontáneas o antrópicas nuevas** en zonas de alto estrés hídrico donde ayer no había fuego [@roberts2017; @ploton2020].
-2. **La ineficiencia computacional para la alerta operativa diaria:**  
-   Muchos modelos académicos dependen de flujos de trabajo fragmentados en software SIG de escritorio o rutinas pesadas de geoprocesamiento espacial, lo que impide su ejecución automatizada y reproducible a escala de país a resolución de 1 km² en cuestión de segundos.
+1. **La trampa del atajo espacial (*Spatial Shortcut Learning*) y la violación de independencia:**  
+   Cuando un modelo de machine learning incluye covariables espaciales autorregresivas contiguas (distancia al fuego de la jornada anterior, densidad de focos térmicos adyacentes) sin aislar el mecanismo causante, el algoritmo sucumbe a un atajo espurio: aprende que *"si hay fuego al lado, hoy continuará el fuego"*. Aunque esta correlación infla artificialmente las métricas de prueba estándar (ROC-AUC $> 0,95$), el modelo se vuelve impotente para predecir **igniciones primarias espontáneas o antrópicas nuevas** en áreas bajo estrés hídrico extremo donde ayer no existía combustión [@roberts2017; @ploton2020]. Esta patología ignora los principios de la primera ley de la geografía [@tobler1970] y los desafíos bien documentados de la autocorrelación espacial en modelado ecológico [@legendre1993; @dormann2007; @meyer2021].
+2. **La disociación entre conocimiento físico y modelos de caja negra:**  
+   Frecuentemente los modelos predictivos puramente estadísticos omiten restricciones cinemáticas elementales (e.g., combustión imposible bajo lluvia torrencial o ausencia total de biomasa combustible), lo que ha motivado el paradigma emergente de aprendizaje automático informado por la física (*Physics-Informed Machine Learning*, PIML) en ciencias de la Tierra [@reichstein2019; @willard2022].
+3. **La ineficiencia computacional para la alerta operativa diaria:**  
+   Muchos modelos académicos dependen de secuencias manuales en software SIG de escritorio o rutinas pesadas de geoprocesamiento ráster, impidiendo su despliegue automatizado y soberano a escala de país a resolución de 1 km² en tiempo subsegundo.
 
 Para resolver estas limitaciones, este artículo presenta el diseño, formulación matemática y evaluación del sistema computacional `Incendios_PY`. Las contribuciones fundamentales de este trabajo son:
 
@@ -82,7 +84,7 @@ Para resolver estas limitaciones, este artículo presenta el diseño, formulaci�
 
 ## 2.1 Física de la Desecación del Combustible Fino
 
-La probabilidad de que una chispa o brasa dé origen a un incendio activo con calor radiativo mensurable ($FRP > 0$) está gobernada termodinámicamente por la humedad del combustible fino muerto (*Fine Fuel Moisture Code*, FFMC). El balance de humedad entre el combustible vegetal y la atmósfera circundante depende críticamente del déficit de presión de vapor ($VPD$), definido como la diferencia entre la presión de vapor de saturación ($e_s$) y la presión de vapor real ($e_a$):
+La probabilidad de que una chispa o brasa dé origen a un incendio activo con calor radiativo mensurable ($FRP > 0$) está gobernada termodinámicamente por la humedad del combustible fino muerto (*Fine Fuel Moisture Code*, FFMC) y la dinámica de transferencia de calor en el lecho de combustible [@rothermel1972; @flannigan2016]. El balance de humedad entre el combustible vegetal y la atmósfera circundante depende críticamente del déficit de presión de vapor ($VPD$), definido como la diferencia entre la presión de vapor de saturación ($e_s$) y la presión de vapor real ($e_a$):
 
 $$e_s(T) = 0,61078 \exp\left(\frac{17,27 \cdot T}{T + 237,3}\right) \quad [\text{kPa}]$$ {#eq-es}
 
@@ -94,11 +96,11 @@ donde $T$ es la temperatura del aire a 2 metros y $T_{\text{dew}}$ es la tempera
 
 ## 2.2 Cribado Biofísico de Primera Etapa (*Two-Stage Bio-physical Gating*)
 
-Sea $\mathcal{S} = \{s_i\}_{i=1}^{N}$ el conjunto de $N = 400.006$ celdas discretas de $1\text{ km}^2$ que cubren el territorio paraguayo, y sea $t$ un día civil. En lugar de evaluar un modelo probabilístico complejo sobre la totalidad del espacio cartesiano $\mathcal{S} \times \{t\}$ ($1.460$ millones de combinaciones en 10 años), definimos una función indicadora binaria de viabilidad biofísica $\Gamma(s_i, t) \in \{0, 1\}$:
+Sea $\mathcal{S} = \{s_i\}_{i=1}^{N}$ el conjunto de $N = 400.006$ celdas discretas de $1\text{ km}^2$ que cubren el territorio paraguayo, y sea $t$ un día civil. En lugar de evaluar un modelo probabilístico complejo sobre la totalidad del espacio cartesiano $\mathcal{S} \times \{t\}$ ($1.460$ millones de combinaciones en 10 años), implementamos una restricción cinemática inspirada en los principios de aprendizaje automático guiado por la física (*Physics-Guided Machine Learning*) [@reichstein2019; @willard2022]. Definimos una función indicadora binaria de viabilidad biofísica $\Gamma(s_i, t) \in \{0, 1\}$:
 
 $$\Gamma(s_i, t) = \mathbb{I}\left( \text{Combustible}(s_i) = 1 \right) \cdot \mathbb{I}\left( VPD(s_i, t) \ge 0,8\text{ kPa} \right) \cdot \mathbb{I}\left( P_{48h}(s_i, t) < 10,0\text{ mm} \right)$$ {#eq-gating}
 
-donde $\text{Combustible}(s_i) = 0$ para cuerpos de agua, humedales permanentes y zonas urbanas impermeabilizadas según MapBiomas, y $P_{48h}$ es la precipitación acumulada en las 48 horas previas. Si $\Gamma(s_i, t) = 0$, la probabilidad final de incendio se fija analíticamente en $P(Y_{i,t} = 1) \equiv 0$, reduciendo el espacio de búsqueda activo en un 92 % sin omitir detecciones térmicas reales.
+donde $\text{Combustible}(s_i) = 0$ para cuerpos de agua, humedales permanentes y zonas urbanas impermeabilizadas según MapBiomas [@mapbiomas2023], y $P_{48h}$ es la precipitación acumulada en las 48 horas previas. Si $\Gamma(s_i, t) = 0$, la probabilidad final de incendio se fija analíticamente en $P(Y_{i,t} = 1) \equiv 0$, reduciendo el espacio de búsqueda activo en un 92 % sin omitir detecciones térmicas reales.
 
 ## 2.3 Formulación del Desacoplamiento Dual: Ignición vs. Propagación
 
@@ -123,7 +125,7 @@ $$\text{focos\_25km\_t1}(s_i) = \sum_{s_k \in \mathcal{F}_{t-1}} \mathbb{I}\left
 
 $$\text{frp\_25km\_t1}(s_i) = \sum_{s_k \in \mathcal{F}_{t-1}} FRP_k \cdot \mathbb{I}\left(\|s_i - s_k\| \le R\right) \quad [\text{MW}]$$ {#eq-frp}
 
-Adicionalmente, formalizamos el **Índice de Ecotono** ($\mathcal{E}_i$) como la divergencia de cobertura vegetal entre formaciones boscosas continuas y pastizales/sabanas antrópicas dentro de la misma celda de 1 km²:
+donde la potencia radiativa del fuego ($FRP$) cuantifica la tasa instantánea de energía liberada por la biomasa en combustión [@wooster2005]. Adicionalmente, formalizamos el **Índice de Ecotono** ($\mathcal{E}_i$) como la divergencia de cobertura vegetal entre formaciones boscosas continuas y pastizales/sabanas antrópicas dentro de la misma celda de 1 km²:
 
 $$\mathcal{E}_i = 1,0 - |\text{pct\_pastura}_i - (\text{pct\_bosque\_seco}_i + \text{pct\_bosque\_humedo}_i)|$$ {#eq-ecotono}
 
@@ -155,7 +157,7 @@ Esta estructura permite realizar cruces espaciales (*spatial joins*) con cualqui
 
 ## 3.2 Ingesta Multi-Constelación NASA FIRMS y Corrección Bow-Tie
 
-Las presencias de fuego provienen de la constelación de sensores satelitales VIIRS (375 m) a bordo de las plataformas Suomi-NPP, NOAA-20 y NOAA-21 [@schroeder2014]. Para garantizar la integridad de las etiquetas de entrenamiento, aplicamos un protocolo de depuración óptica en dos pasos:
+Las presencias de fuego provienen de la constelación de sensores satelitales VIIRS (375 m) a bordo de las plataformas Suomi-NPP, NOAA-20 y NOAA-21 [@schroeder2014], que extienden las series históricas iniciadas por MODIS [@justice2002; @giglio2016]. Para garantizar la integridad de las etiquetas de entrenamiento, aplicamos un protocolo de depuración óptica en dos pasos:
 
 1. **Corrección de Distorsión Óptica (*Bow-Tie Effect*):** Los píxeles ubicados hacia los extremos del barrido del sensor sufren una elongación geométrica transversal que distorsiona la localización del píxel hasta triplicar su tamaño real. Filtramos estrictamente todas las detecciones con un tamaño de barrido $\text{scan} > 1,5\text{ km}$, reteniendo únicamente las observaciones de alta fidelidad focal tomadas cerca del nadir del sensor.
 2. **Exclusión de Detecciones de Baja Confianza:** Se descartan focos etiquetados con nivel de confianza *low* producidos por reflejos solares o ruido instrumental en bordes de nubes.
@@ -167,7 +169,7 @@ Las presencias de fuego provienen de la constelación de sensores satelitales VI
 
 ## 3.4 Flujo Analítico *Zero-Copy* en DuckDB y Polars
 
-Para procesar la serie multianual sin desbordamiento de memoria RAM en hardware estándar, implementamos el pipeline mediante **DuckDB** [@raasveldt2019duckdb] y **Polars**. El ensamble relacional se realiza mediante *streaming out-of-core* en bloques de memoria columnar Apache Arrow, evitando copias redundantes en memoria intermedia (*zero-copy architecture*). Como se detalla en la @tbl-pipeline, el almacenamiento en disco se optimiza mediante compresión Zstandard (ZSTD nivel 7).
+A diferencia de las plataformas centralizadas en la nube como Google Earth Engine [@gorelick2017], que dependen de conectividad permanente a servidores remotos, o de librerías tradicionales en memoria como Scikit-learn [@pedregosa2011] que duplican matrices densas, implementamos una canalización local de alto rendimiento mediante **DuckDB** [@raasveldt2019duckdb] y **Polars**. El ensamble relacional se realiza mediante *streaming out-of-core* en bloques de memoria columnar Apache Arrow, evitando copias redundantes en memoria intermedia (*zero-copy architecture*). Como se detalla en la @tbl-pipeline, el almacenamiento en disco se optimiza mediante compresión Zstandard (ZSTD nivel 7).
 
 | Capa de Datos | Formato de Archivo | Registros | Tamaño en Disco | Latencia de Carga |
 | :--- | :--- | :---: | :---: | :---: |
@@ -195,13 +197,13 @@ Para simular de manera fidedigna la operatividad en el mundo real y blindar el e
 
 ## 4.2 Control Espacial: *Dead-Zone Buffer* de 20 km
 
-Dado que la autocorrelación espacial de los incendios forestales puede extenderse a lo largo de decenas de kilómetros debido al transporte advectivo de columnas de humo y frentes de ráfagas, el muestreo aleatorio estándar de ausencias genera falsos negativos contaminados (*leakage* por proximidad).
+Dado que la autocorrelación espacial de los incendios forestales se propaga a lo largo de decenas de kilómetros por transporte advectivo de pavesas, columnas de convección y frentes de ráfagas —en concordancia directa con la primera ley de la geografía [@tobler1970] y los principios de dependencia espacial en ecología cuantitativa [@legendre1993; @dormann2007]—, el muestreo aleatorio uniforme de ausencias genera falsos negativos contaminados (*leakage* por proximidad geográfica).
 
-Siguiendo las recomendaciones de @roberts2017 y @ploton2020, implementamos una **zona muerta de exclusión espacial (*dead-zone buffer*) de 20 km**: para cada fecha $t$, las pseudo-ausencias ($Y_{i,t} = 0$) se muestrean exclusivamente entre aquellas celdas con combustible que distan más de $20\text{ km}$ de cualquier detección térmica activa observada en esa misma fecha. El ratio de muestreo se fija en 10:1 (diez ausencias controladas por cada presencia confirmada).
+Para garantizar una evaluación rigurosa del área de aplicabilidad del modelo y evitar métricas sobreajustadas [@roberts2017; @ploton2020; @meyer2021], implementamos una **zona muerta de exclusión espacial (*dead-zone buffer*) de 20 km**: para cada fecha $t$, las pseudo-ausencias ($Y_{i,t} = 0$) se muestrean exclusivamente entre aquellas celdas con combustible que distan más de $20\text{ km}$ de cualquier detección térmica activa observada en esa misma fecha. El ratio de muestreo se fija en 10:1 (diez ausencias controladas por cada presencia confirmada).
 
 ## 4.3 Modelos Contendientes de Benchmarking
 
-Evaluamos a `Incendios_PY` en competencia directa contra tres sistemas alternativos sobre el conjunto ciego de prueba:
+Evaluamos a `Incendios_PY` en competencia directa contra los sistemas canónicos internacionales y las líneas base metodológicas reportadas en la literatura de incendios forestales [@jain2020review; @rodrigues2014; @sayad2019]:
 
 1. **Canadian Forest Fire Weather Index (FWI Puro):** Calculado conforme a la formulación canónica de Van Wagner [-@vanwagner1987], utilizando las variables meteorológicas de mediodía solar de ERA5-Land.
 2. **INPE Risco de Fogo (Setzer et al.):** Implementación algorítmica del modelo operativo del INPE [-@setzer2019], basado en días secos acumulados ($CDD$), humedad relativa mínima y clases de vegetación.
@@ -285,16 +287,16 @@ Este rendimiento garantiza que una agencia estatal (como el Cuerpo de Bomberos o
 
 ## 6.1 Por qué Fallan los Índices Boreales Canónicos en el Gran Chaco
 
-Nuestros hallazgos demuestran de forma concluyente que la adopción acrítica del **Canadian FWI** en Sudamérica genera fallas operativas graves. El FWI fue calibrado originalmente bajo el supuesto de bosques cerrados de coníferas boreales (*Pinus banksiana*), donde el combustible crítico es el mantillo orgánico profundo (*duff layer*) y las tasas de evaporación son moderadas [@vanwagner1987]. 
+Nuestros hallazgos demuestran de forma concluyente que la adopción acrítica del **Canadian FWI** en Sudamérica genera fallas operativas graves. El FWI fue calibrado originalmente bajo el supuesto de bosques cerrados de coníferas boreales (*Pinus banksiana*), donde el combustible crítico es el mantillo orgánico profundo (*duff layer*) y las tasas de evaporación son moderadas [@vanwagner1987; @flannigan2009]. 
 
-En el Gran Chaco, el régimen del fuego es radicalmente distinto:
+En el Gran Chaco y en mosaicos ecológicos análogos del Cerrado y Pantanal [@alvarado2018; @pivello2021], el régimen del fuego es radicalmente distinto:
 1. El combustible dominante es fino (pastizales naturales y gramíneas invasoras en pasturas ganaderas) con tiempos de respuesta de secado de pocas horas, altamente sensibles a picos intradiarios de $VPD$.
 2. Las temperaturas extremas ($> 40^\circ\text{C}$) provocan una evaporación acelerada que los índices diarios tradicionales (calculados exclusivamente a las 12:00h locales) subestiman severamente al ignorar el ciclo diurno de la tarde.
 3. El componente antrópico (quema deliberada de pasturas) se concentra en días donde el FWI aún reporta niveles "moderados" de peligro, provocando que los sistemas oficiales basados en FWI emitan alertas tardías.
 
 ## 6.2 El Valor Científico del Desacoplamiento Honesto
 
-La literatura de machine learning aplicado al fuego abunda en publicaciones que reportan precisiones superiores al 95 % utilizando modelos únicos que mezclan variables meteorológicas con la distancia a focos del día anterior. Nuestro estudio demuestra que esos modelos sufren de **ceguera selectiva ante la ignición primaria**: cuando se elimina el atajo del fuego anterior, su precisión colapsa.
+La literatura reciente de machine learning aplicado al fuego abunda en publicaciones que reportan precisiones aparentemente excepcionales ($> 95\text{ \%}$) mediante modelos únicos que agrupan variables meteorológicas con la distancia inmediata a focos previos [@sayad2019; @coffield2019]. Tal como advierten las revisiones metodológicas contemporáneas [@jain2020review; @ploton2020], esos modelos sufren de **ceguera selectiva ante la ignición primaria**: cuando se elimina el atajo del fuego anterior, su capacidad predictiva real colapsa.
 
 Al separar analíticamente la **Ignición Física** de la **Propagación Táctica**:
 - Proveemos a los equipos de prevención y patrullaje territorial una herramienta objetiva que señala dónde el bosque está físicamente a punto de arder, antes de que aparezca la primera llama.
@@ -303,7 +305,7 @@ Al separar analíticamente la **Ignición Física** de la **Propagación Táctic
 ## 6.3 Eficiencia y Soberanía Tecnológica para el Sur Global
 
 Una barrera frecuente para la adopción de inteligencia artificial en países en desarrollo es la dependencia de costosos servicios en la nube o clusters de supercómputo inaccesibles para agencias públicas locales. `Incendios_PY` fue deliberadamente concebido para derribar esta barrera:
-- Al utilizar **DuckDB** y **Polars**, el pipeline procesa la historia decenal completa en menos de 4 GB de RAM.
+- Al utilizar **DuckDB** [@raasveldt2019duckdb] y **Polars**, el pipeline procesa la historia decenal completa en menos de 4 GB de RAM.
 - El modelo completo puede reentrenarse en menos de 6 minutos en cualquier computadora portátil moderna (incluyendo procesadores ARM64 de consumo como Apple Silicon M-Series).
 - Todo el código es 100 % abierto, sin dependencias propietarias, asegurando transferibilidad institucional directa hacia el **MADES**, el **INFONA** y los **Cuerpos de Bomberos Voluntarios del Paraguay**.
 
@@ -325,7 +327,7 @@ Este trabajo introduce un marco computacional riguroso, desacoplado y reproducib
 4. El pipeline analítico ejecuta la inferencia nacional completa en $0,75$ segundos, permitiendo su despliegue operativo en tiempo real a costo computacional nulo.
 
 ### Trabajo Futuro: Verificación Satelital Tri-Modal
-Como evolución inmediata, proponemos la integración del sistema de predicción con un pipeline automatizado de **verificación satelital tri-modal multiespectral**:
+Como evolución inmediata, proponemos la integración del sistema de predicción con un pipeline automatizado de **verificación satelital tri-modal multiespectral** sustentado en bases de datos de comportamiento global [@artes2019] y teledetección de cicatrices de quemado [@chuvieco2019]:
 - **Modo 1 (Regional Sinóptico):** Cartografía nacional diaria del índice de peligro a 1 km².
 - **Modo 2 (Focal VIIRS 375 m):** Detección de anomalías térmicas y clusters de propagación activa.
 - **Modo 3 (Infrarrojo de Onda Corta SWIR / Sentinel-2 / Landsat-9 a 20 m):** Inspección de alta resolución para la delimitación precisa de cicatrices de quemado (*burn scars*) y cálculo del índice normalizado de área quemada ($NBR$).
