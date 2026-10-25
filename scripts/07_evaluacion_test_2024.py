@@ -40,7 +40,9 @@ from src.metricas import (
     calcular_brier_score,
     calcular_brier_skill_score,
     calcular_umbral_optimo_youden,
-    calcular_umbral_optimo_f_beta
+    calcular_umbral_optimo_f_beta,
+    calcular_expected_calibration_error,
+    calcular_bootstrap_ci_roc
 )
 
 def evaluar_modelo_en_test():
@@ -102,9 +104,12 @@ def evaluar_modelo_en_test():
             pr_auc = float(average_precision_score(y_test, probs))
             bs = float(calcular_brier_score(y_test, probs))
             bss = float(calcular_brier_skill_score(y_test, probs))
+            ece = float(calcular_expected_calibration_error(y_test, probs))
+            ci_low, ci_high = calcular_bootstrap_ci_roc(y_test, probs, n_bootstrap=500)
 
-            print(f" • ROC-AUC:            {auc:.4f}")
+            print(f" • ROC-AUC:            {auc:.4f} [{ci_low:.3f} - {ci_high:.3f}]")
             print(f" • PR-AUC:             {pr_auc:.4f}")
+            print(f" • ECE:                {ece:.4f}")
             print(f" • Brier Score:        {bs:.4f}")
             print(f" • Brier Skill Score:  {bss:.4f} (Ganancia respecto a la climatología)")
 
@@ -134,7 +139,10 @@ def evaluar_modelo_en_test():
                     "umbral_estrategia": desc_umbral,
                     "cutoff": round(cutoff, 3),
                     "roc_auc": round(auc, 4),
+                    "roc_ci_95": f"[{ci_low:.3f} - {ci_high:.3f}]",
                     "pr_auc": round(pr_auc, 4),
+                    "ece": round(ece, 4),
+                    "brier_score": round(bs, 4),
                     "brier_skill_score": round(bss, 4),
                     "sensibilidad_recall": round(sensibilidad, 4),
                     "especificidad": round(especificidad, 4),

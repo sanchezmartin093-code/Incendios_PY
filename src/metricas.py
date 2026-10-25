@@ -81,3 +81,63 @@ def calcular_brier_skill_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     if bs_base == 0:
         return 0.0
     return float(1.0 - (bs_modelo / bs_base))
+
+def calcular_expected_calibration_error(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    n_bins: int = 10
+) -> float:
+    """
+    Calcula el Expected Calibration Error (ECE) ponderado por el tamaño de cada decil.
+    ECE = sum_m (|B_m| / N) * |acc(B_m) - conf(B_m)|
+    Donde acc(B_m) es la prevalencia observada y conf(B_m) la probabilidad media predicha.
+    """
+    bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
+    ece = 0.0
+    n = len(y_true)
+    if n == 0:
+        return 0.0
+
+    for i in range(n_bins):
+        low, high = bin_edges[i], bin_edges[i + 1]
+        if i == n_bins - 1:
+            mask = (y_prob >= low) & (y_prob <= high)
+        else:
+            mask = (y_prob >= low) & (y_prob < high)
+        
+        n_bin = np.sum(mask)
+        if n_bin > 0:
+            acc = np.mean(y_true[mask])
+            conf = np.mean(y_prob[mask])
+            ece += (n_bin / n) * np.abs(acc - conf)
+
+    return float(ece)
+
+def calcular_bootstrap_ci_roc(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    n_bootstrap: int = 1000,
+    alpha: float = 0.05,
+    semilla: int = 42
+) -> tuple[float, float]:
+    """
+    Calcula el Intervalo de Confianza al (1 - alpha)% (por defecto 95%) para el ROC-AUC
+    mediante muestreo no paramétrico con reemplazo.
+    """
+    from sklearn.metrics import roc_auc_score
+    rng = np.random.default_rng(semilla)
+    n = len(y_true)
+    boot_scores = []
+
+    for _ in range(n_bootstrap):
+        idx = rng.choice(n, size=n, replace=True)
+        if len(np.unique(y_true[idx])) > 1:
+            boot_scores.append(roc_auc_score(y_true[idx], y_prob[idx]))
+
+    if not boot_scores:
+        val = float(roc_auc_score(y_true, y_prob))
+        return val, val
+
+    inf = float(np.percentile(boot_scores, 100.0 * (alpha / 2.0)))
+    sup = float(np.percentile(boot_scores, 100.0 * (1.0 - alpha / 2.0)))
+    return inf, sup

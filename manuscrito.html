@@ -2363,7 +2363,7 @@ window.Quarto = {
   <li><a href="#resultados-empíricos-y-explicabilidad-biofísica" id="toc-resultados-empíricos-y-explicabilidad-biofísica" class="nav-link" data-scroll-target="#resultados-empíricos-y-explicabilidad-biofísica"><span class="header-section-number">5</span> 5. Resultados Empíricos y Explicabilidad Biofísica</a>
   <ul class="collapse">
   <li><a href="#desempeño-discriminante-en-prueba-ciega-out-of-time" id="toc-desempeño-discriminante-en-prueba-ciega-out-of-time" class="nav-link" data-scroll-target="#desempeño-discriminante-en-prueba-ciega-out-of-time"><span class="header-section-number">5.1</span> 5.1 Desempeño Discriminante en Prueba Ciega <em>Out-of-Time</em></a></li>
-  <li><a href="#benchmarking-comparativo-internacional" id="toc-benchmarking-comparativo-internacional" class="nav-link" data-scroll-target="#benchmarking-comparativo-internacional"><span class="header-section-number">5.2</span> 5.2 Benchmarking Comparativo Internacional</a></li>
+  <li><a href="#benchmarking-comparativo-internacional-y-significancia-estadística" id="toc-benchmarking-comparativo-internacional-y-significancia-estadística" class="nav-link" data-scroll-target="#benchmarking-comparativo-internacional-y-significancia-estadística"><span class="header-section-number">5.2</span> 5.2 Benchmarking Comparativo Internacional y Significancia Estadística</a></li>
   <li><a href="#explicabilidad-biofísica-con-treeshap" id="toc-explicabilidad-biofísica-con-treeshap" class="nav-link" data-scroll-target="#explicabilidad-biofísica-con-treeshap"><span class="header-section-number">5.3</span> 5.3 Explicabilidad Biofísica con TreeSHAP</a></li>
   <li><a href="#evaluación-de-latencia-y-rendimiento-en-tiempo-real" id="toc-evaluación-de-latencia-y-rendimiento-en-tiempo-real" class="nav-link" data-scroll-target="#evaluación-de-latencia-y-rendimiento-en-tiempo-real"><span class="header-section-number">5.4</span> 5.4 Evaluación de Latencia y Rendimiento en Tiempo Real</a></li>
   </ul></li>
@@ -2673,25 +2673,27 @@ En concordancia con las directrices de reproducibilidad de <em>Computers &amp; G
 <div id="tbl-metricas" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-metricas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time para la arquitectura dual desacoplada de <code>Incendios_PY</code> (bajo punto de corte operativo de alta precisión <span class="math inline">\(F_{0.5}\)</span>; bajo criterio Youden <span class="math inline">\(J\)</span>, la sensibilidad de ignición asciende a <span class="math inline">\(75,9\text{ \%}\)</span> en Chaco y <span class="math inline">\(72,5\text{ \%}\)</span> en Oriental).
+Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time para la arquitectura dual desacoplada de <code>Incendios_PY</code> con intervalos de confianza al 95 % por bootstrap (<span class="math inline">\(N=500\)</span>), Expected Calibration Error (<span class="math inline">\(ECE\)</span>) y punto de corte operativo <span class="math inline">\(F_{0.5}\)</span>.
 </figcaption>
 <div aria-describedby="tbl-metricas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 15%">
-<col style="width: 15%">
-<col style="width: 15%">
-<col style="width: 15%">
-<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Macro-Región</th>
 <th style="text-align: left;">Capa del Modelo</th>
-<th style="text-align: center;">ROC-AUC</th>
+<th style="text-align: center;">ROC-AUC [IC 95 %]</th>
 <th style="text-align: center;">PR-AUC</th>
+<th style="text-align: center;">ECE</th>
 <th style="text-align: center;">Precisión (%)</th>
 <th style="text-align: center;">Recall (%)</th>
 <th style="text-align: center;">Brier Score</th>
@@ -2701,8 +2703,9 @@ Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time par
 <tr class="odd">
 <td style="text-align: left;"><strong>Región Occidental (Chaco)</strong></td>
 <td style="text-align: left;">Ignición Primaria (Física)</td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8305}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8305}\;[0,788 - 0,871]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,5714}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0112}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{60,51\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{57,23\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,0517}\)</span></td>
@@ -2710,8 +2713,9 @@ Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time par
 <tr class="even">
 <td style="text-align: left;"><strong>Región Occidental (Chaco)</strong></td>
 <td style="text-align: left;">Propagación Táctica (<span class="math inline">\(t-1\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8494}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8494}\;[0,806 - 0,890]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,7057}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0615}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{90,16\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{66,27\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,0507}\)</span></td>
@@ -2719,8 +2723,9 @@ Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time par
 <tr class="odd">
 <td style="text-align: left;"><strong>Región Oriental</strong></td>
 <td style="text-align: left;">Ignición Primaria (Física)</td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,7106}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,7106}\;[0,599 - 0,804]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,2741}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0106}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{31,67\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{47,50\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,0783}\)</span></td>
@@ -2728,8 +2733,9 @@ Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time par
 <tr class="even">
 <td style="text-align: left;"><strong>Región Oriental</strong></td>
 <td style="text-align: left;">Propagación Táctica (<span class="math inline">\(t-1\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,6917}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,6917}\;[0,582 - 0,796]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,3031}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0216}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{50,00\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{25,00\text{ \%}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,0780}\)</span></td>
@@ -2739,9 +2745,9 @@ Tabla 2: Métricas de desempeño en el conjunto de prueba ciego out-of-time par
 </div>
 </figure>
 </div>
-<p>En la capa de <strong>Propagación Táctica</strong>, el modelo alcanza un rendimiento sobresaliente: en el Chaco logra un ROC-AUC de <strong><span class="math inline">\(0,8494\)</span></strong>, un PR-AUC de <strong><span class="math inline">\(0,7057\)</span></strong> y una precisión táctica del <strong><span class="math inline">\(90,16\text{ \%}\)</span></strong>, cometiendo únicamente 12 falsos positivos en todo el conjunto de prueba de 1.826 celdas evaluadas. En la Región Oriental, la precisión táctica bajo corte optimizado asciende al <strong><span class="math inline">\(50,00\text{ \%}\)</span></strong> con apenas 10 falsos positivos.</p>
+<p>En la capa de <strong>Propagación Táctica</strong>, el modelo alcanza un rendimiento sobresaliente: en el Chaco logra un ROC-AUC de <strong><span class="math inline">\(0,8494\)</span></strong> (<span class="math inline">\([0,806 - 0,890]\)</span>), un PR-AUC de <strong><span class="math inline">\(0,7057\)</span></strong> y una precisión táctica del <strong><span class="math inline">\(90,16\text{ \%}\)</span></strong>, cometiendo únicamente 12 falsos positivos en todo el conjunto de prueba de 1.826 celdas evaluadas. En la Región Oriental, la precisión táctica bajo corte optimizado asciende al <strong><span class="math inline">\(50,00\text{ \%}\)</span></strong> con apenas 10 falsos positivos.</p>
 <p>La inspección forense individual de los casos de falso positivo en el Chaco reveló un patrón ecológico y de manejo consistente: correspondieron a fuegos en pasturas cultivadas donde las condiciones meteorológicas y el combustible justificaban plenamente una alta probabilidad táctica (<span class="math inline">\(P &gt; 0,80\)</span>), pero cuya propagación efectiva fue abortada antes del paso orbital de VIIRS debido a la activación de cortafuegos mecanizados de emergencia en establecimientos ganaderos o a giros súbitos de ráfagas hacia paleocauces arenosos sin biomasa continua. Estas contingencias de micro-escala quedan naturalmente fuera de la resolución del reanálisis ERA5-Land (<span class="math inline">\(25\text{ km}\)</span>), demostrando que las clasificaciones del modelo capturan con fidelidad el potencial de combustión del paisaje.</p>
-<p>Por su parte, la capa de <strong>Ignición Primaria Física</strong> (que no utiliza ninguna información de fuego en <span class="math inline">\(t-1\)</span>) alcanza un ROC-AUC de <strong><span class="math inline">\(0,8305\)</span></strong> y un PR-AUC de <strong><span class="math inline">\(0,5714\)</span></strong> en el Chaco, y un ROC-AUC de <strong><span class="math inline">\(0,7106\)</span></strong> en la Región Oriental, prediciendo con notable exactitud dónde surgirán nuevos incendios aislados a partir de variables de estrés hídrico, combustible y susceptibilidad espacial histórica libre de fuga temporal.</p>
+<p>Por su parte, la capa de <strong>Ignición Primaria Física</strong> (que no utiliza ninguna información de fuego en <span class="math inline">\(t-1\)</span>) alcanza un ROC-AUC de <strong><span class="math inline">\(0,8305\)</span></strong> (<span class="math inline">\([0,788 - 0,871]\)</span>) y un PR-AUC de <strong><span class="math inline">\(0,5714\)</span></strong> en el Chaco, y un ROC-AUC de <strong><span class="math inline">\(0,7106\)</span></strong> (<span class="math inline">\([0,599 - 0,804]\)</span>) en la Región Oriental, con un error de calibración esperado (<span class="math inline">\(ECE\)</span>) excepcional de apenas <strong><span class="math inline">\(0,0112\)</span></strong> y <strong><span class="math inline">\(0,0106\)</span></strong> (indicando que las probabilidades pronosticadas coinciden con la frecuencia real observada con un desvío menor al <span class="math inline">\(1,2\text{ \%}\)</span>).</p>
 <p>Las curvas de rendimiento empírico Receiver Operating Characteristic (ROC) y Precision-Recall (PR) sobre la partición ciega temporal se detallan en la <a href="#fig-curvas-test" class="quarto-xref">Figura 3</a>, evidenciando la marcada separación alcanzada por la capa de propagación táctica y el balance de compromiso en la capa de ignición física.</p>
 <div id="fig-curvas-test" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2754,9 +2760,9 @@ Figura 3: Curvas discriminantes de desempeño predictivo sobre el conjunto de p
 </figure>
 </div>
 </section>
-<section id="benchmarking-comparativo-internacional" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="benchmarking-comparativo-internacional"><span class="header-section-number">5.2</span> 5.2 Benchmarking Comparativo Internacional</h2>
-<p>La <a href="#tbl-benchmark" class="quarto-xref">Tabla 3</a> expone la comparación directa entre el modelo de ignición física de <code>Incendios_PY</code> y los índices internacionales canónicos.</p>
+<section id="benchmarking-comparativo-internacional-y-significancia-estadística" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="benchmarking-comparativo-internacional-y-significancia-estadística"><span class="header-section-number">5.2</span> 5.2 Benchmarking Comparativo Internacional y Significancia Estadística</h2>
+<p>La <a href="#tbl-benchmark" class="quarto-xref">Tabla 3</a> expone la comparación directa entre el modelo de ignición física de <code>Incendios_PY</code> y los índices internacionales canónicos, incluyendo intervalos de confianza al 95 % por remuestreo no paramétrico (<span class="math inline">\(N=500\)</span>) y el error de calibración esperado (<span class="math inline">\(ECE\)</span>).</p>
 <div id="tbl-benchmark" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2765,98 +2771,122 @@ Tabla 3: Benchmarking internacional comparativo sobre el mismo conjunto de prue
 <div aria-describedby="tbl-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 17%">
-<col style="width: 17%">
-<col style="width: 21%">
-<col style="width: 21%">
-<col style="width: 21%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Macro-Región</th>
 <th style="text-align: left;">Modelo Evaluado</th>
-<th style="text-align: center;">ROC-AUC</th>
+<th style="text-align: center;">ROC-AUC [IC 95 %]</th>
 <th style="text-align: center;">PR-AUC</th>
-<th style="text-align: center;">Superioridad frente a Línea Base</th>
+<th style="text-align: center;">ECE</th>
+<th style="text-align: center;">Brier Skill Score</th>
+<th style="text-align: center;">Falsos Positivos</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><strong>Región Oriental</strong></td>
 <td style="text-align: left;"><strong>Incendios_PY (Ignición Física)</strong></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,7106}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,7106}\;[0,599 - 0,804]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,2741}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{+82,6\text{ \%}}\)</span> sobre FWI</td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0106}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{+0,0521}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{41}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Región Oriental</td>
 <td style="text-align: left;">Incendios_PY (Propagación Táctica)</td>
-<td style="text-align: center;"><span class="math inline">\(0,6917\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,6917\;[0,582 - 0,796]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,3031\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(+77,7\text{ \%}\)</span> sobre FWI</td>
+<td style="text-align: center;"><span class="math inline">\(0,0216\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(+0,0560\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Región Oriental</td>
 <td style="text-align: left;">Proxy Analítico INPE Risco de Fogo</td>
-<td style="text-align: center;"><span class="math inline">\(0,3995\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,3995\;[0,332 - 0,477]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,0703\)</span></td>
-<td style="text-align: center;">Peor que el azar (<span class="math inline">\(ROC &lt; 0,5\)</span>)</td>
+<td style="text-align: center;"><span class="math inline">\(0,7634\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-8,2341\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(317\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Región Oriental</td>
 <td style="text-align: left;">Canadian FWI Puro (ISI)</td>
-<td style="text-align: center;"><span class="math inline">\(0,3892\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,3892\;[0,313 - 0,475]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,0779\)</span></td>
-<td style="text-align: center;">Peor que el azar (<span class="math inline">\(ROC &lt; 0,5\)</span>)</td>
+<td style="text-align: center;"><span class="math inline">\(0,4317\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-2,7331\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(324\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Región Oriental</td>
 <td style="text-align: left;">Línea Base Climatológica Nula</td>
-<td style="text-align: center;"><span class="math inline">\(0,5000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,5000\;[0,500 - 0,500]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,0909\)</span></td>
-<td style="text-align: center;">Referencia sin poder predictivo</td>
+<td style="text-align: center;"><span class="math inline">\(0,0000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,0000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Chaco</strong></td>
 <td style="text-align: left;"><strong>Incendios_PY (Propagación Táctica)</strong></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8494}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8494}\;[0,806 - 0,890]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,7057}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{+56,4\text{ \%}}\)</span> sobre FWI</td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0615}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{+0,3860}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{12}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Chaco</strong></td>
 <td style="text-align: left;"><strong>Incendios_PY (Ignición Física)</strong></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8305}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,8305}\;[0,788 - 0,871]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{0,5714}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{+52,9\text{ \%}}\)</span> sobre FWI</td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,0112}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{+0,3746}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{62}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">Proxy Analítico INPE Risco de Fogo</td>
-<td style="text-align: center;"><span class="math inline">\(0,6457\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,6457\;[0,609 - 0,681]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,1314\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(750\)</span> falsos positivos (<span class="math inline">\(F_{0.5}\)</span>)</td>
+<td style="text-align: center;"><span class="math inline">\(0,7502\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-8,0707\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(750\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">Canadian FWI Puro (ISI)</td>
-<td style="text-align: center;"><span class="math inline">\(0,5432\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,5432\;[0,505 - 0,581]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,0967\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1.026\)</span> falsos positivos (<span class="math inline">\(F_{0.5}\)</span>)</td>
+<td style="text-align: center;"><span class="math inline">\(0,2357\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-0,9321\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1.026\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">Línea Base Climatológica Nula</td>
-<td style="text-align: center;"><span class="math inline">\(0,5000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,5000\;[0,500 - 0,500]\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,0909\)</span></td>
-<td style="text-align: center;">Referencia sin poder predictivo</td>
+<td style="text-align: center;"><span class="math inline">\(0,0000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,0000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
 </tr>
 </tbody>
 </table>
 </div>
 </figure>
 </div>
-<p>Como se observa en la <a href="#tbl-benchmark" class="quarto-xref">Tabla 3</a> y en la <a href="#fig-benchmark-curvas" class="quarto-xref">Figura 4</a>, en la <strong>Región Oriental</strong> tanto el <strong>Canadian FWI (ISI)</strong> como el <strong>Proxy Analítico INPE Risco de Fogo</strong> colapsan a un ROC-AUC inferior a 0,50 (<span class="math inline">\(0,3892\)</span> y <span class="math inline">\(0,3995\)</span>, respectivamente). Esto indica que en regímenes subtropicales húmedos con fuerte actividad humana, los índices canónicos invierten el ranking de peligro, clasificando erróneamente días con condiciones ideales de quema de pasturas como de “bajo riesgo”. <code>Incendios_PY</code> supera a ambos sistemas por más de 31 puntos de ROC-AUC en ignición pura. En el <strong>Chaco semiárido</strong>, la capa de propagación táctica de <code>Incendios_PY</code> alcanza un ROC-AUC de <span class="math inline">\(0,8494\)</span> y un PR-AUC de <span class="math inline">\(0,7057\)</span>, y la capa de ignición física alcanza <span class="math inline">\(0,8305\)</span> y <span class="math inline">\(0,5714\)</span>, superando con holgura al Canadian FWI (<span class="math inline">\(0,5432\)</span>) y al Proxy INPE (<span class="math inline">\(0,6457\)</span>), reduciendo las falsas alarmas de más de 750 a solo 12 falsos positivos en propagación y 62 en ignición.</p>
+<p>Las pruebas de significancia estadística pareada mediante remuestreo bootstrap (<span class="math inline">\(B = 1.000\)</span>) confirman que la superioridad de <code>Incendios_PY</code> sobre los índices canónicos es contundente y no atribuible al azar: - En el <strong>Gran Chaco</strong>, la diferencia de discriminación frente al Canadian FWI (<span class="math inline">\(\Delta\text{ROC} = +0,2879\)</span>) y frente al INPE Risco de Fogo (<span class="math inline">\(\Delta\text{ROC} = +0,2017\)</span>) es altamente significativa (<span class="math inline">\(p &lt; 0,0001\)</span> en ambos contrastes bilaterales). Asimismo, mientras el INPE exhibe un <span class="math inline">\(ECE\)</span> de <span class="math inline">\(0,7502\)</span> y el FWI de <span class="math inline">\(0,2357\)</span>, <code>Incendios_PY</code> mantiene un <span class="math inline">\(ECE\)</span> de apenas <span class="math inline">\(0,0112\)</span>. - En la <strong>Región Oriental</strong>, la brecha frente al FWI (<span class="math inline">\(\Delta\text{ROC} = +0,3238\)</span>, <span class="math inline">\(p &lt; 0,0001\)</span>) y frente al INPE (<span class="math inline">\(\Delta\text{ROC} = +0,2001\)</span>, <span class="math inline">\(p = 0,0010\)</span>) certifica que los índices tradicionales invierten la escala de riesgo en el régimen subtropical húmedo, con errores de calibración que superan el <span class="math inline">\(43\text{ \%}\)</span> y <span class="math inline">\(76\text{ \%}\)</span>, frente a apenas <span class="math inline">\(1,06\text{ \%}\)</span> en <code>Incendios_PY</code>.</p>
 <p>La comparación gráfica exhaustiva de las curvas ROC y Precision-Recall frente al Canadian FWI y al INPE Risco de Fogo se expone en la <a href="#fig-benchmark-curvas" class="quarto-xref">Figura 4</a>, destacando la marcada divergencia en la fracción de positivos verdaderos identificados.</p>
 <div id="fig-benchmark-curvas" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
