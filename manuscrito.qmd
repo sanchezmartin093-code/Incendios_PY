@@ -371,15 +371,21 @@ Este trabajo introduce un marco computacional riguroso, desacoplado y reproducib
 3. La susceptibilidad espacial histórica (sin fuga temporal) provee el anclaje antrópico base, mientras que la presión dinámica cuadrática del viento ($v^2$) gobierna la ignición chaqueña y la humedad del combustible fino ($FFMC$) la Región Oriental.
 4. El pipeline analítico ejecuta la inferencia nacional completa en $0,75$ segundos, permitiendo su despliegue operativo en tiempo real a costo computacional nulo.
 
-### Trabajo Futuro: Verificación Satelital Tri-Modal
-Como evolución inmediata, proponemos la integración del sistema de predicción con un pipeline automatizado de **verificación satelital tri-modal multiespectral** sustentado en bases de datos de comportamiento global [@artes2019] y teledetección de cicatrices de quemado [@chuvieco2019]:
-- **Modo 1 (Regional Sinóptico):** Cartografía nacional diaria del índice de peligro a 1 km².
-- **Modo 2 (Focal VIIRS 375 m):** Detección de anomalías térmicas y clusters de propagación activa.
-- **Modo 3 (Infrarrojo de Onda Corta SWIR / Sentinel-2 / Landsat-9 a 20 m):** Inspección de alta resolución para la delimitación precisa de cicatrices de quemado (*burn scars*) y cálculo del índice normalizado de área quemada ($NBR$).
+## 7.1 Trabajo Futuro y Hoja de Ruta Tecnológica
 
-Asimismo, la siguiente iteración del sistema incorporará la asimilación directa de productos de teledetección hídrica de alta frecuencia:
-- **Humedad superficial de suelo por microondas activas/pasivas (NASA SMAP a 9 km):** Para sustituir los balances teóricos de suelo de ERA5-Land por observaciones físicas directas del estrato radicular.
-- **Estrés hídrico foliar y contenido de agua del dosel (Copernicus Sentinel-3 OLCI/SLSTR a 300 m):** Mediante el cómputo diario del Índice Normalizado de Diferencia de Agua ($NDWI$), capturando la desecación premórbida de la vegetación leñosa antes de su colapso en combustible disponible.
+### Delimitación Metodológica y Madurez del Alcance Actual
+En el diseño de `Incendios_PY`, la incorporación de sensores de microondas activas o reflectancias espectrales de alta frecuencia —tales como la misión de humedad de suelo NASA SMAP o el contenido de agua del dosel de Copernicus Sentinel-3 OLCI— fue deliberadamente reservada como trabajo futuro en función de dos criterios de prudencia metodológica:
+1. **Preservación de la Serie Temporal Decenal Homogénea (2015–2025):** Sentinel-3A y Sentinel-3B entraron en régimen operativo regular en 2016 y 2018, respectivamente, mientras que el radar activo de SMAP cesó operaciones a mediados de 2015. Forzar su inclusión en el presente estudio habría fragmentado el horizonte decenal continuo de 10 años, impidiendo un entrenamiento y validación homogénea en temporadas críticas tempranas.
+2. **Defensa de la Soberanía Tecnológica y Bajo Costo Computacional:** El objetivo primario de este trabajo fue demostrar que un país en desarrollo puede desplegar un sistema soberano de alerta temprana de clase mundial con un tiempo de inferencia de $0,75\text{ segundos}$ en computadoras de consumo ordinarias. La asimilación de flujos diarios masivos de microondas en formato HDF5 habría impuesto cargas de almacenamiento en terabytes y dependencias de supercómputo en la nube, desvirtuando la vocación de transferibilidad operativa directa hacia el Cuerpo de Bomberos, la SEN y el MADES.
+
+### Líneas de Evolución Futura
+A partir de la línea base consolidada en este estudio, la siguiente generación de la plataforma contemplará:
+- **Asimilación Directa de Humedad de Suelo por Microondas (NASA SMAP a 9 km):** Sustituir los balances teóricos de capas de suelo de ERA5-Land por observaciones radiométricas directas de los primeros $5\text{ cm}$ de suelo, penetrando la cobertura de nubes.
+- **Detección Premórbida de Estrés Hídrico Foliar (Sentinel-3 NDWI a 300 m):** Monitorear la tasa de desecación del contenido de agua del dosel antes de su transformación en combustible inflamable.
+- **Pipeline Automatizado de Verificación Satelital Tri-Modal:** Integración con teledetección multiespectral [@artes2019; @chuvieco2019] bajo tres modos operativos coordinados:
+  - **Modo 1 (Regional Sinóptico):** Cartografía nacional diaria del índice de peligro a 1 km².
+  - **Modo 2 (Focal VIIRS 375 m):** Detección de anomalías térmicas y clusters de propagación activa.
+  - **Modo 3 (Infrarrojo de Onda Corta SWIR / Sentinel-2 / Landsat-9 a 20 m):** Delimitación de cicatrices de quemado (*burn scars*) y cálculo del índice normalizado de área quemada ($NBR$).
 
 La estructura operativa de este esquema multiescala y los tres modos de visualización se ilustran en la @fig-trimodal.
 
