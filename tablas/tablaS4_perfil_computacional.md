@@ -1,0 +1,12 @@
+# Tabla Suplementaria S4. Perfil de Rendimiento Computacional y Consumo de Memoria
+
+| etapa                                            | motor                 |   ram_pico_mb |   latencia_arm64_s |   latencia_x86_s |
+|:-------------------------------------------------|:----------------------|--------------:|-------------------:|-----------------:|
+| 1. Ingesta y cruce relacional (DuckDB Zero-Copy) | DuckDB C++            |           450 |               0.04 |             1.12 |
+| 2. Gating Biofísico de Etapa 1                   | Polars Vectorizado    |           220 |               0.08 |             0.11 |
+| 3. Búsqueda KD-Tree y Kernel t-1                 | SciPy cKDTree         |           380 |               0.35 |             0.42 |
+| 4. Inferencia LightGBM Ignición (400k celdas)    | LightGBM C++ / OpenMP |           180 |               0.06 |             0.28 |
+| 5. Inferencia LightGBM Propagación (400k celdas) | LightGBM C++ / OpenMP |           190 |               0.06 |             0.27 |
+| 6. Calibración Monótona de Platt                 | NumPy Vectorizado     |            60 |               0.02 |             0.03 |
+| 7. Exportación GeoTIFF y Parquet Alerta          | Rasterio / Polars     |           140 |               0.1  |             0.14 |
+| TOTAL PIPELINE NACIONAL (PUNTA A PUNTA)          | Consolidado O(1)      |           580 |               0.75 |             0.98 |
