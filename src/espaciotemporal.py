@@ -54,8 +54,14 @@ def calcular_variables_contagio_lag(
     - focos_25km_t1: Conteo de focos activos en un radio de 25 km ayer.
     - frp_25km_t1: Suma de potencia radiativa de fuego (MW) en 25 km ayer.
     """
+    if focos_df.is_empty():
+        return df.with_columns([
+            pl.lit(dist_max_km).cast(pl.Float32).alias("dist_foco_t1_km"),
+            pl.lit(0.0).cast(pl.Float32).alias("focos_25km_t1"),
+            pl.lit(0.0).cast(pl.Float32).alias("frp_25km_t1")
+        ])
+
     coords_df = asegurar_coordenadas_utm(df)
-    coords_focos = asegurar_coordenadas_utm(focos_df)
 
     fechas_df = [str(f)[:10] for f in df["fecha"].to_list()]
     fechas_unicas = sorted(list(set(fechas_df)))

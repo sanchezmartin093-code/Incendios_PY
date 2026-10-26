@@ -45,11 +45,10 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
     rows = int(round((max_y - min_y) / res)) + 1
 
     # Crear matrices 2D inicializadas con NoData
-    nodata_prob = -9999.0
-    nodata_nivel = 255
+    nodata_val = -9999.0
 
-    matriz_prob = np.full((rows, cols), nodata_prob, dtype=np.float32)
-    matriz_nivel = np.full((rows, cols), nodata_nivel, dtype=np.uint8)
+    matriz_prob = np.full((rows, cols), nodata_val, dtype=np.float32)
+    matriz_nivel = np.full((rows, cols), nodata_val, dtype=np.float32)
 
     # Coordenadas a índices de fila/columna
     x_coords = df["x_utm"].to_numpy()
@@ -60,11 +59,11 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
     # Valores
     probs = df["probabilidad_fuego"].to_numpy().astype(np.float32)
     niveles_str = df["nivel_alerta"].to_list()
-    niveles_int = np.array([MAPA_NIVELES_INT.get(n, nodata_nivel) for n in niveles_str], dtype=np.uint8)
+    niveles_float = np.array([float(MAPA_NIVELES_INT.get(n, nodata_val)) for n in niveles_str], dtype=np.float32)
 
     # Asignar a la matriz raster
     matriz_prob[r_idx, c_idx] = probs
-    matriz_nivel[r_idx, c_idx] = niveles_int
+    matriz_nivel[r_idx, c_idx] = niveles_float
 
     # Configurar geotransformación (esquina superior izquierda de la celda de origen)
     transform = from_origin(min_x - res / 2.0, max_y + res / 2.0, res, res)
@@ -80,7 +79,7 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
         "crs": CRS_PROYECTADO,
         "transform": transform,
         "compress": "deflate",
-        "nodata": nodata_prob,
+        "nodata": nodata_val,
         "tiled": True,
         "blockxsize": 256,
         "blockysize": 256
@@ -88,7 +87,7 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
 
     with rasterio.open(ruta_salida_tif, "w", **profile) as dst:
         dst.write(matriz_prob, 1)
-        dst.write(matriz_nivel.astype(np.float32), 2)
+        dst.write(matriz_nivel, 2)
         dst.set_band_description(1, "Probabilidad_Calibrada_Fuego")
         dst.set_band_description(2, "Nivel_Alerta_Operativo_0a4")
         dst.update_tags(
