@@ -80,14 +80,24 @@ def cargar_artefactos_modelos() -> dict:
         calibrador_prop = joblib.load(ruta_c_prop) if ruta_c_prop.exists() else None
 
         # Cargar umbrales dinámicos si existen en json
-        ruta_meta_ign = DIR_MODELOS / "calibradores" / f"umbrales_ignicion_{region}.json"
-        cutoff_ign = UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
-        if ruta_meta_ign.exists():
-            try:
-                meta_j = json.loads(ruta_meta_ign.read_text(encoding="utf-8"))
-                cutoff_ign = meta_j.get("c_f05", cutoff_ign)
-            except Exception:
-                pass
+        if es_hibrido:
+            ruta_meta_hibrido = DIR_MODELOS / "calibradores" / f"umbrales_hibrido_{region}.json"
+            cutoff_ign = UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
+            if ruta_meta_hibrido.exists():
+                try:
+                    meta_h = json.loads(ruta_meta_hibrido.read_text(encoding="utf-8"))
+                    cutoff_ign = meta_h.get("c_f05", cutoff_ign)
+                except Exception:
+                    pass
+        else:
+            ruta_meta_ign = DIR_MODELOS / "calibradores" / f"umbrales_ignicion_{region}.json"
+            cutoff_ign = UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
+            if ruta_meta_ign.exists():
+                try:
+                    meta_j = json.loads(ruta_meta_ign.read_text(encoding="utf-8"))
+                    cutoff_ign = meta_j.get("c_f05", cutoff_ign)
+                except Exception:
+                    pass
 
         ruta_meta_prop = DIR_MODELOS / "calibradores" / f"umbrales_propagacion_{region}.json"
         cutoff_prop = UMBRAL_PROP_CHACO if region == "chaco" else UMBRAL_PROP_ORIENTAL
@@ -220,50 +230,33 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
         ((pl.col("viento_max_kmh") / 10.0).pow(2)).alias("potencial_viento_cuadratico")
     ])
 
-    # 4. Enriquecimiento espaciotemporal (Ecotono, Contagio t-1 y Prior histórico)
-    path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
-    if path_focos.exists():
-        df_focos = pl.read_parquet(path_focos)
+    # 4. Enriquecimiento espaciotemporal
+    # Si existe la capa precalculada de priors socioecológicos estáticos (O(1)), unirse instantáneamente
+    path_priors = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
+    if path_priors.exists():
+        df_priors = pl.read_parquet(path_priors)
+        df_nacional = df_nacional.join(df_priors, on="cell_id", how="left")
+        # Completar ecotono y contagio t-1
+        path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
+        df_focos = pl.read_parquet(path_focos) if path_focos.exists() else pl.DataFrame()
+        from src.espaciotemporal import calcular_indice_ecotono, calcular_variables_contagio_lag
+        df_nacional = df_nacional.with_columns(calcular_indice_ecotono(df_nacional))
+        df_nacional = calcular_variables_contagio_lag(df_nacional, df_focos)
     else:
-        df_focos = pl.DataFrame()
+        path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
+        df_focos = pl.read_parquet(path_focos) if path_focos.exists() else pl.DataFrame()
+        ruta_coords_hist = DIR_MODELOS / "fuegos_train_coords.npy"
+        fuegos_train_coords = np.load(ruta_coords_hist) if ruta_coords_hist.exists() else None
+        df_nacional = enriquecer_dataset_espaciotemporal(df_nacional, df_focos, fuegos_train_coords)
 
-    ruta_coords_hist = DIR_MODELOS / "fuegos_train_coords.npy"
-    if ruta_coords_hist.exists():
-        fuegos_train_coords = np.load(ruta_coords_hist)
-    else:
-        fuegos_train_coords = None
-
-    df_nacional = enriquecer_dataset_espaciotemporal(
-        df_nacional,
-        df_focos,
-        fuegos_train_coords
-    )
-
-    # Si se cargan modelos híbridos (M3), derivar las características socio-ecológicas
-    df_grilla_path = DIR_PROCESSED / "grilla_nacional_1km.parquet"
-    if df_grilla_path.exists():
-        # Variables de calendario estacional armónico y temporal
-        df_nacional = df_nacional.with_columns([
-            pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
-            (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
-            (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
-            ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
-            (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
-        ])
-        
-        # Corredores y densidades multiescala
-        if "densidad_hist_5km" not in df_nacional.columns:
-            df_nacional = df_nacional.with_columns([
-                (pl.col("densidad_hist_25km") * 0.15).cast(pl.Float32).alias("densidad_hist_5km"),
-                (pl.col("densidad_hist_25km") * 0.40).cast(pl.Float32).alias("densidad_hist_10km"),
-                (pl.col("dist_foco_hist_km") * 1.2).cast(pl.Float32).alias("dist_corredor_antropico_km"),
-                (pl.lit(0.0)).cast(pl.Float32).alias("freq_hist_1km"),
-                (pl.lit(0.15)).cast(pl.Float32).alias("focalizacion_antropica_local")
-            ])
-        else:
-            df_nacional = df_nacional.with_columns([
-                (pl.col("densidad_hist_5km") / (pl.col("densidad_hist_25km") + 1.0)).cast(pl.Float32).alias("focalizacion_antropica_local")
-            ])
+    # Variables de calendario estacional armónico y temporal para el modelo híbrido (M3)
+    df_nacional = df_nacional.with_columns([
+        pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
+        (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
+        (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
+        ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
+        (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
+    ])
 
     return df_nacional
 
