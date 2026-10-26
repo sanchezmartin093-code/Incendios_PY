@@ -31,18 +31,24 @@ Built upon an enterprise zero-copy memory architecture (**Apache Arrow, DuckDB, 
 
 ## 🏛️ 1. Arquitectura de Fusión: SOTA Informática + Rigor Científico
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        ARQUITECTURA DE FUSIÓN                          │
-├───────────────────────────────────┬────────────────────────────────────┤
-│ PILAR 1: SOTA INFORMÁTICA         │ PILAR 2: MÁXIMO RIGOR CIENTÍFICO   │
-├───────────────────────────────────┼────────────────────────────────────┤
-│ • Zero-Copy Memory (Apache Arrow) │ • Dead-Zone Spatial Buffer (20 km) │
-│ • DuckDB + Polars Vectorizado     │ • Probabilidad Observabilidad Sat  │
-│ • Indexación Espacial O(1)        │ • Predicción Conforme (Garantías)  │
-│ • Serialización Nativa C++ / ONNX │ • Inercia Multiescala Combustible  │
-│ • Data Contracts & Tipado Estricto│ • Corrección Bow-Tie Satelital     │
-└───────────────────────────────────┴────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph SOTA["Pilar 1: SOTA Informática"]
+        A1["Zero-Copy Memory (Apache Arrow)"]:::darkNode
+        A2["DuckDB + Polars Vectorizado"]:::darkNode
+        A3["Indexación Espacial O(1)"]:::darkNode
+        A4["Serialización C++ Booster"]:::darkNode
+        A5["Data Contracts & Tipado Estricto"]:::darkNode
+    end
+    subgraph RIGOR["Pilar 2: Rigor Biofísico"]
+        B1["Dead-Zone Spatial Buffer (20 km)"]:::darkNode
+        B2["Corrección Bow-Tie Satelital"]:::darkNode
+        B3["Split Conformal Prediction (Garantías)"]:::darkNode
+        B4["Inercia Multiescala Combustible"]:::darkNode
+        B5["Two-Stage Biophysical Gating (39,2% corte)"]:::darkNode
+    end
+    SOTA --- RIGOR
+    classDef darkNode fill:#1e293b,stroke:#38bdf8,stroke-width:1.5px,color:#ffffff;
 ```
 
 ---
@@ -51,15 +57,15 @@ Built upon an enterprise zero-copy memory architecture (**Apache Arrow, DuckDB, 
 
 1. **Dead-Zone Spatial Buffer (20 km):**
    * Eliminación absoluta de la fuga espaciotemporal (*data leakage*). En las particiones espaciales, se impone un cinturón de amortiguamiento de 20 km entre los datos de entrenamiento y evaluación, anulando el rango de autocorrelación espacial del fuego (Roberts et al., 2017; Ploton et al., 2020).
-2. **Función de Observabilidad Satelital ($P(\text{Obs})$):**
-   * Desacoplamiento explícito entre la ausencia física de fuego y la falta de detección provocada por nubosidad densa ($>60\,\%$) o distorsión óptica por ángulo de escaneo orbital ($>45^\circ$, efecto *Bow-Tie*).
-3. **Inercia Multiescala de Combustibles Muertos (*Time-Lag Fuel Moisture*):**
-   * Diferenciación biofísica entre combustibles finos de respuesta horaria (1-hr: pastos y hojarasca modelados con VPD y FFMC) y combustibles gruesos leñosos (100-hr y 1000-hr: troncos chaqueños modelados con humedad de suelo ERA5 `swvl2` y sequías consecutivas $CDD$).
-4. **Cascada Biofísica en 2 Etapas (*Two-Stage Cascade*):**
-   * *Etapa 1 (Gating):* Descarte instantáneo de celdas no inflamables (sin biomasa, quema reciente $<30$ días o $\text{VPD} < 0.8\text{ kPa}$).
-   * *Etapa 2 (Fine Discriminant):* Clasificación especializada con LightGBM regionalizado (Chaco vs. Región Oriental).
-5. **Cuantificación Matemática de Incertidumbre (*Inductive Conformal Prediction*):**
-   * Garantía de cobertura en muestras finitas para cualquier nivel de significancia $1 - \alpha$, complementada con optimización de corte por **$F_{0.5}$-Score** (prioridad a la precisión para mitigar el desgaste de brigadas por falsas alarmas).
+2. **Control de Distorsión Óptica Satelital (*Bow-Tie Filter*):**
+   * Purificación geométrica de las detecciones térmicas VIIRS 375m excluyendo registros en los extremos de la franja orbital (`scan > 1.5 km`) y focos de baja confianza (`confidence == 'low'`), previniendo la duplicación y el desplazamiento espurio de píxeles deformados.
+3. **Inercia Multiescala de Combustibles y Clima:**
+   * Diferenciación biofísica entre combustibles finos de respuesta rápida (modelados mediante VPD diurno máximo, amplitud térmica y FFMC) e indicadores acumulados de sequía (días consecutivos secos $CDD$ y precipitación antecedente a 48h).
+4. **Cascada Biofísica en 2 Etapas (*Two-Stage Bio-physical Gating*):**
+   * *Etapa 1 (Gating Cinemático):* Descarte instantáneo vectorizado de celdas no inflamables (cuerpos de agua/humedales permanentes, $\text{VPD} < 0,8\text{ kPa}$ o precipitación acumulada en 48 horas $\ge 10\text{ mm}$), reduciendo un $39,2\,\%$ de la carga multianual preservando el $89,94\,\%$ de las igniciones.
+   * *Etapa 2 (Fine Discriminant):* Clasificación especializada con LightGBM regionalizado (Chaco vs. Región Oriental) desacoplado en modelo híbrido socio-ecológico multiescala ($\mathcal{M}_3$) y kernel de propagación táctica $t-1$.
+5. **Cuantificación Matemática de Incertidumbre (*Split Conformal Prediction*):**
+   * Garantía de cobertura en muestras finitas calibrada estrictamente sobre el conjunto de validación (2023) y evaluada en el conjunto ciego *out-of-time* (2024–2025 holdout), complementada con optimización de corte por **$F_{0.5}$-Score** (prioridad a la precisión para mitigar el desgaste de brigadas por falsas alarmas).
 
 ---
 
@@ -115,9 +121,9 @@ La variable dependiente se formula en dos niveles analíticos:
 ## ⚡ 4. Filosofía SOTA de Ingeniería de Software
 
 * **Indexación Espacial Aritmética $O(1)$:** Las celdas de $1 \times 1\text{ km}$ se indexan determinísticamente a partir de sus coordenadas métricas UTM Zona 21 Sur (EPSG:32721) sin instanciar polígonos Shapely en memoria, logrando joins espaciales instantáneos a nivel de registros de CPU.
-* **Procesamiento Zero-Copy:** Integración fluida entre archivos **GeoParquet 1.1**, **DuckDB** y **Polars** mediante punteros compartidos de Apache Arrow, permitiendo manejar cientos de gigabytes de series climáticas y satelitales sin saturar la memoria RAM.
-* **Serialización Interoperable de Baja Latencia:** Los modelos se exportan en formato compilado C++ Booster y **ONNX / Treelite**, habilitando inferencias en microsegundos aptas para despliegue en microservicios operativos.
-* **Escalabilidad Tensorial y Aceleración por Hardware:** Diseñado para desacoplar el preprocesamiento espacial zero-copy de la fase de entrenamiento e inferencia masiva. La matriz nacional de 400.006 celdas diarias a lo largo de 11 años de serie histórica está estructurada para entrenamiento y calibración paralela en aceleradores de hardware (**Cloud TPUs / GPUs**), permitiendo validación espacial por bloques sin cuellos de botella de memoria.
+* **Procesamiento Zero-Copy:** Integración fluida entre archivos **GeoParquet 1.1**, **DuckDB** y **Polars** mediante punteros compartidos de Apache Arrow, permitiendo manejar millones de registros de series climáticas y satelitales sin saturar la memoria RAM ($< 600\text{ MB}$ pico).
+* **Serialización Interoperable de Baja Latencia:** Los modelos se exportan en formato nativo compilado C++ Booster (`lightgbm_hibrido_chaco.booster` y `lightgbm_hibrido_oriental.booster`), habilitando inferencias en menos de $0,75\text{ s}$ en procesadores ARM64/x86_64 multinúcleo estándar sin requerir infraestructura cloud costosa.
+* **Reproducibilidad y Arquitectura Científica Abierta:** Todo el ciclo de vida del dato —desde la ingesta cruda satelital/meteorológica hasta la validación out-of-time (2024–2025) y generación de figuras de publicación— está respaldado por 40 pruebas unitarias automatizadas (`tests/`) y compilable de extremo a extremo mediante Quarto.
 
 ---
 
@@ -131,6 +137,9 @@ Incendios_PY/
 ├── requirements.txt               # Dependencias fijas del entorno
 ├── _quarto.yml                    # Compilador Quarto
 ├── manuscrito.qmd                 # Manuscrito científico reproducible
+├── material_suplementario.qmd     # Material suplementario metodológico
+├── title_page.qmd                 # Portada de identificación y declaraciones
+├── cover_letter.qmd               # Carta al editor en jefe
 ├── references.bib                 # Bibliografía académica BibTeX
 │
 ├── datos/
@@ -139,6 +148,7 @@ Incendios_PY/
 │   │   └── firms/                 # CSVs crudos de NASA FIRMS (VIIRS 375m)
 │   ├── processed/                 # Matrices Parquet particionadas optimizadas
 │   │   ├── grilla_nacional_1km.parquet  # Grilla base (400.006 celdas, 2.57 MB)
+│   │   ├── priors_socioecologicos_1km.parquet # Priors multiescala a 10 y 25 km
 │   │   └── focos_viirs_diarios.parquet  # Detecciones agregadas celda-día
 │   └── outputs/                   # GeoTIFFs de probabilidad generados
 │
@@ -153,10 +163,11 @@ Incendios_PY/
 │   ├── geometria.py               # Indexación aritmética O(1) de celdas y vecindades 3x3
 │   ├── firms.py                   # Ingesta, filtrado de nubes y corrección Bow-Tie
 │   ├── fwi.py                     # Cálculo físico de VPD, FFMC, ISI e interacción viento
-│   ├── clima.py                   # Ingesta ERA5-Land y asignación espacial KD-Tree
+│   ├── clima.py                   # Ingesta ERA5-Land y asignación espacial KD-Tree (Open-Meteo)
+│   ├── clima_cds.py               # Ingesta oficial ECMWF Copernicus Climate Data Store (CDS)
 │   ├── biomasa.py                 # Extracción y armonización de MapBiomas anual
 │   ├── muestreo.py                # Muestreo estratificado con Dead-Zone Buffer (20 km)
-│   ├── modelo.py                  # LightGBM regional y calibradores isotónicos
+│   ├── modelo.py                  # LightGBM regional (físico, propagación e híbrido M3)
 │   ├── metricas.py                # Optimización Youden J, F0.5 y Brier Skill Score
 │   ├── alerta.py                  # Inferencia y despacho diario operativo en tiempo real
 │   ├── espaciotemporal.py         # Contagio causal t-1, ecotono y prior espacial histórico
@@ -165,6 +176,7 @@ Incendios_PY/
 ├── scripts/                       # Pipelines secuenciales numerados
 │   ├── 00_generar_grilla_nacional.py # Construcción de la grilla de 1 km² (400.006 celdas)
 │   ├── 01_descargar_firms.py         # Ingesta y filtrado de NASA FIRMS (VIIRS 375m)
+│   ├── 01b_descargar_clima_cds.py    # Descarga directa vía ECMWF Copernicus CDS API
 │   ├── 02_descargar_clima_era5.py    # Ingesta meteorológica ERA5-Land y cálculo de FWI/VPD
 │   ├── 03_procesar_combustible.py    # Reclasificación funcional de biomasa MapBiomas
 │   ├── 04_construir_dataset.py       # Unificación DuckDB y Two-Stage Gating de candidatos
@@ -176,7 +188,17 @@ Incendios_PY/
 │   ├── 10_generar_figuras_manuscrito.py # Renderizado de figuras científicas vectoriales
 │   ├── 11_exportar_geotiff.py        # Conversión a ráster GeoTIFF (QGIS / ArcGIS / GEE)
 │   ├── 12_generar_dashboard_interactivo.py # Portal interactivo web (Leaflet + Chart.js)
-│   └── 13_benchmarking_modelos.py    # Benchmarking internacional: Incendios_PY vs. FWI vs. INPE
+│   ├── 13_benchmarking_modelos.py    # Benchmarking internacional: Incendios_PY vs. FWI vs. INPE
+│   ├── 14_auditoria_suplementaria.py # Auditoría out-of-time, sensibilidad de buffer y split conformal
+│   ├── 15_generar_figura_arquitectura_impacto.py # Figura 1: Arquitectura visual e impacto
+│   ├── 16_ablacion_modelo_hibrido.py # Ablación sistemática de M1, M2 y M3 híbrido
+│   └── 17_generar_figura_trimodal.py # Figura 6: Comparación trimodal M1 vs M2 vs M3
+│
+├── modelos/                       # Pesos compilados (.booster) y calibradores (.joblib)
+├── figuras/                       # Salidas vectoriales de alta resolución (PNG y PDF 300 DPI)
+├── tablas/                        # Tablas de métricas y evaluación estadística (CSV y MD)
+└── tests/                         # Suite de 40 pruebas unitarias exhaustivas
+```
 │
 ├── modelos/                       # Pesos compilados (.booster) y calibradores (.joblib)
 ├── figuras/                       # Salidas vectoriales de alta resolución (PNG y PDF 300 DPI)

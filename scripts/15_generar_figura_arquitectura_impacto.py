@@ -155,7 +155,7 @@ def crear_figura_impacto(
                                               facecolor="#EFF6FF", edgecolor="#3B82F6", linewidth=1.2))
     ax1_gate.text(0.05, 0.77, "STAGE 1: KINEMATIC BIO-PHYSICAL GATING", fontsize=9.2, fontweight="bold", color="#1E40AF")
     ax1_gate.text(0.05, 0.53, "Condition: VPD ≥ 0.8 kPa  AND  Rainfall 48h < 10 mm  AND  Fuel = 1", fontsize=8.2, fontweight="bold", color="#0F172A")
-    ax1_gate.text(0.05, 0.18, "• Automatically excludes water, wet savannas & saturated air cells.\n• Discards 92% of non-fire national territory with 0% false dismissal.\n• Reduces computational space from 1,168.8M to candidate cell-days.", 
+    ax1_gate.text(0.05, 0.18, "• Automatically excludes water, wet savannas & saturated air cells.\n• Discards 39.2% of non-fire national cell-days (89.94% fire retention).\n• Focuses compute from 1,168.8M cell-days to high-risk candidates.", 
                   fontsize=7.4, color="#334155", linespacing=1.3)
 
     # =============================================================
@@ -174,23 +174,23 @@ def crear_figura_impacto(
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#1D4ED8", edgecolor="none"))
     ax2_bg.text(0.19, 0.96, "Decoupled Dual-Layer GeoAI Engine", fontsize=9.8, fontweight="bold", color="#0F172A", va="center")
 
-    # Tarjeta Superior: MODO 1 - IGNICIÓN FÍSICA (Centrada en y = 0.72)
+    # Tarjeta Superior: MODO 1 - IGNICIÓN HÍBRIDA MULTIESCALA M3 (Centrada en y = 0.72)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.04, 0.53), 0.92, 0.38, boxstyle="round,pad=0.02",
                                             facecolor="#F0F9FF", edgecolor="#0284C7", linewidth=1.4))
     
     # Tag de aislamiento causal
     ax2_bg.add_patch(patches.FancyBboxPatch((0.06, 0.84), 0.88, 0.05, boxstyle="round,pad=0.01",
                                             facecolor="#0284C7", edgecolor="none"))
-    ax2_bg.text(0.50, 0.865, "MODE 1: PURE BIOPHYSICAL IGNITION HAZARD", fontsize=9.2, fontweight="bold", color="#FFFFFF", ha="center")
+    ax2_bg.text(0.50, 0.865, "MODE 1: MULTISCALE SOCIO-ECOLOGICAL HYBRID (M3)", fontsize=8.8, fontweight="bold", color="#FFFFFF", ha="center")
     
-    ax2_bg.text(0.07, 0.77, "Features: Weather + Fuel Structure + Ecotone Edge Contrast", fontsize=8.5, fontweight="bold", color="#0F172A")
-    ax2_bg.text(0.07, 0.69, "• STRICT CAUSAL ISOLATION: No fire history lags allowed (t-1 = 0).\n• Drivers: VPD max, Thermal amplitude, Wind speed, FFMC, Ecotone.\n• Calibrated via Monotonic Bounded Platt Scaling (w in [0.1, 10.0]).", 
+    ax2_bg.text(0.07, 0.77, "Features: Weather + Fuel Structure + Anthropogenic Priors (10/25km)", fontsize=8.2, fontweight="bold", color="#0F172A")
+    ax2_bg.text(0.07, 0.69, "• STRICT CAUSAL ISOLATION: No fire history lags allowed (t-1 = 0).\n• Drivers: VPD max, Thermal amplitude, Wind speed, Pasture fire pressure.\n• Calibrated via Monotonic Platt Scaling & Split Conformal Prediction.", 
                 fontsize=7.6, color="#334155", linespacing=1.3)
     
     # Badge de salida Modo 1 (Alineado en y = 0.595)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.07, 0.55), 0.86, 0.09, boxstyle="round,pad=0.015",
                                             facecolor="#E0F2FE", edgecolor="#0284C7", linewidth=0.8))
-    ax2_bg.text(0.50, 0.595, "Output: P(Ignition)  -->  Pre-suppression & Forest Patrol", fontsize=8.4, fontweight="bold", color="#0369A1", ha="center")
+    ax2_bg.text(0.50, 0.595, "Output: P(Ignition M3)  -->  Pre-suppression & Forest Patrol", fontsize=8.4, fontweight="bold", color="#0369A1", ha="center")
 
     # Tarjeta Inferior: MODO 2 - PROPAGACIÓN TÁCTICA (Centrada en y = 0.26)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.04, 0.06), 0.92, 0.40, boxstyle="round,pad=0.02",
@@ -247,7 +247,8 @@ def crear_figura_impacto(
 
     if df_test is not None:
         pts = df_test.to_pandas()
-        p_comb = pts["probabilidad_propagacion"].fillna(pts["probabilidad_ignicion"])
+        prob_ign_col = "probabilidad_hibrido" if "probabilidad_hibrido" in pts.columns else "probabilidad_ignicion"
+        p_comb = pts["probabilidad_propagacion"].fillna(pts[prob_ign_col])
         ax3_map.scatter(pts["lon"], pts["lat"], c=p_comb, cmap="inferno", s=8, alpha=0.85, zorder=4)
 
     ax3_map.set_title("Operational Alert Map\n(1 km² Resolution)", fontsize=8.0, fontweight="bold", color="#0F172A", pad=2)
@@ -271,19 +272,20 @@ def crear_figura_impacto(
                                               facecolor="#ECFDF5", edgecolor="#10B981", linewidth=0.8))
     ax3_kpis.text(0.50, 0.855, "OPERATIONAL METRICS", fontsize=8.5, fontweight="bold", color="#047857", ha="center")
 
-    # Cuadrícula interna de 4 métricas clave
+    # Cuadrícula interna de métricas clave
     kpis_data = [
         ("Inference Latency", "< 0.75 s", "#0F172A"),
         ("Sovereign Grid", "400,006 cells", "#0F172A"),
         ("Tactical Precision", "86.73 %", "#15803D"),
         ("Chaco Spread ROC", "0.874", "#DC2626"),
-        ("Oriental Ignition ROC", "0.798", "#0284C7"),
+        ("Oriental Hybrid ROC", "0.816", "#0284C7"),
+        ("Chaco Hybrid ROC", "0.725", "#0284C7"),
     ]
-    y_kpi = 0.65
+    y_kpi = 0.67
     for label_k, val_k, col_k in kpis_data:
-        ax3_kpis.text(0.08, y_kpi, f"• {label_k}:", fontsize=7.2, color="#475569")
-        ax3_kpis.text(0.92, y_kpi, val_k, fontsize=7.4, fontweight="bold", color=col_k, ha="right")
-        y_kpi -= 0.13
+        ax3_kpis.text(0.08, y_kpi, f"• {label_k}:", fontsize=6.8, color="#475569")
+        ax3_kpis.text(0.92, y_kpi, val_k, fontsize=7.0, fontweight="bold", color=col_k, ha="right")
+        y_kpi -= 0.11
 
     # Sub-ax 3C: Gráfico de Barras de Benchmarking Internacional (Gran Chaco Test Ciego)
     ax3_bench = fig.add_subplot(gs3[1, :])
@@ -291,9 +293,9 @@ def crear_figura_impacto(
     for sp in ax3_bench.spines.values():
         sp.set_color("#CBD5E1")
 
-    modelos = ["Incendios_PY\n(Spread)", "Incendios_PY\n(Ignition)", "Proxy INPE\nRisco Fogo", "Canadian\nFWI (ISI)"]
-    roc_scores = [0.874, 0.722, 0.504, 0.518]
-    colores_bar = ["#DC2626", "#0284C7", "#94A3B8", "#64748B"]
+    modelos = ["Incendios_PY\n(Spread)", "Incendios_PY\n(Hybrid M3)", "Canadian\nFWI (ISI)", "Proxy INPE\nRisco Fogo"]
+    roc_scores = [0.874, 0.725, 0.518, 0.504]
+    colores_bar = ["#DC2626", "#0284C7", "#64748B", "#94A3B8"]
 
     bars = ax3_bench.bar(range(len(modelos)), roc_scores, color=colores_bar, width=0.55, zorder=3)
     ax3_bench.axhline(0.5, color="#DC2626", linestyle="--", linewidth=0.9, alpha=0.7, zorder=2)

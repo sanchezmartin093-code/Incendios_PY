@@ -2,6 +2,6 @@
 
 | radio_buffer   | condicion                                      |   n_muestras_chaco |   auc_ign_chaco |   auc_prop_chaco |   n_muestras_oriental |   auc_ign_oriental |
 |:---------------|:-----------------------------------------------|-------------------:|----------------:|-----------------:|----------------------:|-------------------:|
-| 10 km          | Sub-umbral (dentro del alcance espacial h < a) |             695417 |          0.7213 |           0.7314 |                903310 |             0.7722 |
-| 20 km          | Configuración Canónica (h ≈ a + 1.6 km)        |             614560 |          0.7089 |           0.7038 |                659153 |             0.7639 |
-| 30 km          | Sobre-umbral ultra-conservador (h >> a)        |             470316 |          0.7061 |           0.7028 |                428761 |             0.7691 |
+| 10 km          | Sub-umbral (dentro del alcance espacial h < a) |             695417 |          0.7279 |           0.7314 |                903310 |             0.7934 |
+| 20 km          | Configuración Canónica (h ≈ a + 1.6 km)        |             614560 |          0.716  |           0.7038 |                659153 |             0.7887 |
+| 30 km          | Sobre-umbral ultra-conservador (h >> a)        |             470316 |          0.711  |           0.7028 |                428761 |             0.7909 |
