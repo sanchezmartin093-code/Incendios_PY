@@ -13,8 +13,8 @@ datos/processed/train_dataset.parquet,Pipeline,Partición de entrenamiento,2018-
 datos/processed/val_dataset.parquet,Pipeline,Partición de validación,2023,fd93bf243db6a0880e8e522a220d2aa137dadf4d501cc401be025f98d12b4a4f,69380005,v armada sobre muestra vieja + targets D2; requiere remuestreo
 datos/processed/test_dataset.parquet,Pipeline,Partición de test,2024-2025,a0977bf3737d25fec211c5029c08f41296780d8c08f1658391e632e6920467cb,124858195,v armada sobre muestra vieja + targets D2; requiere remuestreo
 datos/processed/evaluacion_test_predicciones.parquet,Pipeline,Predicciones de test,2024-2025,833c894791126beb4db2ad245c9120726b9fb81c761d03e5c6e547ae943bf516,141876985,Generadas con modelos sintéticos
-modelos/lightgbm_hibrido_chaco.booster,Pipeline,Modelo M3 Chaco,2026,9f6ab4c8bedcc6b42f55097212823fae2576681e5f3ed902bd5ef2b4f3237116,125312,Actualizado tras reentrenamiento/remuestreo D2
-modelos/lightgbm_hibrido_oriental.booster,Pipeline,Modelo M3 Oriental,2026,3d2bc3c39f03dffb5328152c0901edb7b3813b8bc9ef2b0752de3b5c3e994b69,204497,Actualizado tras reentrenamiento/remuestreo D2
+modelos/lightgbm_hibrido_chaco.booster,Pipeline,Modelo M3 Chaco,2026,9d98e951a4a810684f063c033259348620b8dbc03a141b684aec61288be30720,125393,Actualizado tras reentrenamiento/remuestreo D2
+modelos/lightgbm_hibrido_oriental.booster,Pipeline,Modelo M3 Oriental,2026,be2811c72c1fa05f6fef5361e9c5ccce5d77a584a453699db18bf4059cad4f22,205535,Actualizado tras reentrenamiento/remuestreo D2
 modelos/lightgbm_propagacion_chaco.booster,Pipeline,Modelo propagación Chaco,2026,93b6f451bad03f083a1dac5d1a6bde32751e9144c94be9cc659ca59f87d9d95f,40219,Actualizado tras reentrenamiento/remuestreo D2
 modelos/lightgbm_propagacion_oriental.booster,Pipeline,Modelo propagación Oriental,2026,fe76cf6efd562c4ce48a786c6fca64e17ad0b23123ea00a4e9f5075799e3922a,76610,Actualizado tras reentrenamiento/remuestreo D2
 modelos/lightgbm_chaco.booster,Pipeline,Modelo M2 Chaco,2026,d30996b5df1fc4fc35d129a6f1c7d2f2f02f7cef4f546b0a681fe268e69137d0,39906,Actualizado tras reentrenamiento/remuestreo D2
@@ -35,3 +35,5 @@ datos/processed/targets_poblacionales/val_ignicion.parquet,Pipeline,Remuestreo p
 datos/processed/targets_poblacionales/val_propagacion.parquet,Pipeline,Remuestreo poblacional 1:10 por target D2,2018-2025,05c2cbb38d7aead5bf435fd55eb061712fc6af289a0038268d5ce44a510ba8f3,61635897,Actualizado tras reentrenamiento/remuestreo D2
 datos/processed/conteos_poblacionales_d2.parquet,Pipeline,Conteos poblacionales D2 por fecha/región/target,2018-2025,6cfa942bcb49e151deee3c17c85df1900265b2f18d1c6f1d65cb58bbf5dae9a6,57638,Población completa del dominio D2
 modelos/calibradores/prevalencias_poblacionales_d2.json,Pipeline,Prevalencias poblacionales D2,2018-2025,83cacb06c88d2ae64a50b5f813fefec03bd0de3a9b89e3893b75ce7dcdbb6445,5359,"Por target, región y año"
+datos/processed/fwi_completo_diario.parquet,Pipeline,FWI completo / INPE diario,2018-2025,0760be08c494a73acc5cbc9081ecd5733d3e77a4e70ffe992871ad43ef374f47,52820070,Benchmark D2
+datos/processed/inpe_diario.parquet,Pipeline,FWI completo / INPE diario,2018-2025,af441a76106272ef1759dba71c713453c171ff610ec6b234cc7e820eb1fea8e8,33991878,Benchmark D2

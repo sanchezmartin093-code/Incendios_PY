@@ -189,21 +189,21 @@ Los modelos operativos no se seleccionaron mediante una búsqueda sistemática r
 
 | departamento     | region   |   celdas_soberanas |   muestras_test |   fuegos_test |   roc_auc_ignicion |   roc_auc_propagacion | precision_tactica   |
 |:-----------------|:---------|-------------------:|----------------:|--------------:|-------------------:|----------------------:|:--------------------|
-| SAN PEDRO        | Oriental |              20854 |           22859 |          2763 |              0.714 |                 0.758 | 59.2 %              |
-| CONCEPCION       | Oriental |              18523 |           24486 |          2022 |              0.704 |                 0.811 | 72.9 %              |
-| ITAPUA           | Oriental |              15868 |           21861 |          1355 |              0.775 |                 0.779 | 48.2 %              |
+| SAN PEDRO        | Oriental |              20854 |           22859 |          2763 |              0.715 |                 0.758 | 59.2 %              |
+| CONCEPCION       | Oriental |              18523 |           24486 |          2022 |              0.705 |                 0.811 | 72.9 %              |
+| ITAPUA           | Oriental |              15868 |           21861 |          1355 |              0.776 |                 0.779 | 48.2 %              |
 | CANINDEYU        | Oriental |              15052 |           19820 |          1700 |              0.851 |                 0.833 | 63.6 %              |
 | ALTO PARANA      | Oriental |              14206 |           23639 |           869 |              0.843 |                 0.856 | 50.1 %              |
-| CAAGUAZU         | Oriental |              12901 |           14333 |          1571 |              0.724 |                 0.748 | 53.2 %              |
+| CAAGUAZU         | Oriental |              12901 |           14333 |          1571 |              0.726 |                 0.748 | 53.2 %              |
 | AMAMBAY          | Oriental |              12555 |           15122 |          1517 |              0.759 |                 0.836 | 74.8 %              |
-| ÑEEMBUCU         | Oriental |              11672 |           15506 |          1555 |              0.637 |                 0.719 | 53.4 %              |
+| ÑEEMBUCU         | Oriental |              11672 |           15506 |          1555 |              0.638 |                 0.719 | 53.4 %              |
 | CAAZAPA          | Oriental |               9554 |           10662 |          1388 |              0.713 |                 0.724 | 48.3 %              |
 | PARAGUARI        | Oriental |               8593 |            9631 |          1139 |              0.625 |                 0.703 | 55.3 %              |
-| MISIONES         | Oriental |               8157 |            9786 |           912 |              0.596 |                 0.707 | 56.4 %              |
-| CORDILLERA       | Oriental |               4791 |            4947 |           561 |              0.678 |                 0.731 | 53.7 %              |
-| GUAIRA           | Oriental |               3866 |            4455 |           469 |              0.687 |                 0.715 | 43.0 %              |
-| CENTRAL          | Oriental |               2406 |            2751 |           347 |              0.706 |                 0.778 | 67.5 %              |
-| ASUNCION         | Oriental |                128 |              78 |             8 |              0.682 |                 0.795 | 55.6 %              |
+| MISIONES         | Oriental |               8157 |            9786 |           912 |              0.597 |                 0.707 | 56.4 %              |
+| CORDILLERA       | Oriental |               4791 |            4947 |           561 |              0.679 |                 0.731 | 53.7 %              |
+| GUAIRA           | Oriental |               3866 |            4455 |           469 |              0.688 |                 0.715 | 43.0 %              |
+| CENTRAL          | Oriental |               2406 |            2751 |           347 |              0.704 |                 0.778 | 67.5 %              |
+| ASUNCION         | Oriental |                128 |              78 |             8 |              0.68  |                 0.795 | 55.6 %              |
 | BOQUERON         | Chaco    |              88623 |           66587 |          5038 |              0.808 |                 0.927 | 88.5 %              |
 | ALTO PARAGUAY    | Chaco    |              78613 |           60983 |          4075 |              0.813 |                 0.921 | 86.6 %              |
 | PRESIDENTE HAYES | Chaco    |              73644 |           49046 |          6943 |              0.709 |                 0.855 | 79.4 %              |
@@ -214,10 +214,10 @@ Los modelos operativos no se seleccionaron mediante una búsqueda sistemática r
 
 | etapa                                   | motor                |   ram_pico_mb |   latencia_arm64_s |   latencia_x86_s | nota                               |
 |:----------------------------------------|:---------------------|--------------:|-------------------:|-----------------:|:-----------------------------------|
-| 1. Ingesta, priors causales y gating    | Polars / cKDTree     |         nan   |              1.154 |              nan | medido en el equipo de ejecución   |
-| 2. Inferencia dual LightGBM             | LightGBM C++ / NumPy |         nan   |              0.253 |              nan | medido en el equipo de ejecución   |
+| 1. Ingesta, priors causales y gating    | Polars / cKDTree     |         nan   |              1.129 |              nan | medido en el equipo de ejecución   |
+| 2. Inferencia dual LightGBM             | LightGBM C++ / NumPy |         nan   |              0.266 |              nan | medido en el equipo de ejecución   |
 | 3. Agregación y boletín                 | Polars               |         nan   |              0.018 |              nan | medido en el equipo de ejecución   |
-| TOTAL PIPELINE NACIONAL (PUNTA A PUNTA) | Consolidado          |        2200.8 |              1.425 |              nan | fecha=2024-09-09; x86_64 no medido |
+| TOTAL PIPELINE NACIONAL (PUNTA A PUNTA) | Consolidado          |        2185.5 |              1.413 |              nan | fecha=2024-09-09; x86_64 no medido |
 
 : Perfil medido en un equipo macOS ARM64; x86_64 no medido.
 
@@ -225,8 +225,8 @@ Los modelos operativos no se seleccionaron mediante una búsqueda sistemática r
 
 | region   |   q_hat_90 | cobertura_empirica_90   |   q_hat_95 | cobertura_empirica_95   |
 |:---------|-----------:|:------------------------|-----------:|:------------------------|
-| Chaco    |     0.3396 | 89.85 %                 |     0.8463 | 95.02 %                 |
-| Oriental |     0.3768 | 90.19 %                 |     0.8461 | 94.56 %                 |
+| Chaco    |     0.336  | 89.77 %                 |     0.8457 | 95.04 %                 |
+| Oriental |     0.3743 | 90.18 %                 |     0.8464 | 94.56 %                 |
 
 : Cobertura empírica conformal; no es una garantía formal bajo cambio temporal.
 
@@ -234,31 +234,25 @@ Los modelos operativos no se seleccionaron mediante una búsqueda sistemática r
 
 | region   | task        | modelo                 |   prevalencia_poblacion_test |   prevalencia_muestra_test |   cutoff_f05_poblacional |   roc_auc_poblacional |   pr_auc_poblacional |   precision_poblacional_pct |   recall_poblacional_pct |   f05_poblacional |   brier_poblacional |   bss_poblacional |   ece_poblacional |   n_poblacion_test |   n_pos_poblacion_test |   n_muestra_test |   n_pos_muestra_test |
 |:---------|:------------|:-----------------------|-----------------------------:|---------------------------:|-------------------------:|----------------------:|---------------------:|----------------------------:|-------------------------:|------------------:|--------------------:|------------------:|------------------:|-------------------:|-----------------------:|-----------------:|---------------------:|
-| Chaco    | ignicion    | M3_ignicion_hibrida    |                  0.000152948 |                  0.0909091 |                 0.000419 |                0.7884 |               0.0007 |                       0.062 |                   27.143 |            0.0008 |            0.000153 |            0.0002 |            0      |          104976526 |                  16056 |           176616 |                16056 |
+| Chaco    | ignicion    | M3_ignicion_hibrida    |                  0.000152948 |                  0.0909091 |                 0.000417 |                0.7884 |               0.0007 |                       0.062 |                   27.56  |            0.0008 |            0.000153 |            0.0002 |            0      |          104976526 |                  16056 |           176616 |                16056 |
 | Chaco    | ignicion    | M2_ignicion_base       |                  0.000152948 |                  0.0909091 |                 0.000301 |                0.7768 |               0.0005 |                       0.047 |                   39.144 |            0.0006 |            0.000153 |            0.0002 |            0      |          104976526 |                  16056 |           176616 |                16056 |
 | Chaco    | propagacion | M2_propagacion_tactica |                  0.00155283  |                  0.0909091 |                 0.025643 |                0.9048 |               0.1104 |                       9.853 |                   49.165 |            0.1173 |            0.001455 |            0.0615 |            0.0002 |           33748163 |                  52405 |           576455 |                52405 |
-| Oriental | ignicion    | M3_ignicion_hibrida    |                  0.000414151 |                  0.0909091 |                 0.001267 |                0.7609 |               0.0017 |                       0.242 |                   17.011 |            0.003  |            0.000414 |            0.0006 |            0.0001 |           43887357 |                  18176 |           199936 |                18176 |
+| Oriental | ignicion    | M3_ignicion_hibrida    |                  0.000414151 |                  0.0909091 |                 0.001074 |                0.7618 |               0.0017 |                       0.206 |                   22.777 |            0.0026 |            0.000414 |            0.0006 |            0.0001 |           43887357 |                  18176 |           199936 |                18176 |
 | Oriental | ignicion    | M2_ignicion_base       |                  0.000414151 |                  0.0909091 |                 0.000905 |                0.7505 |               0.0014 |                       0.165 |                   26.095 |            0.0021 |            0.000414 |            0.0004 |            0      |           43887357 |                  18176 |           199936 |                18176 |
 | Oriental | propagacion | M2_propagacion_tactica |                  0.00210202  |                  0.0909091 |                 0.015164 |                0.7913 |               0.0281 |                       4.183 |                   20.481 |            0.0497 |            0.002071 |            0.0128 |            0.0003 |           37235186 |                  78269 |           860959 |                78269 |
 
 : Evaluación poblacional D2 generada por scripts/18_evaluacion_poblacional.py.
 
-
 # Tabla Suplementaria S7: Significancia Pareada de Diferencias de ROC-AUC
 
-| region   | task        | comparacion                                                    |   delta_roc |   p_value_bootstrap |   n_bootstrap |
-|:---------|:------------|:---------------------------------------------------------------|------------:|--------------------:|--------------:|
-| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.1875 |               0.001 |          1000 |
-| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2206 |               0.001 |          1000 |
-| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.238  |               0.001 |          1000 |
-| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.264  |               0.001 |          1000 |
-| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2676 |               0.001 |          1000 |
-| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2855 |               0.001 |          1000 |
-| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.3888 |               0.001 |          1000 |
-| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.377  |               0.001 |          1000 |
+| region   | task     | comparacion                                                 |   delta_roc |   p_value_bootstrap |   n_bootstrap |
+|:---------|:---------|:------------------------------------------------------------|------------:|--------------------:|--------------:|
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo |      0.1916 |               0.001 |          1000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo    |      0.2492 |               0.001 |          1000 |
+| Chaco    | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo |      0.2667 |               0.001 |          1000 |
+| Chaco    | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo    |      0.2465 |               0.001 |          1000 |
 
 : Bootstrap pareado B=1000 sobre la muestra case-control del test D2.
-
 
 # Tabla Suplementaria S8: Validación Espacial por Bloques de 50 km
 

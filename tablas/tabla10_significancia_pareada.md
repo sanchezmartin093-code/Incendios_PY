@@ -1,12 +1,8 @@
 # Tabla 10. Significancia pareada D2
 
-| region   | task        | comparacion                                                    |   delta_roc |   p_value_bootstrap |   n_bootstrap |
-|:---------|:------------|:---------------------------------------------------------------|------------:|--------------------:|--------------:|
-| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.1875 |               0.001 |          1000 |
-| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2206 |               0.001 |          1000 |
-| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.238  |               0.001 |          1000 |
-| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.264  |               0.001 |          1000 |
-| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2676 |               0.001 |          1000 |
-| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2855 |               0.001 |          1000 |
-| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.3888 |               0.001 |          1000 |
-| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.377  |               0.001 |          1000 |
+| region   | task     | comparacion                                                 |   delta_roc |   p_value_bootstrap |   n_bootstrap |
+|:---------|:---------|:------------------------------------------------------------|------------:|--------------------:|--------------:|
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo |      0.1916 |               0.001 |          1000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo    |      0.2492 |               0.001 |          1000 |
+| Chaco    | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo |      0.2667 |               0.001 |          1000 |
+| Chaco    | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo    |      0.2465 |               0.001 |          1000 |

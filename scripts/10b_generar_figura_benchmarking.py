@@ -35,20 +35,21 @@ def main():
             df_val = pl.read_parquet(dir_targets / f"val_{task}.parquet").filter(pl.col("region") == region)
             df_test = pl.read_parquet(dir_targets / f"test_{task}.parquet").filter(pl.col("region") == region)
             y = df_test[target_col].to_numpy().astype(int)
-            (p_fwi, _), (p_inpe, _) = bench._benchmarks(df_val, df_test, region, target_col)
-
             if task == "ignicion":
+                (p_fwi, _), (p_inpe, _) = bench._benchmarks(df_val, df_test, region, target_col)
                 curva_modelo = bench._p_modelo(region, "hibrido", df_test)
                 nombre_modelo = "M3 ignición"
+                curvas = [
+                    (f"{region} {nombre_modelo}", curva_modelo, "-"),
+                    (f"{region} FWI completo", p_fwi, ":"),
+                    (f"{region} INPE", p_inpe, "--"),
+                ]
             else:
                 curva_modelo = bench._p_modelo(region, "propagacion", df_test)
                 nombre_modelo = "Propagación"
+                curvas = [(f"{region} {nombre_modelo}", curva_modelo, "-")]
 
-            for nombre, p, ls in [
-                (f"{region} {nombre_modelo}", curva_modelo, "-"),
-                (f"{region} FWI-ISI", p_fwi, ":"),
-                (f"{region} INPE proxy", p_inpe, "--"),
-            ]:
+            for nombre, p, ls in curvas:
                 fpr, tpr, _ = roc_curve(y, p)
                 auc = roc_auc_score(y, p)
                 axes[fila, 0].plot(fpr, tpr, color=colores[region], linestyle=ls, linewidth=1.8, label=f"{nombre} ({auc:.3f})")
@@ -66,7 +67,7 @@ def main():
         axes[fila, 1].set_ylabel("Precisión")
         axes[fila, 1].legend(fontsize=7, loc="upper right")
 
-    plt.suptitle("Benchmarking D2: Incendios_PY vs Canadian FWI (ISI) vs Proxy INPE", fontweight="bold", y=0.99)
+    plt.suptitle("Benchmarking D2: Incendios_PY vs Canadian FWI completo e INPE", fontweight="bold", y=0.99)
     plt.tight_layout()
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
     fig.savefig(DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png", dpi=300)

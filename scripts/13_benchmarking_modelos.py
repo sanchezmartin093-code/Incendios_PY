@@ -24,6 +24,7 @@ from sklearn.metrics import (
 )
 
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_TABLAS
+from src.inpe import constante_a_desde_fracciones, riesgo_basico
 from src.metricas import (
     bootstrap_diferencia_roc,
     calcular_bootstrap_ci_roc,
@@ -48,31 +49,36 @@ def _umbral_modelo(region, modo):
 
 
 def _benchmarks(df_val, df_test, region, target_col):
-    isi_val = df_val["isi"].to_numpy()
-    isi_min, isi_max = float(isi_val.min()), float(isi_val.max())
-    p_fwi_val = np.clip((isi_val - isi_min) / (isi_max - isi_min + 1e-6), 0, 1)
-    p_fwi = np.clip((df_test["isi"].to_numpy() - isi_min) / (isi_max - isi_min + 1e-6), 0, 1)
-
-    if region == "Oriental":
-        veg_val = df_val["pct_pastura"].to_numpy()
-        veg_test = df_test["pct_pastura"].to_numpy()
-    else:
-        veg_val = df_val["pct_bosque_seco"].to_numpy()
-        veg_test = df_test["pct_bosque_seco"].to_numpy()
-
-    cdd_vpd_val = (
-        df_val["dias_secos_consecutivos"].to_numpy()
-        * df_val["vpd_max_kpa"].to_numpy()
-        * (0.5 + veg_val / 100.0)
+    grilla = pl.read_parquet(
+        DIR_PROCESSED / "grilla_nacional_1km.parquet",
+        columns=["cell_id", "nodo_clima_id"],
     )
-    cdd_vpd_test = (
-        df_test["dias_secos_consecutivos"].to_numpy()
-        * df_test["vpd_max_kpa"].to_numpy()
-        * (0.5 + veg_test / 100.0)
-    )
-    p_inpe_val = np.clip(1.0 - np.exp(-0.05 * cdd_vpd_val), 0, 1)
-    p_inpe = np.clip(1.0 - np.exp(-0.05 * cdd_vpd_test), 0, 1)
+    fwi = pl.read_parquet(DIR_PROCESSED / "fwi_completo_diario.parquet")
+    inpe = pl.read_parquet(DIR_PROCESSED / "inpe_diario.parquet")
 
+    def _join(df):
+        x = df.join(grilla, on="cell_id", how="left").join(
+            fwi, on=["nodo_clima_id", "fecha"], how="left"
+        ).join(inpe, on=["nodo_clima_id", "fecha"], how="left")
+        a = np.array([
+            constante_a_desde_fracciones(p, s, bs, bh, palm)
+            for p, s, bs, bh, palm in zip(
+                x["pct_pastura"].to_numpy(),
+                x["pct_sabana_pastizal"].to_numpy(),
+                x["pct_bosque_seco"].to_numpy(),
+                x["pct_bosque_humedo"].to_numpy(),
+                x["pct_humedal_palmar"].to_numpy(),
+            )
+        ])
+        rb = 0.8 * (1 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+        fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
+        ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4
+        flat = 1 + np.abs(x["lat"].to_numpy()) * 0.003
+        p_inpe = np.clip(rb * fur * ft * flat, 0, 1)
+        return x["fwi"].to_numpy(), p_inpe
+
+    p_fwi_val, p_inpe_val = _join(df_val)
+    p_fwi, p_inpe = _join(df_test)
     y_val = df_val[target_col].to_numpy().astype(int)
     c_fwi, _ = calcular_umbral_optimo_f_beta(y_val, p_fwi_val, beta=0.5)
     c_inpe, _ = calcular_umbral_optimo_f_beta(y_val, p_inpe_val, beta=0.5)
@@ -102,11 +108,12 @@ def main():
             else:
                 modelos.append(("Incendios_PY (Propagación Táctica)", _p_modelo(region, "propagacion", df_test), _umbral_modelo(region, "propagacion")))
 
-            (p_fwi, c_fwi), (p_inpe, c_inpe) = _benchmarks(df_val, df_test, region, target_col)
-            modelos.extend([
-                ("Canadian FWI (ISI)", p_fwi, c_fwi),
-                ("Proxy INPE Risco de Fogo", p_inpe, c_inpe),
-            ])
+            if task == "ignicion":
+                (p_fwi, c_fwi), (p_inpe, c_inpe) = _benchmarks(df_val, df_test, region, target_col)
+                modelos.extend([
+                    ("Canadian FWI completo", p_fwi, c_fwi),
+                    ("INPE Risco de Fogo", p_inpe, c_inpe),
+                ])
             p_clim = np.full(len(y), float(df_train[target_col].mean()))
             modelos.append(("Línea Base Climatológica", p_clim, float(df_train[target_col].mean())))
 
@@ -156,14 +163,11 @@ def main():
 
             if task == "ignicion":
                 pares = [
-                    ("Incendios_PY (Ignición Híbrida M3)", "Canadian FWI (ISI)"),
-                    ("Incendios_PY (Ignición Híbrida M3)", "Proxy INPE Risco de Fogo"),
+                    ("Incendios_PY (Ignición Híbrida M3)", "Canadian FWI completo"),
+                    ("Incendios_PY (Ignición Híbrida M3)", "INPE Risco de Fogo"),
                 ]
             else:
-                pares = [
-                    ("Incendios_PY (Propagación Táctica)", "Canadian FWI (ISI)"),
-                    ("Incendios_PY (Propagación Táctica)", "Proxy INPE Risco de Fogo"),
-                ]
+                pares = []
             prob_por_nombre = {n: p for n, p, _ in modelos}
             for a, b in pares:
                 delta, p_val = bootstrap_diferencia_roc(y, prob_por_nombre[a], prob_por_nombre[b], n_bootstrap=1000)

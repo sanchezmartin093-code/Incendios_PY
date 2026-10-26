@@ -38,6 +38,7 @@ from sklearn.metrics import (
 
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_TABLAS, DIR_FIGURAS
 from src.espaciotemporal import agregar_features_antropicas
+from src.inpe import constante_a_desde_fracciones
 from src.modelo import (
     entrenar_modelo_lightgbm,
     calibrar_probabilidades_isotonica,
@@ -246,29 +247,46 @@ def ejecutar_estudio_ablacion():
         df_shap_reg["ranking"] = df_shap_reg.index + 1
         rankings_shap.append(df_shap_reg.head(10))
 
-        # --- BENCHMARKS INTERNACIONALES (Umbrales derivados en Validación para Anti-Leakage) ---
-        isi_val = va_r["isi"].to_numpy()
-        isi_min_val, isi_max_val = float(isi_val.min()), float(isi_val.max())
-        isi_raw = te_r["isi"].to_numpy()
-        p_fwi = np.clip((isi_raw - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
-        p_fwi_val = np.clip((isi_val - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
+        # --- BENCHMARKS INTERNACIONALES COMPLETOS ---
+        grilla = pl.read_parquet(
+            DIR_PROCESSED / "grilla_nacional_1km.parquet",
+            columns=["cell_id", "nodo_clima_id"],
+        )
+        fwi = pl.read_parquet(DIR_PROCESSED / "fwi_completo_diario.parquet")
+        inpe = pl.read_parquet(DIR_PROCESSED / "inpe_diario.parquet")
+
+        def _benchmark_scores(df):
+            x = df.join(grilla, on="cell_id", how="left").join(
+                fwi, on=["nodo_clima_id", "fecha"], how="left"
+            ).join(inpe, on=["nodo_clima_id", "fecha"], how="left")
+            a = np.array([
+                constante_a_desde_fracciones(p, s, bs, bh, palm)
+                for p, s, bs, bh, palm in zip(
+                    x["pct_pastura"].to_numpy(),
+                    x["pct_sabana_pastizal"].to_numpy(),
+                    x["pct_bosque_seco"].to_numpy(),
+                    x["pct_bosque_humedo"].to_numpy(),
+                    x["pct_humedal_palmar"].to_numpy(),
+                )
+            ])
+            rb = 0.8 * (1 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+            fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
+            ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4
+            flat = 1 + np.abs(x["lat"].to_numpy()) * 0.003
+            p_inpe = np.clip(rb * fur * ft * flat, 0, 1)
+            return x["fwi"].to_numpy(), p_inpe
+
+        p_fwi_val, p_inpe_val = _benchmark_scores(va_r)
+        p_fwi, p_inpe = _benchmark_scores(te_r)
         c_opt_fwi, _ = calcular_umbral_optimo_f_beta(y_va.astype(int), p_fwi_val, beta=0.5)
-
-        veg_pct_val = va_r["pct_pastura"].to_numpy() if region == "Oriental" else va_r["pct_bosque_seco"].to_numpy()
-        cdd_vpd_val = va_r["dias_secos_consecutivos"].to_numpy() * va_r["vpd_max_kpa"].to_numpy() * (0.5 + veg_pct_val / 100.0)
-        p_inpe_val = np.clip(1.0 - np.exp(-0.05 * cdd_vpd_val), 0.0, 1.0)
         c_opt_inpe, _ = calcular_umbral_optimo_f_beta(y_va.astype(int), p_inpe_val, beta=0.5)
-
-        veg_pct = te_r["pct_pastura"].to_numpy() if region == "Oriental" else te_r["pct_bosque_seco"].to_numpy()
-        cdd_vpd = te_r["dias_secos_consecutivos"].to_numpy() * te_r["vpd_max_kpa"].to_numpy() * (0.5 + veg_pct / 100.0)
-        p_inpe = np.clip(1.0 - np.exp(-0.05 * cdd_vpd), 0.0, 1.0)
 
         evaluados = [
             ("M3: Híbrido Socio-Ecológico Multiescala", len(feats_m3), p_te_m3, c_opt_m3, "#1f77b4", "-"),
             ("M2: Ignición con Ancla Macro (v1)", len(feats_m2), p_te_m2, c_opt_m2, "#2ca02c", "--"),
             ("M1: Biofísico Puro (Sin Antrópico)", len(feats_m1), p_te_m1, c_opt_m1, "#ff7f0e", "-."),
-            ("Benchmark: Canadian FWI (ISI)", 4, p_fwi, c_opt_fwi, "#9467bd", ":"),
-            ("Benchmark: INPE Risco de Fogo", 3, p_inpe, c_opt_inpe, "#d62728", ":")
+            ("Benchmark: Canadian FWI completo", 6, p_fwi, c_opt_fwi, "#9467bd", ":"),
+            ("Benchmark: INPE Risco de Fogo", 7, p_inpe, c_opt_inpe, "#d62728", ":")
         ]
 
         curvas_reg[region] = {"y_true": y_te, "modelos": []}
@@ -276,9 +294,13 @@ def ejecutar_estudio_ablacion():
         for nom, n_f, p_vec, cut, col, ls in evaluados:
             auc = float(roc_auc_score(y_te, p_vec))
             pr_auc = float(average_precision_score(y_te, p_vec))
-            bs = float(brier_score_loss(y_te, p_vec))
-            bss = float(1.0 - (bs / (bs_clim + 1e-9)))
-            ece = float(calcular_expected_calibration_error(y_te, p_vec))
+            es_prob = nom.startswith("M") or "Híbrido" in nom
+            if es_prob:
+                bs = float(brier_score_loss(y_te, p_vec))
+                bss = float(1.0 - (bs / (bs_clim + 1e-9)))
+                ece = float(calcular_expected_calibration_error(y_te, p_vec))
+            else:
+                bs = bss = ece = float("nan")
             ci_l, ci_h = calcular_bootstrap_ci_roc(y_te, p_vec, n_bootstrap=300)
 
             y_bin = (p_vec >= cut).astype(int)
@@ -294,9 +316,9 @@ def ejecutar_estudio_ablacion():
                 "roc_auc": round(auc, 4),
                 "roc_ci_95": f"[{ci_l:.3f} - {ci_h:.3f}]",
                 "pr_auc": round(pr_auc, 4),
-                "brier_score": round(bs, 4),
-                "bss": round(bss, 4),
-                "ece": round(ece, 4),
+                "brier_score": round(bs, 4) if np.isfinite(bs) else np.nan,
+                "bss": round(bss, 4) if np.isfinite(bss) else np.nan,
+                "ece": round(ece, 4) if np.isfinite(ece) else np.nan,
                 "precision_pct": round(prec * 100, 2),
                 "recall_pct": round(rec * 100, 2),
                 "f05_score": round(f05, 4),
