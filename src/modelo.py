@@ -59,6 +59,18 @@ class CalibradorPlattMonotono:
 # LISTAS CANÓNICAS DE VARIABLES PREDICTORAS (ARQUITECTURA DUAL)
 # =====================================================================
 
+
+# 0. Variables del modelo biofísico puro M1 (sin priors de fuego ni calendario humano)
+FEATURES_M1_BIOFISICO_BASE = [
+    "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
+    "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
+    "dias_secos_consecutivos", "viento_max_kmh", "potencial_viento_cuadratico",
+    "interaccion_viento_vpd", "ffmc", "isi", "pct_pastura",
+    "pct_sabana_pastizal", "pct_humedal_palmar",
+]
+FEATURES_M1_CHACO = FEATURES_M1_BIOFISICO_BASE + ["pct_bosque_seco"]
+FEATURES_M1_ORIENTAL = FEATURES_M1_BIOFISICO_BASE + ["pct_bosque_humedo"]
+
 # 1. Variables de Peligro de Ignición Primaria (Física pura, clima, biomasa y ecotono)
 # Sin atajos espaciales de fuego previo t-1 ni memoria de corto plazo
 FEATURES_IGNICION_BASE = [

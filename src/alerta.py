@@ -133,6 +133,11 @@ def cargar_artefactos_modelos() -> dict:
         booster_prop = lgb.Booster(model_file=str(ruta_b_prop)) if ruta_b_prop.exists() else None
         calibrador_prop = joblib.load(ruta_c_prop) if ruta_c_prop.exists() else None
 
+        ruta_b_m1 = DIR_MODELOS / f"lightgbm_m1_{region}.booster"
+        ruta_c_m1 = DIR_MODELOS / "calibradores" / f"calibrador_m1_{region}.joblib"
+        booster_m1 = lgb.Booster(model_file=str(ruta_b_m1)) if ruta_b_m1.exists() else None
+        calibrador_m1 = joblib.load(ruta_c_m1) if ruta_c_m1.exists() else None
+
         # Cargar umbrales dinámicos si existen en json
         if es_hibrido:
             ruta_meta_hibrido = DIR_MODELOS / "calibradores" / f"umbrales_hibrido_{region}.json"
@@ -176,6 +181,17 @@ def cargar_artefactos_modelos() -> dict:
         cutoff_ign = _corregir_cutoff(cutoff_ign, prev_ign)
         cutoff_prop = _corregir_cutoff(cutoff_prop, prev_prop)
 
+        cutoff_m1 = cutoff_ign
+        if booster_m1 is not None:
+            ruta_meta_m1 = DIR_MODELOS / "calibradores" / f"umbrales_m1_{region}.json"
+            if ruta_meta_m1.exists():
+                try:
+                    meta_m1 = json.loads(ruta_meta_m1.read_text(encoding="utf-8"))
+                    cutoff_m1 = meta_m1.get("c_f05", cutoff_m1)
+                except Exception:
+                    pass
+            cutoff_m1 = _corregir_cutoff(cutoff_m1, prev_ign)
+
         features_modelo = booster_ign.feature_name()
 
         artefactos[region] = {
@@ -185,6 +201,10 @@ def cargar_artefactos_modelos() -> dict:
             "cutoff_ign": cutoff_ign,
             "booster_prop": booster_prop,
             "calibrador_prop": calibrador_prop,
+            "booster_m1": booster_m1,
+            "calibrador_m1": calibrador_m1,
+            "features_m1": booster_m1.feature_name() if booster_m1 is not None else None,
+            "cutoff_m1": cutoff_m1,
             "features_prop": FEATURES_PROPAGACION_CHACO if region == "chaco" else FEATURES_PROPAGACION_ORIENTAL,
             "cutoff_prop": cutoff_prop,
             "es_hibrido": es_hibrido,
@@ -374,9 +394,17 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         if df_reg.height == 0:
             continue
 
-        # Inferencia de Ignición Primaria
+        # Inferencia de Ignición Primaria (M3) y fallback M1
         X_ign = df_reg.select(art["features_ign"]).to_numpy()
-        p_ign = predecir_probabilidad(art["booster_ign"], art["calibrador_ign"], X_ign)
+        p_m3 = predecir_probabilidad(art["booster_ign"], art["calibrador_ign"], X_ign)
+        if art.get("booster_m1") is not None:
+            X_m1 = df_reg.select(art["features_m1"]).to_numpy()
+            p_m1 = predecir_probabilidad(art["booster_m1"], art["calibrador_m1"], X_m1)
+            fallback_m1 = (df_reg["freq_hist_1km"].to_numpy() <= 0)
+        else:
+            p_m1 = p_m3
+            fallback_m1 = np.zeros(df_reg.height, dtype=bool)
+        p_ign = np.where(fallback_m1, p_m1, p_m3)
 
         # Inferencia de Propagación Táctica
         if art["booster_prop"] is not None and art["calibrador_prop"] is not None:
@@ -387,11 +415,15 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
 
         # Guardar la probabilidad case-control para diagnóstico y corregir a
         # prevalencia poblacional antes de clasificar/alertar.
+        p_m3_muestreo = p_m3.copy()
+        p_m1_muestreo = p_m1.copy()
         p_ign_muestreo = p_ign.copy()
         p_prop_muestreo = p_prop.copy()
         prev_ign = art.get("prevalencia_ignicion")
         prev_prop = art.get("prevalencia_propagacion")
         if prev_ign:
+            p_m3 = corregir_prior_probabilidades(p_m3, PREVALENCIA_MUESTREO, prev_ign)
+            p_m1 = corregir_prior_probabilidades(p_m1, PREVALENCIA_MUESTREO, prev_ign)
             p_ign = corregir_prior_probabilidades(p_ign, PREVALENCIA_MUESTREO, prev_ign)
         if prev_prop:
             p_prop = corregir_prior_probabilidades(p_prop, PREVALENCIA_MUESTREO, prev_prop)
@@ -402,15 +434,20 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         cutoff_ign = art.get("cutoff_ign", UMBRAL_CORTE_CHACO if reg_key == "chaco" else UMBRAL_CORTE_ORIENTAL)
         cutoff_prop = art.get("cutoff_prop", UMBRAL_PROP_CHACO if reg_key == "chaco" else UMBRAL_PROP_ORIENTAL)
 
-        niveles_ign = categorizar_riesgo_vectorizado(p_ign, cutoff=cutoff_ign, modo="ignicion")
+        niveles_m3 = categorizar_riesgo_vectorizado(p_m3, cutoff=cutoff_ign, modo="ignicion")
+        niveles_m1 = categorizar_riesgo_vectorizado(p_m1, cutoff=art.get("cutoff_m1", cutoff_ign), modo="ignicion")
+        niveles_ign = np.where(fallback_m1, niveles_m1, niveles_m3)
         niveles_prop = categorizar_riesgo_vectorizado(p_prop, cutoff=cutoff_prop, modo="propagacion")
         niveles_tot = np.where(en_propagacion, niveles_prop, niveles_ign)
 
         df_reg = df_reg.with_columns([
             pl.Series("probabilidad_ignicion", p_ign.astype(np.float32)),
+            pl.Series("probabilidad_m3", p_m3.astype(np.float32)),
+            pl.Series("probabilidad_m1", p_m1.astype(np.float32)),
+            pl.Series("fallback_m1", fallback_m1),
             pl.Series("probabilidad_propagacion", p_prop.astype(np.float32)),
             pl.Series("probabilidad_fuego", p_fuego.astype(np.float32)),
-            pl.Series("probabilidad_cruda", p_ign_muestreo.astype(np.float32)),
+            pl.Series("probabilidad_cruda", (np.where(fallback_m1, p_m1_muestreo, p_m3_muestreo)).astype(np.float32)),
             pl.Series("probabilidad_ignicion_muestreo", p_ign_muestreo.astype(np.float32)),
             pl.Series("probabilidad_propagacion_muestreo", p_prop_muestreo.astype(np.float32)),
             pl.Series("nivel_alerta_ignicion", niveles_ign),
@@ -427,6 +464,9 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         ]
         df_descartados = df_descartados.with_columns([
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_ignicion"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_m3"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_m1"),
+            pl.lit(False).alias("fallback_m1"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_propagacion"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_fuego"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_cruda"),
