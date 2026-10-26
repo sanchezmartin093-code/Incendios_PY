@@ -144,6 +144,23 @@ def construir_features_socioecologicas(
         "densidad_hist_10km": dens_10km
     })
 
+    # Exportar archivo estructurado de priors socioecológicos estáticos para el servicio de alerta
+    p_priors_out = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
+    if not p_priors_out.exists():
+        dists_hist, _ = tree_all_tr.query(coords_all, k=1, workers=-1)
+        dens_25km = tree_all_tr.query_ball_point(coords_all, r=25000.0, return_length=True, workers=-1).astype(np.float32)
+        df_priors_full = pl.DataFrame({
+            "cell_id": grilla_enriq["cell_id"],
+            "dist_foco_hist_km": np.clip(dists_hist / 1000.0, 0.0, 100.0).astype(np.float32),
+            "densidad_hist_25km": dens_25km,
+            "freq_hist_1km": grilla_enriq["freq_hist_1km"],
+            "dist_corredor_antropico_km": (dists_rec / 1000.0).astype(np.float32),
+            "densidad_hist_5km": dens_5km,
+            "densidad_hist_10km": dens_10km,
+            "focalizacion_antropica_local": (dens_5km / (dens_25km + 1.0)).astype(np.float32)
+        })
+        df_priors_full.write_parquet(p_priors_out, compression="zstd")
+
     def enriquecer(df: pl.DataFrame) -> pl.DataFrame:
         df = df.join(grilla_feats, on="cell_id", how="left")
         return df.with_columns([

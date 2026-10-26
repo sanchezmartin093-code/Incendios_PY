@@ -42,9 +42,12 @@ class TestServicioAlerta(unittest.TestCase):
 
     def test_preparacion_e_inferencia_fecha(self):
         """Verifica el flujo completo de inferencia en una fecha de prueba."""
+        from src.constantes import DIR_MODELOS
         p_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
         if not p_clima.exists():
             self.skipTest("Clima no disponible")
+        if not (DIR_MODELOS / "lightgbm_chaco.booster").exists() and not (DIR_MODELOS / "lightgbm_hibrido_chaco.booster").exists():
+            self.skipTest("Modelos entrenados no disponibles en entorno CI")
 
         df_clima = pl.read_parquet(p_clima)
         fecha_test = df_clima["fecha"].unique().to_list()[0]
