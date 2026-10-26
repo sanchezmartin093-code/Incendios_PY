@@ -7,11 +7,11 @@ Filosofía de Producción:
   * Etapa 2: Inferencia de ensamble discriminante regional (LightGBM Booster C++) calibrado
     isotónicamente P(Fuego|X) ∈ [0.0, 1.0].
 - Clasificación de riesgo operativa según umbrales de máxima precisión (F0.5):
-  * NULO: Sin material combustible vegetal.
+  * NULO: Sin material combustible vegetal (agua o casco urbano consolidado).
   * BAJO: Condiciones subcríticas (P < c*).
-  * MODERADO: Ignición probable bajo fuentes activas (c* <= P < 0.25).
-  * ALTO: Propagación rápida sostenida (0.25 <= P < 0.40).
-  * EXTREMO: Condiciones críticas de tormenta de fuego (P >= 0.40).
+  * MODERADO: Ignición probable bajo fuentes activas (c* <= P < c* + 0.25*(1 - c*)).
+  * ALTO: Propagación rápida sostenida (c* + 0.25*(1 - c*) <= P < c* + 0.55*(1 - c*)).
+  * EXTREMO: Condiciones críticas de tormenta de fuego (P >= c* + 0.55*(1 - c*)).
 - Despacho y serialización de alertas en Apache Arrow / Parquet, JSON y Markdown.
 """
 
@@ -41,9 +41,11 @@ from src.modelo import (
 )
 from src.espaciotemporal import enriquecer_dataset_espaciotemporal
 
-# Umbrales óptimos derivados de calibración en validación out-of-time (F0.5 de máxima precisión)
-UMBRAL_CORTE_CHACO = 0.092
-UMBRAL_CORTE_ORIENTAL = 0.162
+# Umbrales óptimos derivados estrictamente en validación out-of-time (F0.5 de máxima precisión anti-falsas alarmas)
+UMBRAL_CORTE_CHACO = 0.399       # Ignición Chaco
+UMBRAL_CORTE_ORIENTAL = 0.273    # Ignición Oriental
+UMBRAL_PROP_CHACO = 0.642        # Propagación Chaco
+UMBRAL_PROP_ORIENTAL = 0.544     # Propagación Oriental
 
 def cargar_artefactos_modelos() -> dict:
     """Carga los ensambles nativos C++ y los calibradores duales (Ignición y Propagación)."""
@@ -70,16 +72,16 @@ def cargar_artefactos_modelos() -> dict:
             "booster_ign": booster_ign,
             "calibrador_ign": calibrador_ign,
             "features_ign": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
-            "cutoff_ign": 0.092 if region == "chaco" else 0.162,
+            "cutoff_ign": UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL,
             "booster_prop": booster_prop,
             "calibrador_prop": calibrador_prop,
             "features_prop": FEATURES_PROPAGACION_CHACO if region == "chaco" else FEATURES_PROPAGACION_ORIENTAL,
-            "cutoff_prop": 0.805 if region == "chaco" else 0.708,
+            "cutoff_prop": UMBRAL_PROP_CHACO if region == "chaco" else UMBRAL_PROP_ORIENTAL,
             # Compatibilidad
             "booster": booster_ign,
             "calibrador": calibrador_ign,
             "features": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
-            "cutoff_f05": 0.092 if region == "chaco" else 0.162
+            "cutoff_f05": UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
         }
     return artefactos
 
@@ -94,12 +96,17 @@ def categorizar_riesgo(prob: float, region: str, es_combustible: bool, gating_mo
     
     if prob < cutoff:
         return "BAJO"
-    elif prob < 0.25:
-        return "MODERADO"
-    elif prob < 0.40:
-        return "ALTO"
     else:
-        return "EXTREMO"
+        # Escalonamiento dinámico sobre el margen activo [cutoff, 1.0]
+        margen = 1.0 - cutoff
+        umbral_mod = cutoff + margen * 0.25
+        umbral_alto = cutoff + margen * 0.55
+        if prob < umbral_mod:
+            return "MODERADO"
+        elif prob < umbral_alto:
+            return "ALTO"
+        else:
+            return "EXTREMO"
 
 def categorizar_riesgo_vectorizado(
     probs: np.ndarray,
@@ -108,10 +115,12 @@ def categorizar_riesgo_vectorizado(
 ) -> np.ndarray:
     """
     Categorización vectorizada ultra-rápida de riesgo operativo O(1) vía NumPy.
-    Acelera el despacho de 400.006 celdas en ~80x comparado con iteraciones Python.
+    Escala dinámicamente sobre el margen activo [cutoff, 1.0] garantizando
+    coherencia total con la función categorizar_riesgo() escalar.
     """
+    margen = max(1.0 - cutoff, 1e-6)
     if modo == "propagacion":
-        umbral_extremo = cutoff + (1.0 - cutoff) * 0.4
+        umbral_extremo = cutoff + margen * 0.40
         condiciones = [
             probs < cutoff,
             (probs >= cutoff) & (probs < umbral_extremo),
@@ -120,11 +129,13 @@ def categorizar_riesgo_vectorizado(
         elecciones = ["BAJO", "ALTO", "EXTREMO"]
         return np.select(condiciones, elecciones, default="BAJO")
     else:
+        umbral_mod = cutoff + margen * 0.25
+        umbral_alto = cutoff + margen * 0.55
         condiciones = [
             probs < cutoff,
-            (probs >= cutoff) & (probs < 0.25),
-            (probs >= 0.25) & (probs < 0.40),
-            probs >= 0.40
+            (probs >= cutoff) & (probs < umbral_mod),
+            (probs >= umbral_mod) & (probs < umbral_alto),
+            probs >= umbral_alto
         ]
         elecciones = ["BAJO", "MODERADO", "ALTO", "EXTREMO"]
         return np.select(condiciones, elecciones, default="BAJO")
@@ -247,7 +258,7 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
 
         # Asignar niveles de alerta de forma vectorizada O(1) con sus respectivos umbrales
         cutoff_ign = art.get("cutoff_ign", UMBRAL_CORTE_CHACO if reg_key == "chaco" else UMBRAL_CORTE_ORIENTAL)
-        cutoff_prop = art.get("cutoff_prop", 0.805 if reg_key == "chaco" else 0.708)
+        cutoff_prop = art.get("cutoff_prop", UMBRAL_PROP_CHACO if reg_key == "chaco" else UMBRAL_PROP_ORIENTAL)
 
         niveles_ign = categorizar_riesgo_vectorizado(p_ign, cutoff=cutoff_ign, modo="ignicion")
         niveles_prop = categorizar_riesgo_vectorizado(p_prop, cutoff=cutoff_prop, modo="propagacion")

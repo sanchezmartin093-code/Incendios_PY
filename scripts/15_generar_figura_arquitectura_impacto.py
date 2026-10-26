@@ -78,9 +78,9 @@ def crear_figura_impacto(
     ax1_bg.set_yticks([])
 
     # Banner superior de fase 1
-    ax1_bg.text(0.04, 0.96, "PHASE 1", fontsize=9, fontweight="bold", color="#FFFFFF", 
+    ax1_bg.text(0.04, 0.96, "PHASE 1", fontsize=8.5, fontweight="bold", color="#FFFFFF", 
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#1E293B", edgecolor="none"))
-    ax1_bg.text(0.18, 0.96, "Multisource Ingestion & Two-Stage Gating", fontsize=11, fontweight="bold", color="#0F172A", va="center")
+    ax1_bg.text(0.19, 0.96, "Multisource Ingestion & Two-Stage Gating", fontsize=9.8, fontweight="bold", color="#0F172A", va="center")
 
     # Sub-grilla interna de Panel 1:
     # Fila 0: Mapa a la izquierda (43%) y 3 tarjetas a la derecha (57%)
@@ -155,7 +155,7 @@ def crear_figura_impacto(
                                               facecolor="#EFF6FF", edgecolor="#3B82F6", linewidth=1.2))
     ax1_gate.text(0.05, 0.77, "STAGE 1: KINEMATIC BIO-PHYSICAL GATING", fontsize=9.2, fontweight="bold", color="#1E40AF")
     ax1_gate.text(0.05, 0.53, "Condition: VPD ≥ 0.8 kPa  AND  Rainfall 48h < 10 mm  AND  Fuel = 1", fontsize=8.2, fontweight="bold", color="#0F172A")
-    ax1_gate.text(0.05, 0.18, "• Automatically excludes water, wet savannas & saturated air cells.\n• Discards 92% of non-fire national territory with 0% false dismissal.\n• Reduces computational space from 1.46B to 4.4M candidate cell-days.", 
+    ax1_gate.text(0.05, 0.18, "• Automatically excludes water, wet savannas & saturated air cells.\n• Discards 92% of non-fire national territory with 0% false dismissal.\n• Reduces computational space from 1,168.8M to candidate cell-days.", 
                   fontsize=7.4, color="#334155", linespacing=1.3)
 
     # =============================================================
@@ -170,9 +170,9 @@ def crear_figura_impacto(
     ax2_bg.set_yticks([])
 
     # Banner superior de fase 2
-    ax2_bg.text(0.04, 0.96, "PHASE 2", fontsize=9, fontweight="bold", color="#FFFFFF", 
+    ax2_bg.text(0.04, 0.96, "PHASE 2", fontsize=8.5, fontweight="bold", color="#FFFFFF", 
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#1D4ED8", edgecolor="none"))
-    ax2_bg.text(0.18, 0.96, "Decoupled Dual-Layer GeoAI Engine", fontsize=11, fontweight="bold", color="#0F172A", va="center")
+    ax2_bg.text(0.19, 0.96, "Decoupled Dual-Layer GeoAI Engine", fontsize=9.8, fontweight="bold", color="#0F172A", va="center")
 
     # Tarjeta Superior: MODO 1 - IGNICIÓN FÍSICA (Centrada en y = 0.72)
     ax2_bg.add_patch(patches.FancyBboxPatch((0.04, 0.53), 0.92, 0.38, boxstyle="round,pad=0.02",
@@ -222,9 +222,9 @@ def crear_figura_impacto(
     ax3_bg.set_yticks([])
 
     # Banner superior de fase 3
-    ax3_bg.text(0.04, 0.96, "PHASE 3", fontsize=9, fontweight="bold", color="#FFFFFF", 
+    ax3_bg.text(0.04, 0.96, "PHASE 3", fontsize=8.5, fontweight="bold", color="#FFFFFF", 
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#065F46", edgecolor="none"))
-    ax3_bg.text(0.18, 0.96, "Sovereign Alert & Benchmark Validation", fontsize=11, fontweight="bold", color="#0F172A", va="center")
+    ax3_bg.text(0.19, 0.96, "Sovereign Alert & Benchmark Validation", fontsize=9.8, fontweight="bold", color="#0F172A", va="center")
 
     # Sub-grilla interna de Panel 3:
     # Fila 0: Mapa a la izquierda (45%) y KPIs estructurados a la derecha (55%)
@@ -275,9 +275,9 @@ def crear_figura_impacto(
     kpis_data = [
         ("Inference Latency", "< 0.75 s", "#0F172A"),
         ("Sovereign Grid", "400,006 cells", "#0F172A"),
-        ("Tactical Precision", "97.71 %", "#15803D"),
-        ("Chaco Spread ROC", "0.941", "#DC2626"),
-        ("Oriental Ignition ROC", "0.771", "#0284C7"),
+        ("Tactical Precision", "86.73 %", "#15803D"),
+        ("Chaco Spread ROC", "0.874", "#DC2626"),
+        ("Oriental Ignition ROC", "0.798", "#0284C7"),
     ]
     y_kpi = 0.65
     for label_k, val_k, col_k in kpis_data:
@@ -285,14 +285,14 @@ def crear_figura_impacto(
         ax3_kpis.text(0.92, y_kpi, val_k, fontsize=7.4, fontweight="bold", color=col_k, ha="right")
         y_kpi -= 0.13
 
-    # Sub-ax 3C: Gráfico de Barras de Benchmarking Internacional
+    # Sub-ax 3C: Gráfico de Barras de Benchmarking Internacional (Gran Chaco Test Ciego)
     ax3_bench = fig.add_subplot(gs3[1, :])
     ax3_bench.set_facecolor("#FFFFFF")
     for sp in ax3_bench.spines.values():
         sp.set_color("#CBD5E1")
 
-    modelos = ["Incendios_PY\n(Spread)", "Incendios_PY\n(Ignition)", "INPE Risco\nde Fogo", "Canadian\nFWI (EFFIS)"]
-    roc_scores = [0.941, 0.771, 0.399, 0.389]
+    modelos = ["Incendios_PY\n(Spread)", "Incendios_PY\n(Ignition)", "Proxy INPE\nRisco Fogo", "Canadian\nFWI (ISI)"]
+    roc_scores = [0.874, 0.722, 0.504, 0.518]
     colores_bar = ["#DC2626", "#0284C7", "#94A3B8", "#64748B"]
 
     bars = ax3_bench.bar(range(len(modelos)), roc_scores, color=colores_bar, width=0.55, zorder=3)
@@ -300,14 +300,14 @@ def crear_figura_impacto(
     ax3_bench.set_ylim(0, 1.05)
     ax3_bench.set_xticks(range(len(modelos)))
     ax3_bench.set_xticklabels(modelos, fontsize=7.4, fontweight="bold")
-    ax3_bench.set_ylabel("ROC-AUC (Blind Test)", fontsize=7.6, fontweight="bold", color="#0F172A")
+    ax3_bench.set_ylabel("ROC-AUC (Gran Chaco)", fontsize=7.6, fontweight="bold", color="#0F172A")
     ax3_bench.grid(axis="y", color="#F1F5F9", linewidth=0.8, zorder=1)
 
     for bar, val in zip(bars, roc_scores):
         ax3_bench.text(bar.get_x() + bar.get_width()/2, val + 0.025, f"{val:.3f}", 
                        ha="center", va="bottom", fontsize=7.5, fontweight="bold", color="#0F172A")
 
-    ax3_bench.set_title("International Benchmarking on Blind Out-of-Time Test Set", fontsize=8.2, fontweight="bold", color="#0F172A", pad=4)
+    ax3_bench.set_title("Gran Chaco Benchmarking on Blind Out-of-Time Test Set (2024–2025)", fontsize=8.2, fontweight="bold", color="#0F172A", pad=4)
 
     # -------------------------------------------------------------
     # FLECHAS DE FLUJO HORIZONTALES ESTRICTAS (PENDIENTE = 0)

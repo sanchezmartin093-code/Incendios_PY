@@ -141,3 +141,55 @@ def calcular_bootstrap_ci_roc(
     inf = float(np.percentile(boot_scores, 100.0 * (alpha / 2.0)))
     sup = float(np.percentile(boot_scores, 100.0 * (1.0 - alpha / 2.0)))
     return inf, sup
+
+def calcular_cuantil_conforme(
+    y_val: np.ndarray,
+    p_val: np.ndarray,
+    alpha: float = 0.10
+) -> float:
+    """
+    Calcula el cuantil de no-conformidad q_hat sobre el conjunto de calibración/validación
+    para Split Conformal Prediction con garantía de cobertura marginal 1 - alpha (ej. 90%).
+    
+    Score de no-conformidad: s_i = 1 - p_val[i] si y_val[i] == 1 else p_val[i].
+    q_hat = cuantil ceiling((n + 1)(1 - alpha)) / n de s_1, ..., s_n.
+    """
+    y_val = np.asarray(y_val, dtype=int)
+    p_val = np.asarray(p_val, dtype=float)
+    n = len(y_val)
+    if n == 0:
+        return 1.0
+    
+    scores = np.where(y_val == 1, 1.0 - p_val, p_val)
+    k = int(np.ceil((n + 1) * (1.0 - alpha)))
+    k = min(max(k, 1), n)
+    q_hat = float(np.sort(scores)[k - 1])
+    return q_hat
+
+def predecir_conjuntos_conformes(
+    p_test: np.ndarray,
+    q_hat: float
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Genera conjuntos de predicción conformalmente válidos para nuevas probabilidades p_test.
+    Retorna: (incluye_cero, incluye_uno) boolean arrays donde C(x) = {y: incluye_y[i]}.
+    Garantía marginal: P(Y_test in C(X_test)) >= 1 - alpha.
+    """
+    p_test = np.asarray(p_test, dtype=float)
+    incluye_cero = p_test <= q_hat
+    incluye_uno = (1.0 - p_test) <= q_hat
+    return incluye_cero, incluye_uno
+
+def evaluar_cobertura_conforme(
+    y_true: np.ndarray,
+    p_test: np.ndarray,
+    q_hat: float
+) -> float:
+    """
+    Evalúa la proporción empírica de etiquetas verdaderas cubiertas por los conjuntos conformes.
+    """
+    y_true = np.asarray(y_true, dtype=int)
+    c0, c1 = predecir_conjuntos_conformes(p_test, q_hat)
+    cubierto = np.where(y_true == 1, c1, c0)
+    return float(np.mean(cubierto))
+

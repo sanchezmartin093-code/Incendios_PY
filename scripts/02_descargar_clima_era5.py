@@ -25,7 +25,7 @@ from src.clima import (
     calcular_indices_fwi_y_sequedad
 )
 
-def ejecutar_pipeline_clima(start_date: str = "2024-09-01", end_date: str = "2024-09-10", limit_nodos: int | None = None):
+def ejecutar_pipeline_clima(start_date: str = "2018-01-01", end_date: str = "2025-10-24", limit_nodos: int | None = None):
     print("=" * 65)
     print(f"INGESTA Y PROCESAMIENTO METEOROLÓGICO ERA5-LAND: {start_date} a {end_date}")
     print("=" * 65)
@@ -68,7 +68,8 @@ def ejecutar_pipeline_clima(start_date: str = "2024-09-01", end_date: str = "202
         nodo_ids=ids,
         start_date=start_date,
         end_date=end_date,
-        batch_size=50,
+        batch_size=10,
+        max_workers=3,
         delay_seg=0.2
     )
     print(f"   ✓ Registros climáticos diarios descargados: {len(df_clima_raw):,}")
@@ -98,8 +99,8 @@ def ejecutar_pipeline_clima(start_date: str = "2024-09-01", end_date: str = "202
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Descarga y procesamiento meteorológico ERA5-Land")
-    parser.add_argument("--start", default="2024-09-01", help="Fecha inicial AAAA-MM-DD")
-    parser.add_argument("--end", default="2024-09-10", help="Fecha final AAAA-MM-DD")
+    parser.add_argument("--start", default="2018-01-01", help="Fecha inicial AAAA-MM-DD")
+    parser.add_argument("--end", default="2025-10-24", help="Fecha final AAAA-MM-DD")
     parser.add_argument("--limit", type=int, default=None, help="Limitar cantidad de nodos para pruebas")
     args = parser.parse_args()
 

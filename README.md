@@ -6,8 +6,26 @@
 [![Arquitectura: Zero--Copy & DuckDB](https://img.shields.io/badge/Motor-Apache%20Arrow%20%7C%20DuckDB-yellow.svg)](#)
 [![Machine Learning: LightGBM & Conformal](https://img.shields.io/badge/ML-LightGBM%20%7C%20Predicción%20Conforme-orange.svg)](#)
 [![Quarto: Reproducible Paper](https://img.shields.io/badge/Reportes-Quarto-purple.svg)](https://quarto.org)
+[![Target Journal: Computers & Geosciences](https://img.shields.io/badge/Publicación-Computers%20%26%20Geosciences%20(Elsevier)-purple.svg)](#)
+[![Ciencia Abierta: Reproducible](https://img.shields.io/badge/Ciencia%20Abierta-100%25%20Reproducible-success.svg)](#)
 
 Sistema integral que fusiona la **informática de alto rendimiento (SOTA GeoAI)** con el **máximo rigor biofísico de la ciencia del fuego y la teledetección satelital** para modelar la probabilidad diaria de ignición a resolución de $1 \times 1\text{ km}^2$ en la República del Paraguay.
+
+---
+
+### 🌐 English Abstract
+
+**Incendios_PY** is a state-of-the-art GeoAI predictive framework modeling daily wildfire ignition probability across a nation-scale regular grid of **400,006 spatial cells ($1 \times 1\text{ km}^2$)** throughout the Republic of Paraguay over an 8-year homogeneous satellite baseline (2018–2025).
+
+Built upon an enterprise zero-copy memory architecture (**Apache Arrow, DuckDB, Polars**), the system ingests NASA VIIRS 375m active fire data, ERA5-Land reanalysis atmospheric metrics, and MapBiomas land cover dynamics. It enforces five strict biophysical and methodological principles:
+1. **20 km Dead-Zone Spatial Buffers** preventing spatial autocorrelation leakage.
+2. **Explicit Satellite Observability Functions ($P(\text{Obs})$)** decoupling physical fire absence from cloud attenuation and orbital bow-tie optical distortion.
+3. **Multiscale Dead Fuel Moisture Inertia** (1-hr fine fuels to 1000-hr coarse woody fuels).
+4. **Two-Stage Biophysical Gating Cascade** (incombustible rejection followed by regionalized LightGBM discrimination).
+5. **Inductive Conformal Prediction** delivering mathematically guaranteed finite-sample coverage guarantees ($1 - \alpha$) calibrated for operational wildfire response.
+
+* **Target Journal:** *Computers & Geosciences* (Elsevier). Fully reproducible pipeline via Quarto.
+* **Open Science Commitment:** Codebase released under MIT License; data manifests verified via SHA-256 hashes.
 
 ---
 
@@ -99,6 +117,7 @@ La variable dependiente se formula en dos niveles analíticos:
 * **Indexación Espacial Aritmética $O(1)$:** Las celdas de $1 \times 1\text{ km}$ se indexan determinísticamente a partir de sus coordenadas métricas UTM Zona 21 Sur (EPSG:32721) sin instanciar polígonos Shapely en memoria, logrando joins espaciales instantáneos a nivel de registros de CPU.
 * **Procesamiento Zero-Copy:** Integración fluida entre archivos **GeoParquet 1.1**, **DuckDB** y **Polars** mediante punteros compartidos de Apache Arrow, permitiendo manejar cientos de gigabytes de series climáticas y satelitales sin saturar la memoria RAM.
 * **Serialización Interoperable de Baja Latencia:** Los modelos se exportan en formato compilado C++ Booster y **ONNX / Treelite**, habilitando inferencias en microsegundos aptas para despliegue en microservicios operativos.
+* **Escalabilidad Tensorial y Aceleración por Hardware:** Diseñado para desacoplar el preprocesamiento espacial zero-copy de la fase de entrenamiento e inferencia masiva. La matriz nacional de 400.006 celdas diarias a lo largo de 11 años de serie histórica está estructurada para entrenamiento y calibración paralela en aceleradores de hardware (**Cloud TPUs / GPUs**), permitiendo validación espacial por bloques sin cuellos de botella de memoria.
 
 ---
 
@@ -162,7 +181,7 @@ Incendios_PY/
 ├── modelos/                       # Pesos compilados (.booster) y calibradores (.joblib)
 ├── figuras/                       # Salidas vectoriales de alta resolución (PNG y PDF 300 DPI)
 ├── tablas/                        # Tablas de métricas y evaluación estadística (CSV y MD)
-└── tests/                         # Suite de 37 pruebas unitarias exhaustivas
+└── tests/                         # Suite de 40 pruebas unitarias exhaustivas
 ```
 
 ---
@@ -191,6 +210,11 @@ python scripts/09_servicio_alerta.py
 python scripts/10_generar_figuras_manuscrito.py
 python scripts/11_exportar_geotiff.py
 python scripts/12_generar_dashboard_interactivo.py
+python scripts/13_benchmarking_modelos.py
+python scripts/14_auditoria_suplementaria.py
+python scripts/15_generar_figura_arquitectura_impacto.py
+python scripts/16_ablacion_modelo_hibrido.py
+python scripts/17_generar_figura_trimodal.py
 ```
 
 ### 6.3. Compilar el Manuscrito Científico con Quarto

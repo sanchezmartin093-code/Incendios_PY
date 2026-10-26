@@ -19,14 +19,15 @@ class TestServicioAlerta(unittest.TestCase):
         self.assertEqual(categorizar_riesgo(0.9, "Chaco", False), "NULO")
         # Con motivo de gating (ej. lluvia) -> BAJO
         self.assertEqual(categorizar_riesgo(0.8, "Chaco", True, "LLUVIA_EXTINTORA_48H"), "BAJO")
-        # Subcrítico Chaco
+        # Subcrítico Chaco (P < UMBRAL_CORTE_CHACO = 0.399)
         self.assertEqual(categorizar_riesgo(0.05, "Chaco", True), "BAJO")
-        # Moderado Chaco (0.111 <= P < 0.25)
-        self.assertEqual(categorizar_riesgo(0.15, "Chaco", True), "MODERADO")
-        # Alto Chaco (0.25 <= P < 0.40)
-        self.assertEqual(categorizar_riesgo(0.30, "Chaco", True), "ALTO")
-        # Extremo Chaco (P >= 0.40)
-        self.assertEqual(categorizar_riesgo(0.55, "Chaco", True), "EXTREMO")
+        self.assertEqual(categorizar_riesgo(0.35, "Chaco", True), "BAJO")
+        # Moderado Chaco (0.399 <= P < 0.399 + 0.601*0.25 = 0.549)
+        self.assertEqual(categorizar_riesgo(0.45, "Chaco", True), "MODERADO")
+        # Alto Chaco (0.549 <= P < 0.399 + 0.601*0.55 = 0.729)
+        self.assertEqual(categorizar_riesgo(0.60, "Chaco", True), "ALTO")
+        # Extremo Chaco (P >= 0.73)
+        self.assertEqual(categorizar_riesgo(0.85, "Chaco", True), "EXTREMO")
 
     def test_carga_artefactos(self):
         """Verifica que los modelos serializados y calibradores existan y carguen."""

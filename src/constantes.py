@@ -30,9 +30,10 @@ BBOX_PARAGUAY = {
 }
 
 # Períodos de partición temporal (Anti-Data-Leakage)
-YEARS_TRAIN = list(range(2018, 2023))  # 2018 a 2022
-YEAR_VAL = 2023                        # Ajuste de hiperparámetros
-YEAR_TEST = 2024                       # Testeo ciego out-of-time (Crisis histórica Chaco)
+YEARS_TRAIN = list(range(2018, 2023))  # 2018 a 2022 (5 años de variabilidad sinóptica e interanual)
+YEAR_VAL = 2023                        # Ajuste de hiperparámetros y calibración de Platt
+YEARS_TEST = [2024, 2025]              # Testeo ciego out-of-time (Crisis histórica Chaco y temporada reciente)
+YEAR_TEST = 2024                       # Año primario de testeo ciego (compatibilidad)
 
 # Rigor GeoAI: Buffer de Zona Muerta Espacial (Dead-Zone Buffer)
 BUFFER_ZONA_MUERTA_KM = 20             # Amortiguamiento para anular autocorrelación espacial entre folds

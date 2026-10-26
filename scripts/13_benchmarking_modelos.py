@@ -48,12 +48,14 @@ def ejecutar_benchmarking():
 
     p_test = DIR_PROCESSED / "test_dataset.parquet"
     p_train = DIR_PROCESSED / "train_dataset.parquet"
+    p_val = DIR_PROCESSED / "val_dataset.parquet"
 
-    if not p_test.exists() or not p_train.exists():
+    if not p_test.exists() or not p_train.exists() or not p_val.exists():
         raise FileNotFoundError("Datasets no encontrados en datos/processed/")
 
     df_test = pl.read_parquet(p_test)
     df_train = pl.read_parquet(p_train)
+    df_val = pl.read_parquet(p_val)
 
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
@@ -66,8 +68,10 @@ def ejecutar_benchmarking():
         print(f"\n--- EVALUANDO REGIONAL: {region.upper()} ---")
         df_reg_test = df_test.filter(pl.col("region") == region)
         df_reg_train = df_train.filter(pl.col("region") == region)
+        df_reg_val = df_val.filter(pl.col("region") == region)
 
         y_true = df_reg_test["fuego"].to_numpy().astype(int)
+        y_val_true = df_reg_val["fuego"].to_numpy().astype(int)
         n_pos = int(y_true.sum())
         n_tot = len(y_true)
         prevalencia = n_pos / n_tot
@@ -86,16 +90,26 @@ def ejecutar_benchmarking():
         X_prop, _, _ = preparar_matrices_xy(df_test, region, modo="propagacion")
         p_prop = predecir_probabilidad(b_prop, c_prop, X_prop)
 
-        # 2. Canadian FWI (ISI normalizado 0 a 1)
+        # 2. Canadian FWI (ISI normalizado 0 a 1 derivado en Validación para Anti-Leakage)
+        isi_val = df_reg_val["isi"].to_numpy()
+        isi_min_val, isi_max_val = float(isi_val.min()), float(isi_val.max())
         isi_raw = df_reg_test["isi"].to_numpy()
-        p_fwi = (isi_raw - isi_raw.min()) / (isi_raw.max() - isi_raw.min() + 1e-6)
+        p_fwi = np.clip((isi_raw - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
+        p_fwi_val = np.clip((isi_val - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
+        c_fwi_val, _ = calcular_umbral_optimo_f_beta(y_val_true, p_fwi_val, beta=0.5)
 
-        # 3. Proxy INPE Risco de Fogo (Ecuación exponencial calibrada)
-        veg = df_reg_test["pct_pastura"].to_numpy() if region == "Oriental" else df_reg_test["pct_bosque_seco"].to_numpy()
-        cdd_vpd = df_reg_test["dias_secos_consecutivos"].to_numpy() * df_reg_test["vpd_max_kpa"].to_numpy() * (0.5 + veg)
-        # Transformación logística estándar para obtener probabilidades P in [0, 1]
-        p_inpe = 1.0 - np.exp(-0.05 * cdd_vpd)
-        p_inpe = np.clip(p_inpe, 0.0, 1.0)
+        # 3. Proxy INPE Risco de Fogo (Ecuación exponencial calibrada con fracción vegetal 0-1)
+        veg_pct = df_reg_test["pct_pastura"].to_numpy() if region == "Oriental" else df_reg_test["pct_bosque_seco"].to_numpy()
+        veg_frac = veg_pct / 100.0  # Corrección a escala [0.0, 1.0]
+        cdd_vpd = df_reg_test["dias_secos_consecutivos"].to_numpy() * df_reg_test["vpd_max_kpa"].to_numpy() * (0.5 + veg_frac)
+        p_inpe = np.clip(1.0 - np.exp(-0.05 * cdd_vpd), 0.0, 1.0)
+
+        # Umbral INPE en validación
+        veg_pct_val = df_reg_val["pct_pastura"].to_numpy() if region == "Oriental" else df_reg_val["pct_bosque_seco"].to_numpy()
+        veg_frac_val = veg_pct_val / 100.0
+        cdd_vpd_val = df_reg_val["dias_secos_consecutivos"].to_numpy() * df_reg_val["vpd_max_kpa"].to_numpy() * (0.5 + veg_frac_val)
+        p_inpe_val = np.clip(1.0 - np.exp(-0.05 * cdd_vpd_val), 0.0, 1.0)
+        c_inpe_val, _ = calcular_umbral_optimo_f_beta(y_val_true, p_inpe_val, beta=0.5)
 
         # 4. Línea Base Climatológica (Promedio histórico de entrenamiento)
         p_clim = np.full(n_tot, float(df_reg_train["fuego"].mean()))
@@ -103,14 +117,15 @@ def ejecutar_benchmarking():
 
         modelos = [
             ("Incendios_PY (Ignición Física)", p_ign, "#16a085" if region == "Oriental" else "#d35400", "-"),
-            ("Incendios_PY (Propagación Táctica)", p_prop, "#27ae60" if region == "Oriental" else "#c0392b", "-"),
-            ("Proxy INPE Risco de Fogo", p_inpe, "#e67e22", "--"),
-            ("Canadian FWI (ISI)", p_fwi, "#2980b9", "-."),
+            ("Incendios_PY (Propagación Táctica)", p_prop, "#27ae60" if region == "Oriental" else "#c0392b", "--"),
+            ("Proxy INPE Risco de Fogo", p_inpe, "#e67e22", "-."),
+            ("Canadian FWI (ISI)", p_fwi, "#2980b9", ":"),
             ("Línea Base Climatológica", p_clim, "#7f8c8d", ":")
         ]
 
         datos_curvas[region] = {"y_true": y_true, "modelos": []}
 
+        dir_cal = DIR_MODELOS / "calibradores"
         for nombre_mod, p_mod, color, ls in modelos:
             auc = float(roc_auc_score(y_true, p_mod)) if len(np.unique(p_mod)) > 1 else 0.5
             pr_auc = float(average_precision_score(y_true, p_mod)) if len(np.unique(p_mod)) > 1 else prevalencia
@@ -120,15 +135,33 @@ def ejecutar_benchmarking():
             ci_low, ci_high = calcular_bootstrap_ci_roc(y_true, p_mod, n_bootstrap=500) if len(np.unique(p_mod)) > 1 else (0.5, 0.5)
 
             # Punto de corte operativo F0.5
-            if len(np.unique(p_mod)) > 1:
+            if "Incendios_PY (Ignición Física)" in nombre_mod:
+                ruta_meta = dir_cal / f"umbrales_ignicion_{region.lower()}.json"
+                import json
+                meta_val = json.loads(ruta_meta.read_text(encoding="utf-8")) if ruta_meta.exists() else {}
+                c_opt = meta_val.get("c_f05", 0.40 if region == "Chaco" else 0.27)
+            elif "Incendios_PY (Propagación Táctica)" in nombre_mod:
+                ruta_meta = dir_cal / f"umbrales_propagacion_{region.lower()}.json"
+                import json
+                meta_val = json.loads(ruta_meta.read_text(encoding="utf-8")) if ruta_meta.exists() else {}
+                c_opt = meta_val.get("c_f05", 0.64 if region == "Chaco" else 0.54)
+            elif "Canadian FWI" in nombre_mod:
+                c_opt = c_fwi_val
+            elif "Proxy INPE" in nombre_mod:
+                c_opt = c_inpe_val
+            elif len(np.unique(p_mod)) > 1:
                 c_opt, _ = calcular_umbral_optimo_f_beta(y_true, p_mod, beta=0.5)
+            else:
+                c_opt = p_clim[0]
+
+            if len(np.unique(p_mod)) > 1:
                 y_bin = (p_mod >= c_opt).astype(int)
                 tn, fp, fn, tp = confusion_matrix(y_true, y_bin).ravel()
                 sens = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
                 prec = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
                 f05 = float(fbeta_score(y_true, y_bin, beta=0.5, zero_division=0))
             else:
-                c_opt, tp, fp, tn, fn = p_clim[0], 0, 0, n_tot - n_pos, n_pos
+                tp, fp, tn, fn = 0, 0, n_tot - n_pos, n_pos
                 sens, prec, f05 = 0.0, 0.0, 0.0
 
             resultados.append({
@@ -164,7 +197,7 @@ def ejecutar_benchmarking():
     p_md = DIR_TABLAS / "tabla04_benchmarking_internacional.md"
     df_res.to_csv(p_csv, index=False)
 
-    md_str = "# Tabla 4. Benchmarking Internacional de Modelos de Peligro de Incendios sobre Test Ciego 2024\n\n"
+    md_str = "# Tabla 4. Benchmarking Internacional de Modelos de Peligro de Incendios sobre Test Ciego 2024–2025\n\n"
     md_str += df_res.to_markdown(index=False) + "\n"
     p_md.write_text(md_str, encoding="utf-8")
     print(f"\n✓ Tabla guardada en {p_csv.name} y {p_md.name}")
@@ -192,20 +225,20 @@ def ejecutar_benchmarking():
                        label=f"{mod['nombre']} (PR-AUC = {mod['pr_auc']:.3f})")
 
         # Líneas de referencia
-        ax_roc.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Azar (AUC = 0.500)")
+        ax_roc.plot([0, 1], [0, 1], color="#7f8c8d", linestyle="--", linewidth=1.2, label="Azar (AUC = 0.500)")
         ax_roc.set_title(f"Curvas ROC - {reg.upper()}", fontsize=11, fontweight="bold")
         ax_roc.set_xlabel("1 - Especificidad (FPR)", fontsize=9)
         ax_roc.set_ylabel("Sensibilidad (TPR)", fontsize=9)
         ax_roc.legend(loc="lower right", fontsize=8.5)
 
         prevalencia_reg = float(y_true.mean())
-        ax_pr.axhline(prevalencia_reg, color="grey", linestyle=":", label=f"Azar Climatológico ({prevalencia_reg:.2%})")
+        ax_pr.axhline(prevalencia_reg, color="#7f8c8d", linestyle="--", linewidth=1.2, label=f"Azar Climatológico ({prevalencia_reg:.2%})")
         ax_pr.set_title(f"Curvas Precision-Recall - {reg.upper()}", fontsize=11, fontweight="bold")
         ax_pr.set_xlabel("Sensibilidad (Recall)", fontsize=9)
         ax_pr.set_ylabel("Precisión (PPV)", fontsize=9)
         ax_pr.legend(loc="upper right", fontsize=8.5)
 
-    plt.suptitle("Benchmarking Cuantitativo: Incendios_PY vs. Canadian FWI vs. INPE Risco de Fogo (Test Ciego 2024)",
+    plt.suptitle("Benchmarking Cuantitativo: Incendios_PY vs. Canadian FWI vs. INPE Risco de Fogo (Test Ciego 2024–2025)",
                  fontsize=13, fontweight="bold", y=0.99)
     plt.tight_layout()
 

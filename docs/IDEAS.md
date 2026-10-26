@@ -1,4 +1,5 @@
 # Banco de Ideas, Futuras Extensiones y Fundamentación Teórica
+
 ## Proyecto `Incendios_PY`
 
 ---
@@ -8,6 +9,7 @@
 > **Objetivo futuro:** Una vez entrenado y calibrado el modelo de `Incendios_PY`, contrastar cuantitativamente su desempeño predictivo frente a los modelos normativos oficialmente avalados y utilizados por las agencias del Estado.
 
 ### Modelos de Referencia para el Benchmarking:
+
 1. **Canadian Forest Fire Weather Index (FWI) puro:**
    * Utilizado a nivel internacional por Copernicus EFFIS y adoptado como estándar por agencias forestales.
 2. **Índice de "Risco de Fogo" del INPE (Brasil):**
@@ -16,6 +18,7 @@
    * Probabilidad histórica media acumulada por celda.
 
 ### Métricas de Contraste a Reportar en la Discusión del Paper:
+
 * **Brier Skill Score (BSS):** Demostrar la ganancia neta de calibración de nuestro modelo frente al FWI y Risco de Fogo.
 * **Curvas PR-AUC (Precision-Recall):** Comparar la capacidad de aislar igniciones verdaderas sin inflar el área de alerta.
 * **Tasa de Reducción de Falsas Alarmas (Especificidad Operativa):** Cuántos falsos avisos se ahorran los cuarteles de bomberos voluntarios (CBVP) y brigadas de parques nacionales.
@@ -25,16 +28,19 @@
 ## 🏛️ 2. Fundamentación Teórica e Institucional (Para la Sección de Discusión)
 
 ### A. La Inercia Burocrática y el "Blindaje Legal"
+
 * **Aversión al riesgo regulatorio:** Los organismos del Estado y los tomadores de decisiones tienden a operar con modelos antiguos (como el FWI de 1987 o índices estáticos de los años 90) no porque sean más precisos, sino porque constituyen un **estándar normativo legalmente blindado**.
 * Si un funcionario público activa protocolos de emergencia o despacha brigadas apoyándose en un índice oficial estandarizado, su decisión está administrativamente respaldada ante auditorías y comisiones. Adoptar algoritmos de Machine Learning exige vencer una barrera de desconfianza institucional y de responsabilidad legal ante eventuales errores.
 
 ### B. La Brecha Tecnológica y la Maduración Reciente (2021–2024)
+
 * Este modelo es viable hoy porque convergen avances de muy reciente adopción pública:
   * **MapBiomas Cono Sur (Chaco y Bosque Atlántico):** Cartografía anual dinámica a 30m que refleja los cambios vertiginosos de uso de suelo en Paraguay.
   * **Democratización de Reanálisis Climático:** Disponibilidad abierta e instantánea de datos horarios de ERA5-Land.
   * **Motores Zero-Copy (DuckDB / Apache Arrow):** Capacidad de procesar mallas masivas espaciotemporales de cientos de miles de celdas en hardware convencional sin requerir infraestructura cloud millonaria.
 
 ### C. Superación del Cuello de Botella Operativo
+
 * **Propósito del proyecto:** Desarrollar este sistema bajo los principios de **código abierto, reproducibilidad estricta y rigor de publicación científica** demuestra empíricamente cómo la tecnología contemporánea puede superar la dependencia de reportes estáticos diarios en PDF (que llegan con 12 a 24 horas de retraso) y transformar la gestión de desastres en Paraguay de una postura puramente reactiva a una preventiva y anticipatoria.
 
 ---
@@ -44,6 +50,7 @@
 > **Idea para incorporación al pipeline:** Cerrar el ciclo entre el pronóstico predictivo ($t+24\text{h}$) y la confirmación en tiempo real ($t+0\text{h}$ a $t+3\text{h}$) integrando un bucle de verificación satelital tri-modal multiescala para cada nodo o celda en Alerta Roja ($P > 93\%$).
 
 ### Las 3 Capas de Verificación Satelital:
+
 1. **Nivel 1: Detección Continua Sub-Horaria (GOES-16 ABI - Cada 10 a 15 min):**
    * *Función:* Monitoreo dinámico del despegue de la pluma de humo (GeoColor) y de la anomalía infrarroja de 3.9 µm en tiempo real.
    * *Utilidad:* Permite a la SEN y cuerpos de bomberos validar si el nodo alertado a las 06:00 AM inició efectivamente actividad convectiva durante la siesta, alertando hacia dónde se desplazará el humo ($PM_{2.5}$).
@@ -55,7 +62,38 @@
    * *Utilidad:* Aísla la línea de llama activa (resplandor incandescente naranja/rojo) frente a la cicatriz de quema fría (marrón oscuro/negro) y la vegetación sana intacta (verde brillante). Fundamental para cuantificar hectáreas netas quemadas y coordinar ataque aéreo en zonas donde el humo ciega a los pilotos de hidrantes.
 
 ### Arquitectura de Implementación Propuesta:
+
 * Script automatizado `scripts/14_verificacion_satelital_alerta.py` que:
   1. Lea el boletín diario y extraiga las celdas con `probabilidad_fuego >= 0.80` (Alerta Roja).
   2. Consulte las APIs WMS/WMTS de NASA GIBS y Copernicus Dataspace.
   3. Genere automáticamente el tríptico de verificación satelital (`fig06_comparativa_satelital_tres_modos.png`) y lo adjunte como anexo visual al boletín técnico diario para las autoridades.
+
+### 4. Auditoría Satelital Automatizada con Visión Multimodal (Gemini 3.8 Flash / Vertex AI)
+
+* **Objetivo:** Automatizar la inspección cualitativa de las imágenes satelitales generadas en el paso tri-modal sin requerir un analista humano 24/7.
+* **Mecanismo:**
+  1. El tríptico de imágenes satelitales (GOES-16, VIIRS y SWIR) se envía vía API a Gemini 3.8 Flash Multimodal alojado en Vertex AI (Google Cloud).
+  2. El modelo analiza visualmente los recortes y responde un esquema estructurado JSON:
+     - `humo_visible`: `true`/`false` y estimación de rumbo de la pluma según viento.
+     - `frente_llama_activo`: `true`/`false` (confirmación de incandescencia infrarroja en falso color).
+     - `oclusion_nubosa`: porcentaje estimado de cobertura nubosa que pueda ocultar focos en superficie.
+     - `evaluacion_sintetica`: descripción textual concisa para el boletín diario (ej. *"Se confirma pluma convectiva densa con avance sostenido en dirección sur hacia la Reserva Médicos del Chaco"*).
+* **Eficiencia de costos:** Cada inspección de imagen consume $\approx 1.500$ tokens multimodal. Con los créditos de prueba de Google Cloud (\$300 USD), se pueden auditar más de 50.000 imágenes satelitales de forma 100% gratuita.
+
+---
+
+## 🧭 5. Módulo Cinemático Subdiario: Estimación Vectorial de Propagación del Frente de Fuego
+
+> **Fundamento:** Al contar operativamente con la constelación tri-satelital VIIRS 375 m (Suomi-NPP a las ~13:30h, NOAA-21 a las ~13:55h y NOAA-20 a las ~14:20h), se dispone de tres observaciones térmicas consecutivas en una ventana de apenas 50–90 minutos durante el pico de desecación de la tarde.
+
+### Formulación Propuesta:
+
+1. **Seguimiento del Centroide Térmico Ponderado por FRP:**
+   Para un cluster de fuego activo observado en los instantes $t_1$ y $t_2$ ($\Delta t \approx 25\text{ a }50\text{ min}$):
+   $$\vec{x}_{\text{cluster}} = \frac{\sum_i \text{FRP}_i \cdot \vec{x}_i}{\sum_i \text{FRP}_i}$$
+2. **Derivación del Vector de Velocidad de Propagación ($\vec{v}$):**
+   $$\vec{v}_{\text{frente}} = \frac{\vec{x}_{\text{cluster}}(t_2) - \vec{x}_{\text{cluster}}(t_1)}{t_2 - t_1} \quad [\text{km/h}]$$
+3. **Descomposición Dinámica:**
+   * **Magnitud ($|\vec{v}|$):** Tasa de avance del frente en superficie ($km/h$ o $m/min$).
+   * **Azimut / Rumbo ($\theta$):** Dirección cardinal de propagación comparada analíticamente contra el vector de viento de ERA5-Land ($\vec{v}_{\text{viento}}$).
+   * **Detección de Aceleración o Frenado:** Evalúa si el fuego acelera hacia vegetación seca (sabanas/pastizales) o si colisiona contra barreras (paleocauces o cortafuegos ganaderos).

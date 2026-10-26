@@ -21,7 +21,7 @@ import polars as pl
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
+from sklearn.metrics import roc_curve, precision_recall_curve, auc, average_precision_score
 
 from src.constantes import DIR_FIGURAS, DIR_PROCESSED, DIR_RAW, DIR_OUTPUTS
 
@@ -59,8 +59,8 @@ def generar_todas_las_figuras():
                     ha="center", va="center", fontsize=7, fontweight="bold",
                     color="#2c3e50", bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.65))
 
-    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (Occidental - 246.925 km²)")
-    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Región Oriental (153.081 km²)")
+    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (Occidental - 240.880 km²)")
+    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Región Oriental (159.126 km²)")
     ax.legend(handles=[patch_chaco, patch_oriental], loc="lower left", fontsize=9, frameon=True)
 
     ax.set_title("Estratificación Macro-Regional del Territorio Paraguayo\nUnidad de Modelado Geoespacial: Malla Regular 1 km² (EPSG:32721)",
@@ -75,49 +75,56 @@ def generar_todas_las_figuras():
     print(" ✓ Fig 01 guardada en PNG y PDF.")
 
     # -------------------------------------------------------------
-    # FIGURA 2: Curvas ROC y Precision-Recall (Test Ciego 2024)
+    # FIGURA 2: Curvas ROC y Precision-Recall (Test Ciego 2024–2025)
     # -------------------------------------------------------------
-    print("\n--- Generando Figura 02: Curvas ROC y PR en Test 2024 ---")
+    print("\n--- Generando Figura 02: Curvas ROC y PR en Test 2024–2025 (Dual) ---")
     p_preds = DIR_PROCESSED / "evaluacion_test_predicciones.parquet"
     if p_preds.exists():
         df_p = pl.read_parquet(p_preds)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), dpi=300)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5), dpi=300)
 
-        for reg, col, ls in [("Chaco", "#c0392b", "-"), ("Oriental", "#27ae60", "--")]:
+        modelos_curvas = [
+            ("Chaco", "Ignición Primaria", "probabilidad_calibrada", "#d35400", "-"),
+            ("Chaco", "Propagación Táctica", "probabilidad_propagacion", "#c0392b", "--"),
+            ("Oriental", "Ignición Primaria", "probabilidad_calibrada", "#16a085", "-"),
+            ("Oriental", "Propagación Táctica", "probabilidad_propagacion", "#27ae60", "--"),
+        ]
+
+        for reg, capa, col_prob, col, ls in modelos_curvas:
             sub = df_p.filter(pl.col("region") == reg)
             y_true = sub["fuego"].to_numpy()
-            y_prob = sub["probabilidad_calibrada"].to_numpy()
+            y_prob = sub[col_prob].to_numpy()
 
             if len(np.unique(y_true)) > 1:
                 # Curva ROC
                 fpr, tpr, _ = roc_curve(y_true, y_prob)
                 roc_score = auc(fpr, tpr)
-                ax1.plot(fpr, tpr, color=col, linestyle=ls, linewidth=2.2, label=f"{reg} (ROC-AUC = {roc_score:.3f})")
+                ax1.plot(fpr, tpr, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (AUC = {roc_score:.3f})")
 
                 # Curva Precision-Recall
                 prec, rec, _ = precision_recall_curve(y_true, y_prob)
-                pr_score = auc(rec, prec)
-                ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.2, label=f"{reg} (PR-AUC = {pr_score:.3f})")
+                pr_score = average_precision_score(y_true, y_prob)
+                ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (PR-AUC = {pr_score:.3f})")
 
         ax1.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Azar (AUC = 0.500)")
         ax1.set_title("Curvas ROC (Receiver Operating Characteristic)", fontsize=11, fontweight="bold")
         ax1.set_xlabel("Tasa de Falsos Positivos (1 - Especificidad)", fontsize=10)
         ax1.set_ylabel("Tasa de Verdaderos Positivos (Sensibilidad / Recall)", fontsize=10)
-        ax1.legend(loc="lower right", fontsize=9)
+        ax1.legend(loc="lower right", fontsize=8.5)
 
         ax2.set_title("Curvas Precision-Recall (Detección de Eventos Raros)", fontsize=11, fontweight="bold")
         ax2.set_xlabel("Sensibilidad (Recall)", fontsize=10)
         ax2.set_ylabel("Precisión (PPV)", fontsize=10)
-        ax2.legend(loc="upper right", fontsize=9)
+        ax2.legend(loc="upper right", fontsize=8.5)
 
-        plt.suptitle("Evaluación de Desempeño Out-of-Time sobre el Conjunto Ciego (Test Set 2024)",
+        plt.suptitle("Evaluación de Desempeño Out-of-Time sobre el Conjunto Ciego (Test Set 2024–2025)",
                      fontsize=13, fontweight="bold", y=0.98)
         plt.tight_layout()
 
         fig.savefig(DIR_FIGURAS / "fig02_curvas_roc_pr_test.png", dpi=300)
         fig.savefig(DIR_FIGURAS / "fig02_curvas_roc_pr_test.pdf")
         plt.close(fig)
-        print(" ✓ Fig 02 guardada en PNG y PDF.")
+        print(" ✓ Fig 02 guardada en PNG y PDF con 4 curvas.")
 
     # -------------------------------------------------------------
     # FIGURA 3: Mapa Operativo Nacional de Riesgo de Incendios
@@ -159,7 +166,7 @@ def generar_todas_las_figuras():
                     zorder=2 if nivel in ["ALTO", "EXTREMO"] else 1
                 )
 
-        ax.set_title(f"Mapa Operativo Nacional de Alerta Temprana de Incendios\nFecha: {fecha_alerta} | Resolución: 1 km² (SAT-Incendios PY)",
+        ax.set_title(f"Mapa Operativo Nacional de Alerta Temprana de Incendios\nFecha: {fecha_alerta} | Resolución: 1 km² (Incendios_PY)",
                      fontsize=11, fontweight="bold", pad=12)
         ax.set_xlabel("Longitud (°W)", fontsize=9)
         ax.set_ylabel("Latitud (°S)", fontsize=9)

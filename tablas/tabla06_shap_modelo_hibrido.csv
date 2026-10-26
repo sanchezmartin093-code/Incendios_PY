@@ -1,0 +1,21 @@
+region,feature,nombre_legible,shap_media,ranking
+Chaco,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.6575600163598979,1
+Chaco,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.2818099313026153,2
+Chaco,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.07770116155629228,3
+Chaco,densidad_hist_25km,Densidad Macro de Ignición (25 km),0.06963980641797811,4
+Chaco,interaccion_acceso_vpd,Sinergia Accesibilidad × VPD,0.031135011844710025,5
+Chaco,isi,Índice Propagación Inicial (ISI),0.019834820403749436,6
+Chaco,dia_del_anio,dia_del_anio,0.015321489753188849,7
+Chaco,pct_humedal_palmar,pct_humedal_palmar,0.01302134251261358,8
+Chaco,rango_termico_diario,Amplitud Térmica Diaria (°C),0.012975660485341189,9
+Chaco,doy_cos,Armónico Estacional Coseno (DOY),0.011621729127680995,10
+Oriental,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.8224781160658733,1
+Oriental,freq_hist_1km,Recurrencia Crónica en Celda (1 km²),0.46638536970835504,2
+Oriental,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.22566231310559295,3
+Oriental,densidad_hist_25km,Densidad Macro de Ignición (25 km),0.11975619976582433,4
+Oriental,precipitacion_mm,precipitacion_mm,0.0453907758340301,5
+Oriental,densidad_hist_10km,Densidad Meso de Ignición Antrópica (10 km),0.041094369051758804,6
+Oriental,ffmc,Humedad Combustible Fino (FFMC),0.03023446358395083,7
+Oriental,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.0288174546036685,8
+Oriental,rango_termico_diario,Amplitud Térmica Diaria (°C),0.0250888475702153,9
+Oriental,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.02195267570957673,10
