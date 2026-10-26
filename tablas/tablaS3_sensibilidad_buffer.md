@@ -1,7 +1,7 @@
 # Tabla de Sensibilidad del Buffer Espacial
 
-| radio_buffer   | condicion                                      |   auc_ign_chaco |   auc_ign_oriental |   auc_prop_chaco |
-|:---------------|:-----------------------------------------------|----------------:|-------------------:|-----------------:|
-| 10 km          | Sub-umbral (dentro del alcance espacial h < a) |          0.7155 |             0.7897 |           0.8787 |
-| 20 km          | Configuración Canónica (h ≈ a + 1.6 km)        |          0.7219 |             0.7978 |           0.8741 |
-| 30 km          | Sobre-umbral ultra-conservador (h >> a)        |          0.7276 |             0.8052 |           0.8678 |
+| radio_buffer   | condicion                                      |   n_muestras_chaco |   auc_ign_chaco |   auc_prop_chaco |   n_muestras_oriental |   auc_ign_oriental |
+|:---------------|:-----------------------------------------------|-------------------:|----------------:|-----------------:|----------------------:|-------------------:|
+| 10 km          | Sub-umbral (dentro del alcance espacial h < a) |             695417 |          0.7213 |           0.7314 |                903310 |             0.7722 |
+| 20 km          | Configuración Canónica (h ≈ a + 1.6 km)        |             614560 |          0.7089 |           0.7038 |                659153 |             0.7639 |
+| 30 km          | Sobre-umbral ultra-conservador (h >> a)        |             470316 |          0.7061 |           0.7028 |                428761 |             0.7691 |
