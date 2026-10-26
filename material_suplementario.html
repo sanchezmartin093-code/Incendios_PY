@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Material Suplementario Electrónico (ESM): Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en el Gran Chaco mediante GeoAI Multiescala</title>
+<title>Material Suplementario Electrónico (ESM): Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco</title>
 <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -2364,7 +2364,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Material Suplementario Electrónico (ESM): Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en el Gran Chaco mediante GeoAI Multiescala</h1>
+<h1 class="title">Material Suplementario Electrónico (ESM): Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco</h1>
 <p class="subtitle lead">Demostraciones matemáticas formales, protocolos de corrección óptica satelital, especificaciones de hiperparámetros y tablas departamentales extendidas [VERSIÓN ANONIMIZADA PARA ARBITRAJE DOBLE CIEGO]</p>
 </div>
 
@@ -2422,7 +2422,7 @@ window.Quarto = {
 <section id="texto-suplementario-s1-protocolo-de-corrección-geométrica-del-efecto-bow-tie-y-armonización-multi-constelación" class="level1">
 <h1>Texto Suplementario S1: Protocolo de Corrección Geométrica del Efecto <em>Bow-Tie</em> y Armonización Multi-Constelación</h1>
 <p>Los sensores VIIRS a bordo de las plataformas Suomi-NPP, NOAA-20 y NOAA-21 realizan un barrido transversal (<em>cross-track</em>) mediante un conjunto de detectores que muestrean una franja de aproximadamente <span class="math inline">\(3.040\text{ km}\)</span> <span class="citation" data-cites="schroeder2014">(<a href="#ref-schroeder2014" role="doc-biblioref">Schroeder et al., 2014</a>)</span>. Debido a la geometría de proyección esférica de la Tierra, los píxeles ubicados hacia los bordes extremos del barrido sufren un ensanchamiento físico considerable: - En el nadir (ángulo de visión <span class="math inline">\(\theta = 0^\circ\)</span>), el píxel tiene un tamaño nominal de <span class="math inline">\(375\text{ m} \times 375\text{ m}\)</span> (<span class="math inline">\(\approx 0,14\text{ km}^2\)</span>). - En el borde del barrido (<span class="math inline">\(\theta \approx 56^\circ\)</span>), la proyección geométrica ensancha el píxel hasta alcanzar dimensiones efectivas de hasta <span class="math inline">\(1.600\text{ m}\)</span> de barrido transversal (<span class="math inline">\(\text{scan} \approx 1,6\text{ km}\)</span>) y <span class="math inline">\(800\text{ m}\)</span> a lo largo de la trayectoria (<em>track</em>).</p>
-<p>Este fenómeno, conocido como <strong>efecto corbatín (<em>Bow-Tie Effect</em>)</strong>, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego (<span class="math inline">\(FRP\)</span> en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional soberana de 1 km².</p>
+<p>Este fenómeno, conocido como <strong>efecto corbatín (<em>Bow-Tie Effect</em>)</strong>, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego (<span class="math inline">\(FRP\)</span> en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional de 1 km².</p>
 <section id="regla-de-filtrado-cinemático-implementada" class="level3">
 <h3 class="anchored" data-anchor-id="regla-de-filtrado-cinemático-implementada">Regla de Filtrado Cinemático Implementada</h3>
 <p>En la función <code>procesar_focos_firms_a_grilla</code> (<code>src/firms.py</code>), aplicamos una regla de depuración cinemática estricta:</p>

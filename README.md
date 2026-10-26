@@ -1,4 +1,4 @@
-# Incendios_PY: decoupled GeoAI for wildfire ignition and propagation
+# Incendios_PY: a reproducible computational framework for decoupled wildfire ignition and propagation
 
 [![License: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python: 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)

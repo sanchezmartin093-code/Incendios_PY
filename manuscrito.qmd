@@ -1,6 +1,6 @@
 ---
-title: "Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en el Gran Chaco mediante GeoAI Multiescala (2018–2025)"
-subtitle: "Un marco computacional reproducible de dos etapas para el nowcasting diario de peligro y benchmarking internacional frente a Canadian FWI completo y INPE Risco de Fogo"
+title: "Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco (2018–2025)"
+subtitle: "Targets D2, inferencia con gating y fallback M1/M3, y benchmark abierto frente a Canadian FWI e INPE Risco de Fogo"
 date: "2026-10-24"
 date-modified: today
 lang: es
@@ -40,17 +40,17 @@ format:
 
 # Resumen {.unnumbered}
 
-La predicción operativa de incendios forestales mediante aprendizaje automático en geociencias enfrenta dos fallas metodológicas críticas: el sesgo de atajo espacial (*spatial shortcut learning*) derivado de la autocorrelación de las plumas térmicas, y la dificultad de los índices climáticos boreales (como el *Canadian Forest Fire Weather Index*, FWI) para capturar la desecación de biomas subtropicales como el Gran Chaco. Presentamos `Incendios_PY`, una arquitectura GeoAI multiescala y desacoplada para la República del Paraguay ($400.006$ celdas de $1\text{ km}^2$), sobre una serie de 8 años (2018–2025). El sistema aplica un gating biofísico de primera etapa (combustible, $VPD \ge 0,8\text{ kPa}$, lluvia de 48 h $< 10\text{ mm}$) que reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas. Para evitar fugas de etiqueta, los priors de susceptibilidad histórica usan un corte mensual y una ventana móvil de 3 años. El modelo de ignición híbrida $\mathcal{M}_3$ combina clima ERA5-Land, MapBiomas real (`collection2_2023`), ecotono, corredores antrópicos y priors causales; la propagación táctica usa un kernel causal $t-1$ con FRP de VIIRS. La evaluación sigue una definición D2: ignición primaria sin fuego t-1 en 25 km ni fuego en la celda en los últimos 10 días, y propagación dentro de 25 km de un fuego t-1. El test D2 incluye $N=1.813.966$ celdas-día (376.552 ignición y 1.437.414 propagación) en 2024–2025. En test, $\mathcal{M}_3$ obtiene ROC-AUC 0,7851 (Chaco) y 0,7485 (Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE Risco de Fogo; la propagación alcanza 0,8989/0,7799. La precisión case-control en el corte $F_{0.5}$ es 27,54 %/29,67 % para ignición y 84,94 %/62,42 % para propagación; al corregir por prevalencia poblacional (~0,015 %/0,041 %), la precisión operativa cae a 0,062 %/0,206 % y 9,96 %/4,49 %, respectivamente. En un holdout espacial por bloques de 50 km, M3 cae a ROC-AUC 0,6243/0,5754, mientras que M1 obtiene 0,6338/0,6176: la ventaja híbrida es temporal y específica de celdas con historia de fuego; para celdas nuevas la alerta usa M1 como fallback. Con clima de t-1, M3 conserva ROC-AUC 0,7841/0,7465. En cost-loss, M3 no supera claramente a M2 en ignición; la capa de propagación sí muestra valor operativo para $\alpha \approx 0,002$. El pipeline se midió en ~1,569 s y ~2,18 GB de RAM pico en ARM64. Es un nowcast/hindcast: las features climáticas son del mismo día. La cobertura conformal empírica fue 89,85 %/90,19 % para nominal 90 % y 95,02 %/94,56 % para 95 %, sin garantía formal bajo cambio temporal.
+La predicción operativa de incendios con aprendizaje automático sufre fugas espaciales y una limitada transferibilidad de los índices boreales a biomas subtropicales. Presentamos un marco computacional reproducible que separa ignición primaria y propagación táctica y hace explícitos la construcción de targets, la inferencia con gating y el protocolo de evaluación. La definición D2 exige que la ignición no tenga fuego $t-1$ en 25 km ni fuego en la misma celda en 10 días; la propagación se evalúa dentro de 25 km de un fuego $t-1$. Un gating biofísico elimina celdas no combustibles o húmedas; un modelo híbrido LightGBM ($\mathcal{M}_3$) predice ignición sin variables de fuego $t-1$, con $\mathcal{M}_1$ como fallback para celdas sin historia; la propagación usa un kernel causal $t-1$. Un pipeline *zero-copy* en Polars/DuckDB evalúa 400.006 celdas de 1 km², y un harness reproducible combina bootstrap agrupado por fecha, bloques espaciales de 50 km, lead-time y cost-loss. En test ciego 2024–2025 (1.813.966 celdas-día-tarea), $\mathcal{M}_3$ alcanza ROC-AUC 0,7851/0,7485 (Chaco/Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE; la propagación alcanza 0,8989/0,7799. La precisión poblacional de ignición es solo 0,062 %/0,206 %, por lo que el sistema es un nowcast y herramienta de priorización, no una alerta autónoma. $\mathcal{M}_3$ pierde transferibilidad espacial (0,6243/0,5754), mientras $\mathcal{M}_1$ es más robusto (0,6338/0,6176), lo que motiva el fallback. Código y datos están archivados con DOI. La contribución es un protocolo computacional y un benchmark reproducible, no un nuevo algoritmo de *boosting*.
 
-**Palabras clave:** Incendios forestales; GeoAI; Gran Chaco; LightGBM; Reanálisis ERA5; NASA FIRMS; Desacoplamiento biofísico; Autocorrelación espacial; Benchmarking internacional.
+**Palabras clave:** Incendios forestales; GeoAI; reproducibilidad; validación espacial; LightGBM; Gran Chaco.
 
 ---
 
 # Abstract {.unnumbered}
 
-Operational wildfire forecasting via machine learning in geosciences faces two critical methodological issues: spatial shortcut learning from thermal-plume autocorrelation, and the limited transferability of boreal fire-weather indices (such as the Canadian FWI) to moisture-limited subtropical biomes like the Gran Chaco. We present `Incendios_PY`, a decoupled multiscale GeoAI framework for Paraguay ($400,006$ $1\text{-km}^2$ cells) over an 8-year record (2018–2025). A first-stage biophysical gating (fuel, $VPD \ge 0.8\text{ kPa}$, 48-h rainfall $< 10\text{ mm}$) removes 21.7 % of cell-days while retaining 97.17 % of thermal detections. Historical-susceptibility priors use a monthly cutoff and a rolling 3-year window. The hybrid ignition model $\mathcal{M}_3$ combines ERA5-Land weather, real MapBiomas (`collection2_2023`), ecotone, anthropogenic corridors and causal priors; tactical propagation uses a causal $t-1$ kernel with VIIRS FRP. Evaluation follows a D2 definition: primary ignition with no t-1 fire within 25 km and no same-cell fire in the previous 10 days, and propagation within 25 km of a t-1 fire. The D2 test contains $N=1,813,966$ cell-days (376,552 ignition and 1,437,414 propagation) for 2024–2025. On test, $\mathcal{M}_3$ achieves ROC-AUC 0.7851 (Chaco) and 0.7485 (Oriental), versus 0.5185/0.5569 for full FWI and 0.5386/0.4994 for INPE; propagation reaches 0.8989/0.7799. Case-control $F_{0.5}$ precision is 27.54 %/29.67 % for ignition and 84.94 %/62.42 % for propagation; after correction to population prevalence (~0.015 %/0.041 %), operational precision drops to 0.062 %/0.206 % and 9.96 %/4.49 %, respectively. In a 50-km spatial block holdout, M3 drops to ROC-AUC 0.6243/0.5754, whereas M1 reaches 0.6338/0.6176: the hybrid advantage is temporal and specific to cells with fire history; the alert uses M1 as a fallback for new cells. With t-1 weather, M3 retains ROC-AUC 0.7841/0.7465. In cost-loss terms, M3 does not clearly outperform M2 for ignition; propagation shows operational value near $\alpha \approx 0.002$. The pipeline measured ~1.569 s and ~2.18 GB peak RAM on ARM64. It is a nowcast/hindcast: weather features are same-day. Empirical conformal coverage was 89.85 %/90.19 % for nominal 90 % and 95.02 %/94.56 % for 95 %, without a formal guarantee under temporal shift.
+Wildfire machine learning often suffers from spatial leakage and from the limited transferability of boreal fire-weather indices to subtropical biomes. We present a reproducible computational framework that separates primary ignition from tactical propagation and makes target construction, gated inference and evaluation explicit. D2 defines ignition as fire at day t with no t-1 fire within 25 km and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a t-1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without t-1 fire inputs, with M1 as a fallback for cells without fire history; propagation uses a causal t-1 kernel. A zero-copy Polars/DuckDB pipeline scores 400,006 1-km² cells, and a reproducible harness combines grouped-by-date bootstrap, 50-km spatial blocks, lead-time and cost-loss analyses. In the 2024–2025 held-out test (1,813,966 task cell-days), M3 reaches ROC-AUC 0.7851/0.7485 (Chaco/Oriental), versus 0.5185/0.5569 for full Canadian FWI and 0.5386/0.4994 for INPE; propagation reaches 0.8989/0.7799. Population-level ignition precision is only 0.062 %/0.206 %, so the system is a nowcast and prioritisation tool, not a stand-alone warning system. M3 loses spatial transferability (0.6243/0.5754), whereas M1 is more robust (0.6338/0.6176), motivating the fallback. Code and data are archived with DOIs. The contribution is a reproducible computational protocol and benchmark, not a new boosting algorithm.
 
-**Keywords:** Wildfire hazard nowcasting; GeoAI; Gran Chaco; LightGBM; ERA5 reanalysis; NASA FIRMS; Biophysical decoupling; Spatial autocorrelation; International benchmarking.
+**Keywords:** Wildfire nowcasting; GeoAI; reproducibility; spatial cross-validation; LightGBM; Gran Chaco.
 
 ---
 
@@ -67,15 +67,17 @@ El auge de la inteligencia artificial geoespacial (*GeoAI*) y el aprendizaje aut
 2. **La disociación entre conocimiento físico y modelos de caja negra:**  
    Frecuentemente los modelos predictivos puramente estadísticos omiten restricciones cinemáticas elementales (e.g., combustión imposible bajo lluvia torrencial o ausencia total de biomasa combustible), lo que ha motivado el paradigma emergente de aprendizaje automático informado por la física (*Physics-Informed Machine Learning*, PIML) en ciencias de la Tierra [@reichstein2019; @willard2022].
 3. **La ineficiencia computacional para la alerta operativa diaria:**  
-   Muchos modelos académicos dependen de secuencias manuales en software SIG de escritorio o rutinas pesadas de geoprocesamiento ráster, impidiendo su despliegue automatizado y soberano a escala de país a resolución de 1 km² en tiempo subsegundo.
+   Muchos modelos académicos dependen de secuencias manuales en software SIG de escritorio o rutinas pesadas de geoprocesamiento ráster, impidiendo su despliegue automatizado a escala nacional a resolución de 1 km² en tiempo subsegundo.
 
-Para resolver estas limitaciones, este artículo presenta el diseño, formulación matemática y evaluación del sistema computacional `Incendios_PY`. Las contribuciones fundamentales de este trabajo son:
+Este artículo presenta `Incendios_PY` como un marco computacional reproducible para construir, evaluar y comparar modelos de ignición y propagación. La novedad no es un nuevo algoritmo de *boosting*, sino la combinación explícita de un operador de targets, una arquitectura de inferencia con gating y fallback, y un harness de evaluación que puede reutilizarse en otros biomas. Las contribuciones computacionales son:
 
-- **Arquitectura Dual Desacoplada:** Separamos formalmente la tarea predictiva en dos capas ortogonales: un modelo de **Ignición Primaria Híbrida Socio-Ecológica ($\mathcal{M}_3$)** (libre de variables históricas de contagio $t-1$, asistido por ablación con $\mathcal{M}_1$ y $\mathcal{M}_2$) y un modelo de **Propagación Táctica Local** (gobernado por dinámica física de avance del frente de llama).
-- **Filtrado Biofísico de Primera Etapa (*Two-Stage Gating*):** Implementamos un cribado cinemático previo que excluye celdas sin combustible o con inhibición meteorológica comprobada ($VPD < 0,8\text{ kPa}$, lluvia $48\text{h} \ge 10\text{ mm}$), reduciendo la dimensionalidad computacional en un promedio multianual del 21,7 % (hasta 92 % en días húmedos) reteniendo el 97,17 % de detecciones confirmadas.
-- **Rigor de Validación Espaciotemporal Anti-Leakage:** Evaluamos el marco bajo partición temporal *out-of-time* multianual homogénea (2018–2022, validación 2023 y test ciego en la crisis extrema 2024–2025 sobre $1.813.966$ celdas-día sumando ambos dominios), con la definición D2 (sin fuego $t-1$ en 25 km ni fuego en la misma celda en 10 días) y un holdout espacial por bloques de 50 km con buffer de 20 km.
-- **Benchmarking Comparativo Directo:** Demostramos una mayor discriminación de la arquitectura frente al Canadian FWI y al INPE Risco de Fogo en el mismo conjunto de prueba ciego; el bootstrap pareado agrupado por fecha ($B=1.000$) da $p \le 0,001$ en todas las comparaciones.
-- **Pipeline Abierto y Reproducible:** Construimos una canalización analítica *zero-copy* en DuckDB y Polars capaz de evaluar 400.006 celdas soberanas en ~1,569 segundos en procesadores estándar.
+- **Operador de targets D2:** formalizamos una regla reproducible que separa ignición primaria y propagación, impide mezclar persistencia con ignición y hace verificables las condiciones de no-leakage.
+- **Inferencia con gating y fallback:** combinamos un cribado biofísico de primera etapa con un modelo híbrido M3 para celdas con historia de fuego y un modelo biofísico M1 para celdas nuevas, sin usar variables de fuego $t-1$ en la capa de ignición.
+- **Harness de evaluación reproducible:** integramos bootstrap agrupado por fecha, holdout por bloques espaciales, evaluación con clima $t-1$, calibración conforme y análisis cost-loss en un protocolo único.
+- **Pipeline abierto y eficiente:** implementamos una canalización *zero-copy* en Polars/DuckDB que evalúa 400.006 celdas de 1 km² en ~1,569 s, con código, datos y DOIs públicos.
+- **Protocolo de benchmark:** comparamos la arquitectura contra el Canadian FWI completo y el INPE Risco de Fogo bajo el mismo test ciego y reportamos también los resultados negativos de transferencia espacial.
+
+La contribución geocientífica es mostrar que los índices boreales no transfieren al Gran Chaco, que la ventaja del modelo híbrido es temporal y específica de celdas con historia, y que un fallback biofísico es necesario para celdas nuevas.
 
 ---
 
@@ -110,7 +112,7 @@ Definimos dos espacios de variables diferenciados para evitar la contaminación 
 2. **Espacio de Propagación Táctica ($\mathcal{X}_{\text{propagación}}$):**  
    Agrega a la formulación biofísica el kernel de proximidad espacial al frente de fuego activo más cercano en $t-1$ ($\text{dist\_foco\_t1\_km}$), la densidad local de focos térmicos en un radio de 25 km ($\text{focos\_25km\_t1}$) y la potencia radiativa del fuego acumulada ($\text{frp\_25km\_t1}$), totalizando 28 variables predictoras base.
 
-![Arquitectura computacional desacoplada de `Incendios_PY`: Ingesta biofísica multifuente, cribado cinemático de Etapa 1, modelado dual GeoAI (Modo 1 Ignición Física vs. Modo 2 Propagación Táctica) y benchmarking internacional frente a Canadian FWI y Proxy INPE.](figuras/fig01_arquitectura_impacto_nature.png){#fig-arquitectura width="100%"}
+![Marco computacional propuesto: ingesta multifuente, operador de targets D2, gating biofísico, inferencia desacoplada M3/M1 para ignición y kernel causal $t-1$ para propagación, harness de evaluación reproducible y productos abiertos.](figuras/fig01_framework_conceptual.png){#fig-arquitectura width="100%"}
 
 ## 2.4 Kernel de Contagio Espaciotemporal Causal $t-1$
 
@@ -144,9 +146,9 @@ donde $z_i \in \mathbb{R}$ es el margen no calibrado del ensamble LightGBM. La c
 
 # 3. Arquitectura de Software y Datos Espaciales
 
-## 3.1 Malla Geográfica Soberana en Tiempo Constante $O(1)$
+## 3.1 Malla Geográfica Nacional en Tiempo Constante $O(1)$
 
-A diferencia de los flujos de trabajo tradicionales basados en mallas ráster flotantes con problemas de alineación de celdas, definimos una **grilla vectorial nacional determinística de 1 km²** proyectada en UTM Zona 21S. La grilla abarca exactamente $400.006$ celdas poligonales soberanas que intersectan el contorno limítrofe oficial de la República del Paraguay (geoBoundaries ADM0).
+A diferencia de los flujos de trabajo tradicionales basados en mallas ráster flotantes con problemas de alineación de celdas, definimos una **grilla vectorial nacional determinística de 1 km²** proyectada en UTM Zona 21S. La grilla abarca exactamente $400.006$ celdas poligonales nacionales que intersectan el contorno limítrofe oficial de la República del Paraguay (geoBoundaries ADM0).
 
 Cada celda posee un identificador entero único de 64 bits (`cell_id`) calculado de manera biyectiva y reversible a partir de sus coordenadas euclidianas centrales:
 
@@ -185,7 +187,9 @@ A diferencia de las plataformas centralizadas en la nube como Google Earth Engin
 
 ## 3.5 Contribución computacional
 
-La contribución computacional del sistema no depende de un nuevo algoritmo de boosting, sino de la combinación de: (i) una grilla nacional con `cell_id` entero y lookup \(O(1)\); (ii) un pipeline columnar DuckDB/Polars con gating temprano; (iii) una definición D2 de targets que evita mezclar persistencia e ignición; (iv) calibración Platt y conformal; y (v) inferencia nacional ligera.
+La contribución computacional no depende de un nuevo algoritmo de *boosting*, sino de la combinación de: (i) una grilla nacional con `cell_id` entero y lookup \(O(1)\); (ii) un pipeline columnar DuckDB/Polars con gating temprano; (iii) un operador D2 de targets que evita mezclar persistencia e ignición; (iv) calibración Platt y conformal; y (v) un harness de evaluación que integra bootstrap agrupado, bloques espaciales, lead-time y cost-loss. El criterio de novedad es la reutilización y verificabilidad del protocolo, no la arquitectura del booster.
+
+El alcance es un caso de estudio nacional que funciona como *testbed* de un problema general: escasez de datos, biomas subtropicales, leakage espacial y benchmarking de índices. No se afirma validez universal ni un nuevo estado del arte en aprendizaje automático; se afirma que el protocolo es reproducible, que los resultados negativos de transferencia espacial son informativos y que el código, los datos y los DOIs permiten auditoría independiente.
 
 El lookup `cell_id` procesa 400.006 celdas en \(7{,}3\times10^{-4}\) s (mediana de 100 repeticiones). Un `sjoin` de GeoPandas sobre 50.000 puntos tarda 0,026 s; la comparación no es lineal, pero ilustra por qué el lookup entero evita Point-in-Polygon en tiempo de ejecución.
 
@@ -255,7 +259,7 @@ Los intervalos de confianza y los $p$-valores se obtuvieron con bootstrap agrupa
    * **Dependencia de Catálogos de Combustible Foráneos:** Están calibradas sobre el sistema estadounidense LANDFIRE (modelos de combustible de Scott y Burgan concebidos para bosques de coníferas y chaparral norteamericano), careciendo de equivalencias para los biomas chaqueños y pasturas neotropicales.
    * **Costos Prohibitivos de Cómputo:** Exigen clústeres masivos de supercómputo en la nube (GPUs y arquitecturas paralelas en centros como el SDSC), con tiempos de ejecución de minutos a horas por escenario local.
    
-   En contraste, `Incendios_PY` demuestra cómo un paradigma **GeoAI desacoplado y probabilístico** permite prescindir de simulaciones fluidodinámicas pesadas para la escala territorial, resolviendo la vigilancia de $400.006\text{ celdas}$ soberanas a costo de infraestructura nulo y con una latencia de inferencia de $1,569\text{ segundos}$ en hardware de consumo ordinario.
+   En contraste, `Incendios_PY` demuestra cómo un paradigma **GeoAI desacoplado y probabilístico** permite prescindir de simulaciones fluidodinámicas pesadas para la escala territorial, resolviendo la vigilancia de $400.006\text{ celdas}$ nacionales a costo de infraestructura nulo y con una latencia de inferencia de $1,569\text{ segundos}$ en hardware de consumo ordinario.
 
 ## 4.4 Métricas para Eventos Raros
 
@@ -413,7 +417,7 @@ El servicio automatizado de alerta (`src/alerta.py`) se midió sobre la totalida
 
 Este rendimiento garantiza que una agencia estatal (como el Cuerpo de Bomberos o el INFONA) pueda ejecutar predicciones cada hora si se dispone de pronósticos numéricos de alta frecuencia sin requerir infraestructura de supercómputo. La cartografía operativa resultante a resolución nacional de 1 km² se ilustra en la @fig-mapa-operativo.
 
-![Cartografía de predicción del riesgo operativo de incendios a escala soberana (1 km²): Ejemplo del producto espacial nacional generado por el servicio diario `Incendios_PY`, integrando la ignición híbrida desacoplada y la probabilidad táctica de avance de fuego.](figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-mapa-operativo width="85%"}
+![Cartografía de predicción del riesgo operativo de incendios a escala nacional (1 km²): Ejemplo del producto espacial nacional generado por el servicio diario `Incendios_PY`, integrando la ignición híbrida desacoplada y la probabilidad táctica de avance de fuego.](figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-mapa-operativo width="85%"}
 
 ---
 
@@ -519,7 +523,7 @@ La comparación entre macro-regiones revela una asimetría ecológica y operativ
 
 Para cuantificar incertidumbre se usó Split Conformal Prediction, separando el calibrador Platt y el cuantil $\hat{q}$ en subconjuntos cronológicos distintos de validación (60 %/40 %). Los umbrales son $\hat{q}_{0,90}=0,3396$ (Chaco) y $0,3768$ (Oriental). La cobertura empírica en test 2024–2025 fue 89,85 %/90,19 % para nominal 90 % y 95,02 %/94,56 % para nominal 95 % (Tabla S5). Bajo cambio temporal no hay garantía formal de exchangeability: se reporta cobertura empírica, no una garantía finita.
 
-## 6.6 Eficiencia, Soberanía Tecnológica y Contraste con Ciberinfraestructuras de Supercómputo
+## 6.6 Eficiencia Computacional y Transferibilidad Institucional
 
 Una barrera frecuente para la adopción de inteligencia artificial en países en desarrollo es la dependencia de costosos servicios en la nube o clusters de supercómputo inaccesibles para agencias públicas locales. Plataformas consolidadas en el Norte Global como **WIFIRE** [@altintas2015wifire] dependen de clústeres de cómputo de alto rendimiento (HPC) y redes de GPUs dedicadas para resolver simulaciones numéricas pesadas. Si bien este enfoque es valioso en escenarios de micro-escala donde se dispone de presupuesto masivo, resulta insostenible para agencias de protección civil en economías emergentes.
 
@@ -545,7 +549,7 @@ El marco actual presenta limitaciones que deben reconocerse:
 
 # 7. Conclusiones y Trabajo Futuro
 
-Este trabajo introduce un marco computacional riguroso, desacoplado y reproducible para la predicción del peligro de incendios a escala soberana en Paraguay. Las conclusiones principales son:
+Este trabajo introduce un marco computacional riguroso, desacoplado y reproducible para la predicción del peligro de incendios a escala nacional en Paraguay. Las conclusiones principales son:
 
 1. El cribado biofísico de primera etapa reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas.
 2. El desacoplamiento entre ignición y propagación táctica mejora la discriminación frente a los índices canónicos: $\mathcal{M}_3$ alcanza ROC-AUC 0,7851/0,7485 y la propagación 0,8989/0,7799 (Chaco/Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE Risco de Fogo. En la muestra case-control, la precisión $F_{0.5}$ es 27,54 %/29,67 % y 84,94 %/62,42 %; en población real cae a 0,062 %/0,206 % y 9,96 %/4,49 %.
@@ -558,7 +562,7 @@ Este trabajo introduce un marco computacional riguroso, desacoplado y reproducib
 ### Delimitación Metodológica y Madurez del Alcance Actual
 En el diseño de `Incendios_PY`, la incorporación de sensores de microondas activas o reflectancias espectrales de alta frecuencia —tales como la misión de humedad de suelo NASA SMAP o el contenido de agua del dosel de Copernicus Sentinel-3 OLCI— fue deliberadamente reservada como trabajo futuro en función de dos criterios de prudencia metodológica:
 1. **Preservación de la Serie Temporal Multianual Homogénea (2018–2025):** Sentinel-3B y NOAA-20 entraron en régimen operativo regular en 2018, mientras que el radar activo de SMAP cesó en 2015, aunque su radiómetro continúa operativo. Forzar la inclusión de flujos asimétricos habría fragmentado el horizonte homogéneo de 8 años gobernado por la constelación dual Suomi-NPP y NOAA-20, impidiendo un entrenamiento y validación rigurosamente estables.
-2. **Defensa de la Soberanía Tecnológica y Bajo Costo Computacional:** El objetivo primario de este trabajo fue demostrar que un país en desarrollo puede desplegar un sistema soberano de alerta temprana de clase mundial con un tiempo de inferencia de $1,569\text{ segundos}$ en computadoras de consumo ordinarias. La asimilación de flujos diarios masivos de microondas en formato HDF5 habría impuesto cargas de almacenamiento en terabytes y dependencias de supercómputo en la nube, desvirtuando la vocación de transferibilidad operativa directa hacia el Cuerpo de Bomberos, la SEN y el MADES.
+2. **Costo computacional y transferibilidad institucional:** El objetivo primario de este trabajo fue demostrar que un país en desarrollo puede desplegar un sistema nacional de alerta temprana con un tiempo de inferencia de $1,569\text{ segundos}$ en computadoras de consumo ordinarias. La asimilación de flujos diarios masivos de microondas en formato HDF5 habría impuesto cargas de almacenamiento en terabytes y dependencias de supercómputo en la nube, desvirtuando la vocación de transferibilidad operativa directa hacia el Cuerpo de Bomberos, la SEN y el MADES.
 
 ### Líneas de Evolución Futura
 A partir de la línea base consolidada en este estudio, la siguiente generación de la plataforma contemplará:
