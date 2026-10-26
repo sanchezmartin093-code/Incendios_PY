@@ -35,7 +35,7 @@ format:
 
 - **Texto Suplementario S1:** Protocolo de corrección geométrica del efecto *Bow-Tie* y armonización multi-constelación VIIRS 375 m.
 - **Texto Suplementario S2:** Demostración analítica y condiciones de monotonicidad de la calibración monótona acotada de Platt.
-- **Texto Suplementario S3:** Buffer de 20 km y estratificación por distancia al foco $t-1$; el semivariograma de 18,4 km no está implementado.
+- **Texto Suplementario S3:** Muestreo D2 y estratificación por distancia al foco $t-1$; el buffer de 20 km solo se usa en el holdout espacial y el semivariograma de 18,4 km no está implementado.
 - **Tabla Suplementaria S1:** Diccionario de variables y especificación física; M3 usa 33–34 variables, M2 24 y M1 17.
 - **Tabla Suplementaria S2:** Configuración real de hiperparámetros de los modelos operativos y de la ablación controlada.
 - **Tabla Suplementaria S3:** Desglose departamental exhaustivo de desempeño predictivo en las 17 gobernaciones de Paraguay.

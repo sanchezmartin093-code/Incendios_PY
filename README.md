@@ -19,17 +19,17 @@ Sistema de modelado y alerta temprana de incendios para Paraguay a resolución d
 - Targets D2: muestreo poblacional 1:10 por target y dominio (`datos/processed/targets_poblacionales/`).
 - Modelos: M2, M3 y propagación reentrenados; calibración Platt y umbrales F0.5 derivados en validación.
 - Alertas: M3 en celdas con historia de fuego, M1 como fallback en celdas sin historia; propagación solo en dominio t-1; prevalencias D2.
-- Tests: **60 OK**.
+- Tests: **62 OK**.
 
 ## Resultados en test D2
 
 | Región | Modelo | ROC-AUC | PR-AUC | Precisión case-control F0.5 |
 |---|---|---:|---:|---:|
-| Chaco | M3 ignición híbrida | 0,7852 | 0,2411 | 27,52 % |
-| Chaco | M2 ignición base | 0,7733 | 0,2149 | 23,10 % |
+| Chaco | M3 ignición híbrida | 0,7851 | 0,2410 | 27,54 % |
+| Chaco | M2 ignición base | 0,7733 | 0,2148 | 23,10 % |
 | Chaco | Propagación táctica | 0,8989 | 0,6831 | 84,94 % |
-| Oriental | M3 ignición híbrida | 0,7480 | 0,2314 | 32,63 % |
-| Oriental | M2 ignición base | 0,7323 | 0,2033 | 23,95 % |
+| Oriental | M3 ignición híbrida | 0,7485 | 0,2318 | 29,67 % |
+| Oriental | M2 ignición base | 0,7324 | 0,2036 | 24,49 % |
 | Oriental | Propagación táctica | 0,7799 | 0,3651 | 62,42 % |
 
 La muestra case-control es 1:10 (prevalencia ~9,09 %). **No es precisión operativa.**
@@ -39,10 +39,10 @@ La muestra case-control es 1:10 (prevalencia ~9,09 %). **No es precisión operat
 | Región | Modelo | Precisión | Recall | ROC-AUC | PR-AUC |
 |---|---|---:|---:|---:|---:|
 | Chaco | M3 ignición | 0,062 % | 27,56 % | 0,7884 | 0,0007 |
-| Chaco | M2 ignición | 0,047 % | 39,14 % | 0,7768 | 0,0005 |
+| Chaco | M2 ignición | 0,048 % | 38,07 % | 0,7771 | 0,0005 |
 | Chaco | Propagación | 9,96 % | 48,91 % | 0,9050 | 0,1120 |
 | Oriental | M3 ignición | 0,206 % | 22,78 % | 0,7618 | 0,0017 |
-| Oriental | M2 ignición | 0,165 % | 26,10 % | 0,7505 | 0,0014 |
+| Oriental | M2 ignición | 0,169 % | 24,55 % | 0,7507 | 0,0014 |
 | Oriental | Propagación | 4,49 % | 19,61 % | 0,7913 | 0,0280 |
 
 La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,155–0,210 % para propagación.
@@ -62,15 +62,15 @@ La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,1
 
 ```text
 Incendios_PY/
-├── scripts/                 # pipeline 00–21 + 05b/05c/05d + 10b
+├── scripts/                 # pipeline 00–24 + 05b/05c/05d + 10b
 ├── src/                     # ingesta, rasgos, targets, modelos, métricas, alerta
-├── tests/                   # 60 tests
+├── tests/                   # 62 tests
 ├── datos/
 │   ├── raw/                 # FIRMS, ERA5, MapBiomas, vectores (no versionado)
 │   ├── processed/           # grilla, clima, focos, dataset, targets
 │   └── outputs/             # alertas, boletines, GeoTIFF
 ├── modelos/                 # boosters y calibradores (no versionado)
-├── tablas/                  # tablas 00–10 y S3–S5
+├── tablas/                  # tablas 00–12 y S3–S5
 ├── figuras/                 # figuras del manuscrito
 ├── docs/ADR_AUDITORIA.md
 ├── fuentes/MANIFIESTO_DATOS_v2.csv
@@ -130,7 +130,7 @@ python -m unittest discover -s tests -p "test_*.py"
 4. **Generalización espacial:** M3 cae en bloques no vistos; M1 es más robusto, pero ambos tienen limitaciones.
 5. **Alertas:** el producto operativo aún requiere validación institucional y una capa de pronóstico day-ahead.
 6. **Datos/modelos:** no versionados en git; usar `fuentes/MANIFIESTO_DATOS_v2.csv` y Zenodo para archivar.
-7. **Manuscrito:** pendiente de sincronizar con las tablas D2 actuales.
+7. **Manuscrito:** sincronizado con las tablas D2, el bootstrap agrupado y los modelos deterministas (2026-10-26).
 
 ## Reproducibilidad
 

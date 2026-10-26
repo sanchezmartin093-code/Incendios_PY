@@ -198,7 +198,7 @@ Holdout espacial (tabla 8): M1 0,6338/0,6176; M3 0,6243/0,5754.
 - [x] La precipitación diaria usa suma de incrementos horarios cuando corresponde.
 - [x] La falta de continuidad temporal falla explícitamente.
 - [x] El manifiesto v2 verifica hashes sin fallos (21 artefactos, 0 fallos).
-- [x] La suite de tests pasa (54 tests).
+- [x] La suite de tests pasa (62 tests).
 - [ ] D1–D4 aprobadas.
 - [ ] Datos de focos y clima regenerados con las correcciones.
 - [ ] Manifiesto v2 reemplaza al manifiesto anterior y se integra al CI.
