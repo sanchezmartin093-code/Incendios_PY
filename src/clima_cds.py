@@ -171,7 +171,8 @@ def procesar_nc_a_nodos_diarios(
 
         t_max_dia = np.nanmax(t2m_c[mascara_h, :], axis=0)
         t_min_dia = np.nanmin(t2m_c[mascara_h, :], axis=0)
-        prec_dia = np.nansum(tp_mm[mascara_h, :], axis=0)
+        # En ERA5-Land, tp es precipitación acumulada por ciclo diurno; el acumulado diario es el máximo registrado en el día
+        prec_dia = np.nanmax(tp_mm[mascara_h, :], axis=0)
         viento_max_dia = np.nanmax(viento_kmh[mascara_h, :], axis=0)
         vpd_max_dia = np.nanmax(vpd_kpa[mascara_h, :], axis=0)
 
