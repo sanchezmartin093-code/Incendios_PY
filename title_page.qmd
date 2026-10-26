@@ -67,7 +67,9 @@ format:
 
 # 4. Resumen Gráfico / Graphical Abstract
 
-> Graphical abstract to be generated as a separate file after the final figure redesign. The previous draft still contained obsolete metrics and is not suitable for submission.
+![](figuras/graphical_abstract.png){width=100%}
+
+**Graphical abstract.** Decoupled D2 targets, gated M3/M1 inference, causal t-1 propagation and a blind benchmark against FWI and INPE. The visual uses only current, traceable results.
 
 ---
 
