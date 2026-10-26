@@ -23,11 +23,11 @@ format:
 - **Título Principal (Español):**  
   *Desacoplando el peligro biofísico de ignición y la propagación táctica de incendios forestales en el Gran Chaco mediante GeoAI multiescala (2018–2025)*
 - **Subtítulo (Español):**  
-  *Un marco computacional reproducible de dos etapas para el nowcasting diario de peligro y benchmarking internacional frente a Canadian FWI e INPE*
+  *Un marco computacional reproducible de dos etapas para el nowcasting diario de peligro y benchmarking internacional frente a Canadian FWI (ISI) y proxy INPE*
 - **Title (English):**  
   *Decoupling Biophysical Ignition Hazard and Tactical Wildfire Propagation in the Gran Chaco via Multiscale GeoAI (2018–2025)*
 - **Subtitle (English):**  
-  *A Reproducible Two-Stage Computational Framework for Daily Hazard Nowcasting and International Benchmarking Against Canadian FWI and INPE*
+  *A Reproducible Two-Stage Computational Framework for Daily Hazard Nowcasting and International Benchmarking Against Canadian FWI (ISI) and INPE proxy*
 - **Título Corto / Running Head:**  
   *Decoupled GeoAI Wildfire Hazard in the Gran Chaco (2018–2025)*
 - **Revista Objetivo / Target Journal:**  
@@ -59,7 +59,7 @@ format:
 
 1. **Two-stage bio-physical gating cuts 39.2% of national cells (89.9% recall).** (77 chars)
 2. **Decoupled models isolate physical ignition risk from tactical $t-1$ fire spread.** (84 chars)
-3. **Monotonic Platt-calibrated LightGBM beats Canadian FWI and INPE Risco de Fogo.** (81 chars)
+3. **Monotonic Platt-calibrated LightGBM beats Canadian FWI (ISI) and INPE proxy Risco de Fogo.** (81 chars)
 4. **20-km negative-sampling buffer and temporal holdout; spatial holdout pending.** (74 chars)
 5. **Zero-copy DuckDB and Polars pipeline predicts 400,006 sovereign cells in <1 s.** (81 chars)
 
@@ -74,14 +74,14 @@ format:
 # 5. Resumen / Abstract & Keywords
 
 ### Resumen (Español)
-La predicción operativa de incendios forestales mediante aprendizaje automático enfrenta dos fallas metodológicas: el sesgo de atajo espacial y la dificultad de los índices boreales (como el Canadian FWI) en biomas subtropicales. Presentamos `Incendios_PY`, una arquitectura GeoAI multiescala y desacoplada para Paraguay (400.006 celdas de 1 km², 2018–2025). El gating biofísico reduce el 39,2 % de las celdas-día y retiene el 89,94 % de las detecciones térmicas. Para evitar fugas, los priors históricos usan un corte mensual y una ventana móvil de 3 años. El modelo híbrido $\mathcal{M}_3$ combina clima, un perfil de combustible sintético de referencia (MapBiomas real pendiente), ecotono, corredores antrópicos y priors causales; la propagación táctica usa un kernel causal $t-1$. La evaluación es un holdout temporal 2024–2025 ($N=1.841.147$); el buffer de 20 km se aplica al muestreo de pseudo-ausencias, no a un holdout espacial. $\mathcal{M}_3$ obtiene ROC-AUC 0,7858/0,8277 (Chaco/Oriental), frente a 0,5183/0,6055 del FWI (ISI) y 0,5036/0,5865 del proxy INPE; la propagación alcanza 0,9121/0,8671. Las precisiones case-control $F_{0.5}$ son 38,16 %/47,01 % y 94,50 %/75,94 %; en población real caen a 0,74 %/1,96 % y 11,87 %/6,07 %. En un holdout espacial por bloques de 50 km con buffer de 20 km, M3 cae a ROC-AUC 0,4737/0,5942, mientras que M1 obtiene 0,5105/0,6139: la ventaja híbrida es temporal y específica de celdas con historia de fuego. El pipeline se midió en ~1,4–1,8 s y ~2,0 GB de RAM pico. Es un nowcast/hindcast: las features climáticas son del mismo día. La cobertura conformal empírica fue 89,67 %/90,30 % para 90 %, sin garantía formal bajo cambio temporal.
+La predicción operativa de incendios forestales mediante aprendizaje automático enfrenta dos fallas metodológicas: el sesgo de atajo espacial y la dificultad de los índices boreales (como el Canadian FWI) en biomas subtropicales. Presentamos `Incendios_PY`, una arquitectura GeoAI multiescala y desacoplada para Paraguay (400.006 celdas de 1 km², 2018–2025). El gating biofísico reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas. Los priors históricos usan corte mensual y ventana móvil de 3 años. El modelo híbrido $\mathcal{M}_3$ combina clima ERA5-Land, MapBiomas real (`collection2_2023`), ecotono, corredores antrópicos y priors causales; la propagación táctica usa un kernel causal $t-1$. La evaluación sigue la definición D2: ignición primaria sin fuego t-1 en 25 km ni fuego en la celda en 10 días, y propagación dentro de 25 km de un fuego t-1. El test D2 contiene N=1.813.966 celdas-día (376.552 ignición y 1.437.414 propagación). $\mathcal{M}_3$ obtiene ROC-AUC 0,7852/0,7480 (Chaco/Oriental), frente a 0,5177/0,5605 del ISI y 0,4997/0,5274 del proxy INPE; la propagación alcanza 0,8988/0,7798. Las precisiones case-control $F_{0.5}$ son 27,52 %/32,63 % y 84,47 %/60,78 %; en población caen a 0,062 %/0,242 % y 9,853 %/4,183 %. En holdout espacial, M3 cae a 0,6246/0,5721 y M1 obtiene 0,6346/0,6195: la ventaja híbrida es temporal. El pipeline se midió en ~1,425 s y ~2,2 GB de RAM pico. Es un nowcast/hindcast. La cobertura conformal empírica fue 89,85 %/90,19 % para 90 % y 95,02 %/94,56 % para 95 %.
 
 **Palabras clave:** Incendios forestales; GeoAI; Gran Chaco; LightGBM; Reanálisis ERA5-Land; NASA FIRMS; Desacoplamiento biofísico; Autocorrelación espacial; Benchmarking internacional.
 
 ---
 
 ### Abstract (English)
-Operational wildfire prediction via machine learning faces spatial shortcut learning and the limited transferability of boreal fire-weather indices to subtropical biomes. We present `Incendios_PY`, a decoupled multiscale GeoAI framework for Paraguay (400,006 1-km² cells, 2018–2025). Biophysical gating removes 39.2 % of cell-days while retaining 89.94 % of thermal detections. To avoid leakage, historical priors use a monthly cutoff and a rolling 3-year window. The hybrid model $\mathcal{M}_3$ combines weather, a synthetic reference fuel profile (real MapBiomas pending), ecotone, anthropogenic corridors and causal priors; tactical propagation uses a causal $t-1$ kernel. Evaluation is a temporal holdout 2024–2025 ($N=1,841,147$); the 20-km buffer applies to negative sampling, not a spatial holdout. $\mathcal{M}_3$ achieves ROC-AUC 0.7858/0.8277 (Chaco/Oriental), versus 0.5183/0.6055 for FWI (ISI) and 0.5036/0.5865 for the INPE proxy; propagation reaches 0.9121/0.8671. Case-control $F_{0.5}$ precision is 38.16 %/47.01 % and 94.50 %/75.94 %; population precision drops to 0.74 %/1.96 % and 11.87 %/6.07 %. In a 50-km spatial block holdout with a 20-km buffer, M3 drops to ROC-AUC 0.4737/0.5942, while M1 reaches 0.5105/0.6139: the hybrid advantage is temporal and specific to cells with fire history. The pipeline measured ~1.4–1.8 s and ~2.0 GB peak RAM. It is a nowcast/hindcast: weather features are same-day. Empirical conformal coverage was 89.67 %/90.30 % for 90 %, without a formal guarantee under temporal shift.
+Operational wildfire prediction via machine learning faces spatial shortcut learning and the limited transferability of boreal fire-weather indices to subtropical biomes. We present `Incendios_PY`, a decoupled multiscale GeoAI framework for Paraguay (400,006 1-km² cells, 2018–2025). Biophysical gating removes 21.7 % of cell-days while retaining 97.17 % of thermal detections. Historical priors use a monthly cutoff and a rolling 3-year window. The hybrid model $\mathcal{M}_3$ combines ERA5-Land weather, real MapBiomas (`collection2_2023`), ecotone, anthropogenic corridors and causal priors; tactical propagation uses a causal $t-1$ kernel. Evaluation follows D2: primary ignition with no t-1 fire within 25 km and no same-cell fire in 10 days, and propagation within 25 km of a t-1 fire. The D2 test contains N=1,813,966 cell-days (376,552 ignition and 1,437,414 propagation). $\mathcal{M}_3$ achieves ROC-AUC 0.7852/0.7480 (Chaco/Oriental), versus 0.5177/0.5605 for ISI and 0.4997/0.5274 for the INPE proxy; propagation reaches 0.8988/0.7798. Case-control $F_{0.5}$ precision is 27.52 %/32.63 % and 84.47 %/60.78 %; population precision drops to 0.062 %/0.242 % and 9.853 %/4.183 %. In spatial holdout, M3 drops to 0.6246/0.5721 while M1 reaches 0.6346/0.6195: the hybrid advantage is temporal. The pipeline measured ~1.425 s and ~2.2 GB peak RAM. It is a nowcast/hindcast. Empirical conformal coverage was 89.85 %/90.19 % for 90 % and 95.02 %/94.56 % for 95 %.
 
 **Keywords:** Wildfire hazard nowcasting; GeoAI; Gran Chaco; LightGBM; ERA5-Land reanalysis; NASA FIRMS; Biophysical decoupling; Spatial autocorrelation; International benchmarking.
 
@@ -103,9 +103,9 @@ Operational wildfire prediction via machine learning faces spatial shortcut lear
 Todos los conjuntos de datos primarios utilizados son de acceso público internacional y gratuito:
 1. **Detecciones térmicas activas:** NASA FIRMS (sensores VIIRS Suomi-NPP, NOAA-20 y NOAA-21) disponibles en [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/).
 2. **Reanálisis meteorológico:** Copernicus Climate Data Store (CDS) ERA5-Land reanalysis ([cds.climate.copernicus.eu](https://cds.climate.copernicus.eu/)) procesado mediante pipeline nativo ECMWF CDS API (`src/clima_cds.py`).
-3. **Cobertura vegetal y biomas:** objetivo MapBiomas Chaco y Bosque Atlántico; en esta versión el perfil es sintético de referencia y la integración real queda pendiente.
+3. **Cobertura vegetal y biomas:** objetivo MapBiomas Chaco y Bosque Atlántico; se usa MapBiomas real (`collection2_2023`).
 4. **Límites cartográficos soberanos:** Marco geoBoundaries ADM0 y ADM1 ([geoboundaries.org](https://www.geoboundaries.org/)).  
-Los datasets consolidados y procesados se distribuyen en formato Parquet comprimido ZSTD dentro del repositorio bajo licencia Creative Commons CC BY 4.0.
+Los datasets consolidados y procesados no se versionan en git; se documentan con hashes en `fuentes/MANIFIESTO_DATOS_v2.csv` y se archivan en Zenodo/OSF bajo licencia CC BY 4.0.
 
 ### C. Financiamiento / Funding
 Esta investigación fue realizada como un desarrollo de investigación independiente y de acceso abierto autofinanciado por el autor. No se recibieron subvenciones específicas de organismos del sector público, comercial o sin fines de lucro.
