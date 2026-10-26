@@ -45,6 +45,10 @@ MAX_COBERTURA_NUBOSA_PCT = 60.0        # Excluye celdas ciegas para evitar falsa
 # Proporción de muestreo para pseudo-ausencias
 RATIO_AUSENCIAS_PRESENCIAS = 10        # 10 negativas por cada positiva en entrenamiento
 
+# Definición D2 de targets
+DIAS_IGNICION_SIN_FUEGO = 10            # Una ignición primaria no tuvo fuego en la celda en los últimos N días
+RADIO_PROPAGACION_KM = 25               # Dominio de propagación: celdas dentro de R km de un fuego t-1
+
 # Umbrales Biofísicos para Filtrado de Etapa 1 (Two-Stage Gating)
 UMBRAL_VPD_MINIMO_KPA = 0.8            # Por debajo de 0.8 kPa el aire está saturado; riesgo de ignición casi nulo
 UMBRAL_LLUVIA_48H_MM = 10.0            # Lluvias acumuladas > 10 mm en 48h extinguen o inhiben la ignición

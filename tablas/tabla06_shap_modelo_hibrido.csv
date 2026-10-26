@@ -1,21 +1,21 @@
 region,feature,nombre_legible,shap_media,ranking
-Chaco,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.6549672823326878,1
-Chaco,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.2924712798659112,2
-Chaco,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.0828351585060642,3
-Chaco,densidad_hist_25km,Densidad Macro de Ignición (25 km),0.06379616573198058,4
-Chaco,interaccion_acceso_vpd,Sinergia Accesibilidad × VPD,0.027824925756507902,5
-Chaco,isi,Índice Propagación Inicial (ISI),0.019509051467373324,6
-Chaco,dia_del_anio,Día Ordinal del Año (DOY),0.013920281173112191,7
-Chaco,presion_quema_pastura,Presión de Quema en Pasturas (Pastura × VPD × Mes),0.01114740746351436,8
-Chaco,ffmc,Humedad Combustible Fino (FFMC),0.008938111446139586,9
-Chaco,rango_termico_diario,Amplitud Térmica Diaria (°C),0.008424767845680917,10
-Oriental,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.8264407495040792,1
-Oriental,freq_hist_1km,Recurrencia Crónica en Celda (1 km²),0.4630337753501802,2
-Oriental,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.22726861986534191,3
-Oriental,densidad_hist_25km,Densidad Macro de Ignición (25 km),0.11223408222627122,4
-Oriental,precipitacion_mm,Precipitación Diaria (mm),0.04214752382101291,5
-Oriental,densidad_hist_10km,Densidad Meso de Ignición Antrópica (10 km),0.03792791170362797,6
-Oriental,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.029867331273557833,7
-Oriental,ffmc,Humedad Combustible Fino (FFMC),0.02926555967437973,8
-Oriental,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.0206351582068555,9
-Oriental,rango_termico_diario,Amplitud Térmica Diaria (°C),0.018811382303635344,10
+Chaco,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.4709329636166423,1
+Chaco,pct_bosque_seco,Fracción de Bosque Seco Chaqueño (%),0.18974373006043793,2
+Chaco,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.08121584921410428,3
+Chaco,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.07722455500905691,4
+Chaco,doy_cos,Armónico Estacional Coseno (DOY),0.03374927850209185,5
+Chaco,pct_pastura,Fracción de Pastura Cultivada (%),0.029633679417018326,6
+Chaco,presion_quema_pastura,Presión de Quema en Pasturas (Pastura × VPD × Mes),0.01566531581506218,7
+Chaco,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.011975257137259316,8
+Chaco,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.01106041865457149,9
+Chaco,indice_ecotono,indice_ecotono,0.00834726289645585,10
+Oriental,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.28349172175970755,1
+Oriental,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.2186190353657575,2
+Oriental,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.1181443608352275,3
+Oriental,pct_humedal_palmar,Fracción de Palmar/Humedal (%),0.0909824123424506,4
+Oriental,freq_hist_1km,Recurrencia Crónica en Celda (1 km²),0.06661450355605944,5
+Oriental,pct_sabana_pastizal,pct_sabana_pastizal,0.05900935396203548,6
+Oriental,pct_pastura,Fracción de Pastura Cultivada (%),0.036489980812705144,7
+Oriental,ffmc,Humedad Combustible Fino (FFMC),0.022867613307695843,8
+Oriental,dia_del_anio,Día Ordinal del Año (DOY),0.019152164473938357,9
+Oriental,indice_ecotono,indice_ecotono,0.017853745015933408,10

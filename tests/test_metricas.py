@@ -12,7 +12,9 @@ from src.metricas import (
     calcular_bootstrap_ci_roc,
     calcular_cuantil_conforme,
     predecir_conjuntos_conformes,
-    evaluar_cobertura_conforme
+    evaluar_cobertura_conforme,
+    corregir_prior_probabilidades,
+    calcular_metricas_poblacionales,
 )
 
 class TestMetricas(unittest.TestCase):
@@ -83,6 +85,32 @@ class TestMetricas(unittest.TestCase):
         # Verificar cobertura empírica marginal >= 1 - alpha - tolerancia de muestra finita
         cobertura = evaluar_cobertura_conforme(y_test, p_test, q_hat)
         self.assertGreaterEqual(cobertura, (1.0 - alpha) - 0.05)
+
+    def test_empates_en_threshold(self):
+        """El umbral debe reproducir la métrica al clasificar con >=."""
+        from sklearn.metrics import fbeta_score
+        y = np.array([0, 1, 0, 1, 0, 1, 0, 0, 1, 0])
+        p = np.array([0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1])
+        cutoff, f_reportado = calcular_umbral_optimo_f_beta(y, p, beta=0.5)
+        f_real = fbeta_score(y, (p >= cutoff).astype(int), beta=0.5, zero_division=0)
+        self.assertAlmostEqual(f_reportado, f_real, places=6)
+
+    def test_correccion_prevalencia(self):
+        """La corrección case-control debe bajar probabilidades al prevalecer menos."""
+        p = np.array([0.4, 0.2, 0.8])
+        p_corr = corregir_prior_probabilidades(p, 0.0909, 0.0012)
+        self.assertTrue(np.all(p_corr < p))
+        self.assertTrue(np.all((p_corr > 0) & (p_corr < 1)))
+
+    def test_metricas_poblacionales(self):
+        y = np.array([0, 0, 1, 0, 1, 0])
+        p = np.array([0.1, 0.2, 0.8, 0.3, 0.7, 0.4])
+        w = np.array([10.0, 10.0, 1.0, 10.0, 1.0, 10.0])
+        m = calcular_metricas_poblacionales(y, p, w, cutoff=0.5)
+        self.assertIn("precision_poblacional", m)
+        self.assertIn("roc_auc_poblacional", m)
+        self.assertGreaterEqual(m["precision_poblacional"], 0.0)
+        self.assertLessEqual(m["precision_poblacional"], 1.0)
 
 if __name__ == "__main__":
     unittest.main()

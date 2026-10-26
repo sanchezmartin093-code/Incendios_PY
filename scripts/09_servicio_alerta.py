@@ -1,7 +1,7 @@
 """
 Script 09: Servicio Operativo Diario de Alerta Temprana de Incendios Forestales.
 - Ejecuta la inferencia biofísica y discriminante sobre las 400.006 celdas de 1 km² de Paraguay.
-- Aplica el Two-Stage Bio-physical Gating y la calibración isotónica de probabilidades.
+- Aplica el Two-Stage Bio-physical Gating y la calibración monótona de Platt.
 - Genera:
   * Capa Parquet georreferenciada: datos/outputs/raster_riesgo_diario/alerta_nacional_{fecha}.parquet
   * Boletín técnico de alerta (Markdown): datos/outputs/boletin_alerta_{fecha}.md
@@ -47,7 +47,7 @@ def ejecutar_servicio_alerta(fecha: str | None = None):
     else:
         print(f"[*] Fecha seleccionada: {fecha}")
 
-    print("\n1. Cargando modelos nativos C++ y calibradores isotónicos...")
+    print("\n1. Cargando modelos nativos C++ y calibradores de Platt...")
     artefactos = cargar_artefactos_modelos()
     print("   ✓ Modelos Chaco y Oriental cargados correctamente.")
 

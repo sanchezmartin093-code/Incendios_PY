@@ -49,7 +49,13 @@ def procesar_focos_firms_a_grilla(
 
     # 3. Filtro de confianza
     if excluir_baja_confianza and "confidence" in df_bbox.columns:
-        df_bbox = df_bbox[df_bbox["confidence"] != "low"]
+        confianza = df_bbox["confidence"].astype(str).str.strip().str.lower()
+        df_bbox = df_bbox[~confianza.isin({"l", "low"})]
+
+    # 4. Sólo fuegos de vegetación (type=0). Excluye fuentes industriales,
+    #    volcanes y detecciones offshore (type=2/3 en FIRMS).
+    if "type" in df_bbox.columns:
+        df_bbox = df_bbox[df_bbox["type"] == 0]
 
     if len(df_bbox) == 0:
         return pl.DataFrame()

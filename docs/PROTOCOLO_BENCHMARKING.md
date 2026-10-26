@@ -24,7 +24,7 @@ En machine learning aplicado a ciencias de la Tierra y ecología del fuego, exis
    Ocurre cuando se aplica validación cruzada aleatoria clásica (*Random K-Fold*). Dado que los incendios tienen fuerte autocorrelación espacial (una pluma de humo abarca decenas de kilómetros), una celda de prueba contigua a una de entrenamiento permite que el árbol de decisión "copie" el estado del vecino. Esto infla artificialmente el ROC-AUC a $0.90\text{--}0.98$, pero el modelo colapsa en el mundo real.
 2. **El Protocolo de Rigor Falsable:**
    * **Partición Out-of-Time:** Entrenar con años pasados (ej. 2018–2022) y evaluar a ciegas en años futuros no vistos (ej. 2024).
-   * **Dead-Zone Spatial Buffer (20 km):** Las pseudo-ausencias y muestras de validación deben distar al menos 20 km de cualquier foco de presencia activa (Roberts et al., 2017; Ploton et al., 2020), anulando la autocorrelación del semivariograma.
+   * **Dead-Zone Spatial Buffer (20 km):** Las pseudo-ausencias deben distar al menos 20 km de cualquier foco de presencia activa del mismo día. Para estimar generalización espacial se requiere además un holdout por bloques/regiones; el buffer de negativos por sí solo no separa train de test.
 
 Bajo este rigor, los modelos operativos internacionales reales rinden entre **ROC-AUC 0.65 y 0.78**.
 
@@ -36,7 +36,7 @@ Para una comparativa formal en Sudamérica, se deben contrastar cuatro arquitect
 
 | Contendiente | Origen / Ámbito | Tipo de Modelo | Variables Principales |
 | :--- | :--- | :--- | :--- |
-| **1. Incendios_PY** | Paraguay (Local) | Machine Learning discriminante (LightGBM C++) + Two-Stage Bio-physical Gating + Calibración de Platt Monótona. | 22 variables: ERA5-Land, FWI parciales, MapBiomas 30m, amplitud térmica, $VPD \times CDD$, viento$^2$. |
+| **1. Incendios_PY** | Paraguay (Local) | Machine Learning discriminante (LightGBM C++) + Two-Stage Bio-physical Gating + Calibración de Platt Monótona. | 24 variables en M2 y 33–34 en M3: ERA5-Land, FWI parciales, perfil de combustible (sintético en la versión actual), amplitud térmica, $VPD \times CDD$, viento$^2$ y priors causales. |
 | **2. Canadian FWI Puro** | Canadá / Adoptado por Copernicus EFFIS y GWIS | Empírico de balance hídrico foliar para coníferas (Van Wagner, 1987). | FFMC, DMC, DC, ISI, BUI, FWI (requiere mediodía solar). |
 | **3. INPE Risco de Fogo** | Brasil / Adoptado por INFONA y MADES en Paraguay | Semi-empírico exponencial calibrado para Cerrado/Amazonía (Setzer et al., 2019). | Días secos consecutivos ($CDD$), humedad relativa mínima, temperatura máxima y clases de vegetación macro. |
 | **4. Línea Base Climatológica** | Referencia estadística nula | Frecuencia histórica acumulada de fuego en la celda o ecorregión ($P_{\text{base}} = \bar{Y}_{\text{train}}$). | Probabilidad marginal constante. |

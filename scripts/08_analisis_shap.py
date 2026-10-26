@@ -67,7 +67,7 @@ def ejecutar_analisis_shap():
     print("ANÁLISIS DE INTERPRETABILIDAD CON TREESHAP (XAI)")
     print("=" * 65)
 
-    p_val = DIR_PROCESSED / "val_dataset.parquet"
+    p_val = DIR_PROCESSED / "targets_poblacionales" / "val_ignicion.parquet"
     if not p_val.exists():
         raise FileNotFoundError(f"Dataset no encontrado en {p_val}")
 
@@ -82,14 +82,17 @@ def ejecutar_analisis_shap():
     for region in regiones:
         print(f"\n--- CALCULANDO SHAP PARA: {region.upper()} ---")
         nombre_lower = region.lower()
-        ruta_b = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
+        ruta_hibrida = DIR_MODELOS / f"lightgbm_hibrido_{nombre_lower}.booster"
+        ruta_base = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
+        ruta_b = ruta_hibrida if ruta_hibrida.exists() else ruta_base
+        modo = "hibrido" if ruta_hibrida.exists() else "ignicion"
 
         if not ruta_b.exists():
             print(f"Modelo para {region} no encontrado en {ruta_b}")
             continue
 
         booster = lgb.Booster(model_file=str(ruta_b))
-        X_val, y_val, feats = preparar_matrices_xy(df_val, region)
+        X_val, y_val, feats = preparar_matrices_xy(df_val, region, modo=modo)
 
         if len(X_val) == 0:
             print(f"Sin muestras de validación para {region}")

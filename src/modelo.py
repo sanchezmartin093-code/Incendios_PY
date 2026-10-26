@@ -1,10 +1,10 @@
 """
-Módulo modelo.py: Entrenamiento, calibración isotónica y serialización C++ de modelos LightGBM.
+Módulo modelo.py: Entrenamiento, calibración monótona (Platt) y serialización C++ de modelos LightGBM.
 Filosofía SOTA:
 - Modelado regional estratificado: Modelo Chaco vs. Modelo Región Oriental.
 - Algoritmo Histogram-based Gradient Boosting con soporte nativo de valores faltantes y regularización L1/L2.
 - Manejo de desbalance mediante penalización de pesos positivos (scale_pos_weight).
-- Calibración Isotónica (Platt/Isotonic) para garantizar probabilidades reales P(Fuego) ∈ [0.0, 1.0].
+- Calibración monótona de Platt (sigmoide acotada, objetivo Brier) para probabilidades P(Fuego) ∈ [0.0, 1.0].
 - Serialización interoperable en formato nativo C++ Booster (.booster) y Joblib.
 """
 
@@ -73,7 +73,6 @@ FEATURES_IGNICION_BASE = [
     "dias_secos_consecutivos",
     # Comportamiento de propagación y viento
     "viento_max_kmh",
-    "rafaga_max_kmh",
     "potencial_viento_cuadratico",
     "interaccion_viento_vpd",
     "ffmc",
@@ -147,13 +146,19 @@ def preparar_matrices_xy(
     else:
         features = FEATURES_IGNICION_CHACO if region == "Chaco" else FEATURES_IGNICION_ORIENTAL
     
-    # Asegurar que todas las columnas existan
-    feats_existentes = [f for f in features if f in df_reg.columns]
-    
-    X = df_reg.select(feats_existentes).to_numpy()
-    y = df_reg["fuego"].to_numpy().astype(np.float32)
+    target_col = "target_propagacion" if modo == "propagacion" else "target_ignicion"
+    if target_col not in df_reg.columns:
+        raise ValueError(f"Falta {target_col} en el dataset de {region}/{modo}")
 
-    return X, y, feats_existentes
+    df_reg = df_reg.filter(pl.col(target_col).is_not_null())
+    faltantes = [f for f in features if f not in df_reg.columns]
+    if faltantes:
+        raise ValueError(f"Faltan features para {region}/{modo}: {faltantes}")
+
+    X = df_reg.select(features).to_numpy()
+    y = df_reg[target_col].to_numpy().astype(np.float32)
+
+    return X, y, features
 
 def obtener_restricciones_monotonas(nombres_features: list[str]) -> list[int]:
     """

@@ -78,21 +78,23 @@ def generar_todas_las_figuras():
     # FIGURA 2: Curvas ROC y Precision-Recall (Test Ciego 2024–2025)
     # -------------------------------------------------------------
     print("\n--- Generando Figura 02: Curvas ROC y PR en Test 2024–2025 (Dual) ---")
-    p_preds = DIR_PROCESSED / "evaluacion_test_predicciones.parquet"
-    if p_preds.exists():
-        df_p = pl.read_parquet(p_preds)
+    p_ign = DIR_PROCESSED / "evaluacion_test_ignicion.parquet"
+    p_prop = DIR_PROCESSED / "evaluacion_test_propagacion.parquet"
+    if p_ign.exists() and p_prop.exists():
+        df_ign = pl.read_parquet(p_ign)
+        df_prop = pl.read_parquet(p_prop)
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5), dpi=300)
 
         modelos_curvas = [
-            ("Chaco", "Ignición Primaria", "probabilidad_calibrada", "#d35400", "-"),
-            ("Chaco", "Propagación Táctica", "probabilidad_propagacion", "#c0392b", "--"),
-            ("Oriental", "Ignición Primaria", "probabilidad_calibrada", "#16a085", "-"),
-            ("Oriental", "Propagación Táctica", "probabilidad_propagacion", "#27ae60", "--"),
+            ("Chaco", "Ignición Híbrida M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#d35400", "-"),
+            ("Chaco", "Propagación Táctica", df_prop, "target_propagacion", "probabilidad_propagacion", "#c0392b", "--"),
+            ("Oriental", "Ignición Híbrida M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#16a085", "-"),
+            ("Oriental", "Propagación Táctica", df_prop, "target_propagacion", "probabilidad_propagacion", "#27ae60", "--"),
         ]
 
-        for reg, capa, col_prob, col, ls in modelos_curvas:
-            sub = df_p.filter(pl.col("region") == reg)
-            y_true = sub["fuego"].to_numpy()
+        for reg, capa, df_fuente, col_y, col_prob, col, ls in modelos_curvas:
+            sub = df_fuente.filter(pl.col("region") == reg)
+            y_true = sub[col_y].to_numpy()
             y_prob = sub[col_prob].to_numpy()
 
             if len(np.unique(y_true)) > 1:
@@ -133,7 +135,17 @@ def generar_todas_las_figuras():
     dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
     archivos_alerta = sorted(list(dir_raster.glob("alerta_nacional_*.parquet")))
     if archivos_alerta:
-        p_alerta = archivos_alerta[0]
+        # Elegir el día con más celdas en ALTO/EXTREMO para que el mapa sea
+        # informativo, en lugar de tomar arbitrariamente el archivo más viejo
+        # o el más reciente (que puede ser un día totalmente húmedo).
+        def _score_alerta(ruta) -> int:
+            try:
+                _df = pl.read_parquet(ruta, columns=["nivel_alerta"])
+                return _df.filter(pl.col("nivel_alerta").is_in(["ALTO", "EXTREMO"])).height
+            except Exception:
+                return -1
+
+        p_alerta = max(archivos_alerta, key=_score_alerta)
         fecha_alerta = p_alerta.stem.replace("alerta_nacional_", "")
         df_alerta = pl.read_parquet(p_alerta)
 

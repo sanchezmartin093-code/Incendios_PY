@@ -26,7 +26,6 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import matplotlib.pyplot as plt
-from scipy.spatial import cKDTree
 from sklearn.metrics import (
     roc_auc_score,
     average_precision_score,
@@ -38,16 +37,17 @@ from sklearn.metrics import (
 )
 
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_TABLAS, DIR_FIGURAS
+from src.espaciotemporal import agregar_features_antropicas
 from src.modelo import (
     entrenar_modelo_lightgbm,
     calibrar_probabilidades_isotonica,
     predecir_probabilidad,
     guardar_modelo_y_calibrador,
-    cargar_modelo_y_calibrador,
     FEATURES_IGNICION_CHACO,
     FEATURES_IGNICION_ORIENTAL
 )
 from src.metricas import (
+    calcular_umbral_optimo_youden,
     calcular_umbral_optimo_f_beta,
     calcular_expected_calibration_error,
     calcular_bootstrap_ci_roc
@@ -57,7 +57,7 @@ from src.metricas import (
 FEATURES_M1_BIOFISICO_BASE = [
     "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
     "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
-    "dias_secos_consecutivos", "viento_max_kmh", "rafaga_max_kmh",
+    "dias_secos_consecutivos", "viento_max_kmh",
     "potencial_viento_cuadratico", "interaccion_viento_vpd", "ffmc", "isi",
     "pct_pastura", "pct_sabana_pastizal", "pct_humedal_palmar"
 ]
@@ -110,78 +110,30 @@ def construir_features_socioecologicas(
     df_train: pl.DataFrame,
     df_val: pl.DataFrame,
     df_test: pl.DataFrame,
-    df_grilla: pl.DataFrame
+    df_grilla: pl.DataFrame | None = None
 ) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
-    Construye las variables de presión antrópica multiescala estrictamente sobre
-    el bloque de entrenamiento (2018-2022) para garantizar cero fuga temporal (Anti-Leakage).
+    Añade variables derivadas socio-ecológicas a partir de los priors causales
+    ya calculados en ``scripts/05_muestrear_ausencias.py``.
+
+    No se recalculan priors aquí: hacerlo con los fuegos de train introducía
+    el propio evento y fuegos futuros en las features de entrenamiento.
     """
-    fuegos_tr = df_train.filter(pl.col("fuego") == 1)
-    conteo_celda = fuegos_tr.group_by("cell_id").agg([
-        pl.len().alias("freq_hist_1km")
-    ])
-
-    grilla_enriq = df_grilla.join(conteo_celda, on="cell_id", how="left").with_columns([
-        pl.col("freq_hist_1km").fill_null(0).cast(pl.Float32)
-    ])
-
-    # Celdas con recurrencia crónica (>= 3 eventos independientes en 5 años = corredor humano consolidado)
-    mask_rec = (grilla_enriq["freq_hist_1km"] >= 3).to_numpy()
-    coords_all = np.column_stack([grilla_enriq["x_utm"].to_numpy(), grilla_enriq["y_utm"].to_numpy()])
-    tree_rec = cKDTree(coords_all[mask_rec])
-    dists_rec, _ = tree_rec.query(coords_all, k=1, workers=-1)
-
-    fuegos_coords = np.load(DIR_MODELOS / "fuegos_train_coords.npy")
-    tree_all_tr = cKDTree(fuegos_coords)
-    dens_5km = tree_all_tr.query_ball_point(coords_all, r=5000.0, return_length=True, workers=-1).astype(np.float32)
-    dens_10km = tree_all_tr.query_ball_point(coords_all, r=10000.0, return_length=True, workers=-1).astype(np.float32)
-
-    grilla_feats = pl.DataFrame({
-        "cell_id": grilla_enriq["cell_id"],
-        "freq_hist_1km": grilla_enriq["freq_hist_1km"],
-        "dist_corredor_antropico_km": (dists_rec / 1000.0).astype(np.float32),
-        "densidad_hist_5km": dens_5km,
-        "densidad_hist_10km": dens_10km
-    })
-
-    # Exportar archivo estructurado de priors socioecológicos estáticos para el servicio de alerta
-    p_priors_out = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
-    if not p_priors_out.exists():
-        dists_hist, _ = tree_all_tr.query(coords_all, k=1, workers=-1)
-        dens_25km = tree_all_tr.query_ball_point(coords_all, r=25000.0, return_length=True, workers=-1).astype(np.float32)
-        df_priors_full = pl.DataFrame({
-            "cell_id": grilla_enriq["cell_id"],
-            "dist_foco_hist_km": np.clip(dists_hist / 1000.0, 0.0, 100.0).astype(np.float32),
-            "densidad_hist_25km": dens_25km,
-            "freq_hist_1km": grilla_enriq["freq_hist_1km"],
-            "dist_corredor_antropico_km": (dists_rec / 1000.0).astype(np.float32),
-            "densidad_hist_5km": dens_5km,
-            "densidad_hist_10km": dens_10km,
-            "focalizacion_antropica_local": (dens_5km / (dens_25km + 1.0)).astype(np.float32)
-        })
-        df_priors_full.write_parquet(p_priors_out, compression="zstd")
-
-    def enriquecer(df: pl.DataFrame) -> pl.DataFrame:
-        df = df.join(grilla_feats, on="cell_id", how="left")
-        return df.with_columns([
-            pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
-            (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
-            (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
-            ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
-            (pl.col("densidad_hist_5km") / (pl.col("densidad_hist_25km") + 1.0)).cast(pl.Float32).alias("focalizacion_antropica_local"),
-            (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
-        ])
-
-    return enriquecer(df_train), enriquecer(df_val), enriquecer(df_test)
+    return (
+        agregar_features_antropicas(df_train),
+        agregar_features_antropicas(df_val),
+        agregar_features_antropicas(df_test),
+    )
 
 def ejecutar_estudio_ablacion():
     print("=" * 75)
     print("ESTUDIO DE ABLACIÓN: BIOFÍSICO PURO vs. HÍBRIDO SOCIO-ECOLÓGICO vs. BENCHMARK")
     print("=" * 75)
 
-    df_train = pl.read_parquet(DIR_PROCESSED / "train_dataset.parquet")
-    df_val = pl.read_parquet(DIR_PROCESSED / "val_dataset.parquet")
-    df_test = pl.read_parquet(DIR_PROCESSED / "test_dataset.parquet")
+    dir_targets = DIR_PROCESSED / "targets_poblacionales"
+    df_train = pl.read_parquet(dir_targets / "train_ignicion.parquet")
+    df_val = pl.read_parquet(dir_targets / "val_ignicion.parquet")
+    df_test = pl.read_parquet(dir_targets / "test_ignicion.parquet")
     df_grilla = pl.read_parquet(DIR_PROCESSED / "grilla_nacional_1km.parquet")
 
     print("1. Construyendo variables socio-ecológicas multiescala (Anti-Leakage)...")
@@ -202,50 +154,66 @@ def ejecutar_estudio_ablacion():
         va_r = va_h.filter(pl.col("region") == region)
         te_r = te_h.filter(pl.col("region") == region)
 
-        y_tr = tr_r["fuego"].to_numpy().astype(np.float32)
-        y_va = va_r["fuego"].to_numpy().astype(np.float32)
-        y_te = te_r["fuego"].to_numpy().astype(int)
+        y_tr = tr_r["target_ignicion"].to_numpy().astype(np.float32)
+        y_va = va_r["target_ignicion"].to_numpy().astype(np.float32)
+        y_te = te_r["target_ignicion"].to_numpy().astype(int)
 
         p_clim = np.full(len(y_te), float(y_tr.mean()))
         bs_clim = float(brier_score_loss(y_te, p_clim))
 
         b_col = "pct_bosque_seco" if region == "Chaco" else "pct_bosque_humedo"
 
-        # --- MODELO M1: BIOFÍSICO PURO (18 features) ---
-        feats_m1 = FEATURES_M1_BIOFISICO_BASE + [b_col]
-        X_tr_m1, X_va_m1, X_te_m1 = tr_r.select(feats_m1).to_numpy(), va_r.select(feats_m1).to_numpy(), te_r.select(feats_m1).to_numpy()
+        # Capacidad idéntica para M1, M2 y M3: la única diferencia entre
+        # arquitecturas es el conjunto de features. Así la ablación no está
+        # confundida por más árboles/hojas en M3.
         spw = 1.0 if region == "Chaco" else 2.0
-        n_r_base = 20 if region == "Chaco" else 40
+        n_r_ctrl = 45 if region == "Chaco" else 60
+        leaves_ctrl = 23 if region == "Chaco" else 31
         min_s = 20 if region == "Chaco" else 10
 
-        b_m1 = entrenar_modelo_lightgbm(X_tr_m1, y_tr, X_va_m1, y_va, feats_m1, scale_pos_weight=spw, num_boost_round=n_r_base, min_child_samples=min_s, early_stopping_rounds=None)
+        # --- MODELO M1: BIOFÍSICO PURO ---
+        feats_m1 = FEATURES_M1_BIOFISICO_BASE + [b_col]
+        X_tr_m1, X_va_m1, X_te_m1 = tr_r.select(feats_m1).to_numpy(), va_r.select(feats_m1).to_numpy(), te_r.select(feats_m1).to_numpy()
+        b_m1 = entrenar_modelo_lightgbm(
+            X_tr_m1, y_tr, X_va_m1, y_va, feats_m1,
+            scale_pos_weight=spw, num_boost_round=n_r_ctrl,
+            num_leaves=leaves_ctrl, min_child_samples=min_s,
+            early_stopping_rounds=None,
+        )
         c_m1 = calibrar_probabilidades_isotonica(b_m1, X_va_m1, y_va, metodo="platt_monotono")
         p_va_m1 = predecir_probabilidad(b_m1, c_m1, X_va_m1)
         p_te_m1 = predecir_probabilidad(b_m1, c_m1, X_te_m1)
         c_opt_m1, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m1, beta=0.5)
 
-        # --- MODELO M2: IGNICIÓN CON ANCLA MACRO (25 features actuales) ---
+        # --- MODELO M2: IGNICIÓN CON ANCLA MACRO (reentrenado con la misma capacidad) ---
         feats_m2 = FEATURES_IGNICION_CHACO if region == "Chaco" else FEATURES_IGNICION_ORIENTAL
-        X_va_m2, X_te_m2 = va_r.select(feats_m2).to_numpy(), te_r.select(feats_m2).to_numpy()
-        b_m2, c_m2 = cargar_modelo_y_calibrador(
-            DIR_MODELOS / f"lightgbm_ignicion_{region.lower()}.booster",
-            dir_cal / f"calibrador_ignicion_{region.lower()}.joblib"
+        X_tr_m2, X_va_m2, X_te_m2 = tr_r.select(feats_m2).to_numpy(), va_r.select(feats_m2).to_numpy(), te_r.select(feats_m2).to_numpy()
+        b_m2 = entrenar_modelo_lightgbm(
+            X_tr_m2, y_tr, X_va_m2, y_va, feats_m2,
+            scale_pos_weight=spw, num_boost_round=n_r_ctrl,
+            num_leaves=leaves_ctrl, min_child_samples=min_s,
+            early_stopping_rounds=None,
         )
+        c_m2 = calibrar_probabilidades_isotonica(b_m2, X_va_m2, y_va, metodo="platt_monotono")
+        p_va_m2 = predecir_probabilidad(b_m2, c_m2, X_va_m2)
         p_te_m2 = predecir_probabilidad(b_m2, c_m2, X_te_m2)
-        meta_m2 = json.loads((dir_cal / f"umbrales_ignicion_{region.lower()}.json").read_text(encoding="utf-8"))
-        c_opt_m2 = meta_m2["c_f05"]
+        c_opt_m2, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m2, beta=0.5)
 
-        # --- MODELO M3: HÍBRIDO SOCIO-ECOLÓGICO MULTIESCALA (34-35 features) ---
+        # --- MODELO M3: HÍBRIDO SOCIO-ECOLÓGICO MULTIESCALA ---
         feats_m3 = feats_m2 + FEATURES_ANTROPICO_MULTIESCALA + (["freq_hist_1km"] if region == "Oriental" else [])
         X_tr_m3, X_va_m3, X_te_m3 = tr_r.select(feats_m3).to_numpy(), va_r.select(feats_m3).to_numpy(), te_r.select(feats_m3).to_numpy()
-        n_r_h = 45 if region == "Chaco" else 60
-        leaves_h = 23 if region == "Chaco" else 31
 
-        b_m3 = entrenar_modelo_lightgbm(X_tr_m3, y_tr, X_va_m3, y_va, feats_m3, scale_pos_weight=spw, num_boost_round=n_r_h, num_leaves=leaves_h, min_child_samples=min_s, early_stopping_rounds=None)
+        b_m3 = entrenar_modelo_lightgbm(
+            X_tr_m3, y_tr, X_va_m3, y_va, feats_m3,
+            scale_pos_weight=spw, num_boost_round=n_r_ctrl,
+            num_leaves=leaves_ctrl, min_child_samples=min_s,
+            early_stopping_rounds=None,
+        )
         c_m3 = calibrar_probabilidades_isotonica(b_m3, X_va_m3, y_va, metodo="platt_monotono")
         p_va_m3 = predecir_probabilidad(b_m3, c_m3, X_va_m3)
         p_te_m3 = predecir_probabilidad(b_m3, c_m3, X_te_m3)
-        c_opt_m3, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m3, beta=0.5)
+        c_opt_m3, max_f05_m3 = calcular_umbral_optimo_f_beta(y_va, p_va_m3, beta=0.5)
+        c_youden_m3, max_j_m3 = calcular_umbral_optimo_youden(y_va, p_va_m3)
 
         # Guardar Modelo Híbrido Serializado y Metadatos de Umbral Óptimo de Validación (Anti-Leakage)
         guardar_modelo_y_calibrador(
@@ -256,7 +224,10 @@ def ejecutar_estudio_ablacion():
         meta_hibrido = {
             "region": region,
             "arquitectura": "M3_hibrido_socioecologico",
+            "c_youden": round(float(c_youden_m3), 4),
             "c_f05": round(float(c_opt_m3), 4),
+            "max_j_val": round(float(max_j_m3), 4),
+            "max_f05_val": round(float(max_f05_m3), 4),
             "n_vars": len(feats_m3)
         }
         (dir_cal / f"umbrales_hibrido_{region.lower()}.json").write_text(

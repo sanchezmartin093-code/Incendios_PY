@@ -16,6 +16,7 @@ from src.espaciotemporal import (
     asegurar_coordenadas_utm,
     calcular_variables_contagio_lag,
     calcular_prior_espacial_historico,
+    calcular_priors_causales,
     enriquecer_dataset_espaciotemporal
 )
 
@@ -82,6 +83,32 @@ class TestEspaciotemporal(unittest.TestCase):
         ]
         for col in columnas_esperadas:
             self.assertIn(col, df_full.columns)
+
+    def test_priors_causales_excluyen_mismo_mes_y_futuro(self):
+        df = pl.DataFrame({
+            "cell_id": [1160007419, 5840007451],
+            "region": ["Chaco", "Oriental"],
+            "fecha": ["2026-10-18", "2026-10-18"],
+            "pct_pastura": [50.0, 20.0],
+            "pct_bosque_seco": [50.0, 0.0],
+            "pct_bosque_humedo": [0.0, 80.0],
+            "pct_sabana_pastizal": [0.0, 0.0],
+            "pct_humedal_palmar": [0.0, 0.0],
+        })
+        # Celda 0: sólo fuego del mismo mes/día (debe excluirse).
+        # Celda 1: fuego de agosto (antes del corte mensual de octubre).
+        focos = pl.DataFrame({
+            "cell_id": [1160007419, 5840007451],
+            "acq_date": ["2026-10-18", "2026-08-01"],
+            "sum_frp_dia": [50.0, 10.0],
+        })
+        out = calcular_priors_causales(df, focos, ventana_anios=3)
+        c0 = out.filter(pl.col("cell_id") == 1160007419)
+        c1 = out.filter(pl.col("cell_id") == 5840007451)
+        self.assertEqual(int(c0["freq_hist_1km"][0]), 0)
+        self.assertGreater(float(c0["dist_foco_hist_km"][0]), 50.0)
+        self.assertEqual(int(c1["freq_hist_1km"][0]), 1)
+        self.assertAlmostEqual(float(c1["dist_foco_hist_km"][0]), 0.0, places=4)
 
 if __name__ == "__main__":
     unittest.main()

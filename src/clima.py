@@ -9,6 +9,7 @@ Filosofía SOTA:
 """
 
 from pathlib import Path
+from datetime import datetime
 import time
 import requests
 import numpy as np
@@ -31,6 +32,11 @@ from src.fwi import (
 )
 
 URL_OPENMETEO_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
+
+
+class OpenMeteoRateLimitError(RuntimeError):
+    pass
+
 
 def generar_malla_nodos_clima(resolucion_deg: float = 0.25) -> pl.DataFrame:
     """
@@ -113,10 +119,13 @@ def _descargar_un_lote_con_reintentos(
             "et0_fao_evapotranspiration",
             "vapour_pressure_deficit_max"
         ],
-        "timezone": "America/Asuncion"
+        # FIRMS reporta acq_date en UTC. Usar UTC evita desplazar un día
+        # los eventos nocturnos al unir clima y focos.
+        "timezone": "UTC"
     }
 
     resp_data = None
+    ultimo_error = None
     for intento in range(1, max_reintentos + 1):
         try:
             resp = requests.get(URL_OPENMETEO_ARCHIVE, params=params, timeout=timeout_seg)
@@ -125,18 +134,51 @@ def _descargar_un_lote_con_reintentos(
                 if not isinstance(resp_data, list):
                     resp_data = [resp_data]
                 break
-            elif resp.status_code in [429, 502, 503, 504]:
+            if resp.status_code == 429:
+                motivo = ""
+                try:
+                    motivo = resp.json().get("reason", "")
+                except Exception:
+                    pass
+                detalle = f": {motivo}" if motivo else ""
+                if "minutely" in motivo.lower() and intento < max_reintentos:
+                    print(
+                        f"Lote {batch_idx}: límite minucioso de Open-Meteo; "
+                        f"reintento {intento}/{max_reintentos} en 65 s",
+                        flush=True,
+                    )
+                    time.sleep(65)
+                    continue
+                raise OpenMeteoRateLimitError(
+                    f"Open-Meteo rechazó el lote {batch_idx} por límite de cuota "
+                    f"(HTTP 429){detalle}. No se reintenta: esperá el reset de la cuota "
+                    "o configurá una API key."
+                )
+            if resp.status_code in [502, 503, 504]:
                 espera = intento * 5.0
+                print(
+                    f"Lote {batch_idx}: HTTP {resp.status_code}, reintento "
+                    f"{intento}/{max_reintentos} en {espera:.0f}s",
+                    flush=True,
+                )
                 time.sleep(espera)
             else:
+                ultimo_error = f"HTTP {resp.status_code}"
                 time.sleep(2.0)
+        except OpenMeteoRateLimitError:
+            raise
         except Exception as e:
+            ultimo_error = str(e)
             if intento == max_reintentos:
-                print(f"Error persistente en lote {batch_idx}: {e}")
+                print(f"Error persistente en lote {batch_idx}: {e}", flush=True)
             time.sleep(intento * 3.0)
 
     if resp_data is None:
-        return pl.DataFrame()
+        detalle = f" (último error: {ultimo_error})" if ultimo_error else ""
+        raise RuntimeError(
+            f"No se pudo descargar el lote {batch_idx} tras "
+            f"{max_reintentos} intentos{detalle}"
+        )
 
     registros = []
     for nodo_id, item in zip(batch_nodos, resp_data):
@@ -171,7 +213,7 @@ def _descargar_un_lote_con_reintentos(
         df_batch.write_parquet(archivo_cache, compression="zstd")
         return df_batch
 
-    return pl.DataFrame()
+    raise RuntimeError(f"Open-Meteo devolvió un lote vacío para el lote {batch_idx}")
 
 def descargar_clima_openmeteo_batch(
     lats: list[float],
@@ -205,7 +247,11 @@ def descargar_clima_openmeteo_batch(
         batch_idx += 1
 
     total_batches = len(batches)
-    print(f"Dividido en {total_batches} lotes ({batch_size} nodos por lote) con {max_workers} trabajadores paralelos...")
+    print(
+        f"Dividido en {total_batches} lotes ({batch_size} nodos por lote) "
+        f"con {max_workers} trabajadores paralelos...",
+        flush=True,
+    )
 
     dfs = [None] * total_batches
 
@@ -223,30 +269,61 @@ def descargar_clima_openmeteo_batch(
 
     completados = total_batches - len(pendientes)
     if completados > 0:
-        print(f" ✓ {completados}/{total_batches} lotes encontrados en caché local.")
+        print(
+            f" ✓ {completados}/{total_batches} lotes encontrados en caché local.",
+            flush=True,
+        )
 
     if pendientes:
-        print(f" Descargando {len(pendientes)} lotes pendientes desde Open-Meteo...")
+        print(
+            f" Descargando {len(pendientes)} lotes pendientes desde Open-Meteo...",
+            flush=True,
+        )
+        fallidos = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futuros = {
-                executor.submit(
+            futuros = {}
+            for i, (b_idx, b_nodos, b_lats, b_lons) in enumerate(pendientes):
+                if i > 0 and delay_seg and delay_seg > 0:
+                    time.sleep(float(delay_seg))
+                futuros[executor.submit(
                     _descargar_un_lote_con_reintentos,
                     b_idx, b_nodos, b_lats, b_lons,
                     start_date, end_date, cache_dir
-                ): b_idx
-                for b_idx, b_nodos, b_lats, b_lons in pendientes
-            }
+                )] = b_idx
 
             for futuro in concurrent.futures.as_completed(futuros):
                 b_idx = futuros[futuro]
                 try:
                     df_res = futuro.result()
+                    if df_res.is_empty():
+                        raise RuntimeError("Open-Meteo devolvió un lote vacío")
                     dfs[b_idx] = df_res
                     completados += 1
                     if completados % 5 == 0 or completados == total_batches:
-                        print(f"  • Progreso: {completados}/{total_batches} lotes listos ({completados * 100 / total_batches:.1f}%)")
+                        print(
+                            f"  • Progreso: {completados}/{total_batches} lotes "
+                            f"listos ({completados * 100 / total_batches:.1f}%)",
+                            flush=True,
+                        )
+                except concurrent.futures.CancelledError:
+                    continue
+                except OpenMeteoRateLimitError as e:
+                    fallidos[b_idx] = str(e)
+                    for pendiente in futuros:
+                        if not pendiente.done():
+                            pendiente.cancel()
                 except Exception as e:
-                    print(f"Error procesando lote {b_idx}: {e}")
+                    fallidos[b_idx] = str(e)
+                    print(f"Error procesando lote {b_idx}: {e}", flush=True)
+
+        if fallidos:
+            detalle = "\n".join(
+                f"  - lote {i}: {msg}" for i, msg in sorted(fallidos.items())
+            )
+            raise RuntimeError(
+                f"{len(fallidos)} lote(s) de Open-Meteo fallaron; no se actualiza "
+                f"el clima para evitar datos parciales.\n{detalle}"
+            )
 
     dfs_validos = [d for d in dfs if d is not None and not d.is_empty()]
     if not dfs_validos:
@@ -254,7 +331,10 @@ def descargar_clima_openmeteo_batch(
 
     return pl.concat(dfs_validos)
 
-def calcular_indices_fwi_y_sequedad(df_clima: pl.DataFrame) -> pl.DataFrame:
+def calcular_indices_fwi_y_sequedad(
+    df_clima: pl.DataFrame,
+    validar_continuidad: bool = True,
+) -> pl.DataFrame:
     """
     Calcula de forma secuencial y ordenada por nodo meteorológico:
     - Precipitacion acumulada 48 horas.
@@ -275,7 +355,19 @@ def calcular_indices_fwi_y_sequedad(df_clima: pl.DataFrame) -> pl.DataFrame:
 
     for nodo in nodos:
         sub = df_sorted.filter(pl.col("nodo_clima_id") == nodo)
-        
+
+        if validar_continuidad:
+            fechas = [
+                datetime.strptime(str(f)[:10], "%Y-%m-%d")
+                for f in sub["fecha"].to_list()
+            ]
+            for anterior, actual in zip(fechas, fechas[1:]):
+                if (actual - anterior).days != 1:
+                    raise ValueError(
+                        f"Serie climática no continua para el nodo {nodo}: "
+                        f"{anterior.date()} -> {actual.date()}"
+                    )
+
         precs = sub["precipitacion_mm"].to_numpy()
         temps = sub["temp_max_c"].to_numpy()
         vientos = sub["viento_max_kmh"].to_numpy()

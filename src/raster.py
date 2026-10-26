@@ -3,9 +3,9 @@ Módulo raster.py: Conversión de alertas tabulares GeoParquet a coberturas rás
 Permite la interoperabilidad directa con SIG de escritorio (QGIS, ArcGIS) y plataformas en la nube (Google Earth Engine).
 - Resolución espacial: 1.000 m x 1.000 m (1 km²).
 - Proyección: UTM Zona 21 Sur (EPSG:32721).
-- Bandas exportadas:
-  * Banda 1: Probabilidad calibrada de fuego P(Fuego|X) ∈ [0.0, 1.0] (Float32, NoData = -9999.0).
-  * Banda 2: Nivel operativo de alerta (Byte / UInt8, NoData = 255):
+- Bandas exportadas (ambas Float32, NoData = -9999.0):
+  * Banda 1: Probabilidad calibrada de fuego P(Fuego|X) ∈ [0.0, 1.0].
+  * Banda 2: Nivel operativo de alerta:
     0 = NULO, 1 = BAJO, 2 = MODERADO, 3 = ALTO, 4 = EXTREMO.
 """
 
@@ -35,12 +35,15 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
     df = pl.read_parquet(ruta_parquet_alerta)
     fecha = ruta_parquet_alerta.stem.replace("alerta_nacional_", "")
 
-    min_x = -81500.0
-    max_x = 777500.0
-    min_y = 6948500.0
-    max_y = 7865500.0
-
     res = 1000.0
+
+    # La extensión se deriva de la capa de alerta para no quedar desalineada
+    # si la grilla nacional cambia.
+    min_x = float(df["x_utm"].min())
+    max_x = float(df["x_utm"].max())
+    min_y = float(df["y_utm"].min())
+    max_y = float(df["y_utm"].max())
+
     cols = int(round((max_x - min_x) / res)) + 1
     rows = int(round((max_y - min_y) / res)) + 1
 
@@ -95,7 +98,7 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
             SISTEMA="SAT-Incendios PY",
             RESOLUCION_METROS="1000",
             LICENCIA="MIT Open Source",
-            DESCRIPCION="Riesgo de incendios forestales estimado con LightGBM y calibracion isotonica"
+            DESCRIPCION="Riesgo de incendios forestales estimado con LightGBM y calibracion monotonica de Platt"
         )
 
     return ruta_salida_tif
