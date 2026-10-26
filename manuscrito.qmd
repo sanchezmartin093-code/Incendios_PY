@@ -33,9 +33,8 @@ format:
     tbl-cap-location: top
 ---
 
-> **NOTA DE ANONIMIZACIÓN EDITORIAL (*DOUBLE-ANONYMOUS PEER REVIEW*):**  
-> **Revista Objetivo:** *Computers & Geosciences* (Elsevier) — Categorías: *Computer Science Applications* & *Earth and Planetary Sciences*  
-> **Autor(es):** [Información de autoría, afiliaciones y enlaces de repositorios institucionales anonimizados para revisión por pares doble ciego]  
+> **Target journal:** *Computers & Geosciences* (Elsevier) — **Article type:** Research Article<br>
+> **Peer review:** single-anonymized, as specified by the journal. Author, affiliation and repository information are provided on the title page.
 
 ---
 
@@ -583,14 +582,14 @@ En cumplimiento de las políticas obligatorias de reproducibilidad de *Computers
 | Metadato Obligatorio | Especificación |
 | :--- | :--- |
 | **Nombre del Programa / Código:** | `Incendios_PY` |
-| **Desarrollador / Contacto:** | [Anonimizado para revisión doble ciego] (Contacto vía correspondencia editorial) |
+| **Desarrollador / Contacto:** | Martín Sánchez Insfrán (`sanchez.martin093@gmail.com`) |
 | **Año de Primera Disponibilidad:** | 2026 |
 | **Plataforma de Hardware:** | x86_64 o ARM64 (Apple Silicon M-Series o Intel/AMD); $\ge 8\text{ GB}$ RAM. |
 | **Sistema Operativo:** | Multiplataforma: macOS (13+), Linux (Ubuntu 22.04+), Windows 11 (WSL2). |
-| **Lenguaje de Programación:** | Python $\ge 3.11$ (con módulos vectorizados en C++ y Rust). |
+| **Lenguaje de Programación:** | Python $\ge 3.12$; operaciones vectorizadas con Polars, DuckDB, NumPy y el backend C++ de LightGBM. |
 | **Bibliotecas y Dependencias:** | DuckDB $\ge 1.0$, Polars $\ge 1.0$, LightGBM $\ge 4.0$, SciPy $\ge 1.11$, Quarto $\ge 1.5$. |
 | **Disponibilidad y Costo:** | Código abierto gratuito bajo Licencia MIT. |
-| **Enlace al Repositorio de Código:** | [Repositorio en GitHub anonimizado para arbitraje doble ciego; URL definitiva consignada en Title Page] |
+| **Enlace al Repositorio de Código:** | [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) |
 : Tabla canónica de disponibilidad de código computacional según las directrices de *Computers & Geosciences*. {#tbl-code}
 
 ---

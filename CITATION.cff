@@ -1,24 +1,24 @@
 cff-version: 1.2.0
-message: "If you use this software, methodology, or dataset, please cite it as below."
+message: "If you use this software, methodology, or dataset, please cite it using the metadata below."
+title: "Incendios_PY: a reproducible decoupled GeoAI framework for wildfire ignition and propagation benchmarking in the Gran Chaco"
+abstract: "Open-source pipeline for daily 1-km wildfire ignition and propagation modelling, including D2 target construction, monotonic Platt calibration, M1 fallback, spatial block validation, and FWI/INPE benchmarking."
+type: software
 authors:
   - family-names: "Sánchez Insfrán"
     given-names: "Martín"
     orcid: "https://orcid.org/0000-0003-4138-9668"
-    affiliation: "Independent Researcher / Medical Doctor, Asunción, Paraguay"
-title: "Incendios_PY: Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en Paraguay mediante GeoAI Multiescala"
+    affiliation: "Independent Researcher, Asunción, Paraguay"
 version: 1.0.0
-date-released: 2026-10-24
+date-released: 2026-10-26
+repository-code: "https://github.com/sanchezmartin093-code/Incendios_PY"
 url: "https://github.com/sanchezmartin093-code/Incendios_PY"
+license: MIT
 keywords:
   - "wildfire prediction"
   - "GeoAI"
-  - "machine learning"
+  - "reproducible research"
+  - "spatial cross-validation"
   - "LightGBM"
   - "ERA5-Land"
   - "NASA FIRMS"
-  - "VIIRS"
   - "Gran Chaco"
-  - "Paraguay"
-  - "spatial cross-validation"
-  - "TreeSHAP"
-license: "CC-BY-4.0"

@@ -1,0 +1,28 @@
+{
+  "title": "Incendios_PY: a reproducible decoupled GeoAI framework for wildfire ignition and propagation benchmarking in the Gran Chaco",
+  "description": "<p>Open-source pipeline for daily 1-km wildfire ignition and propagation modelling in Paraguay. The release includes code for D2 target construction, biophysical gating, M3/M1 fallback inference, monotonic Platt calibration, spatial block validation, grouped bootstrap, and benchmarking against the full Canadian FWI and INPE Risco de Fogo. Raw third-party datasets are documented but not redistributed; processed data and trained models are deposited separately.</p>",
+  "upload_type": "software",
+  "publication_date": "2026-10-26",
+  "version": "1.0.0",
+  "creators": [
+    {
+      "name": "Sánchez Insfrán, Martín",
+      "affiliation": "Independent Researcher, Asunción, Paraguay",
+      "orcid": "0000-0003-4138-9668"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "wildfire",
+    "GeoAI",
+    "reproducible research",
+    "spatial cross-validation",
+    "LightGBM",
+    "ERA5-Land",
+    "NASA FIRMS",
+    "Gran Chaco",
+    "Paraguay"
+  ],
+  "notes": "Code archive. Processed data and trained models are deposited separately with their own DOI. Third-party raw data retain their original licenses."
+}
