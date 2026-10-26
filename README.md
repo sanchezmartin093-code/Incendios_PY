@@ -30,6 +30,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M1 fallback; propagation restricted to the `t-1` domain.
 - Tests: **62 tests pass**.
+- Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0).
 
 ## Installation
 
@@ -187,6 +188,7 @@ licenses and terms.
 ## Code and data availability
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
+- Release: <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0>
 - Code archive DOI: pending Zenodo release.
 - Data archive DOI: pending Zenodo release.
 - License: MIT.
