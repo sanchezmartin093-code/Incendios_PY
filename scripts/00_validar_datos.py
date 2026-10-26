@@ -105,22 +105,24 @@ def main():
         add("dataset", "archivo", "ausente", "FAIL")
 
     # 5. Particiones y fuga de priors
-    for nombre in ["train_dataset.parquet", "val_dataset.parquet", "test_dataset.parquet"]:
-        p = DIR_PROCESSED / nombre
+    dir_targets = DIR_PROCESSED / "targets_poblacionales"
+    for nombre in ["train_ignicion", "val_ignicion", "test_ignicion"]:
+        p = dir_targets / f"{nombre}.parquet"
         if not p.exists():
             add("particiones", nombre, "ausente", "FAIL")
             continue
         cols = [
-            "region", "fuego", "fecha", "cell_id",
+            "region", "target_ignicion", "fecha", "cell_id",
             "dist_foco_hist_km", "freq_hist_1km", "dist_corredor_antropico_km",
         ]
         df = pl.read_parquet(p, columns=cols)
+        prev = float(df["target_ignicion"].mean())
         add("particiones", f"{nombre}_filas", df.height, "OK")
-        add("particiones", f"{nombre}_prevalencia", round(float(df["fuego"].mean()), 6),
-            "OK" if 0.05 < float(df["fuego"].mean()) < 0.15 else "WARN",
+        add("particiones", f"{nombre}_prevalencia", round(prev, 6),
+            "OK" if 0.05 < prev < 0.15 else "WARN",
             "case-control esperada ~9%")
         for reg in ["Chaco", "Oriental"]:
-            pos = df.filter((pl.col("region") == reg) & (pl.col("fuego") == 1))
+            pos = df.filter((pl.col("region") == reg) & (pl.col("target_ignicion") == 1))
             if pos.height:
                 pct_cero = 100.0 * float((pos["dist_foco_hist_km"] == 0).mean())
                 add("priors", f"{nombre}_{reg}_pos_dist_hist_0_pct", round(pct_cero, 2),
@@ -128,8 +130,8 @@ def main():
                     "100% indicaría fuga del propio evento")
 
     # 6. Fuga espacial train/test
-    p_tr = DIR_PROCESSED / "train_dataset.parquet"
-    p_te = DIR_PROCESSED / "test_dataset.parquet"
+    p_tr = dir_targets / "train_ignicion.parquet"
+    p_te = dir_targets / "test_ignicion.parquet"
     if p_tr.exists() and p_te.exists():
         tr = pl.read_parquet(p_tr, columns=["cell_id"])
         te = pl.read_parquet(p_te, columns=["cell_id"])
@@ -148,7 +150,7 @@ def main():
             "OK" if ruta.exists() else "WARN")
 
     # 8. Manifiesto
-    p_man = ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS.csv"
+    p_man = ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v2.csv"
     if p_man.exists():
         man = pd.read_csv(p_man)
         if "sha256_hash" in man.columns:

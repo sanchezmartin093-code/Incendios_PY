@@ -1,22 +1,22 @@
 # Tabla Suplementaria S3. Desglose Departamental de Desempeño Predictivo en Test Ciego
 
-| departamento     | region   |   celdas_soberanas |   muestras_test |   fuegos_test | roc_auc_ignicion   | roc_auc_propagacion   | precision_tactica   |
-|:-----------------|:---------|-------------------:|----------------:|--------------:|:-------------------|:----------------------|:--------------------|
-| SAN PEDRO        | Oriental |              20854 |          105302 |         16243 | 0.788              | 0.809                 | 68.8 %              |
-| CONCEPCION       | Oriental |              18523 |          136865 |         10739 | 0.799              | 0.837                 | 74.1 %              |
-| ITAPUA           | Oriental |              15868 |          138121 |          5574 | 0.883              | 0.897                 | 76.3 %              |
-| CANINDEYU        | Oriental |              15052 |          108025 |         11721 | 0.946              | 0.95                  | 89.4 %              |
-| ALTO PARANA      | Oriental |              14206 |          153241 |          2878 | 0.908              | 0.915                 | 78.6 %              |
-| CAAGUAZU         | Oriental |              12901 |           59603 |          8395 | 0.803              | 0.809                 | 72.3 %              |
-| AMAMBAY          | Oriental |              12555 |           75588 |          9870 | 0.845              | 0.867                 | 88.3 %              |
-| ÑEEMBUCU         | Oriental |              11672 |           93221 |          7949 | 0.646              | 0.813                 | 73.3 %              |
-| CAAZAPA          | Oriental |               9554 |           42655 |          7653 | 0.752              | 0.807                 | 71.2 %              |
-| PARAGUARI        | Oriental |               8593 |           49843 |          5072 | 0.634              | 0.734                 | 62.8 %              |
-| MISIONES         | Oriental |               8157 |           52090 |          4086 | 0.619              | 0.756                 | 67.8 %              |
-| CORDILLERA       | Oriental |               4791 |           24328 |          3695 | 0.69               | 0.789                 | 76.6 %              |
-| GUAIRA           | Oriental |               3866 |           19350 |          1927 | 0.73               | 0.746                 | 62.7 %              |
-| CENTRAL          | Oriental |               2406 |           16810 |          1944 | 0.721              | 0.822                 | 80.6 %              |
-| ASUNCION         | Oriental |                128 |               0 |             0 | —                  | —                     | —                   |
-| BOQUERON         | Chaco    |              88623 |          292632 |         17583 | 0.835              | 0.908                 | 95.0 %              |
-| ALTO PARAGUAY    | Chaco    |              78613 |          265679 |         21108 | 0.765              | 0.935                 | 96.9 %              |
-| PRESIDENTE HAYES | Chaco    |              73644 |          207794 |         30955 | 0.731              | 0.866                 | 92.2 %              |
+| departamento     | region   |   celdas_soberanas |   muestras_test |   fuegos_test |   roc_auc_ignicion |   roc_auc_propagacion | precision_tactica   |
+|:-----------------|:---------|-------------------:|----------------:|--------------:|-------------------:|----------------------:|:--------------------|
+| SAN PEDRO        | Oriental |              20854 |           22859 |          2763 |              0.714 |                 0.758 | 59.2 %              |
+| CONCEPCION       | Oriental |              18523 |           24486 |          2022 |              0.704 |                 0.811 | 72.9 %              |
+| ITAPUA           | Oriental |              15868 |           21861 |          1355 |              0.775 |                 0.779 | 48.2 %              |
+| CANINDEYU        | Oriental |              15052 |           19820 |          1700 |              0.851 |                 0.833 | 63.6 %              |
+| ALTO PARANA      | Oriental |              14206 |           23639 |           869 |              0.843 |                 0.856 | 50.1 %              |
+| CAAGUAZU         | Oriental |              12901 |           14333 |          1571 |              0.724 |                 0.748 | 53.2 %              |
+| AMAMBAY          | Oriental |              12555 |           15122 |          1517 |              0.759 |                 0.836 | 74.8 %              |
+| ÑEEMBUCU         | Oriental |              11672 |           15506 |          1555 |              0.637 |                 0.719 | 53.4 %              |
+| CAAZAPA          | Oriental |               9554 |           10662 |          1388 |              0.713 |                 0.724 | 48.3 %              |
+| PARAGUARI        | Oriental |               8593 |            9631 |          1139 |              0.625 |                 0.703 | 55.3 %              |
+| MISIONES         | Oriental |               8157 |            9786 |           912 |              0.596 |                 0.707 | 56.4 %              |
+| CORDILLERA       | Oriental |               4791 |            4947 |           561 |              0.678 |                 0.731 | 53.7 %              |
+| GUAIRA           | Oriental |               3866 |            4455 |           469 |              0.687 |                 0.715 | 43.0 %              |
+| CENTRAL          | Oriental |               2406 |            2751 |           347 |              0.706 |                 0.778 | 67.5 %              |
+| ASUNCION         | Oriental |                128 |              78 |             8 |              0.682 |                 0.795 | 55.6 %              |
+| BOQUERON         | Chaco    |              88623 |           66587 |          5038 |              0.808 |                 0.927 | 88.5 %              |
+| ALTO PARAGUAY    | Chaco    |              78613 |           60983 |          4075 |              0.813 |                 0.921 | 86.6 %              |
+| PRESIDENTE HAYES | Chaco    |              73644 |           49046 |          6943 |              0.709 |                 0.855 | 79.4 %              |
