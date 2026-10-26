@@ -15,11 +15,13 @@ import numpy as np
 import polars as pl
 from scipy.spatial import cKDTree
 from pyproj import Transformer
+import concurrent.futures
 
 from src.constantes import (
     CRS_GEOGRAFICO,
     CRS_PROYECTADO,
-    BBOX_PARAGUAY
+    BBOX_PARAGUAY,
+    DIR_RAW
 )
 from src.fwi import (
     calcular_vpd,
@@ -76,101 +78,181 @@ def asignar_nodos_a_grilla(df_grilla: pl.DataFrame, df_nodos: pl.DataFrame) -> p
         pl.Series("nodo_clima_id", nodos_asignados)
     )
 
+def _descargar_un_lote_con_reintentos(
+    batch_idx: int,
+    batch_nodos: list[int],
+    batch_lats: list[float],
+    batch_lons: list[float],
+    start_date: str,
+    end_date: str,
+    cache_dir: Path,
+    max_reintentos: int = 4,
+    timeout_seg: int = 90
+) -> pl.DataFrame:
+    """
+    Descarga y procesa un sub-lote de nodos meteorológicos con checkpointing individual en disco.
+    """
+    archivo_cache = cache_dir / f"lote_{batch_idx:04d}_{start_date}_{end_date}.parquet"
+    if archivo_cache.exists():
+        try:
+            return pl.read_parquet(archivo_cache)
+        except Exception:
+            archivo_cache.unlink(missing_ok=True)
+
+    params = {
+        "latitude": batch_lats,
+        "longitude": batch_lons,
+        "start_date": start_date,
+        "end_date": end_date,
+        "daily": [
+            "temperature_2m_max",
+            "temperature_2m_min",
+            "precipitation_sum",
+            "wind_speed_10m_max",
+            "wind_gusts_10m_max",
+            "et0_fao_evapotranspiration",
+            "vapour_pressure_deficit_max"
+        ],
+        "timezone": "America/Asuncion"
+    }
+
+    resp_data = None
+    for intento in range(1, max_reintentos + 1):
+        try:
+            resp = requests.get(URL_OPENMETEO_ARCHIVE, params=params, timeout=timeout_seg)
+            if resp.status_code == 200:
+                resp_data = resp.json()
+                if not isinstance(resp_data, list):
+                    resp_data = [resp_data]
+                break
+            elif resp.status_code in [429, 502, 503, 504]:
+                espera = intento * 5.0
+                time.sleep(espera)
+            else:
+                time.sleep(2.0)
+        except Exception as e:
+            if intento == max_reintentos:
+                print(f"Error persistente en lote {batch_idx}: {e}")
+            time.sleep(intento * 3.0)
+
+    if resp_data is None:
+        return pl.DataFrame()
+
+    registros = []
+    for nodo_id, item in zip(batch_nodos, resp_data):
+        daily = item.get("daily", {})
+
+        fechas = daily.get("time", [])
+        t_max = daily.get("temperature_2m_max", [])
+        t_min = daily.get("temperature_2m_min", [])
+        prec = daily.get("precipitation_sum", [])
+        wind_max = daily.get("wind_speed_10m_max", [])
+        gust_max = daily.get("wind_gusts_10m_max", [])
+        et0 = daily.get("et0_fao_evapotranspiration", [])
+        vpd_max = daily.get("vapour_pressure_deficit_max", [])
+
+        for day_idx, f_str in enumerate(fechas):
+            vpd_val = float(vpd_max[day_idx]) if day_idx < len(vpd_max) and vpd_max[day_idx] is not None else 0.0
+
+            registros.append({
+                "nodo_clima_id": int(nodo_id),
+                "fecha": f_str,
+                "temp_max_c": float(t_max[day_idx]) if t_max[day_idx] is not None else np.nan,
+                "temp_min_c": float(t_min[day_idx]) if t_min[day_idx] is not None else np.nan,
+                "precipitacion_mm": float(prec[day_idx]) if prec[day_idx] is not None else 0.0,
+                "viento_max_kmh": float(wind_max[day_idx]) if wind_max[day_idx] is not None else 0.0,
+                "rafaga_max_kmh": float(gust_max[day_idx]) if gust_max[day_idx] is not None else 0.0,
+                "et0_mm": float(et0[day_idx]) if et0[day_idx] is not None else 0.0,
+                "vpd_max_kpa": vpd_val
+            })
+
+    if registros:
+        df_batch = pl.DataFrame(registros)
+        df_batch.write_parquet(archivo_cache, compression="zstd")
+        return df_batch
+
+    return pl.DataFrame()
+
 def descargar_clima_openmeteo_batch(
     lats: list[float],
     lons: list[float],
     nodo_ids: list[int],
     start_date: str,
     end_date: str,
-    batch_size: int = 50,
-    delay_seg: float = 0.5
+    batch_size: int = 10,
+    max_workers: int = 3,
+    delay_seg: float = 0.2,
+    cache_dir: Path | None = None
 ) -> pl.DataFrame:
     """
-    Descarga variables climáticas diarias desde Open-Meteo para una lista de coordenadas por lotes.
+    Descarga variables climáticas diarias desde Open-Meteo para una lista de coordenadas
+    mediante lotes concurrentes con tolerancia a fallos y checkpointing en disco.
     """
-    registros = []
+    if cache_dir is None:
+        cache_dir = DIR_RAW / "era5" / "batches"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
     total_nodos = len(nodo_ids)
-
+    batches = []
+    batch_idx = 0
     for i in range(0, total_nodos, batch_size):
-        batch_lats = lats[i:i + batch_size]
-        batch_lons = lons[i:i + batch_size]
-        batch_nodos = nodo_ids[i:i + batch_size]
+        batches.append((
+            batch_idx,
+            nodo_ids[i:i + batch_size],
+            lats[i:i + batch_size],
+            lons[i:i + batch_size]
+        ))
+        batch_idx += 1
 
-        params = {
-            "latitude": batch_lats,
-            "longitude": batch_lons,
-            "start_date": start_date,
-            "end_date": end_date,
-            "daily": [
-                "temperature_2m_max",
-                "temperature_2m_min",
-                "precipitation_sum",
-                "wind_speed_10m_max",
-                "wind_gusts_10m_max",
-                "et0_fao_evapotranspiration"
-            ],
-            "hourly": [
-                "temperature_2m",
-                "dew_point_2m"
-            ],
-            "timezone": "America/Asuncion"
-        }
+    total_batches = len(batches)
+    print(f"Dividido en {total_batches} lotes ({batch_size} nodos por lote) con {max_workers} trabajadores paralelos...")
 
-        try:
-            resp = requests.get(URL_OPENMETEO_ARCHIVE, params=params, timeout=30)
-            if resp.status_code != 200:
-                print(f"Aviso en lote {i}-{i+len(batch_nodos)}: HTTP {resp.status_code}")
-                continue
+    dfs = [None] * total_batches
 
-            data = resp.json()
-            if not isinstance(data, list):
-                data = [data]
+    # 1. Comprobar cuáles ya existen en cache
+    pendientes = []
+    for b_idx, b_nodos, b_lats, b_lons in batches:
+        f_cache = cache_dir / f"lote_{b_idx:04d}_{start_date}_{end_date}.parquet"
+        if f_cache.exists():
+            try:
+                dfs[b_idx] = pl.read_parquet(f_cache)
+            except Exception:
+                pendientes.append((b_idx, b_nodos, b_lats, b_lons))
+        else:
+            pendientes.append((b_idx, b_nodos, b_lats, b_lons))
 
-            for nodo_id, item in zip(batch_nodos, data):
-                daily = item.get("daily", {})
-                hourly = item.get("hourly", {})
-                
-                fechas = daily.get("time", [])
-                t_max = daily.get("temperature_2m_max", [])
-                t_min = daily.get("temperature_2m_min", [])
-                prec = daily.get("precipitation_sum", [])
-                wind_max = daily.get("wind_speed_10m_max", [])
-                gust_max = daily.get("wind_gusts_10m_max", [])
-                et0 = daily.get("et0_fao_evapotranspiration", [])
+    completados = total_batches - len(pendientes)
+    if completados > 0:
+        print(f" ✓ {completados}/{total_batches} lotes encontrados en caché local.")
 
-                # Cálculo de VPD diario a partir de las 24 horas
-                h_time = hourly.get("time", [])
-                h_temp = np.array(hourly.get("temperature_2m", []), dtype=float)
-                h_dew = np.array(hourly.get("dew_point_2m", []), dtype=float)
-                
-                # Calcular VPD para cada hora y extraer el máximo diario
-                h_vpd = calcular_vpd(h_temp, h_dew)
+    if pendientes:
+        print(f" Descargando {len(pendientes)} lotes pendientes desde Open-Meteo...")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futuros = {
+                executor.submit(
+                    _descargar_un_lote_con_reintentos,
+                    b_idx, b_nodos, b_lats, b_lons,
+                    start_date, end_date, cache_dir
+                ): b_idx
+                for b_idx, b_nodos, b_lats, b_lons in pendientes
+            }
 
-                for day_idx, f_str in enumerate(fechas):
-                    # Horas correspondientes al día (24 horas)
-                    start_h = day_idx * 24
-                    end_h = start_h + 24
-                    vpd_max_dia = float(np.nanmax(h_vpd[start_h:end_h])) if len(h_vpd) >= end_h else 0.0
+            for futuro in concurrent.futures.as_completed(futuros):
+                b_idx = futuros[futuro]
+                try:
+                    df_res = futuro.result()
+                    dfs[b_idx] = df_res
+                    completados += 1
+                    if completados % 5 == 0 or completados == total_batches:
+                        print(f"  • Progreso: {completados}/{total_batches} lotes listos ({completados * 100 / total_batches:.1f}%)")
+                except Exception as e:
+                    print(f"Error procesando lote {b_idx}: {e}")
 
-                    registros.append({
-                        "nodo_clima_id": int(nodo_id),
-                        "fecha": f_str,
-                        "temp_max_c": float(t_max[day_idx]) if t_max[day_idx] is not None else np.nan,
-                        "temp_min_c": float(t_min[day_idx]) if t_min[day_idx] is not None else np.nan,
-                        "precipitacion_mm": float(prec[day_idx]) if prec[day_idx] is not None else 0.0,
-                        "viento_max_kmh": float(wind_max[day_idx]) if wind_max[day_idx] is not None else 0.0,
-                        "rafaga_max_kmh": float(gust_max[day_idx]) if gust_max[day_idx] is not None else 0.0,
-                        "et0_mm": float(et0[day_idx]) if et0[day_idx] is not None else 0.0,
-                        "vpd_max_kpa": vpd_max_dia
-                    })
+    dfs_validos = [d for d in dfs if d is not None and not d.is_empty()]
+    if not dfs_validos:
+        return pl.DataFrame()
 
-            if delay_seg > 0:
-                time.sleep(delay_seg)
-
-        except Exception as e:
-            print(f"Error descargando lote {i}: {e}")
-
-    return pl.DataFrame(registros)
+    return pl.concat(dfs_validos)
 
 def calcular_indices_fwi_y_sequedad(df_clima: pl.DataFrame) -> pl.DataFrame:
     """

@@ -13,6 +13,7 @@ from src.constantes import (
     RATIO_AUSENCIAS_PRESENCIAS,
     YEARS_TRAIN,
     YEAR_VAL,
+    YEARS_TEST,
     YEAR_TEST
 )
 
@@ -40,6 +41,92 @@ def filtrar_candidatos_con_buffer_muerto(
     mascara_segura = distancias >= buffer_metros
 
     return df_candidatos_dia.filter(pl.Series("seguro", mascara_segura))
+
+def muestrear_dataset_unificado_por_meses(
+    path_parquet: Path,
+    ratio_neg_pos: int = RATIO_AUSENCIAS_PRESENCIAS,
+    buffer_km: float = BUFFER_ZONA_MUERTA_KM,
+    semilla: int = 42
+) -> pl.DataFrame:
+    """
+    Muestreo estratificado masivo escalable con memoria constante O(1):
+    - Extrae presencias (Y=1) mediante DuckDB sin cargar todo el archivo.
+    - Itera mes a mes cargando únicamente los candidatos del mes en memoria.
+    - Aplica Dead-Zone Spatial Buffer de 20 km para cada estrato (fecha, region).
+    - Muestrea ratio_neg_pos ausencias por presencia.
+    """
+    import duckdb
+    rng = np.random.default_rng(semilla)
+    con = duckdb.connect()
+
+    print("Extrayendo todas las presencias de fuego (Y=1) con DuckDB...")
+    df_positivos = con.sql(f"SELECT * FROM '{path_parquet}' WHERE fuego = 1").pl()
+    n_pos_total = len(df_positivos)
+    print(f" ✓ Presencias cargadas: {n_pos_total:,}")
+
+    if n_pos_total == 0:
+        raise ValueError("No se encontraron eventos de fuego en el dataset.")
+
+    # Meses únicos con fuego
+    meses = sorted(
+        df_positivos.select(pl.col("fecha").str.slice(0, 7).alias("mes"))["mes"]
+        .unique()
+        .to_list()
+    )
+    print(f"Procesando {len(meses)} meses con actividad de fuego para el muestreo...")
+
+    muestras_negativas = []
+    total_neg_muestreados = 0
+
+    for idx, mes in enumerate(meses, 1):
+        pos_mes = df_positivos.filter(pl.col("fecha").str.slice(0, 7) == mes)
+        if pos_mes.is_empty():
+            continue
+
+        # Cargar únicamente los candidatos negativos del mes correspondiente
+        df_cand_mes = con.sql(f"""
+            SELECT * FROM '{path_parquet}'
+            WHERE fecha >= '{mes}-01' AND fecha <= '{mes}-31' AND fuego = 0
+        """).pl()
+
+        if df_cand_mes.is_empty():
+            continue
+
+        estratos_mes = pos_mes.select(["fecha", "region"]).unique().sort(["fecha", "region"])
+
+        for row in estratos_mes.iter_rows():
+            f_str, reg_str = row[0], row[1]
+            pos_strato = pos_mes.filter((pl.col("fecha") == f_str) & (pl.col("region") == reg_str))
+            n_pos = len(pos_strato)
+            n_neg_deseados = n_pos * ratio_neg_pos
+
+            cand_strato = df_cand_mes.filter((pl.col("fecha") == f_str) & (pl.col("region") == reg_str))
+            if cand_strato.is_empty():
+                continue
+
+            cand_seguros = filtrar_candidatos_con_buffer_muerto(pos_strato, cand_strato, buffer_km=buffer_km)
+            n_disp = len(cand_seguros)
+            if n_disp == 0:
+                continue
+
+            n_tomar = min(n_neg_deseados, n_disp)
+            indices = rng.choice(n_disp, size=n_tomar, replace=False)
+            muestras_negativas.append(cand_seguros[indices])
+            total_neg_muestreados += n_tomar
+
+        if idx % 12 == 0 or idx == len(meses):
+            print(f"   [{idx:02d}/{len(meses)}] Mes {mes} procesado | Ausencias acumuladas: {total_neg_muestreados:,}")
+
+    con.close()
+
+    print(f"\nConsolidando {n_pos_total:,} presencias y {total_neg_muestreados:,} pseudo-ausencias...")
+    if muestras_negativas:
+        df_neg_final = pl.concat(muestras_negativas)
+        df_balanceado = pl.concat([df_positivos, df_neg_final]).sort(["fecha", "region", "cell_id"])
+    else:
+        df_balanceado = df_positivos
+
+    return df_balanceado
 
 def muestrear_pseudo_ausencias_estratificadas(
     df_unificado: pl.DataFrame,
@@ -124,12 +211,12 @@ def particionar_dataset_out_of_time(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.
         .to_list()
     )
 
-    tiene_anios_historicos = any(a in YEARS_TRAIN for a in anios_presentes) and (YEAR_TEST in anios_presentes)
+    tiene_anios_historicos = any(a in YEARS_TRAIN for a in anios_presentes) and any(a in YEARS_TEST for a in anios_presentes)
 
     if tiene_anios_historicos:
         df_train = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32).is_in(YEARS_TRAIN))
         df_val = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32) == YEAR_VAL)
-        df_test = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32) == YEAR_TEST)
+        df_test = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32).is_in(YEARS_TEST))
     else:
         # Partición cronológica secuencial
         fechas_unicas = sorted(df["fecha"].unique().to_list())

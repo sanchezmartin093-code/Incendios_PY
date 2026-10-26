@@ -130,6 +130,21 @@ def entrenar_pipeline():
             guardar_modelo_y_calibrador(booster, calibrador, ruta_b_especifica, ruta_c_especifica)
             print(f"   ✓ Guardado: {ruta_b_especifica.name}")
 
+            # Guardar metadatos de calibración y umbrales óptimos derivados estrictamente en validación (Anti-Leakage)
+            meta_umbrales = {
+                "region": region,
+                "modo": modo_clave,
+                "c_youden": round(float(c_youden), 4),
+                "c_f05": round(float(c_f05), 4),
+                "max_j_val": round(float(max_j), 4),
+                "max_f05_val": round(float(max_f), 4),
+                "roc_auc_val": round(float(auc_val), 4),
+                "pr_auc_val": round(float(pr_auc_val), 4)
+            }
+            ruta_meta = dir_calibradores / f"umbrales_{modo_clave}_{nombre_lower}.json"
+            import json
+            ruta_meta.write_text(json.dumps(meta_umbrales, indent=2), encoding="utf-8")
+
             # Si es ignicion, también guardar bajo el nombre estándar
             if modo_clave == "ignicion":
                 ruta_b_std = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"

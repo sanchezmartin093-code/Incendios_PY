@@ -95,7 +95,7 @@ def exportar_alerta_a_geotiff(ruta_parquet_alerta: Path, ruta_salida_tif: Path) 
             FECHA_ALERTA=fecha,
             SISTEMA="SAT-Incendios PY",
             RESOLUCION_METROS="1000",
-            AUTOR="Equipo GeoAI & Ciencias del Fuego Paraguay",
+            LICENCIA="MIT Open Source",
             DESCRIPCION="Riesgo de incendios forestales estimado con LightGBM y calibracion isotonica"
         )
 

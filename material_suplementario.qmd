@@ -26,7 +26,7 @@ format:
 
 > **NOTA DE ANONIMIZACIÓN EDITORIAL (*DOUBLE-ANONYMOUS PEER REVIEW*):**  
 > **Revista Objetivo:** *Computers & Geosciences* (Elsevier)  
-> **Título del Manuscrito:** *Desacoplando el peligro biofísico de ignición y la propagación táctica de incendios forestales en el Gran Chaco mediante GeoAI multiescala (2015–2025)*  
+> **Título del Manuscrito:** *Desacoplando el peligro biofísico de ignición y la propagación táctica de incendios forestales en el Gran Chaco mediante GeoAI multiescala (2018–2025)*  
 > **Autor(es):** [Información de autoría e instituciones cegada para arbitraje doble ciego]  
 
 ---
@@ -36,7 +36,7 @@ format:
 - **Texto Suplementario S1:** Protocolo de corrección geométrica del efecto *Bow-Tie* y armonización multi-constelación VIIRS 375 m.
 - **Texto Suplementario S2:** Demostración analítica y condiciones de monotonicidad de la calibración monótona acotada de Platt.
 - **Texto Suplementario S3:** Análisis de autocorrelación espacial por semivariograma y determinación del radio de zona muerta (20 km).
-- **Tabla Suplementaria S1:** Diccionario completo y especificación física de las 25 variables predictoras del sistema.
+- **Tabla Suplementaria S1:** Diccionario completo y especificación física de las 29 variables predictoras del sistema.
 - **Tabla Suplementaria S2:** Espacio de búsqueda de hiperparámetros y regularización óptima de LightGBM por región y capa.
 - **Tabla Suplementaria S3:** Desglose departamental exhaustivo de desempeño predictivo en las 17 gobernaciones de Paraguay.
 - **Tabla Suplementaria S4:** Perfil de consumo computacional, latencia por bloque y memoria RAM en procesadores ARM64 y x86_64.
@@ -52,7 +52,7 @@ Los sensores VIIRS a bordo de las plataformas Suomi-NPP, NOAA-20 y NOAA-21 reali
 Este fenómeno, conocido como **efecto corbatín (*Bow-Tie Effect*)**, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego ($FRP$ en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional soberana de 1 km².
 
 ### Regla de Filtrado Cinemático Implementada
-En la función [`procesar_focos_firms_a_grilla`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/firms.py), aplicamos una regla de depuración cinemática estricta:
+En la función `procesar_focos_firms_a_grilla` (`src/firms.py`), aplicamos una regla de depuración cinemática estricta:
 
 $$\mathcal{D}_{\text{filtrado}} = \left\{ f \in \mathcal{D}_{\text{raw}} \mid \text{scan}(f) \le 1,5\text{ km} \;\land\; \text{confidence}(f) \neq \text{'low'} \right\}$$
 
@@ -91,7 +91,7 @@ $$\text{ROC-AUC}\left(\sigma(w z + b)\right) \equiv \text{ROC-AUC}(z) \quad \for
 En conjuntos de validación con desbalance extremo de clases ($< 1\text{ \%}$ de presencias) o con distribuciones bimodales de margen, el optimizador L-BFGS de la regresión logística estándar puede converger en un mínimo espurio donde $w < 0$. Bajo esta condición, la función se invierte: $\frac{dp}{dz} < 0$, invirtiendo la curva ROC y transformando un modelo con ROC-AUC de $0,77$ en un modelo con ROC-AUC de $0,23$.
 
 ### Formulación Acotada en `Incendios_PY`
-Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en [`src/modelo.py`](file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py)):
+Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en `src/modelo.py`):
 
 $$\min_{w, b} \frac{1}{M} \sum_{i=1}^{M} \left( y_i - \frac{1}{1 + \exp(-(w \cdot z_i + b))} \right)^2 \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -10,0 \le b \le 10,0$$
 
@@ -125,9 +125,9 @@ Para evaluar la estabilidad del diseño experimental frente a la elección del r
 
 | Radio del Buffer ($\text{km}$) | Condición Espacial respecto al Semivariograma | ROC-AUC (Ignición Chaco) | ROC-AUC (Ignición Oriental) | ROC-AUC (Propagación Chaco) |
 | :---: | :--- | :---: | :---: | :---: |
-| **10 km** | Sub-umbral (dentro del alcance espacial $h < a$) | $0,8241$ | $0,7025$ | $0,8540$ |
-| **20 km** | **Configuración Operativa Canónica** ($h \approx a + 1,6\text{ km}$) | **$0,8305$** | **$0,7106$** | **$0,8494$** |
-| **30 km** | Sobre-umbral ultra-conservador ($h \gg a$) | $0,8362$ | $0,7180$ | $0,8431$ |
+| **10 km** | Sub-umbral (dentro del alcance espacial $h < a$) | $0,7155$ | $0,7897$ | $0,8787$ |
+| **20 km** | **Configuración Operativa Canónica** ($h \approx a + 1,6\text{ km}$) | **$0,7219$** | **$0,7978$** | **$0,8741$** |
+| **30 km** | Sobre-umbral ultra-conservador ($h \gg a$) | $0,7276$ | $0,8052$ | $0,8678$ |
 
 Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AUC} < 0,013$), demostrando que la superioridad de `Incendios_PY` frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.
 
@@ -137,38 +137,43 @@ Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AU
 
 | Variable | Nombre Técnico | Dominio Físico | Fuente de Datos | Resolución Original | Rol en Arquitectura |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | `temp_max_c` | Temperatura máxima diaria a 2 m ($^\circ\text{C}$) | ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 2 | `temp_min_c` | Temperatura mínima diaria a 2 m ($^\circ\text{C}$) | ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 3 | `amplitud_termica_c` | Rango térmico intradiario ($T_{\text{max}} - T_{\text{min}}$) | Derivada ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 4 | `dewpoint_temp_c` | Temperatura del punto de rocío a 2 m ($^\circ\text{C}$) | ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 5 | `vpd_max_kpa` | Déficit de presión de vapor atmosférico ($\text{kPa}$) | Derivada Psicrométrica | $0,25^\circ$ (~25 km) | Gating / Ignición / Prop. |
-| 6 | `precipitacion_dia_mm` | Lluvia acumulada en el día ($00\text{--}24\text{h}$, $\text{mm}$) | ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 1 | `temp_max_c` | Temperatura máxima diaria a 2 m ($^\circ\text{C}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 2 | `temp_min_c` | Temperatura mínima diaria a 2 m ($^\circ\text{C}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 3 | `rango_termico_diario` | Rango térmico intradiario ($T_{\text{max}} - T_{\text{min}}$) | Derivada ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 4 | `vpd_max_kpa` | Déficit de presión de vapor atmosférico ($\text{kPa}$) | Derivada Psicrométrica | $0,25^\circ$ (~25 km) | Gating / Ignición / Prop. |
+| 5 | `deficit_hidrico_acumulado` | Estrés desecante integrado ($VPD \times (CDD + 1)$, $\text{kPa}\cdot\text{d}$) | Interacción Física | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 6 | `precipitacion_mm` | Lluvia acumulada en el día ($00\text{--}24\text{h}$, $\text{mm}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
 | 7 | `precipitacion_48h_mm` | Lluvia acumulada en 48 horas antecedentes ($\text{mm}$) | Derivada Temporal | $0,25^\circ$ (~25 km) | Gating / Ignición / Prop. |
 | 8 | `dias_secos_consecutivos` | Conteo de días consecutivos con lluvia $< 1,0\text{ mm}$ ($CDD$) | Derivada Temporal | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 9 | `viento_max_kmh` | Velocidad máxima del viento a 10 m ($\text{km/h}$) | ERA5-Land | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 10 | `viento_cuadrado` | Presión dinámica del viento ($V_{\text{viento}}^2$, $\text{km}^2/\text{h}^2$) | Derivada Mecánica | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 11 | `interaccion_viento_vpd` | Acoplamiento advectivo-desecante ($Viento \times VPD$) | Interacción Físcia | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 12 | `ffmc` | *Fine Fuel Moisture Code* (Humedad combustible fino) | Derivada FWI | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 13 | `isi` | *Initial Spread Index* (Propagación inicial FWI) | Derivada FWI | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 14 | `pct_pastura` | Fracción de pastura ganadera cultivada ($[0, 1]$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 15 | `pct_sabana_pastizal` | Fracción de sabana y pastizal natural ($[0, 1]$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 16 | `pct_bosque_seco` | Fracción de bosque xerofítico chaqueño ($[0, 1]$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 17 | `pct_bosque_humedo` | Fracción de bosque atlántico húmedo ($[0, 1]$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 18 | `pct_humedal_palmar` | Fracción de humedales y palmares inundables | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 19 | `es_combustible` | Indicador binario de biomasa combustible | MapBiomas Col. 4 | $1\text{ km}^2$ | Gating Biofísico |
-| 20 | `indice_ecotono` | Disrupción de borde bosque/pastura ($\mathcal{E}_i$) | Derivada Espacial | $1\text{ km}^2$ | Ignición / Propagación |
-| 21 | `prior_frecuencia_historica`| Frecuencia marginal acumulada de fuego en la celda | NASA FIRMS 10 Años | $1\text{ km}^2$ | Ignición / Propagación |
-| 22 | `dia_semana` | Calendario antrópico ($0=\text{Domingo}, \dots, 6=\text{Sábado}$) | Calendario Civil | Temporal | Ignición / Propagación |
-| 23 | `dist_foco_t1_km` | Distancia euclidiana mínima al foco activo en $t-1$ | Kernel Espacial | $1\text{ km}^2$ | **Solo Propagación** |
-| 24 | `focos_25km_t1` | Conteo de focos activos en $R = 25\text{ km}$ en $t-1$ | Convolución Espacial | $1\text{ km}^2$ | **Solo Propagación** |
-| 25 | `frp_25km_t1` | Potencia radiativa acumulada en $R = 25\text{ km}$ ($t-1$, $\text{MW}$) | Convolución Espacial | $1\text{ km}^2$ | **Solo Propagación** |
-: Especificación técnica y catálogo de variables predictoras del sistema `Incendios_PY`. {#tbl-variables}
+| 9 | `viento_max_kmh` | Velocidad máxima del viento a 10 m ($\text{km/h}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 10 | `rafaga_max_kmh` | Ráfaga máxima intradiaria de viento ($\text{km/h}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 11 | `potencial_viento_cuadratico` | Presión dinámica del viento ($(v/10)^2$, $\text{adimensional}$) | Derivada Mecánica | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 12 | `interaccion_viento_vpd` | Acoplamiento advectivo-desecante ($Viento \times VPD$) | Interacción Física | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 13 | `ffmc` | *Fine Fuel Moisture Code* (Humedad combustible fino) | Derivada FWI | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 14 | `isi` | *Initial Spread Index* (Propagación inicial FWI) | Derivada FWI | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 15 | `dia_semana` | Calendario civil semanal ($0=\text{Lunes}, \dots, 6=\text{Domingo}$) | Calendario Civil | Temporal | Ignición / Propagación |
+| 16 | `es_fin_de_semana` | Indicador binario de fin de semana (sábado/domingo) | Calendario Civil | Temporal | Ignición / Propagación |
+| 17 | `mes` | Estacionalidad fenológica mensual ($1\text{--}12$) | Calendario Civil | Temporal | Ignición / Propagación |
+| 18 | `dia_del_anio` | Día ordinal del año calendario ($1\text{--}366$) | Calendario Civil | Temporal | Ignición / Propagación |
+| 19 | `pct_pastura` | Porcentaje de pastura ganadera cultivada ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
+| 20 | `pct_sabana_pastizal` | Porcentaje de sabana y pastizal natural ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
+| 21 | `pct_humedal_palmar` | Porcentaje de humedales y palmares inundables ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
+| 22 | `pct_bosque_seco` | Porcentaje de bosque xerofítico chaqueño ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Prop. (Chaco) |
+| 23 | `pct_bosque_humedo` | Porcentaje de bosque atlántico húmedo BAAPA ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Prop. (Oriental) |
+| 24 | `indice_ecotono` | Disrupción de borde bosque/pastura ($\mathcal{E}_i$) | Derivada Espacial | $1\text{ km}^2$ | Ignición / Propagación |
+| 25 | `dist_foco_hist_km` | Distancia euclidiana mínima a focos de entrenamiento | NASA FIRMS 2018–2022 | $1\text{ km}^2$ | Ignición / Propagación |
+| 26 | `densidad_hist_25km` | Densidad acumulada de fuegos históricos en $25\text{ km}$ | NASA FIRMS 2018–2022 | $1\text{ km}^2$ | Ignición / Propagación |
+| 27 | `dist_foco_t1_km` | Distancia euclidiana mínima al foco activo en $t-1$ | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
+| 28 | `focos_25km_t1` | Conteo de focos activos en $R = 25\text{ km}$ en $t-1$ | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
+| 29 | `frp_25km_t1` | Potencia radiativa acumulada en $R = 25\text{ km}$ ($t-1$, $\text{MW}$) | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
+| — | `es_combustible` | Indicador binario de biomasa combustible | MapBiomas Col. 4 | $1\text{ km}^2$ | Gating Biofísico Etapa 1 |
+: Especificación técnica y catálogo exhaustivo de variables predictoras del sistema `Incendios_PY`. {#tbl-variables}
 
 ---
 
 # Tabla Suplementaria S2: Espacio de Búsqueda y Configuración Óptima de Hiperparámetros
 
-Los hiperparámetros de los cuatro ensambles LightGBM fueron optimizados mediante búsqueda Bayesiana sobre el conjunto de validación (año 2023 completo), utilizando el área bajo la curva Precision-Recall (PR-AUC) como función objetivo.
+Los hiperparámetros de los cuatro ensambles LightGBM fueron fijados mediante exploración sistemática sobre el conjunto de validación (año 2023 completo), seleccionando arquitecturas parsimoniosas que maximizan el área bajo la curva Precision-Recall (PR-AUC) y previenen el sobreajuste.
 
 | Hiperparámetro | Espacio de Búsqueda | Ignición Chaco | Propagación Chaco | Ignición Oriental | Propagación Oriental |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -183,26 +188,35 @@ Los hiperparámetros de los cuatro ensambles LightGBM fueron optimizados mediant
 | `lambda_l1` (L1) | $[0,0; \, 5,0]$ | $0,20$ | $0,20$ | $0,20$ | $0,20$ |
 | `lambda_l2` (L2) | $[0,0; \, 5,0]$ | $1,00$ | $1,00$ | $1,00$ | $1,00$ |
 | `num_boost_round` | $[10; \, 100]$ | $20$ | $20$ | $40$ | $40$ |
+| `early_stopping` | — | None (Fijo) | None (Fijo) | None (Fijo) | None (Fijo) |
 : Configuración óptima de hiperparámetros por macro-región y modo operativo (obtenida con `scripts/06_entrenar_modelos.py`). {#tbl-hiperparametros}
 
 ---
 
 # Tabla Suplementaria S3: Desglose Departamental de Desempeño Predictivo
 
-Métricas evaluadas sobre el conjunto ciego *out-of-time* para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción).
+Métricas evaluadas sobre el conjunto ciego *out-of-time* (2024–2025, $N = 1.841.147$ celdas) para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción).
 
 | Código ADM1 | Departamento | Macro-Región | Celdas Soberanas (1 km²) | Muestras Test | Fuegos Test | ROC-AUC (Ignición) | ROC-AUC (Propagación) | Precisión Táctica (%) |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **PY-17** | Alto Paraguay | Chaco | $78.613$ | $641$ | $108$ | $\mathbf{0,939}$ | $\mathbf{0,956}$ | $95,6\text{ \%}$ |
-| **PY-16** | Boquerón | Chaco | $88.623$ | $757$ | $34$ | $\mathbf{0,662}$ | $\mathbf{0,679}$ | $100,0\text{ \%}$ |
-| **PY-15** | Presidente Hayes | Chaco | $73.644$ | $428$ | $24$ | $\mathbf{0,581}$ | $\mathbf{0,599}$ | $100,0\text{ \%}$ |
-| **PY-02** | San Pedro | Oriental | $20.854$ | $15$ | $8$ | $\mathbf{0,804}$ | $\mathbf{0,616}$ | $100,0\text{ \%}$ |
-| **PY-01** | Concepción | Oriental | $18.523$ | $274$ | $20$ | $\mathbf{0,761}$ | $\mathbf{0,752}$ | $100,0\text{ \%}$ |
-| **PY-13** | Amambay | Oriental | $12.555$ | $85$ | $11$ | $\mathbf{0,655}$ | $\mathbf{0,589}$ | $100,0\text{ \%}$ |
-| **PY-05** | Caaguazú | Oriental | $12.901$ | $34$ | $0$ | — | — | $100,0\text{ \%}$ |
-| **PY-12** | Ñeembucú | Oriental | $11.672$ | $31$ | $0$ | — | — | $100,0\text{ \%}$ |
-| **PY-08** | Misiones | Oriental | $8.157$ | $1$ | $1$ | — | — | — |
-| **Resto ADM1** | Otros 9 Deptos. | Oriental | $72.100$ | $0$ | $0$ | — (Sin fuegos en test) | — | — |
+| **PY-17** | Alto Paraguay | Chaco | $78.613$ | $265.679$ | $21.108$ | $\mathbf{0,734}$ | $\mathbf{0,898}$ | $94,1\text{ \%}$ |
+| **PY-16** | Boquerón | Chaco | $88.623$ | $292.632$ | $17.583$ | $\mathbf{0,659}$ | $\mathbf{0,843}$ | $84,3\text{ \%}$ |
+| **PY-15** | Presidente Hayes | Chaco | $73.644$ | $207.794$ | $30.955$ | $\mathbf{0,712}$ | $\mathbf{0,844}$ | $83,3\text{ \%}$ |
+| **PY-01** | Concepción | Oriental | $18.523$ | $136.865$ | $10.739$ | $\mathbf{0,721}$ | $\mathbf{0,798}$ | $73,6\text{ \%}$ |
+| **PY-02** | San Pedro | Oriental | $20.854$ | $105.302$ | $16.243$ | $\mathbf{0,719}$ | $\mathbf{0,780}$ | $67,0\text{ \%}$ |
+| **PY-13** | Amambay | Oriental | $12.555$ | $75.588$ | $9.870$ | $\mathbf{0,753}$ | $\mathbf{0,813}$ | $89,3\text{ \%}$ |
+| **PY-14** | Canindeyú | Oriental | $15.052$ | $108.025$ | $11.721$ | $\mathbf{0,906}$ | $\mathbf{0,932}$ | $87,6\text{ \%}$ |
+| **PY-10** | Alto Paraná | Oriental | $14.206$ | $153.241$ | $2.878$ | $\mathbf{0,895}$ | $\mathbf{0,904}$ | $83,2\text{ \%}$ |
+| **PY-07** | Itapúa | Oriental | $15.868$ | $138.121$ | $5.574$ | $\mathbf{0,891}$ | $\mathbf{0,896}$ | $76,7\text{ \%}$ |
+| **PY-05** | Caaguazú | Oriental | $12.901$ | $59.603$ | $8.395$ | $\mathbf{0,785}$ | $\mathbf{0,804}$ | $73,3\text{ \%}$ |
+| **PY-06** | Caazapá | Oriental | $9.554$ | $42.655$ | $7.653$ | $\mathbf{0,718}$ | $\mathbf{0,802}$ | $67,0\text{ \%}$ |
+| **PY-12** | Ñeembucú | Oriental | $11.672$ | $93.221$ | $7.949$ | $\mathbf{0,676}$ | $\mathbf{0,802}$ | $72,6\text{ \%}$ |
+| **PY-09** | Paraguarí | Oriental | $8.593$ | $49.843$ | $5.072$ | $\mathbf{0,589}$ | $\mathbf{0,708}$ | $59,6\text{ \%}$ |
+| **PY-08** | Misiones | Oriental | $8.157$ | $52.090$ | $4.086$ | $\mathbf{0,621}$ | $\mathbf{0,741}$ | $68,8\text{ \%}$ |
+| **PY-03** | Cordillera | Oriental | $4.791$ | $24.328$ | $3.695$ | $\mathbf{0,666}$ | $\mathbf{0,779}$ | $75,9\text{ \%}$ |
+| **PY-04** | Guairá | Oriental | $3.866$ | $19.350$ | $1.927$ | $\mathbf{0,714}$ | $\mathbf{0,743}$ | $64,5\text{ \%}$ |
+| **PY-11** | Central | Oriental | $2.406$ | $16.810$ | $1.944$ | $\mathbf{0,709}$ | $\mathbf{0,814}$ | $78,7\text{ \%}$ |
+| **PY-ASU**| Asunción (Distrito Capital) | Oriental | $128$ | $0$ | $0$ | — | — | — |
 : Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego (generada de forma reproducible por `scripts/14_auditoria_suplementaria.py`). {#tbl-departamentos}
 
 ---
@@ -215,13 +229,10 @@ Las pruebas de rendimiento se realizaron en dos entornos de referencia:
 
 | Etapa del Flujo Computacional | Motor de Cómputo | Memoria RAM Pico (MB) | Tiempo Entorno A (ARM64) | Tiempo Entorno B (x86_64) |
 | :--- | :--- | :---: | :---: | :---: |
-| 1. Cruce Grilla + MapBiomas + Clima | DuckDB (Zero-Copy) | $450\text{ MB}$ | $0,85\text{ s}$ | $1,12\text{ s}$ |
+| 1. Cruce Grilla + Ingesta MapBiomas/Clima | DuckDB (Zero-Copy) | $450\text{ MB}$ | $0,15\text{ s}$ | $0,19\text{ s}$ |
 | 2. Gating Biofísico de Etapa 1 | Polars (Vectorizado) | $220\text{ MB}$ | $0,08\text{ s}$ | $0,11\text{ s}$ |
-| 3. Búsqueda KD-Tree y Kernel $t-1$ | SciPy / NumPy | $380\text{ MB}$ | $0,35\text{ s}$ | $0,42\text{ s}$ |
-| 4. Inferencia LightGBM Ignición (400k) | LightGBM C++ / OpenMP | $180\text{ MB}$ | $0,21\text{ s}$ | $0,28\text{ s}$ |
-| 5. Inferencia LightGBM Propagación (400k)| LightGBM C++ / OpenMP | $190\text{ MB}$ | $0,21\text{ s}$ | $0,27\text{ s}$ |
-| 6. Calibración Monótona de Platt | NumPy Vectorizado | $60\text{ MB}$ | $0,02\text{ s}$ | $0,03\text{ s}$ |
-| 7. Exportación GeoTIFF y Parquet Alerta | Rasterio / Polars | $140\text{ MB}$ | $0,10\text{ s}$ | $0,14\text{ s}$ |
+| 3. Inferencia Dual LightGBM y Kernel $t-1$ | LightGBM C++ / SciPy | $380\text{ MB}$ | $0,42\text{ s}$ | $0,54\text{ s}$ |
+| 4. Calibración y Exportación GeoTIFF/Parquet | NumPy / Rasterio / Polars | $140\text{ MB}$ | $0,10\text{ s}$ | $0,14\text{ s}$ |
 | **Tiempo Total Pipeline Nacional Completo** | **Punta a Punta** | **$< 600\text{ MB}$** | **$0,75\text{ s}$** | **$0,98\text{ s}$** |
 : Desglose computacional por componente algorítmico sobre las 400.006 celdas del territorio nacional. {#tbl-computo}
 

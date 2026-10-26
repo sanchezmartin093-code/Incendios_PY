@@ -2395,7 +2395,7 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p><strong>NOTA DE ANONIMIZACIÓN EDITORIAL (<em>DOUBLE-ANONYMOUS PEER REVIEW</em>):</strong><br>
 <strong>Revista Objetivo:</strong> <em>Computers &amp; Geosciences</em> (Elsevier)<br>
-<strong>Título del Manuscrito:</strong> <em>Desacoplando el peligro biofísico de ignición y la propagación táctica de incendios forestales en el Gran Chaco mediante GeoAI multiescala (2015–2025)</em><br>
+<strong>Título del Manuscrito:</strong> <em>Desacoplando el peligro biofísico de ignición y la propagación táctica de incendios forestales en el Gran Chaco mediante GeoAI multiescala (2018–2025)</em><br>
 <strong>Autor(es):</strong> [Información de autoría e instituciones cegada para arbitraje doble ciego]</p>
 </blockquote>
 <hr>
@@ -2405,7 +2405,7 @@ window.Quarto = {
 <li><strong>Texto Suplementario S1:</strong> Protocolo de corrección geométrica del efecto <em>Bow-Tie</em> y armonización multi-constelación VIIRS 375 m.</li>
 <li><strong>Texto Suplementario S2:</strong> Demostración analítica y condiciones de monotonicidad de la calibración monótona acotada de Platt.</li>
 <li><strong>Texto Suplementario S3:</strong> Análisis de autocorrelación espacial por semivariograma y determinación del radio de zona muerta (20 km).</li>
-<li><strong>Tabla Suplementaria S1:</strong> Diccionario completo y especificación física de las 25 variables predictoras del sistema.</li>
+<li><strong>Tabla Suplementaria S1:</strong> Diccionario completo y especificación física de las 29 variables predictoras del sistema.</li>
 <li><strong>Tabla Suplementaria S2:</strong> Espacio de búsqueda de hiperparámetros y regularización óptima de LightGBM por región y capa.</li>
 <li><strong>Tabla Suplementaria S3:</strong> Desglose departamental exhaustivo de desempeño predictivo en las 17 gobernaciones de Paraguay.</li>
 <li><strong>Tabla Suplementaria S4:</strong> Perfil de consumo computacional, latencia por bloque y memoria RAM en procesadores ARM64 y x86_64.</li>
@@ -2418,7 +2418,7 @@ window.Quarto = {
 <p>Este fenómeno, conocido como <strong>efecto corbatín (<em>Bow-Tie Effect</em>)</strong>, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego (<span class="math inline">\(FRP\)</span> en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional soberana de 1 km².</p>
 <section id="regla-de-filtrado-cinemático-implementada" class="level3">
 <h3 class="anchored" data-anchor-id="regla-de-filtrado-cinemático-implementada">Regla de Filtrado Cinemático Implementada</h3>
-<p>En la función <a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/firms.py"><code>procesar_focos_firms_a_grilla</code></a>, aplicamos una regla de depuración cinemática estricta:</p>
+<p>En la función <code>procesar_focos_firms_a_grilla</code> (<code>src/firms.py</code>), aplicamos una regla de depuración cinemática estricta:</p>
 <p><span class="math display">\[\mathcal{D}_{\text{filtrado}} = \left\{ f \in \mathcal{D}_{\text{raw}} \mid \text{scan}(f) \le 1,5\text{ km} \;\land\; \text{confidence}(f) \neq \text{&#39;low&#39;} \right\}\]</span></p>
 <p>Tras aplicar este filtro, los focos duplicados generados por el solapamiento óptico de los tres satélites en la misma fecha civil se consolidan mediante agregación relacional sobre la celda de 1 km²: - <span class="math inline">\(\text{num\_focos\_dia} = \text{count}(f)\)</span> - <span class="math inline">\(\text{max\_frp\_dia} = \max(FRP_f)\)</span> - <span class="math inline">\(\text{sum\_frp\_dia} = \sum FRP_f\)</span></p>
 <hr>
@@ -2446,7 +2446,7 @@ La derivada de primer orden de <span class="math inline">\(p(z)\)</span> respect
 </section>
 <section id="formulación-acotada-en-incendios_py" class="level3">
 <h3 class="anchored" data-anchor-id="formulación-acotada-en-incendios_py">Formulación Acotada en <code>Incendios_PY</code></h3>
-<p>Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en <a href="file:///Users/martinsanchez/Documents/Proyectos_PY/Incendios_PY/src/modelo.py"><code>src/modelo.py</code></a>):</p>
+<p>Para inmunizar al sistema contra esta falla, formulamos el calibrador mediante optimización acotada del error cuadrático medio de Brier (algoritmo L-BFGS-B implementado en <code>src/modelo.py</code>):</p>
 <p><span class="math display">\[\min_{w, b} \frac{1}{M} \sum_{i=1}^{M} \left( y_i - \frac{1}{1 + \exp(-(w \cdot z_i + b))} \right)^2 \quad \text{sujeto a } 0,10 \le w \le 10,00, \; -10,0 \le b \le 10,0\]</span></p>
 <p>La cota inferior <span class="math inline">\(w \ge 0,10\)</span> garantiza la monotonicidad estricta y previene el colapso del gradiente en regiones asintóticas.</p>
 <hr>
@@ -2486,23 +2486,23 @@ La derivada de primer orden de <span class="math inline">\(p(z)\)</span> respect
 <tr class="odd">
 <td style="text-align: center;"><strong>10 km</strong></td>
 <td style="text-align: left;">Sub-umbral (dentro del alcance espacial <span class="math inline">\(h &lt; a\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(0,8241\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,7025\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,8540\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,7155\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,7897\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8787\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>20 km</strong></td>
 <td style="text-align: left;"><strong>Configuración Operativa Canónica</strong> (<span class="math inline">\(h \approx a + 1,6\text{ km}\)</span>)</td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,8305\)</span></strong></td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,7106\)</span></strong></td>
-<td style="text-align: center;"><strong><span class="math inline">\(0,8494\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,7219\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,7978\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="math inline">\(0,8741\)</span></strong></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><strong>30 km</strong></td>
 <td style="text-align: left;">Sobre-umbral ultra-conservador (<span class="math inline">\(h \gg a\)</span>)</td>
-<td style="text-align: center;"><span class="math inline">\(0,8362\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,7180\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,8431\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,7276\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8052\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,8678\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -2515,7 +2515,7 @@ La derivada de primer orden de <span class="math inline">\(p(z)\)</span> respect
 <div id="tbl-variables" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-variables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 1: Especificación técnica y catálogo de variables predictoras del sistema <code>Incendios_PY</code>.
+Tabla 1: Especificación técnica y catálogo exhaustivo de variables predictoras del sistema <code>Incendios_PY</code>.
 </figcaption>
 <div aria-describedby="tbl-variables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2542,7 +2542,7 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 <td style="text-align: left;">1</td>
 <td style="text-align: left;"><code>temp_max_c</code></td>
 <td style="text-align: left;">Temperatura máxima diaria a 2 m (<span class="math inline">\(^\circ\text{C}\)</span>)</td>
-<td style="text-align: left;">ERA5-Land</td>
+<td style="text-align: left;">ERA5-Land (CDS)</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
@@ -2550,13 +2550,13 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 <td style="text-align: left;">2</td>
 <td style="text-align: left;"><code>temp_min_c</code></td>
 <td style="text-align: left;">Temperatura mínima diaria a 2 m (<span class="math inline">\(^\circ\text{C}\)</span>)</td>
-<td style="text-align: left;">ERA5-Land</td>
+<td style="text-align: left;">ERA5-Land (CDS)</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">3</td>
-<td style="text-align: left;"><code>amplitud_termica_c</code></td>
+<td style="text-align: left;"><code>rango_termico_diario</code></td>
 <td style="text-align: left;">Rango térmico intradiario (<span class="math inline">\(T_{\text{max}} - T_{\text{min}}\)</span>)</td>
 <td style="text-align: left;">Derivada ERA5-Land</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
@@ -2564,25 +2564,25 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 </tr>
 <tr class="even">
 <td style="text-align: left;">4</td>
-<td style="text-align: left;"><code>dewpoint_temp_c</code></td>
-<td style="text-align: left;">Temperatura del punto de rocío a 2 m (<span class="math inline">\(^\circ\text{C}\)</span>)</td>
-<td style="text-align: left;">ERA5-Land</td>
-<td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
-<td style="text-align: left;">Ignición / Propagación</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">5</td>
 <td style="text-align: left;"><code>vpd_max_kpa</code></td>
 <td style="text-align: left;">Déficit de presión de vapor atmosférico (<span class="math inline">\(\text{kPa}\)</span>)</td>
 <td style="text-align: left;">Derivada Psicrométrica</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Gating / Ignición / Prop.</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;"><code>deficit_hidrico_acumulado</code></td>
+<td style="text-align: left;">Estrés desecante integrado (<span class="math inline">\(VPD \times (CDD + 1)\)</span>, <span class="math inline">\(\text{kPa}\cdot\text{d}\)</span>)</td>
+<td style="text-align: left;">Interacción Física</td>
+<td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
+<td style="text-align: left;">Ignición / Propagación</td>
+</tr>
 <tr class="even">
 <td style="text-align: left;">6</td>
-<td style="text-align: left;"><code>precipitacion_dia_mm</code></td>
+<td style="text-align: left;"><code>precipitacion_mm</code></td>
 <td style="text-align: left;">Lluvia acumulada en el día (<span class="math inline">\(00\text{--}24\text{h}\)</span>, <span class="math inline">\(\text{mm}\)</span>)</td>
-<td style="text-align: left;">ERA5-Land</td>
+<td style="text-align: left;">ERA5-Land (CDS)</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
@@ -2606,92 +2606,124 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 <td style="text-align: left;">9</td>
 <td style="text-align: left;"><code>viento_max_kmh</code></td>
 <td style="text-align: left;">Velocidad máxima del viento a 10 m (<span class="math inline">\(\text{km/h}\)</span>)</td>
-<td style="text-align: left;">ERA5-Land</td>
+<td style="text-align: left;">ERA5-Land (CDS)</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">10</td>
-<td style="text-align: left;"><code>viento_cuadrado</code></td>
-<td style="text-align: left;">Presión dinámica del viento (<span class="math inline">\(V_{\text{viento}}^2\)</span>, <span class="math inline">\(\text{km}^2/\text{h}^2\)</span>)</td>
-<td style="text-align: left;">Derivada Mecánica</td>
+<td style="text-align: left;"><code>rafaga_max_kmh</code></td>
+<td style="text-align: left;">Ráfaga máxima intradiaria de viento (<span class="math inline">\(\text{km/h}\)</span>)</td>
+<td style="text-align: left;">ERA5-Land (CDS)</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">11</td>
-<td style="text-align: left;"><code>interaccion_viento_vpd</code></td>
-<td style="text-align: left;">Acoplamiento advectivo-desecante (<span class="math inline">\(Viento \times VPD\)</span>)</td>
-<td style="text-align: left;">Interacción Físcia</td>
+<td style="text-align: left;"><code>potencial_viento_cuadratico</code></td>
+<td style="text-align: left;">Presión dinámica del viento (<span class="math inline">\((v/10)^2\)</span>, <span class="math inline">\(\text{adimensional}\)</span>)</td>
+<td style="text-align: left;">Derivada Mecánica</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">12</td>
+<td style="text-align: left;"><code>interaccion_viento_vpd</code></td>
+<td style="text-align: left;">Acoplamiento advectivo-desecante (<span class="math inline">\(Viento \times VPD\)</span>)</td>
+<td style="text-align: left;">Interacción Física</td>
+<td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
+<td style="text-align: left;">Ignición / Propagación</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">13</td>
 <td style="text-align: left;"><code>ffmc</code></td>
 <td style="text-align: left;"><em>Fine Fuel Moisture Code</em> (Humedad combustible fino)</td>
 <td style="text-align: left;">Derivada FWI</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">13</td>
+<tr class="even">
+<td style="text-align: left;">14</td>
 <td style="text-align: left;"><code>isi</code></td>
 <td style="text-align: left;"><em>Initial Spread Index</em> (Propagación inicial FWI)</td>
 <td style="text-align: left;">Derivada FWI</td>
 <td style="text-align: left;"><span class="math inline">\(0,25^\circ\)</span> (~25 km)</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">14</td>
-<td style="text-align: left;"><code>pct_pastura</code></td>
-<td style="text-align: left;">Fracción de pastura ganadera cultivada (<span class="math inline">\([0, 1]\)</span>)</td>
-<td style="text-align: left;">MapBiomas Col. 4</td>
-<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
-<td style="text-align: left;">Ignición / Propagación</td>
-</tr>
 <tr class="odd">
 <td style="text-align: left;">15</td>
-<td style="text-align: left;"><code>pct_sabana_pastizal</code></td>
-<td style="text-align: left;">Fracción de sabana y pastizal natural (<span class="math inline">\([0, 1]\)</span>)</td>
-<td style="text-align: left;">MapBiomas Col. 4</td>
-<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
+<td style="text-align: left;"><code>dia_semana</code></td>
+<td style="text-align: left;">Calendario civil semanal (<span class="math inline">\(0=\text{Lunes}, \dots, 6=\text{Domingo}\)</span>)</td>
+<td style="text-align: left;">Calendario Civil</td>
+<td style="text-align: left;">Temporal</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">16</td>
-<td style="text-align: left;"><code>pct_bosque_seco</code></td>
-<td style="text-align: left;">Fracción de bosque xerofítico chaqueño (<span class="math inline">\([0, 1]\)</span>)</td>
-<td style="text-align: left;">MapBiomas Col. 4</td>
-<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
+<td style="text-align: left;"><code>es_fin_de_semana</code></td>
+<td style="text-align: left;">Indicador binario de fin de semana (sábado/domingo)</td>
+<td style="text-align: left;">Calendario Civil</td>
+<td style="text-align: left;">Temporal</td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">17</td>
-<td style="text-align: left;"><code>pct_bosque_humedo</code></td>
-<td style="text-align: left;">Fracción de bosque atlántico húmedo (<span class="math inline">\([0, 1]\)</span>)</td>
+<td style="text-align: left;"><code>mes</code></td>
+<td style="text-align: left;">Estacionalidad fenológica mensual (<span class="math inline">\(1\text{--}12\)</span>)</td>
+<td style="text-align: left;">Calendario Civil</td>
+<td style="text-align: left;">Temporal</td>
+<td style="text-align: left;">Ignición / Propagación</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">18</td>
+<td style="text-align: left;"><code>dia_del_anio</code></td>
+<td style="text-align: left;">Día ordinal del año calendario (<span class="math inline">\(1\text{--}366\)</span>)</td>
+<td style="text-align: left;">Calendario Civil</td>
+<td style="text-align: left;">Temporal</td>
+<td style="text-align: left;">Ignición / Propagación</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">19</td>
+<td style="text-align: left;"><code>pct_pastura</code></td>
+<td style="text-align: left;">Porcentaje de pastura ganadera cultivada (<span class="math inline">\([0, 100]\,\%\)</span>)</td>
 <td style="text-align: left;">MapBiomas Col. 4</td>
 <td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">18</td>
-<td style="text-align: left;"><code>pct_humedal_palmar</code></td>
-<td style="text-align: left;">Fracción de humedales y palmares inundables</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;"><code>pct_sabana_pastizal</code></td>
+<td style="text-align: left;">Porcentaje de sabana y pastizal natural (<span class="math inline">\([0, 100]\,\%\)</span>)</td>
 <td style="text-align: left;">MapBiomas Col. 4</td>
 <td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">19</td>
-<td style="text-align: left;"><code>es_combustible</code></td>
-<td style="text-align: left;">Indicador binario de biomasa combustible</td>
+<td style="text-align: left;">21</td>
+<td style="text-align: left;"><code>pct_humedal_palmar</code></td>
+<td style="text-align: left;">Porcentaje de humedales y palmares inundables (<span class="math inline">\([0, 100]\,\%\)</span>)</td>
 <td style="text-align: left;">MapBiomas Col. 4</td>
-<td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
-<td style="text-align: left;">Gating Biofísico</td>
+<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
+<td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">20</td>
+<td style="text-align: left;">22</td>
+<td style="text-align: left;"><code>pct_bosque_seco</code></td>
+<td style="text-align: left;">Porcentaje de bosque xerofítico chaqueño (<span class="math inline">\([0, 100]\,\%\)</span>)</td>
+<td style="text-align: left;">MapBiomas Col. 4</td>
+<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
+<td style="text-align: left;">Ignición / Prop. (Chaco)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">23</td>
+<td style="text-align: left;"><code>pct_bosque_humedo</code></td>
+<td style="text-align: left;">Porcentaje de bosque atlántico húmedo BAAPA (<span class="math inline">\([0, 100]\,\%\)</span>)</td>
+<td style="text-align: left;">MapBiomas Col. 4</td>
+<td style="text-align: left;"><span class="math inline">\(30\text{ m}\)</span></td>
+<td style="text-align: left;">Ignición / Prop. (Oriental)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">24</td>
 <td style="text-align: left;"><code>indice_ecotono</code></td>
 <td style="text-align: left;">Disrupción de borde bosque/pastura (<span class="math inline">\(\mathcal{E}_i\)</span>)</td>
 <td style="text-align: left;">Derivada Espacial</td>
@@ -2699,44 +2731,52 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">21</td>
-<td style="text-align: left;"><code>prior_frecuencia_historica</code></td>
-<td style="text-align: left;">Frecuencia marginal acumulada de fuego en la celda</td>
-<td style="text-align: left;">NASA FIRMS 10 Años</td>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;"><code>dist_foco_hist_km</code></td>
+<td style="text-align: left;">Distancia euclidiana mínima a focos de entrenamiento</td>
+<td style="text-align: left;">NASA FIRMS 2018–2022</td>
 <td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">22</td>
-<td style="text-align: left;"><code>dia_semana</code></td>
-<td style="text-align: left;">Calendario antrópico (<span class="math inline">\(0=\text{Domingo}, \dots, 6=\text{Sábado}\)</span>)</td>
-<td style="text-align: left;">Calendario Civil</td>
-<td style="text-align: left;">Temporal</td>
+<td style="text-align: left;">26</td>
+<td style="text-align: left;"><code>densidad_hist_25km</code></td>
+<td style="text-align: left;">Densidad acumulada de fuegos históricos en <span class="math inline">\(25\text{ km}\)</span></td>
+<td style="text-align: left;">NASA FIRMS 2018–2022</td>
+<td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
 <td style="text-align: left;">Ignición / Propagación</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">23</td>
+<td style="text-align: left;">27</td>
 <td style="text-align: left;"><code>dist_foco_t1_km</code></td>
 <td style="text-align: left;">Distancia euclidiana mínima al foco activo en <span class="math inline">\(t-1\)</span></td>
-<td style="text-align: left;">Kernel Espacial</td>
+<td style="text-align: left;">Kernel Espacial Causal</td>
 <td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
 <td style="text-align: left;"><strong>Solo Propagación</strong></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">24</td>
+<td style="text-align: left;">28</td>
 <td style="text-align: left;"><code>focos_25km_t1</code></td>
 <td style="text-align: left;">Conteo de focos activos en <span class="math inline">\(R = 25\text{ km}\)</span> en <span class="math inline">\(t-1\)</span></td>
-<td style="text-align: left;">Convolución Espacial</td>
+<td style="text-align: left;">Kernel Espacial Causal</td>
 <td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
 <td style="text-align: left;"><strong>Solo Propagación</strong></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">25</td>
+<td style="text-align: left;">29</td>
 <td style="text-align: left;"><code>frp_25km_t1</code></td>
 <td style="text-align: left;">Potencia radiativa acumulada en <span class="math inline">\(R = 25\text{ km}\)</span> (<span class="math inline">\(t-1\)</span>, <span class="math inline">\(\text{MW}\)</span>)</td>
-<td style="text-align: left;">Convolución Espacial</td>
+<td style="text-align: left;">Kernel Espacial Causal</td>
 <td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
 <td style="text-align: left;"><strong>Solo Propagación</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>es_combustible</code></td>
+<td style="text-align: left;">Indicador binario de biomasa combustible</td>
+<td style="text-align: left;">MapBiomas Col. 4</td>
+<td style="text-align: left;"><span class="math inline">\(1\text{ km}^2\)</span></td>
+<td style="text-align: left;">Gating Biofísico Etapa 1</td>
 </tr>
 </tbody>
 </table>
@@ -2747,7 +2787,7 @@ Tabla 1: Especificación técnica y catálogo de variables predictoras del sist
 </section>
 <section id="tabla-suplementaria-s2-espacio-de-búsqueda-y-configuración-óptima-de-hiperparámetros" class="level1">
 <h1>Tabla Suplementaria S2: Espacio de Búsqueda y Configuración Óptima de Hiperparámetros</h1>
-<p>Los hiperparámetros de los cuatro ensambles LightGBM fueron optimizados mediante búsqueda Bayesiana sobre el conjunto de validación (año 2023 completo), utilizando el área bajo la curva Precision-Recall (PR-AUC) como función objetivo.</p>
+<p>Los hiperparámetros de los cuatro ensambles LightGBM fueron fijados mediante exploración sistemática sobre el conjunto de validación (año 2023 completo), seleccionando arquitecturas parsimoniosas que maximizan el área bajo la curva Precision-Recall (PR-AUC) y previenen el sobreajuste.</p>
 <div id="tbl-hiperparametros" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hiperparametros-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2862,6 +2902,14 @@ Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo op
 <td style="text-align: center;"><span class="math inline">\(40\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(40\)</span></td>
 </tr>
+<tr class="even">
+<td style="text-align: left;"><code>early_stopping</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">None (Fijo)</td>
+<td style="text-align: center;">None (Fijo)</td>
+<td style="text-align: center;">None (Fijo)</td>
+<td style="text-align: center;">None (Fijo)</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2871,7 +2919,7 @@ Tabla 2: Configuración óptima de hiperparámetros por macro-región y modo op
 </section>
 <section id="tabla-suplementaria-s3-desglose-departamental-de-desempeño-predictivo" class="level1">
 <h1>Tabla Suplementaria S3: Desglose Departamental de Desempeño Predictivo</h1>
-<p>Métricas evaluadas sobre el conjunto ciego <em>out-of-time</em> para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción).</p>
+<p>Métricas evaluadas sobre el conjunto ciego <em>out-of-time</em> (2024–2025, <span class="math inline">\(N = 1.841.147\)</span> celdas) para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción).</p>
 <div id="tbl-departamentos" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-departamentos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2909,108 +2957,196 @@ Tabla 3: Evaluación estratificada por unidad político-administrativa ADM1 en 
 <td style="text-align: left;">Alto Paraguay</td>
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: center;"><span class="math inline">\(78.613\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(641\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(108\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,939}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,956}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(95,6\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(265.679\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(21.108\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,734}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,898}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(94,1\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>PY-16</strong></td>
 <td style="text-align: left;">Boquerón</td>
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: center;"><span class="math inline">\(88.623\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(757\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(34\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,662}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,679}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(292.632\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(17.583\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,659}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,843}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(84,3\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><strong>PY-15</strong></td>
 <td style="text-align: left;">Presidente Hayes</td>
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: center;"><span class="math inline">\(73.644\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(428\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(24\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,581}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,599}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(207.794\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(30.955\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,712}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,844}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(83,3\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"><strong>PY-02</strong></td>
-<td style="text-align: left;">San Pedro</td>
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(20.854\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(15\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(8\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,804}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,616}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
-</tr>
-<tr class="odd">
 <td style="text-align: center;"><strong>PY-01</strong></td>
 <td style="text-align: left;">Concepción</td>
 <td style="text-align: left;">Oriental</td>
 <td style="text-align: center;"><span class="math inline">\(18.523\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(274\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,761}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,752}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(136.865\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10.739\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,721}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,798}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(73,6\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-02</strong></td>
+<td style="text-align: left;">San Pedro</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(20.854\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(105.302\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(16.243\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,719}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,780}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(67,0\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>PY-13</strong></td>
 <td style="text-align: left;">Amambay</td>
 <td style="text-align: left;">Oriental</td>
 <td style="text-align: center;"><span class="math inline">\(12.555\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(85\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(11\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,655}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(\mathbf{0,589}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(75.588\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(9.870\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,753}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,813}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(89,3\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
+<td style="text-align: center;"><strong>PY-14</strong></td>
+<td style="text-align: left;">Canindeyú</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(15.052\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(108.025\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(11.721\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,906}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,932}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(87,6\text{ \%}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>PY-10</strong></td>
+<td style="text-align: left;">Alto Paraná</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(14.206\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(153.241\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2.878\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,895}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,904}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(83,2\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-07</strong></td>
+<td style="text-align: left;">Itapúa</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(15.868\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(138.121\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5.574\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,891}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,896}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(76,7\text{ \%}\)</span></td>
+</tr>
+<tr class="even">
 <td style="text-align: center;"><strong>PY-05</strong></td>
 <td style="text-align: left;">Caaguazú</td>
 <td style="text-align: left;">Oriental</td>
 <td style="text-align: center;"><span class="math inline">\(12.901\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(34\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(59.603\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(8.395\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,785}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,804}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(73,3\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-06</strong></td>
+<td style="text-align: left;">Caazapá</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(9.554\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(42.655\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(7.653\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,718}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,802}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(67,0\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><strong>PY-12</strong></td>
 <td style="text-align: left;">Ñeembucú</td>
 <td style="text-align: left;">Oriental</td>
 <td style="text-align: center;"><span class="math inline">\(11.672\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(31\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;"><span class="math inline">\(100,0\text{ \%}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(93.221\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(7.949\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,676}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,802}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(72,6\text{ \%}\)</span></td>
 </tr>
 <tr class="odd">
+<td style="text-align: center;"><strong>PY-09</strong></td>
+<td style="text-align: left;">Paraguarí</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(8.593\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(49.843\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5.072\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,589}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,708}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(59,6\text{ \%}\)</span></td>
+</tr>
+<tr class="even">
 <td style="text-align: center;"><strong>PY-08</strong></td>
 <td style="text-align: left;">Misiones</td>
 <td style="text-align: left;">Oriental</td>
 <td style="text-align: center;"><span class="math inline">\(8.157\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
+<td style="text-align: center;"><span class="math inline">\(52.090\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(4.086\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,621}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,741}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(68,8\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-03</strong></td>
+<td style="text-align: left;">Cordillera</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(4.791\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(24.328\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3.695\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,666}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,779}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(75,9\text{ \%}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"><strong>Resto ADM1</strong></td>
-<td style="text-align: left;">Otros 9 Deptos.</td>
+<td style="text-align: center;"><strong>PY-04</strong></td>
+<td style="text-align: left;">Guairá</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: center;"><span class="math inline">\(72.100\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3.866\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(19.350\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1.927\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,714}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,743}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(64,5\text{ \%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PY-11</strong></td>
+<td style="text-align: left;">Central</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(2.406\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(16.810\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1.944\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,709}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbf{0,814}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(78,7\text{ \%}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>PY-ASU</strong></td>
+<td style="text-align: left;">Asunción (Distrito Capital)</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: center;"><span class="math inline">\(128\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;">— (Sin fuegos en test)</td>
+<td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 </tr>
@@ -3049,11 +3185,11 @@ Tabla 4: Desglose computacional por componente algorítmico sobre las 400.006 c
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">1. Cruce Grilla + MapBiomas + Clima</td>
+<td style="text-align: left;">1. Cruce Grilla + Ingesta MapBiomas/Clima</td>
 <td style="text-align: left;">DuckDB (Zero-Copy)</td>
 <td style="text-align: center;"><span class="math inline">\(450\text{ MB}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,85\text{ s}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1,12\text{ s}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,15\text{ s}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,19\text{ s}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">2. Gating Biofísico de Etapa 1</td>
@@ -3063,41 +3199,20 @@ Tabla 4: Desglose computacional por componente algorítmico sobre las 400.006 c
 <td style="text-align: center;"><span class="math inline">\(0,11\text{ s}\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">3. Búsqueda KD-Tree y Kernel <span class="math inline">\(t-1\)</span></td>
-<td style="text-align: left;">SciPy / NumPy</td>
+<td style="text-align: left;">3. Inferencia Dual LightGBM y Kernel <span class="math inline">\(t-1\)</span></td>
+<td style="text-align: left;">LightGBM C++ / SciPy</td>
 <td style="text-align: center;"><span class="math inline">\(380\text{ MB}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,35\text{ s}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,42\text{ s}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0,54\text{ s}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">4. Inferencia LightGBM Ignición (400k)</td>
-<td style="text-align: left;">LightGBM C++ / OpenMP</td>
-<td style="text-align: center;"><span class="math inline">\(180\text{ MB}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,21\text{ s}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,28\text{ s}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">5. Inferencia LightGBM Propagación (400k)</td>
-<td style="text-align: left;">LightGBM C++ / OpenMP</td>
-<td style="text-align: center;"><span class="math inline">\(190\text{ MB}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,21\text{ s}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,27\text{ s}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">6. Calibración Monótona de Platt</td>
-<td style="text-align: left;">NumPy Vectorizado</td>
-<td style="text-align: center;"><span class="math inline">\(60\text{ MB}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,02\text{ s}\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0,03\text{ s}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">7. Exportación GeoTIFF y Parquet Alerta</td>
-<td style="text-align: left;">Rasterio / Polars</td>
+<td style="text-align: left;">4. Calibración y Exportación GeoTIFF/Parquet</td>
+<td style="text-align: left;">NumPy / Rasterio / Polars</td>
 <td style="text-align: center;"><span class="math inline">\(140\text{ MB}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,10\text{ s}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(0,14\text{ s}\)</span></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;"><strong>Tiempo Total Pipeline Nacional Completo</strong></td>
 <td style="text-align: left;"><strong>Punta a Punta</strong></td>
 <td style="text-align: center;"><strong><span class="math inline">\(&lt; 600\text{ MB}\)</span></strong></td>

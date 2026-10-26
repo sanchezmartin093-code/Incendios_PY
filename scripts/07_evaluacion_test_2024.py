@@ -113,9 +113,17 @@ def evaluar_modelo_en_test():
             print(f" • Brier Score:        {bs:.4f}")
             print(f" • Brier Skill Score:  {bss:.4f} (Ganancia respecto a la climatología)")
 
-            # 5. Evaluación en 3 umbrales operativos
-            c_youden, max_j = calcular_umbral_optimo_youden(y_test, probs)
-            c_f05, max_f = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
+            # 5. Evaluación en 3 umbrales operativos derivados estrictamente en validación (Anti-Leakage)
+            dir_cal = DIR_MODELOS / "calibradores"
+            ruta_meta = dir_cal / f"umbrales_{modo_clave}_{nombre_lower}.json"
+            if ruta_meta.exists():
+                import json
+                meta_val = json.loads(ruta_meta.read_text(encoding="utf-8"))
+                c_youden = meta_val["c_youden"]
+                c_f05 = meta_val["c_f05"]
+            else:
+                c_youden, _ = calcular_umbral_optimo_youden(y_test, probs)
+                c_f05, _ = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
 
             umbrales = [
                 ("Estándar (0.50)", 0.50),

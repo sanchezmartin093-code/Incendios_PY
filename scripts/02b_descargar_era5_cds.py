@@ -1,0 +1,117 @@
+"""
+Script 02b: Ingesta meteorológica masiva ERA5-Land (2018–2025) desde Copernicus CDS.
+- Descarga archivos NetCDF anuales para la cuadrícula de Paraguay desde ECMWF CDS.
+- Extrae y procesa los 640 nodos meteorológicos en formato matricial xarray/Polars.
+- Calcula índices biofísicos de fuego: VPD diario (Tetens), CDD, lluvia 48h, FFMC, ISI.
+- Exporta en formato columnar ZSTD: datos/processed/clima_era5_diario.parquet.
+"""
+
+from pathlib import Path
+import sys
+import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+import cdsapi
+import polars as pl
+from src.constantes import DIR_PROCESSED, DIR_RAW
+from src.clima import generar_malla_nodos_clima, asignar_nodos_a_grilla, calcular_indices_fwi_y_sequedad
+from src.clima_cds import descargar_trimestre_cds, procesar_nc_a_nodos_diarios
+
+def procesar_un_trimestre(anio: int, q: int, dir_cds_raw: Path, df_nodos_filtrados: pl.DataFrame) -> pl.DataFrame | None:
+    archivo_parquet_q = dir_cds_raw / f"lote_clima_{anio}_Q{q}.parquet"
+    if archivo_parquet_q.exists():
+        print(f" ✓ Lote en caché: {archivo_parquet_q.name}")
+        return pl.read_parquet(archivo_parquet_q)
+
+    print(f"\n--- PROCESANDO: AÑO {anio} - TRIMESTRE Q{q} ---")
+    client = cdsapi.Client()
+    try:
+        ruta_nc = descargar_trimestre_cds(client, anio, q, dir_cds_raw)
+        df_q = procesar_nc_a_nodos_diarios(ruta_nc, df_nodos_filtrados)
+        print(f"   ✓ {len(df_q):,} registros diarios procesados para {anio} Q{q}.")
+        df_q.write_parquet(archivo_parquet_q, compression="zstd")
+        # Limpiar archivo NetCDF pesado para ahorrar espacio en disco
+        if ruta_nc.exists():
+            ruta_nc.unlink()
+        return df_q
+    except Exception as e:
+        print(f"   ✗ Error procesando {anio} Q{q}: {e}")
+        return None
+
+def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2):
+    print("=" * 65)
+    print(f"INGESTA ERA5-LAND DESDE COPERNICUS CDS: AÑOS {anios[0]} a {anios[-1]}")
+    print(f"Workers concurrentes: {max_workers}")
+    print("=" * 65)
+
+    path_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
+    if not path_grilla.exists():
+        raise FileNotFoundError(f"Grilla no encontrada en {path_grilla}. Ejecuta scripts/00_generar_grilla_nacional.py primero.")
+
+    print(f"1. Cargando grilla nacional y nodos meteorológicos...")
+    df_grilla = pl.read_parquet(path_grilla)
+    df_nodos = generar_malla_nodos_clima(resolucion_deg=0.25)
+    df_grilla = asignar_nodos_a_grilla(df_grilla, df_nodos)
+
+    nodos_activos = df_grilla["nodo_clima_id"].unique().to_list()
+    df_nodos_filtrados = df_nodos.filter(pl.col("nodo_clima_id").is_in(nodos_activos))
+    print(f"   ✓ {len(df_nodos_filtrados)} nodos meteorológicos activos sobre Paraguay.")
+
+    dir_cds_raw = DIR_RAW / "era5" / "cds"
+    dir_cds_raw.mkdir(parents=True, exist_ok=True)
+
+    tareas = []
+    for anio in anios:
+        for q in [1, 2, 3, 4]:
+            tareas.append((anio, q))
+
+    dfs_trimestrales = []
+    print(f"\nIniciando cola de procesamiento ({len(tareas)} trimestres)...")
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futuros = {
+            executor.submit(procesar_un_trimestre, anio, q, dir_cds_raw, df_nodos_filtrados): (anio, q)
+            for anio, q in tareas
+        }
+        for fut in as_completed(futuros):
+            anio, q = futuros[fut]
+            try:
+                res = fut.result()
+                if res is not None:
+                    dfs_trimestrales.append(res)
+            except Exception as e:
+                print(f"   ✗ Excepción en tarea {anio} Q{q}: {e}")
+
+    if not dfs_trimestrales:
+        print("No se procesaron datos climáticos.")
+        return
+
+    print("\n2. Consolidando serie temporal completa...")
+    df_total_crudo = pl.concat(dfs_trimestrales).sort(["nodo_clima_id", "fecha"])
+    cols_dedup = [c for c in ["nodo_clima_id", "fecha"] if c in df_total_crudo.columns]
+    if cols_dedup:
+        df_total_crudo = df_total_crudo.unique(subset=cols_dedup, keep="first")
+    print(f"   ✓ Total de observaciones nodo-día consolidadas: {len(df_total_crudo):,}")
+    print(f"   ✓ Fechas: {df_total_crudo['fecha'].min()} a {df_total_crudo['fecha'].max()}")
+
+    print("\n3. Calculando índices biofísicos de fuego (VPD, CDD, FWI FFMC, ISI e interacción viento)...")
+    df_clima_procesado = calcular_indices_fwi_y_sequedad(df_total_crudo)
+
+    out_parquet = DIR_PROCESSED / "clima_era5_diario.parquet"
+    df_clima_procesado.write_parquet(out_parquet, compression="zstd")
+    print(f"\n✓ Dataset meteorológico consolidado guardado en: {out_parquet}")
+    print(f"  Tamaño en disco: {out_parquet.stat().st_size / (1024*1024):.2f} MB")
+    print("=" * 65)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Descarga ERA5-Land desde Copernicus CDS")
+    parser.add_argument("--anios", nargs="+", type=int, default=list(range(2018, 2026)), help="Lista de años AAAA")
+    parser.add_argument("--workers", type=int, default=2, help="Número de descargas concurrentes en CDS (máx 2 recomendado)")
+    args = parser.parse_args()
+
+    ejecutar_pipeline_cds(anios=args.anios, max_workers=args.workers)

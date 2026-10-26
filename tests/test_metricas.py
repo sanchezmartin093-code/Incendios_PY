@@ -9,7 +9,10 @@ from src.metricas import (
     calcular_umbral_optimo_f_beta,
     calcular_brier_skill_score,
     calcular_expected_calibration_error,
-    calcular_bootstrap_ci_roc
+    calcular_bootstrap_ci_roc,
+    calcular_cuantil_conforme,
+    predecir_conjuntos_conformes,
+    evaluar_cobertura_conforme
 )
 
 class TestMetricas(unittest.TestCase):
@@ -53,6 +56,33 @@ class TestMetricas(unittest.TestCase):
         inf, sup = calcular_bootstrap_ci_roc(y_true, p_perfect, n_bootstrap=100)
         self.assertGreaterEqual(inf, 0.99)
         self.assertLessEqual(sup, 1.01)
+
+    def test_split_conformal_prediction(self):
+        rng = np.random.default_rng(42)
+        n_val = 1000
+        n_test = 500
+        
+        # Simular probabilidades y etiquetas
+        p_val = rng.uniform(0.05, 0.95, size=n_val)
+        y_val = (rng.uniform(0, 1, size=n_val) < p_val).astype(int)
+        
+        p_test = rng.uniform(0.05, 0.95, size=n_test)
+        y_test = (rng.uniform(0, 1, size=n_test) < p_test).astype(int)
+        
+        # Calcular cuantil para 90% de cobertura marginal (alpha = 0.10)
+        alpha = 0.10
+        q_hat = calcular_cuantil_conforme(y_val, p_val, alpha=alpha)
+        
+        self.assertTrue(0.0 < q_hat <= 1.0)
+        
+        # Predecir conjuntos conformes sobre test
+        c0, c1 = predecir_conjuntos_conformes(p_test, q_hat)
+        self.assertEqual(len(c0), n_test)
+        self.assertEqual(len(c1), n_test)
+        
+        # Verificar cobertura empírica marginal >= 1 - alpha - tolerancia de muestra finita
+        cobertura = evaluar_cobertura_conforme(y_test, p_test, q_hat)
+        self.assertGreaterEqual(cobertura, (1.0 - alpha) - 0.05)
 
 if __name__ == "__main__":
     unittest.main()

@@ -18,6 +18,7 @@ import polars as pl
 import numpy as np
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, BUFFER_ZONA_MUERTA_KM, RATIO_AUSENCIAS_PRESENCIAS
 from src.muestreo import (
+    muestrear_dataset_unificado_por_meses,
     muestrear_pseudo_ausencias_estratificadas,
     particionar_dataset_out_of_time
 )
@@ -35,15 +36,10 @@ def main():
     if not path_dataset.exists():
         raise FileNotFoundError(f"Dataset unificado no encontrado en {path_dataset}. Ejecuta scripts/04_construir_dataset.py primero.")
 
-    print(f"Cargando dataset unificado de candidatos desde: {path_dataset.name}...")
-    df_unificado = pl.read_parquet(path_dataset)
-    print(f"Total de registros celda-día disponibles: {len(df_unificado):,}")
-    print(f"Fuegos positivos (Y=1): {(df_unificado['fuego'] == 1).sum():,}")
-
-    # 1. Ejecutar muestreo estratificado con Dead-Zone Buffer
+    # 1. Ejecutar muestreo estratificado escalable mes a mes con Dead-Zone Buffer
     print(f"\nAplicando Dead-Zone Spatial Buffer de {BUFFER_ZONA_MUERTA_KM} km y ratio 1:{RATIO_AUSENCIAS_PRESENCIAS}...")
-    df_balanceado = muestrear_pseudo_ausencias_estratificadas(
-        df_unificado,
+    df_balanceado = muestrear_dataset_unificado_por_meses(
+        path_dataset,
         ratio_neg_pos=RATIO_AUSENCIAS_PRESENCIAS,
         buffer_km=BUFFER_ZONA_MUERTA_KM,
         semilla=42
