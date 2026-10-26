@@ -128,14 +128,21 @@ def cargar_artefactos_modelos() -> dict:
         }
     return artefactos
 
-def categorizar_riesgo(prob: float, region: str, es_combustible: bool, gating_motivo: str | None = None) -> str:
+def categorizar_riesgo(
+    prob: float,
+    region: str,
+    es_combustible: bool,
+    gating_motivo: str | None = None,
+    cutoff: float | None = None
+) -> str:
     """Asigna la categoría de riesgo operativa basada en la probabilidad calibrada y la física."""
     if not es_combustible:
         return "NULO"
     if gating_motivo is not None and gating_motivo != "":
         return "BAJO"
 
-    cutoff = UMBRAL_CORTE_CHACO if region.lower() == "chaco" else UMBRAL_CORTE_ORIENTAL
+    if cutoff is None:
+        cutoff = UMBRAL_CORTE_CHACO if region.lower() == "chaco" else UMBRAL_CORTE_ORIENTAL
     
     if prob < cutoff:
         return "BAJO"
