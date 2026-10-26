@@ -77,23 +77,69 @@ def main():
 
     import matplotlib.pyplot as plt
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5), dpi=300)
-    for ax, task in zip(axes, ["ignicion", "propagacion"]):
-        for reg, ls in [("Chaco", "-"), ("Oriental", "--")]:
-            for nombre, _, _ in [m for m in MODELOS if m[1] == task]:
-                sub = df[(df["region"] == reg) & (df["task"] == task) & (df["modelo"] == nombre)]
-                label = {"M3_ignicion_hibrida": "M3 hybrid ignition",
-                         "M2_ignicion_base": "M2 baseline ignition",
-                         "Propagacion_tactica": "Tactical propagation"}.get(nombre, nombre)
-                ax.plot(sub["alpha"], sub["valor"], ls, label=f"{reg} {label}")
-        ax.axhline(0, color="grey", lw=0.8)
-        ax.set_title(f"Cost-loss — {'ignition' if task == 'ignicion' else 'propagation'}")
-        ax.set_xlabel("α = C/L")
-        ax.set_ylabel("V(α)")
-        ax.legend(fontsize=7)
+    plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
+
+    colors = {"Chaco": "#c0392b", "Oriental": "#1f7a4d"}
+    labels = {
+        "M3_ignicion_hibrida": "M3 hybrid",
+        "M2_ignicion_base": "M2 baseline",
+        "Propagacion_tactica": "Tactical propagation",
+    }
+    styles = {"M3_ignicion_hibrida": "-", "M2_ignicion_base": "--", "Propagacion_tactica": "-"}
+
+    fig, (ax_prop, ax_ign) = plt.subplots(
+        1, 2, figsize=(13, 5), dpi=300,
+        gridspec_kw={"width_ratios": [1.0, 1.08]},
+    )
+
+    # Propagation: the full cost-loss range is informative.
+    for reg in ["Chaco", "Oriental"]:
+        sub = df[
+            (df["region"] == reg)
+            & (df["task"] == "propagacion")
+            & (df["modelo"] == "Propagacion_tactica")
+        ].sort_values("alpha")
+        ax_prop.plot(
+            sub["alpha"], sub["valor"], color=colors[reg], linewidth=2.0,
+            label=f"{reg} tactical propagation",
+        )
+    ax_prop.axhline(0, color="grey", lw=0.8)
+    ax_prop.set_title("Propagation: value over the full range", fontweight="bold")
+    ax_prop.set_xlabel("α = C/L")
+    ax_prop.set_ylabel("Normalized value V(α)")
+    ax_prop.set_xlim(0, 0.5)
+    ax_prop.legend(fontsize=8, loc="upper right", frameon=True)
+
+    # Ignition: outside this narrow range V(α) is zero, so plotting the full
+    # 0–0.5 range would produce a flat, uninformative panel.
+    for reg in ["Chaco", "Oriental"]:
+        for nombre in ["M3_ignicion_hibrida", "M2_ignicion_base"]:
+            sub = df[
+                (df["region"] == reg)
+                & (df["task"] == "ignicion")
+                & (df["modelo"] == nombre)
+                & (df["alpha"] <= 0.006)
+            ].sort_values("alpha")
+            ax_ign.plot(
+                sub["alpha"], sub["valor"], color=colors[reg],
+                linestyle=styles[nombre], linewidth=2.0,
+                label=f"{reg} {labels[nombre]}",
+            )
+    ax_ign.axhline(0, color="grey", lw=0.8)
+    ax_ign.set_title("Ignition: value concentrates at low α", fontweight="bold")
+    ax_ign.set_xlabel("α = C/L")
+    ax_ign.set_ylabel("Normalized value V(α)")
+    ax_ign.set_xlim(0, 0.006)
+    ax_ign.set_xticks([0.0, 0.001, 0.002, 0.003, 0.004, 0.005])
+    ax_ign.legend(fontsize=7.5, loc="upper right", frameon=True)
+
+    fig.suptitle(
+        "Cost-loss decision value under D2 and prevalence correction",
+        fontsize=12, fontweight="bold", y=1.02,
+    )
     plt.tight_layout()
-    fig.savefig(DIR_FIGURAS / "fig08_cost_loss.png")
-    fig.savefig(DIR_FIGURAS / "fig08_cost_loss.pdf")
+    fig.savefig(DIR_FIGURAS / "fig08_cost_loss.png", bbox_inches="tight")
+    fig.savefig(DIR_FIGURAS / "fig08_cost_loss.pdf", bbox_inches="tight")
     plt.close(fig)
     print(df.to_string(index=False))
 

@@ -463,7 +463,7 @@ $\alpha=C/L$ is the ratio of false-alarm cost to avoided loss; $V(\alpha)$ is th
 
 ![](figuras/fig08_cost_loss.png){width="95%"}
 
-**Figure S3.** Cost-loss curves. The figure complements Table S14.
+**Figure S3.** Cost-loss curves. The propagation panel uses the full $\alpha$ range; the ignition panel is truncated at $\alpha=0.006$ because the decision value is zero or negligible at larger values. The figure complements Table S14.
 
 # Table S15. Data audit
 

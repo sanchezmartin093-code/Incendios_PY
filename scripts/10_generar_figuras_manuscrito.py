@@ -133,20 +133,18 @@ def generar_todas_las_figuras():
     # -------------------------------------------------------------
     print("\n--- Generando Figura 03: Mapa Operativo Nacional de Riesgo ---")
     dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
-    archivos_alerta = sorted(list(dir_raster.glob("alerta_nacional_*.parquet")))
-    if archivos_alerta:
-        # Elegir el día con más celdas en ALTO/EXTREMO para que el mapa sea
-        # informativo, en lugar de tomar arbitrariamente el archivo más viejo
-        # o el más reciente (que puede ser un día totalmente húmedo).
-        def _score_alerta(ruta) -> int:
-            try:
-                _df = pl.read_parquet(ruta, columns=["nivel_alerta"])
-                return _df.filter(pl.col("nivel_alerta").is_in(["ALTO", "EXTREMO"])).height
-            except Exception:
-                return -1
-
-        p_alerta = max(archivos_alerta, key=_score_alerta)
+    # Fixed date for a reproducible, non-cherry-picked alert map. The date is
+    # regenerated with the frozen model before this script is run.
+    fecha_alerta = "2024-09-09"
+    p_alerta = dir_raster / f"alerta_nacional_{fecha_alerta}.parquet"
+    if not p_alerta.exists():
+        archivos_alerta = sorted(list(dir_raster.glob("alerta_nacional_*.parquet")))
+        if not archivos_alerta:
+            print(f"No alert layers found in {dir_raster}")
+            return
+        p_alerta = archivos_alerta[-1]
         fecha_alerta = p_alerta.stem.replace("alerta_nacional_", "")
+    if p_alerta.exists():
         df_alerta = pl.read_parquet(p_alerta)
 
         # Muestreo representativo de celdas para renderizado rápido cartográfico (1 de cada 3 celdas)
