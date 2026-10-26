@@ -345,22 +345,23 @@ Los resultados del experimento de ablación revelan tres hallazgos fundamentales
 
 ## 5.3 Explicabilidad Biofísica con TreeSHAP
 
-Para abrir la "caja negra" del modelo de ignición primaria y verificar que el ensamble aprendió relaciones ecológicas genuinas, aplicamos la descomposición analítica de Shapley para árboles (*TreeSHAP*) [@lundberg2020treeshap]. La @tbl-shap presenta las variables de mayor impacto en cada región.
+Para abrir la "caja negra" del modelo híbrido de ignición primaria ($\mathcal{M}_3$) y verificar que el ensamble aprendió relaciones ecológicas genuinas, aplicamos la descomposición analítica de Shapley para árboles (*TreeSHAP*) [@lundberg2020treeshap]. La @tbl-shap presenta las variables de mayor impacto en cada región.
 
 | Ranking | Región Occidental (Chaco) | Región Oriental |
 | :---: | :--- | :--- |
-| **1** | Distancia a Fuego Histórico ($d_{\text{hist}}$) [$0,279$] | Distancia a Fuego Histórico ($d_{\text{hist}}$) [$0,397$] |
-| **2** | Densidad Histórica de Ignición ($\rho_{\text{hist}}$) [$0,125$] | Densidad Histórica de Ignición ($\rho_{\text{hist}}$) [$0,143$] |
-| **3** | Presión Dinámica del Viento ($v^2$) [$0,024$] | Humedad de Combustible Fino ($FFMC$) [$0,021$] |
-| **4** | Temperatura Mínima ($T_{\text{min}}$) [$0,004$] | Temperatura Máxima ($T_{\text{max}}$) [$0,014$] |
-| **5** | Ráfaga Máxima de Viento ($V_{\text{ráfaga}}$) [$0,003$] | Índice Propagación Inicial FWI ($ISI$) [$0,010$] |
-: Ranking de importancia biofísica global según valores medios absolutos TreeSHAP ($|\text{SHAP}|$) obtenidos con `scripts/08_analisis_shap.py`. {#tbl-shap}
+| **1** | Distancia a Ignición Histórica ($d_{\text{hist}}$) [$0,655$] | Distancia a Ignición Histórica ($d_{\text{hist}}$) [$0,826$] |
+| **2** | Distancia a Corredor Antrópico ($d_{\text{corredor}}$) [$0,292$] | Recurrencia Crónica en Celda ($f_{1\text{km}}$) [$0,463$] |
+| **3** | Densidad Local de Ignición 5 km ($\rho_{5\text{km}}$) [$0,083$] | Distancia a Corredor Antrópico ($d_{\text{corredor}}$) [$0,227$] |
+| **4** | Densidad Macro de Ignición 25 km ($\rho_{25\text{km}}$) [$0,064$] | Densidad Macro de Ignición 25 km ($\rho_{25\text{km}}$) [$0,112$] |
+| **5** | Sinergia Accesibilidad $\times$ VPD [$0,028$] | Precipitación Diaria ($P$) [$0,042$] |
+| **6** | Índice Propagación Inicial FWI ($ISI$) [$0,020$] | Densidad Meso de Ignición 10 km ($\rho_{10\text{km}}$) [$0,038$] |
+: Ranking de importancia biofísica global según valores medios absolutos TreeSHAP ($|\text{SHAP}|$) en el Modelo Híbrido Socio-Ecológico $\mathcal{M}_3$ obtenidos con `scripts/16_ablacion_modelo_hibrido.py` (contrastado con el modelo base $\mathcal{M}_2$ en `scripts/08_analisis_shap.py`). {#tbl-shap}
 
-En ambas macro-regiones, la incorporación del prior de susceptibilidad espacial histórica (distancia y densidad kernel calculadas rigurosamente sobre el conjunto de entrenamiento sin fuga temporal) actúa como ancla geográfica fundamental ($|\text{SHAP}| > 0,27$). En el **Chaco**, los detonantes meteorológicos principales corresponden a la **presión dinámica cuadrática del viento** ($v^2$, $|\text{SHAP}| = 0,024$) y la temperatura mínima, coherente con las intrusiones de frentes fríos ventosos que resecan el estrato xerofítico.
+En ambas macro-regiones, la jerarquía de TreeSHAP revela con nitidez la interacción entre la geografía de accesibilidad humana y el estrés biofísico:
+- En el **Chaco**, tras la distancia a focos históricos ($|\text{SHAP}| = 0,655$), el factor determinante es la **proximidad a corredores antrópicos consolidados** ($d_{\text{corredor}}$, $|\text{SHAP}| = 0,292$) y la densidad local a 5 km ($0,083$), seguidos inmediatamente por el acoplamiento no lineal **Sinergia Accesibilidad $\times$ VPD** ($0,028$) y el índice de propagación inicial ($ISI$, $0,020$). Esto certifica que en el régimen chaqueño el modelo penaliza la lejanía a picadas ganaderas y frentes de desmonte, gatillando el riesgo cuando la desecación atmosférica extrema intersecta los corredores de intervención humana.
+- En la **Región Oriental**, la recurrencia crónica a escala de 1 km² ($f_{1\text{km}}$, $|\text{SHAP}| = 0,463$) y la proximidad a corredores activos ($0,227$) configuran el núcleo antropogénico, mientras que la **precipitación diaria y antecedente** ($P$ y $P_{48h}$, $|\text{SHAP}| > 0,04$) y la desecación de combustible fino ($FFMC$, $0,029$) actúan como los inhibidores y detonantes biofísicos inmediatos.
 
-En contraste, en la **Región Oriental**, tras el prior espacial, los motores biofísicos dominantes son el **contenido de humedad del combustible fino** ($FFMC$, $|\text{SHAP}| = 0,021$), la temperatura máxima ($0,014$) y el índice de propagación inicial ($ISI$, $0,010$), reflejando el forzante térmico que condiciona la quema de rastrojos y pasturas implantadas.
-
-Cabe destacar que el déficit de presión de vapor crudo (`vpd_max_kpa`) presenta un $|\text{SHAP}|$ marginal directo en los árboles debido a un doble mecanismo de diseño: en primer lugar, actúa previamente como filtro de corte duro en el **Gating de Etapa 1 ($VPD \ge 0,8\text{ kPa}$)** eliminando las celdas sin viabilidad termodinámica; en segundo lugar, su señal dinámica es asimilada con mayor especificidad no lineal a través de las variables físicas compuestas (`ffmc`, `isi`, `deficit_hidrico_acumulado` e `interaccion_viento_vpd`), previniendo la redundancia colineal en el ensamble.
+Cabe destacar que el déficit de presión de vapor crudo (`vpd_max_kpa`) actúa simultáneamente en dos niveles: en primer lugar, como filtro de corte duro en el **Gating de Etapa 1 ($VPD \ge 0,8\text{ kPa}$)**; en segundo lugar, su señal dinámica modula las variables compuestas (`ffmc`, `isi`, `interaccion_acceso_vpd` y `presion_quema_pastura`), impidiendo la colinealidad en el ensamble.
 
 La descomposición de la explicabilidad biofísica del ensamble mediante el impacto medio absoluto TreeSHAP ($|\text{SHAP}|$) se expone en la @fig-shap, contrastando la jerarquía de las variables directoras entre el Chaco y la Región Oriental.
 
@@ -420,7 +421,7 @@ La comparación entre macro-regiones revela una asimetría ecológica y operativ
 
 ## 6.5 Cuantificación de Incertidumbre y Garantías Conformes
 
-Para que una predicción probabilística sea accionable en operaciones de protección civil, los tomadores de decisiones requieren conocer el grado de certidumbre del pronóstico. Mediante calibración conforme (*Split Conformal Prediction*) sobre el conjunto de validación (`src/metricas.py`), `Incendios_PY` complementa la probabilidad puntual calibrada con conjuntos de predicción conformalmente válidos a un nivel de cobertura marginal garantizado del $1 - \alpha = 0,90$. La calibración en el conjunto de validación 2023 establece umbrales de no-conformidad de $\hat{q}_{0,90} = 0,382$ en el Chaco y $\hat{q}_{0,90} = 0,341$ en la Región Oriental, alcanzando una cobertura empírica en el conjunto de prueba ciego out-of-time (2024–2025) del $91,4\text{ \%}$. Esto permite discriminar celdas con alta confianza operativa de aquellas donde la escasez de observaciones o la turbulencia atmosférica local amplían el intervalo de incertidumbre epistémica.
+Para que una predicción probabilística sea accionable en operaciones de protección civil, los tomadores de decisiones requieren conocer el grado de certidumbre del pronóstico. Mediante calibración conforme (*Split Conformal Prediction*) sobre el conjunto de validación (`src/metricas.py`), `Incendios_PY` complementa la probabilidad puntual calibrada con conjuntos de predicción conformalmente válidos a un nivel de cobertura marginal garantizado del $1 - \alpha = 0,90$. La calibración en el conjunto de validación 2023 establece umbrales de no-conformidad de $\hat{q}_{0,90} = 0,3637$ en el Chaco y $\hat{q}_{0,90} = 0,4115$ en la Región Oriental, alcanzando una cobertura empírica en el conjunto de prueba ciego out-of-time (2024–2025) del $88,60\text{ \%}$ en el Chaco y $89,73\text{ \%}$ en la Región Oriental (con una cobertura global nacional del $89,26\text{ \%}$ para $1-\alpha=0,90$ y de $94,58\text{ \%}$ para $1-\alpha=0,95$, ver Tabla Suplementaria S5). Esto permite discriminar celdas con alta confianza operativa de aquellas donde la escasez de observaciones o la turbulencia atmosférica local amplían el intervalo de incertidumbre epistémica.
 
 ## 6.6 Eficiencia, Soberanía Tecnológica y Contraste con Ciberinfraestructuras de Supercómputo
 

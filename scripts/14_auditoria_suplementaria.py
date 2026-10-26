@@ -209,28 +209,58 @@ def auditar_tablas_suplementarias():
     # 4. TABLA S5: Predicción Conforme (Split Conformal Prediction)
     # -------------------------------------------------------------
     print("\n4. Evaluando cuantificación de incertidumbre conforme (Split Conformal Prediction)...")
-    filas_conf = []
-    for reg in ["Chaco", "Oriental"]:
-        sub_reg = df_preds.filter(pl.col("region") == reg)
-        y_reg = sub_reg["fuego"].to_numpy().astype(int)
-        col_prob = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_reg.columns else "probabilidad_calibrada"
-        p_reg = sub_reg[col_prob].to_numpy()
+    p_val = DIR_PROCESSED / "val_dataset.parquet"
+    p_priors = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
+    
+    if p_val.exists() and p_priors.exists():
+        df_val = pl.read_parquet(p_val)
+        priors = pl.read_parquet(p_priors)
+        cols_priors = [c for c in priors.columns if c != "cell_id" and c not in ["dist_foco_hist_km", "densidad_hist_25km"]]
+        df_val = df_val.join(priors.select(["cell_id"] + cols_priors), on="cell_id", how="left")
+        df_val = df_val.with_columns([
+            pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
+            (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
+            (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
+            ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
+            (pl.col("densidad_hist_5km") / (pl.col("densidad_hist_25km") + 1.0)).cast(pl.Float32).alias("focalizacion_antropica_local"),
+            (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
+        ])
 
-        q_hat_90 = calcular_cuantil_conforme(y_reg, p_reg, alpha=0.10)
-        c0, c1 = predecir_conjuntos_conformes(p_reg, q_hat_90)
-        cov_90 = float(np.where(y_reg == 1, c1, c0).mean())
+        from src.modelo import FEATURES_HIBRIDO_CHACO, FEATURES_HIBRIDO_ORIENTAL
+        
+        filas_conf = []
+        for reg, feats in [("Chaco", FEATURES_HIBRIDO_CHACO), ("Oriental", FEATURES_HIBRIDO_ORIENTAL)]:
+            sub_val = df_val.filter(pl.col("region") == reg)
+            b, c = cargar_modelo_y_calibrador(
+                DIR_MODELOS / f"lightgbm_hibrido_{reg.lower()}.booster",
+                DIR_MODELOS / "calibradores" / f"calibrador_hibrido_{reg.lower()}.joblib"
+            )
+            p_val = predecir_probabilidad(b, c, sub_val.select(feats).to_numpy())
+            y_val = sub_val["fuego"].to_numpy().astype(int)
 
-        q_hat_95 = calcular_cuantil_conforme(y_reg, p_reg, alpha=0.05)
-        c0_95, c1_95 = predecir_conjuntos_conformes(p_reg, q_hat_95)
-        cov_95 = float(np.where(y_reg == 1, c1_95, c0_95).mean())
+            q_hat_90 = calcular_cuantil_conforme(y_val, p_val, alpha=0.10)
+            q_hat_95 = calcular_cuantil_conforme(y_val, p_val, alpha=0.05)
 
-        filas_conf.append({
-            "region": reg,
-            "q_hat_90": round(q_hat_90, 4),
-            "cobertura_empirica_90": f"{cov_90 * 100:.2f} %",
-            "q_hat_95": round(q_hat_95, 4),
-            "cobertura_empirica_95": f"{cov_95 * 100:.2f} %"
-        })
+            sub_test = df_preds.filter(pl.col("region") == reg)
+            y_test = sub_test["fuego"].to_numpy().astype(int)
+            col_prob = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_test.columns else "probabilidad_calibrada"
+            p_test = sub_test[col_prob].to_numpy()
+
+            c0_90, c1_90 = predecir_conjuntos_conformes(p_test, q_hat_90)
+            cov_90 = float(np.where(y_test == 1, c1_90, c0_90).mean())
+
+            c0_95, c1_95 = predecir_conjuntos_conformes(p_test, q_hat_95)
+            cov_95 = float(np.where(y_test == 1, c1_95, c0_95).mean())
+
+            filas_conf.append({
+                "region": reg,
+                "q_hat_90": round(q_hat_90, 4),
+                "cobertura_empirica_90": f"{cov_90 * 100:.2f} %",
+                "q_hat_95": round(q_hat_95, 4),
+                "cobertura_empirica_95": f"{cov_95 * 100:.2f} %"
+            })
+    else:
+        filas_conf = []
 
     df_s5 = pd.DataFrame(filas_conf)
     p_csv_s5 = DIR_TABLAS / "tablaS5_prediccion_conforme.csv"
