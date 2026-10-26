@@ -1,5 +1,5 @@
 ---
-title: "Material Suplementario Electrónico (ESM): Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en el Gran Chaco mediante GeoAI Multiescala"
+title: "Material Suplementario Electrónico (ESM): Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco"
 subtitle: "Demostraciones matemáticas formales, protocolos de corrección óptica satelital, especificaciones de hiperparámetros y tablas departamentales extendidas [VERSIÓN ANONIMIZADA PARA ARBITRAJE DOBLE CIEGO]"
 date: "2026-10-24"
 date-modified: today
@@ -54,7 +54,7 @@ Los sensores VIIRS a bordo de las plataformas Suomi-NPP, NOAA-20 y NOAA-21 reali
 - En el nadir (ángulo de visión $\theta = 0^\circ$), el píxel tiene un tamaño nominal de $375\text{ m} \times 375\text{ m}$ ($\approx 0,14\text{ km}^2$).
 - En el borde del barrido ($\theta \approx 56^\circ$), la proyección geométrica ensancha el píxel hasta alcanzar dimensiones efectivas de hasta $1.600\text{ m}$ de barrido transversal ($\text{scan} \approx 1,6\text{ km}$) y $800\text{ m}$ a lo largo de la trayectoria (*track*).
 
-Este fenómeno, conocido como **efecto corbatín (*Bow-Tie Effect*)**, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego ($FRP$ en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional soberana de 1 km².
+Este fenómeno, conocido como **efecto corbatín (*Bow-Tie Effect*)**, introduce una triple distorsión: (1) solapamiento espacial entre barridos consecutivos donde el mismo foco de calor es detectado múltiples veces en píxeles adyacentes; (2) dilución de la potencia radiativa del fuego ($FRP$ en megavatios) sobre un área aparente diez veces mayor; y (3) asignación errónea de celdas en la grilla nacional de 1 km².
 
 ### Regla de Filtrado Cinemático Implementada
 En la función `procesar_focos_firms_a_grilla` (`src/firms.py`), aplicamos una regla de depuración cinemática estricta:
