@@ -1,6 +1,6 @@
 ---
 title: "Desacoplando el Peligro Biofísico de Ignición y la Propagación Táctica de Incendios Forestales en el Gran Chaco mediante GeoAI Multiescala (2018–2025)"
-subtitle: "Un marco computacional reproducible de dos etapas para el nowcasting diario de peligro y benchmarking internacional frente a Canadian FWI (ISI) y proxy INPE"
+subtitle: "Un marco computacional reproducible de dos etapas para el nowcasting diario de peligro y benchmarking internacional frente a Canadian FWI completo y INPE Risco de Fogo"
 date: "2026-10-24"
 date-modified: today
 lang: es
@@ -41,7 +41,7 @@ format:
 
 # Resumen {.unnumbered}
 
-La predicción operativa de incendios forestales mediante aprendizaje automático en geociencias enfrenta dos fallas metodológicas críticas: el sesgo de atajo espacial (*spatial shortcut learning*) derivado de la autocorrelación de las plumas térmicas, y la dificultad de los índices climáticos boreales (como el *Canadian Forest Fire Weather Index*, FWI) para capturar la desecación de biomas subtropicales como el Gran Chaco. Presentamos `Incendios_PY`, una arquitectura GeoAI multiescala y desacoplada para la República del Paraguay ($400.006$ celdas de $1\text{ km}^2$), sobre una serie de 8 años (2018–2025). El sistema aplica un gating biofísico de primera etapa (combustible, $VPD \ge 0,8\text{ kPa}$, lluvia de 48 h $< 10\text{ mm}$) que reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas. Para evitar fugas de etiqueta, los priors de susceptibilidad histórica usan un corte mensual y una ventana móvil de 3 años. El modelo de ignición híbrida $\mathcal{M}_3$ combina clima ERA5-Land, MapBiomas real (`collection2_2023`), ecotono, corredores antrópicos y priors causales; la propagación táctica usa un kernel causal $t-1$ con FRP de VIIRS. La evaluación sigue una definición D2: ignición primaria sin fuego t-1 en 25 km ni fuego en la celda en los últimos 10 días, y propagación dentro de 25 km de un fuego t-1. El test D2 incluye $N=1.813.966$ celdas-día (376.552 ignición y 1.437.414 propagación) en 2024–2025. En test, $\mathcal{M}_3$ obtiene ROC-AUC 0,7852 (Chaco) y 0,7480 (Oriental), frente a 0,5177/0,5605 del ISI y 0,4997/0,5274 del proxy INPE; la propagación alcanza 0,8988/0,7798. La precisión case-control en el corte $F_{0.5}$ es 27,52 %/32,63 % para ignición y 84,47 %/60,78 % para propagación; al corregir por prevalencia poblacional (~0,015 %/0,041 %), la precisión operativa cae a 0,062 %/0,242 % y 9,853 %/4,183 %, respectivamente. En un holdout espacial por bloques de 50 km, M3 cae a ROC-AUC 0,6246/0,5721, mientras que M1 obtiene 0,6346/0,6195: la ventaja híbrida es temporal y específica de celdas con historia de fuego. Con clima de t-1, M3 conserva ROC-AUC 0,7834/0,7462. El pipeline se midió en ~1,425 s y ~2,2 GB de RAM pico en ARM64. Es un nowcast/hindcast: las features climáticas son del mismo día. La cobertura conformal empírica fue 89,85 %/90,19 % para nominal 90 % y 95,02 %/94,56 % para 95 %, sin garantía formal bajo cambio temporal.
+La predicción operativa de incendios forestales mediante aprendizaje automático en geociencias enfrenta dos fallas metodológicas críticas: el sesgo de atajo espacial (*spatial shortcut learning*) derivado de la autocorrelación de las plumas térmicas, y la dificultad de los índices climáticos boreales (como el *Canadian Forest Fire Weather Index*, FWI) para capturar la desecación de biomas subtropicales como el Gran Chaco. Presentamos `Incendios_PY`, una arquitectura GeoAI multiescala y desacoplada para la República del Paraguay ($400.006$ celdas de $1\text{ km}^2$), sobre una serie de 8 años (2018–2025). El sistema aplica un gating biofísico de primera etapa (combustible, $VPD \ge 0,8\text{ kPa}$, lluvia de 48 h $< 10\text{ mm}$) que reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas. Para evitar fugas de etiqueta, los priors de susceptibilidad histórica usan un corte mensual y una ventana móvil de 3 años. El modelo de ignición híbrida $\mathcal{M}_3$ combina clima ERA5-Land, MapBiomas real (`collection2_2023`), ecotono, corredores antrópicos y priors causales; la propagación táctica usa un kernel causal $t-1$ con FRP de VIIRS. La evaluación sigue una definición D2: ignición primaria sin fuego t-1 en 25 km ni fuego en la celda en los últimos 10 días, y propagación dentro de 25 km de un fuego t-1. El test D2 incluye $N=1.813.966$ celdas-día (376.552 ignición y 1.437.414 propagación) en 2024–2025. En test, $\mathcal{M}_3$ obtiene ROC-AUC 0,7851 (Chaco) y 0,7485 (Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE Risco de Fogo; la propagación alcanza 0,8988/0,7798. La precisión case-control en el corte $F_{0.5}$ es 27,54 %/29,67 % para ignición y 84,47 %/60,78 % para propagación; al corregir por prevalencia poblacional (~0,015 %/0,041 %), la precisión operativa cae a 0,062 %/0,206 % y 9,853 %/4,183 %, respectivamente. En un holdout espacial por bloques de 50 km, M3 cae a ROC-AUC 0,6246/0,5721, mientras que M1 obtiene 0,6346/0,6195: la ventaja híbrida es temporal y específica de celdas con historia de fuego; para celdas nuevas debe preferirse M1. Con clima de t-1, M3 conserva ROC-AUC 0,7834/0,7462. En cost-loss, M3 no supera claramente a M2 en ignición; la capa de propagación sí muestra valor operativo para $\alpha \approx 0,002$. El pipeline se midió en ~1,569 s y ~2,18 GB de RAM pico en ARM64. Es un nowcast/hindcast: las features climáticas son del mismo día. La cobertura conformal empírica fue 89,85 %/90,19 % para nominal 90 % y 95,02 %/94,56 % para 95 %, sin garantía formal bajo cambio temporal.
 
 **Palabras clave:** Incendios forestales; GeoAI; Gran Chaco; LightGBM; Reanálisis ERA5; NASA FIRMS; Desacoplamiento biofísico; Autocorrelación espacial; Benchmarking internacional.
 
@@ -49,7 +49,7 @@ La predicción operativa de incendios forestales mediante aprendizaje automátic
 
 # Abstract {.unnumbered}
 
-Operational wildfire forecasting via machine learning in geosciences faces two critical methodological issues: spatial shortcut learning from thermal-plume autocorrelation, and the limited transferability of boreal fire-weather indices (such as the Canadian FWI) to moisture-limited subtropical biomes like the Gran Chaco. We present `Incendios_PY`, a decoupled multiscale GeoAI framework for Paraguay ($400,006$ $1\text{-km}^2$ cells) over an 8-year record (2018–2025). A first-stage biophysical gating (fuel, $VPD \ge 0.8\text{ kPa}$, 48-h rainfall $< 10\text{ mm}$) removes 21.7 % of cell-days while retaining 97.17 % of thermal detections. Historical-susceptibility priors use a monthly cutoff and a rolling 3-year window. The hybrid ignition model $\mathcal{M}_3$ combines ERA5-Land weather, real MapBiomas (`collection2_2023`), ecotone, anthropogenic corridors and causal priors; tactical propagation uses a causal $t-1$ kernel with VIIRS FRP. Evaluation follows a D2 definition: primary ignition with no t-1 fire within 25 km and no same-cell fire in the previous 10 days, and propagation within 25 km of a t-1 fire. The D2 test contains $N=1,813,966$ cell-days (376,552 ignition and 1,437,414 propagation) for 2024–2025. On test, $\mathcal{M}_3$ achieves ROC-AUC 0.7852 (Chaco) and 0.7480 (Oriental), versus 0.5177/0.5605 for ISI and 0.4997/0.5274 for the INPE proxy; propagation reaches 0.8988/0.7798. Case-control $F_{0.5}$ precision is 27.52 %/32.63 % for ignition and 84.47 %/60.78 % for propagation; after correction to population prevalence (~0.015 %/0.041 %), operational precision drops to 0.062 %/0.242 % and 9.853 %/4.183 %, respectively. In a 50-km spatial block holdout, M3 drops to ROC-AUC 0.6246/0.5721, whereas M1 reaches 0.6346/0.6195: the hybrid advantage is temporal and specific to cells with fire history. With t-1 weather, M3 retains ROC-AUC 0.7834/0.7462. The pipeline measured ~1.425 s and ~2.2 GB peak RAM on ARM64. It is a nowcast/hindcast: weather features are same-day. Empirical conformal coverage was 89.85 %/90.19 % for nominal 90 % and 95.02 %/94.56 % for 95 %, without a formal guarantee under temporal shift.
+Operational wildfire forecasting via machine learning in geosciences faces two critical methodological issues: spatial shortcut learning from thermal-plume autocorrelation, and the limited transferability of boreal fire-weather indices (such as the Canadian FWI) to moisture-limited subtropical biomes like the Gran Chaco. We present `Incendios_PY`, a decoupled multiscale GeoAI framework for Paraguay ($400,006$ $1\text{-km}^2$ cells) over an 8-year record (2018–2025). A first-stage biophysical gating (fuel, $VPD \ge 0.8\text{ kPa}$, 48-h rainfall $< 10\text{ mm}$) removes 21.7 % of cell-days while retaining 97.17 % of thermal detections. Historical-susceptibility priors use a monthly cutoff and a rolling 3-year window. The hybrid ignition model $\mathcal{M}_3$ combines ERA5-Land weather, real MapBiomas (`collection2_2023`), ecotone, anthropogenic corridors and causal priors; tactical propagation uses a causal $t-1$ kernel with VIIRS FRP. Evaluation follows a D2 definition: primary ignition with no t-1 fire within 25 km and no same-cell fire in the previous 10 days, and propagation within 25 km of a t-1 fire. The D2 test contains $N=1,813,966$ cell-days (376,552 ignition and 1,437,414 propagation) for 2024–2025. On test, $\mathcal{M}_3$ achieves ROC-AUC 0.7851 (Chaco) and 0.7485 (Oriental), versus 0.5185/0.5569 for full FWI and 0.5386/0.4994 for INPE; propagation reaches 0.8988/0.7798. Case-control $F_{0.5}$ precision is 27.54 %/29.67 % for ignition and 84.47 %/60.78 % for propagation; after correction to population prevalence (~0.015 %/0.041 %), operational precision drops to 0.062 %/0.206 % and 9.853 %/4.183 %, respectively. In a 50-km spatial block holdout, M3 drops to ROC-AUC 0.6246/0.5721, whereas M1 reaches 0.6346/0.6195: the hybrid advantage is temporal and specific to cells with fire history; for new cells M1 should be preferred. With t-1 weather, M3 retains ROC-AUC 0.7834/0.7462. In cost-loss terms, M3 does not clearly outperform M2 for ignition; propagation shows operational value near $\alpha \approx 0.002$. The pipeline measured ~1.569 s and ~2.18 GB peak RAM on ARM64. It is a nowcast/hindcast: weather features are same-day. Empirical conformal coverage was 89.85 %/90.19 % for nominal 90 % and 95.02 %/94.56 % for 95 %, without a formal guarantee under temporal shift.
 
 **Keywords:** Wildfire hazard nowcasting; GeoAI; Gran Chaco; LightGBM; ERA5 reanalysis; NASA FIRMS; Biophysical decoupling; Spatial autocorrelation; International benchmarking.
 
@@ -184,6 +184,24 @@ A diferencia de las plataformas centralizadas en la nube como Google Earth Engin
 | **Total Sistema Consolidado** | **Parquet ZSTD** | **—** | **$< 350\text{ MB}$** | **$< 150\text{ ms}$** |
 : Especificaciones de ingeniería de datos y tamaño en disco del sistema `Incendios_PY`. {#tbl-pipeline}
 
+## 3.5 Contribución computacional
+
+La contribución computacional del sistema no depende de un nuevo algoritmo de boosting, sino de la combinación de: (i) una grilla nacional con `cell_id` entero y lookup \(O(1)\); (ii) un pipeline columnar DuckDB/Polars con gating temprano; (iii) una definición D2 de targets que evita mezclar persistencia e ignición; (iv) calibración Platt y conformal; y (v) inferencia nacional ligera.
+
+El lookup `cell_id` procesa 400.006 celdas en \(7{,}3\times10^{-4}\) s (mediana de 100 repeticiones). Un `sjoin` de GeoPandas sobre 50.000 puntos tarda 0,026 s; la comparación no es lineal, pero ilustra por qué el lookup entero evita Point-in-Polygon en tiempo de ejecución.
+
+| etapa                     | metodo          |      n |   tiempo_s |   ram_mb | nota                                |
+|:--------------------------|:----------------|-------:|-----------:|---------:|:------------------------------------|
+| Lookup cell_id O(1)       | NumPy int64     | 400006 |    0.00073 |    nan   | mediana 100 repeticiones            |
+| Point-in-Polygon          | GeoPandas sjoin |  50000 |    0.0261  |    nan   | 50k puntos; extrapolación no lineal |
+| Ingesta + priors + gating | Polars/cKDTree  | 400006 |    1.268   |    nan   | 2024-09-09                          |
+| Inferencia dual           | LightGBM        | 400006 |    0.285   |    nan   | 2024-09-09                          |
+| Agregación/boletín        | Polars          | 400006 |    0.016   |    nan   | 2024-09-09                          |
+| Total pipeline            | Consolidado     | 400006 |    1.569   |   2182.1 | ARM64; x86_64 no medido             |
+
+: Benchmark computacional en macOS ARM64. El pipeline completo se midió sobre 400.006 celdas para 2024-09-09; x86_64 no fue medido. {#tbl-computo}
+
+
 ---
 
 # 4. Protocolo Experimental Multianual y Benchmarking Internacional
@@ -226,8 +244,8 @@ La validación cruzada de un sistema de alerta temprana a escala de país requie
 
 1. **El "Patrón Oro Común" de Evaluación Internacional (Sistemas Canónicos):**
    Para permitir la comparabilidad reproducible con la literatura global [@jain2020review; @rodrigues2014], adoptamos como patrón de referencia común los dos sistemas operativos oficiales más extendidos del planeta:
-   * **Canadian Forest Fire Weather Index (FWI parcial, ISI):** Se usa el *Initial Spread Index* (ISI) de Van Wagner [-@vanwagner1987], calculado con variables diarias máximas de ERA5-Land. **No es el FWI completo** (no se implementan DMC, DC, BUI ni la ecuación final FWI) y no usa la observación de mediodía solar; se etiqueta como ISI en todas las tablas.
-   * **Proxy INPE Risco de Fogo:** índice analítico inspirado en el estándar de Setzer et al. [-@setzer2019], basado en días secos acumulados ($CDD$), VPD y fracción vegetal. **No es la implementación oficial de INPE**; se etiqueta como proxy en todas las tablas.
+   * **Canadian Forest Fire Weather Index (FWI completo):** Se implementan FFMC, DMC, DC, BUI, ISI y FWI de Van Wagner [-@vanwagner1987] con variables de mediodía de ERA5-Land (15 UTC), lluvia diaria y spin-up desde 2018. Se reporta como FWI completo en todas las tablas.
+   * **INPE Risco de Fogo:** implementación del método público v11 de Setzer et al. [-@setzer2019], con PSE, factores de precipitación, riesgo básico senoidal, factores de temperatura/HR y corrección latitudinal. Se omite la corrección por focos de los últimos 3 días para evitar fuga de etiquetas en el benchmark de ignición.
    * **Línea Base Climatológica Nula:** Probabilidad marginal constante derivada de la frecuencia histórica de fuego en cada ecorregión ($P_{\text{base}} = \bar{Y}_{\text{train}}$).
 
 2. **Línea Base de Machine Learning Académico Tradicional (*Spatial Shortcut Baseline*):**
@@ -238,7 +256,7 @@ La validación cruzada de un sistema de alerta temprana a escala de país requie
    * **Dependencia de Catálogos de Combustible Foráneos:** Están calibradas sobre el sistema estadounidense LANDFIRE (modelos de combustible de Scott y Burgan concebidos para bosques de coníferas y chaparral norteamericano), careciendo de equivalencias para los biomas chaqueños y pasturas neotropicales.
    * **Costos Prohibitivos de Cómputo:** Exigen clústeres masivos de supercómputo en la nube (GPUs y arquitecturas paralelas en centros como el SDSC), con tiempos de ejecución de minutos a horas por escenario local.
    
-   En contraste, `Incendios_PY` demuestra cómo un paradigma **GeoAI desacoplado y probabilístico** permite prescindir de simulaciones fluidodinámicas pesadas para la escala territorial, resolviendo la vigilancia de $400.006\text{ celdas}$ soberanas a costo de infraestructura nulo y con una latencia de inferencia de $1,425\text{ segundos}$ en hardware de consumo ordinario.
+   En contraste, `Incendios_PY` demuestra cómo un paradigma **GeoAI desacoplado y probabilístico** permite prescindir de simulaciones fluidodinámicas pesadas para la escala territorial, resolviendo la vigilancia de $400.006\text{ celdas}$ soberanas a costo de infraestructura nulo y con una latencia de inferencia de $1,569\text{ segundos}$ en hardware de consumo ordinario.
 
 ## 4.4 Métricas para Eventos Raros
 
@@ -257,12 +275,12 @@ La @tbl-metricas sintetiza el rendimiento discriminante de las dos capas de `Inc
 
 | Macro-Región | Capa del Modelo | ROC-AUC [IC 95 %] | PR-AUC | ECE | Precisión (%) | Recall (%) | Brier Score |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Chaco | M3 | 0.7852 [0.782 - 0.788] | 0.2411 | 0.0116 | 27.52 | 30.69 | 0.0752 |
+| Chaco | M3 | 0.7851 [0.782 - 0.789] | 0.2410 | 0.0110 | 27.54 | 30.80 | 0.0752 |
 | Chaco | M2 | 0.7733 [0.770 - 0.777] | 0.2149 | 0.0120 | 23.10 | 41.01 | 0.0765 |
 | Chaco | Propagación | 0.8988 [0.897 - 0.900] | 0.6828 | 0.0116 | 84.47 | 50.89 | 0.0447 |
-| Oriental | M3 | 0.7480 [0.745 - 0.751] | 0.2314 | 0.0068 | 32.63 | 15.29 | 0.0766 |
+| Oriental | M3 | 0.7485 [0.745 - 0.752] | 0.2318 | 0.0065 | 29.67 | 20.40 | 0.0766 |
 | Oriental | M2 | 0.7323 [0.729 - 0.736] | 0.2033 | 0.0055 | 23.95 | 22.78 | 0.0778 |
-| Oriental | Propagación | 0.7798 [0.778 - 0.782] | 0.3650 | 0.0076 | 60.78 | 21.33 | 0.0697 |
+| Oriental | Propagación | 0.7798 [0.778 - 0.781] | 0.3650 | 0.0076 | 60.78 | 21.33 | 0.0697 |
 
 : Métricas de desempeño en el test ciego out-of-time (2024–2025, $N = 1.813.966$ celda-días). Precisión y recall corresponden a la muestra case-control (~9,09 % de prevalencia) y al corte F0.5. Las métricas poblacionales están en la Tabla Suplementaria S6. {#tbl-metricas}
 
@@ -274,7 +292,7 @@ En la capa de **Propagación Táctica**, el modelo alcanza un rendimiento sobres
 
 La inspección forense individual de los casos de falso positivo en el Chaco reveló un patrón ecológico y de manejo consistente: correspondieron a fuegos en pasturas cultivadas donde las condiciones meteorológicas y el combustible justificaban plenamente una alta probabilidad táctica ($P > 0,80$), pero cuya propagación efectiva fue abortada antes del paso orbital de VIIRS debido a la activación de cortafuegos mecanizados de emergencia en establecimientos ganaderos o a giros súbitos de ráfagas hacia paleocauces arenosos sin biomasa continua. Estas contingencias de micro-escala quedan naturalmente fuera de la resolución del reanálisis ERA5 ($25\text{ km}$), demostrando que las clasificaciones del modelo capturan con fidelidad el potencial de combustión del paisaje.
 
-Por su parte, la capa de **Ignición Primaria Híbrida Socio-Ecológica ($\mathcal{M}_3$)** (que no utiliza ninguna información de fuego en $t-1$) alcanza un ROC-AUC de **$0,7852$** ($[0,782 - 0,788]$) en el Chaco y un ROC-AUC de **$0,7480$** ($[0,745 - 0,751]$) en la Región Oriental, con precisiones case-control bajo corte $F_{0.5}$ de **$27,52\text{ \%}$** y **$32,63\text{ \%}$** (reduciendo los falsos positivos a $12.978$ en Chaco y $5.739$ en Oriental) y un error de calibración esperado ($ECE$) de **$0,0116$** y **$0,0068$**, similar al de $\mathcal{M}_2$ ($0,0120$ y $0,0055$).
+Por su parte, la capa de **Ignición Primaria Híbrida Socio-Ecológica ($\mathcal{M}_3$)** (que no utiliza ninguna información de fuego en $t-1$) alcanza un ROC-AUC de **$0,7851$** ($[0,782 - 0,788]$) en el Chaco y un ROC-AUC de **$0,7485$** ($[0,745 - 0,751]$) en la Región Oriental, con precisiones case-control bajo corte $F_{0.5}$ de **$27,54\text{ \%}$** y **$29,67\text{ \%}$** (reduciendo los falsos positivos a $13.011$ en Chaco y $8.787$ en Oriental) y un error de calibración esperado ($ECE$) de **$0,0110$** y **$0,0065$**, similar al de $\mathcal{M}_2$ ($0,0120$ y $0,0055$).
 
 Las curvas de rendimiento empírico Receiver Operating Characteristic (ROC) y Precision-Recall (PR) sobre la partición ciega temporal se detallan en la @fig-curvas-test, evidenciando la marcada separación alcanzada por la capa de propagación táctica y el balance de compromiso en la capa de ignición híbrida M3.
 
@@ -286,40 +304,38 @@ La @tbl-benchmark expone la comparación directa entre el modelo de ignición h�
 
 | Macro-Región | Modelo Evaluado | ROC-AUC [IC 95 %] | PR-AUC | ECE | Brier Skill Score | Falsos Positivos |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Oriental | Incendios_PY (Propagación Táctica) | 0.7798 [0.778 - 0.782] | 0.3650 | 0.0076 | 0.1571 | 10,771 |
-| Oriental | Incendios_PY (Ignición Híbrida M3) | 0.7480 [0.745 - 0.751] | 0.2314 | 0.0068 | 0.0732 | 5,740 |
+| Oriental | Incendios_PY (Ignición Híbrida M3) | 0.7485 [0.745 - 0.752] | 0.2318 | 0.0065 | 0.0735 | 8,787 |
 | Oriental | Incendios_PY (Ignición Base M2) | 0.7323 [0.729 - 0.736] | 0.2033 | 0.0055 | 0.0582 | 13,145 |
-| Oriental | Canadian FWI (ISI) | 0.5605 [0.556 - 0.565] | 0.1074 | — | — | 26,542 |
-| Oriental | Proxy INPE Risco de Fogo | 0.5274 [0.523 - 0.532] | 0.0986 | — | — | 130,671 |
-| Oriental | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0 | 0.0 | 0 |
+| Oriental | Canadian FWI completo | 0.5569 [0.553 - 0.561] | 0.1063 | — | — | 52,650 |
+| Oriental | INPE Risco de Fogo | 0.4994 [0.496 - 0.504] | 0.0909 | — | — | 142,453 |
+| Oriental | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0000 | 0.0000 | 0 |
+| Oriental | Incendios_PY (Propagación Táctica) | 0.7798 [0.778 - 0.781] | 0.3650 | 0.0076 | 0.1571 | 10,771 |
+| Oriental | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0000 | 0.0000 | 0 |
+| Chaco | Incendios_PY (Ignición Híbrida M3) | 0.7851 [0.782 - 0.789] | 0.2410 | 0.0110 | 0.0896 | 13,011 |
+| Chaco | Incendios_PY (Ignición Base M2) | 0.7733 [0.770 - 0.777] | 0.2149 | 0.0120 | 0.0749 | 21,923 |
+| Chaco | Canadian FWI completo | 0.5185 [0.514 - 0.523] | 0.0960 | — | — | 150,654 |
+| Chaco | INPE Risco de Fogo | 0.5386 [0.534 - 0.543] | 0.1030 | — | — | 15,910 |
+| Chaco | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0000 | 0.0000 | 0 |
 | Chaco | Incendios_PY (Propagación Táctica) | 0.8988 [0.897 - 0.900] | 0.6828 | 0.0116 | 0.4586 | 4,902 |
-| Chaco | Incendios_PY (Ignición Híbrida M3) | 0.7852 [0.782 - 0.788] | 0.2411 | 0.0116 | 0.0896 | 12,978 |
-| Chaco | Incendios_PY (Ignición Base M2) | 0.7733 [0.770 - 0.777] | 0.2149 | 0.012 | 0.0749 | 21,923 |
-| Chaco | Canadian FWI (ISI) | 0.5177 [0.513 - 0.522] | 0.0931 | — | — | 142,912 |
-| Chaco | Proxy INPE Risco de Fogo | 0.4997 [0.495 - 0.504] | 0.0913 | — | — | 147,661 |
-| Chaco | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0 | 0.0 | 0 |
+| Chaco | Línea Base Climatológica | 0.5000 [0.500 - 0.500] | 0.0909 | 0.0000 | 0.0000 | 0 |
 
 : Benchmarking sobre el test ciego 2024–2025. FWI e INPE son índices normalizados, no probabilidades calibradas: ECE/BSS no aplican (—). Los falsos positivos corresponden a la muestra case-control. {#tbl-benchmark}
 
-Se realizó un bootstrap pareado con $B=1.000$ sobre la muestra case-control del test para comparar ROC-AUC. Todas las comparaciones de `Incendios_PY` frente al FWI y al proxy INPE dieron $p \le 0,001$ (resolución mínima de $B=1.000$), con las diferencias que se muestran en la @tbl-significancia. Esto no corrige el sesgo de prevalencia ni la falta de independencia espacial; es una prueba de discriminación en la muestra.
+Se realizó un bootstrap pareado con $B=1.000$ sobre la muestra case-control del test para comparar ROC-AUC. Todas las comparaciones de `Incendios_PY` frente al FWI y al INPE Risco de Fogo dieron $p \le 0,001$ (resolución mínima de $B=1.000$), con las diferencias que se muestran en la @tbl-significancia. Esto no corrige el sesgo de prevalencia ni la falta de independencia espacial; es una prueba de discriminación en la muestra.
 
 | Región | Comparación | $\Delta$ROC-AUC | $p$ bootstrap |
 | :--- | :--- | :--- | :--- |
-| Oriental | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI) | +0.1875 | ≤0,001 |
-| Oriental | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo | +0.2206 | ≤0,001 |
-| Oriental | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI) | +0.2380 | ≤0,001 |
-| Oriental | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo | +0.2640 | ≤0,001 |
-| Chaco | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI) | +0.2676 | ≤0,001 |
-| Chaco | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo | +0.2855 | ≤0,001 |
-| Chaco | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI) | +0.3888 | ≤0,001 |
-| Chaco | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo | +0.3770 | ≤0,001 |
+| Oriental | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | +0.1916 | ≤0,001 |
+| Oriental | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | +0.2492 | ≤0,001 |
+| Chaco | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | +0.2667 | ≤0,001 |
+| Chaco | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | +0.2465 | ≤0,001 |
 
 : Pruebas pareadas de diferencia de ROC-AUC mediante bootstrap ($B=1.000$) sobre la muestra case-control. {#tbl-significancia}
 
 Las diferencias de discriminación observadas son:
-- En el **Gran Chaco**, la propagación supera al Canadian FWI por $\Delta\text{ROC} = +0,3888$ y al proxy INPE por $+0,3770$; $\mathcal{M}_3$ supera al FWI por $+0,2676$. Los falsos positivos case-control en el corte $F_{0.5}$ son $4.902$ (propagación), $12.978$ ($\mathcal{M}_3$), $21.923$ ($\mathcal{M}_2$), $147.661$ (INPE) y $142.912$ (FWI).
-- En la **Región Oriental**, la propagación supera al FWI por $+0,2380$ y al INPE por $+0,2640$; $\mathcal{M}_3$ supera al FWI por $+0,1875$. Los falsos positivos case-control son $10.771$ (propagación), $5.739$ ($\mathcal{M}_3$), $13.145$ ($\mathcal{M}_2$), $130.671$ (INPE) y $26.542$ (FWI).
-- Estas cifras son case-control (~9,09 % de prevalencia). La evaluación poblacional (Tabla Suplementaria S6) muestra precisiones de 0,062 %/0,242 % para $\mathcal{M}_3$ y 9,853 %/4,183 % para propagación; son las cifras relevantes para operación.
+- En el **Gran Chaco**, $\mathcal{M}_3$ supera al Canadian FWI completo por $\Delta\text{ROC} = +0,2667$ y al INPE Risco de Fogo por $+0,2465$. Los falsos positivos case-control en el corte $F_{0.5}$ son $13.011$ ($\mathcal{M}_3$), $21.923$ ($\mathcal{M}_2$), $15.910$ (INPE) y $150.654$ (FWI).
+- En la **Región Oriental**, $\mathcal{M}_3$ supera al FWI por $+0,1916$ y al INPE por $+0,2492$. Los falsos positivos case-control son $8.787$ ($\mathcal{M}_3$), $13.145$ ($\mathcal{M}_2$), $142.453$ (INPE) y $52.650$ (FWI).
+- Estas cifras son case-control (~9,09 % de prevalencia). La evaluación poblacional (Tabla Suplementaria S6) muestra precisiones de 0,062 %/0,206 % para $\mathcal{M}_3$ y 9,853 %/4,183 % para propagación; son las cifras relevantes para operación.
 
 La comparación gráfica exhaustiva de las curvas ROC y Precision-Recall frente al Canadian FWI y al INPE Risco de Fogo se expone en la @fig-benchmark-curvas, destacando la marcada divergencia en la fracción de positivos verdaderos identificados.
 
@@ -341,26 +357,26 @@ La @tbl-ablacion reporta el contraste estadístico completo entre los tres nivel
 
 | Macro-Región | Arquitectura Evaluada | $K$ Vars | ROC-AUC [IC 95 %] | PR-AUC | Brier Score | BSS | ECE | Precisión ($F_{0.5}$) | Recall (%) | Falsos Positivos |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Chaco | M3: Híbrido Socio-Ecológico Multiescala | 33 | 0.7852 [0.782 - 0.788] | 0.2411 | 0.0752 | +0.0896 | 0.0116 | 27.52 | 30.69 | 12,977 |
-| Chaco | M2: Ignición con Ancla Macro (v1) | 24 | 0.7749 [0.772 - 0.778] | 0.2222 | 0.0761 | +0.0787 | 0.0103 | 23.21 | 40.91 | 21,733 |
-| Chaco | M1: Biofísico Puro (Sin Antrópico) | 17 | 0.6286 [0.624 - 0.633] | 0.1511 | 0.0809 | +0.0206 | 0.0111 | 13.98 | 32.08 | 31,686 |
-| Chaco | Benchmark: Canadian FWI (ISI) | 4 | 0.5177 [0.514 - 0.522] | 0.0931 | 0.0967 | -0.1706 | 0.0777 | 9.33 | 91.61 | 142,912 |
-| Chaco | Benchmark: INPE Risco de Fogo | 3 | 0.4997 [0.496 - 0.505] | 0.0913 | 0.3399 | -3.1127 | 0.4093 | 9.28 | 94.11 | 147,661 |
-| Oriental | M3: Híbrido Socio-Ecológico Multiescala | 34 | 0.7480 [0.745 - 0.752] | 0.2314 | 0.0766 | +0.0732 | 0.0068 | 32.63 | 15.29 | 5,739 |
-| Oriental | M2: Ignición con Ancla Macro (v1) | 24 | 0.7339 [0.731 - 0.737] | 0.2048 | 0.0778 | +0.0592 | 0.0052 | 24.62 | 21.51 | 11,968 |
-| Oriental | M1: Biofísico Puro (Sin Antrópico) | 17 | 0.6422 [0.638 - 0.646] | 0.1422 | 0.0810 | +0.0197 | 0.0029 | 16.75 | 20.06 | 18,120 |
-| Oriental | Benchmark: Canadian FWI (ISI) | 4 | 0.5605 [0.556 - 0.565] | 0.1074 | 0.0976 | -0.1813 | 0.0830 | 11.60 | 19.16 | 26,542 |
-| Oriental | Benchmark: INPE Risco de Fogo | 3 | 0.5274 [0.523 - 0.532] | 0.0986 | 0.1819 | -1.2011 | 0.2229 | 9.40 | 74.58 | 130,671 |
+| Chaco | M3: Híbrido Socio-Ecológico Multiescala | 33 | 0.7851 [0.782 - 0.789] | 0.2410 | 0.0752 | 0.0896 | 0.0110 | 27.54 | 30.80 | 13,016 |
+| Chaco | M2: Ignición con Ancla Macro (v1) | 24 | 0.7751 [0.772 - 0.778] | 0.2219 | 0.0761 | 0.0787 | 0.0110 | 23.27 | 39.26 | 20,787 |
+| Chaco | M1: Biofísico Puro (Sin Antrópico) | 17 | 0.6287 [0.624 - 0.633] | 0.1515 | 0.0809 | 0.0207 | 0.0106 | 16.86 | 17.38 | 13,765 |
+| Chaco | Benchmark: Canadian FWI completo | 6 | 0.5185 [0.514 - 0.523] | 0.0960 | — | — | — | 9.29 | 96.08 | 150,654 |
+| Chaco | Benchmark: INPE Risco de Fogo | 7 | 0.5386 [0.534 - 0.543] | 0.1030 | — | — | — | 11.60 | 13.00 | 15,910 |
+| Oriental | M3: Híbrido Socio-Ecológico Multiescala | 34 | 0.7485 [0.745 - 0.752] | 0.2318 | 0.0766 | 0.0735 | 0.0065 | 29.67 | 20.40 | 8,789 |
+| Oriental | M2: Ignición con Ancla Macro (v1) | 24 | 0.7340 [0.731 - 0.738] | 0.2044 | 0.0778 | 0.0592 | 0.0053 | 23.91 | 24.24 | 14,021 |
+| Oriental | M1: Biofísico Puro (Sin Antrópico) | 17 | 0.6421 [0.638 - 0.646] | 0.1422 | 0.0810 | 0.0197 | 0.0031 | 16.46 | 21.86 | 20,165 |
+| Oriental | Benchmark: Canadian FWI completo | 6 | 0.5569 [0.553 - 0.561] | 0.1063 | — | — | — | 10.98 | 35.74 | 52,650 |
+| Oriental | Benchmark: INPE Risco de Fogo | 7 | 0.4994 [0.495 - 0.504] | 0.0909 | — | — | — | 9.24 | 79.79 | 142,453 |
 
 : Ablación controlada: M1, M2 y M3 usan la misma capacidad (45/60 rounds, 23/31 hojas). Precisión/recall/F0.5/FPs son case-control (~9,09 %); no son operativos poblacionales. FWI/INPE no son probabilidades calibradas. {#tbl-ablacion}
 
 Los resultados del experimento de ablación revelan tres hallazgos fundamentales para la ciencia del fuego en el Cono Sur:
 
-1. **Superioridad del Aprendizaje Biofísico ($\mathcal{M}_1$) sobre Índices Empíricos Foráneos:** Aun desprovisto de toda información antrópica o geográfica, el modelo biofísico puro $\mathcal{M}_1$ supera en discriminación al Canadian FWI y al INPE Risco de Fogo en el Gran Chaco ($\text{ROC-AUC} = 0,6286$ vs. $0,5177$ y $0,4997$; $\text{PR-AUC} = 0,1511$ vs. $0,0931$), reduciendo las falsas alarmas case-control en un $78\text{ \%}$ respecto al FWI ($31.686$ vs. $142.912$). Esto demuestra que la combinación no lineal de $VPD$, viento cuadrático y cobertura de biomasa corrige la saturación estacional de los índices boreales.
+1. **Superioridad del Aprendizaje Biofísico ($\mathcal{M}_1$) sobre Índices Empíricos Foráneos:** Aun desprovisto de toda información antrópica o geográfica, el modelo biofísico puro $\mathcal{M}_1$ supera en discriminación al Canadian FWI y al INPE Risco de Fogo en el Gran Chaco ($\text{ROC-AUC} = 0,6286$ vs. $0,5185$ y $0,5386$; $\text{PR-AUC} = 0,1511$ vs. $0,0931$), reduciendo las falsas alarmas case-control en un $78\text{ \%}$ respecto al FWI ($31.686$ vs. $142.912$). Esto demuestra que la combinación no lineal de $VPD$, viento cuadrático y cobertura de biomasa corrige la saturación estacional de los índices boreales.
 2. **El Techo Epistémico del Clima Puro ($\text{ROC-AUC} \approx 0,63\text{--}0,64$):** En un territorio donde más del $95\text{ \%}$ de las igniciones son de origen humano, las variables puramente meteorológicas y de vegetación alcanzan un límite asintótico de discriminación cercano a $0,63\text{--}0,64$: durante una sequía sinóptica, millones de hectáreas presentan condiciones termodinámicas idénticas para arder, pero el fuego solo se inicia allí donde interviene el agente humano.
-3. **Ganancia del Modelo Híbrido Socio-Ecológico ($\mathcal{M}_3$):** Al integrar accesibilidad humana y desecación atmosférica, el rendimiento sube de $0,6286 \to \mathbf{0,7852}$ en el Chaco ($\Delta\text{ROC} = +0,1566$; PR-AUC $0,1511 \to \mathbf{0,2411}$) y de $0,6422 \to \mathbf{0,7480}$ en la Región Oriental ($\Delta\text{ROC} = +0,1058$; PR-AUC $0,1422 \to \mathbf{0,2314}$). Respecto a $\mathcal{M}_2$ (misma capacidad), $\mathcal{M}_3$ eleva la precisión case-control en $+4,31$ puntos en el Chaco ($23,21 \to \mathbf{27,52}$) y $+8,01$ puntos en Oriental ($24,62 \to \mathbf{32,63}$), con $14.984$ falsos positivos menos en total ($8.755$ Chaco y $6.229$ Oriental). Son métricas case-control; la comparación poblacional está en la Tabla Suplementaria S6.
+3. **Ganancia del Modelo Híbrido Socio-Ecológico ($\mathcal{M}_3$):** Al integrar accesibilidad humana y desecación atmosférica, el rendimiento sube de $0,6286 \to \mathbf{0,7851}$ en el Chaco ($\Delta\text{ROC} = +0,1566$; PR-AUC $0,1511 \to \mathbf{0,2410}$) y de $0,6422 \to \mathbf{0,7485}$ en la Región Oriental ($\Delta\text{ROC} = +0,1058$; PR-AUC $0,1422 \to \mathbf{0,2318}$). Respecto a $\mathcal{M}_2$ (misma capacidad), $\mathcal{M}_3$ eleva la precisión case-control en $+4,31$ puntos en el Chaco ($23,21 \to \mathbf{27,54}$) y $+5,05$ puntos en Oriental ($24,62 \to \mathbf{29,67}$), con $13.003$ falsos positivos menos en total ($7.771$ Chaco y $5.232$ Oriental). Son métricas case-control; la comparación poblacional está en la Tabla Suplementaria S6.
 
-![Estudio de ablación comparativo sobre el conjunto de prueba ciego out-of-time (2024–2025): Curvas ROC y Precision-Recall contrastando el Modelo Biofísico Puro ($\mathcal{M}_1$), el Modelo con Ancla Macro ($\mathcal{M}_2$), el Modelo Híbrido Socio-Ecológico Multiescala ($\mathcal{M}_3$) y los benchmarks internacionales (Canadian FWI (ISI) y proxy INPE).](figuras/fig07_ablacion_biofisico_vs_hibrido.png){#fig-ablacion-hibrido width="100%"}
+![Estudio de ablación comparativo sobre el conjunto de prueba ciego out-of-time (2024–2025): Curvas ROC y Precision-Recall contrastando el Modelo Biofísico Puro ($\mathcal{M}_1$), el Modelo con Ancla Macro ($\mathcal{M}_2$), el Modelo Híbrido Socio-Ecológico Multiescala ($\mathcal{M}_3$) y los benchmarks internacionales (Canadian FWI completo y INPE Risco de Fogo).](figuras/fig07_ablacion_biofisico_vs_hibrido.png){#fig-ablacion-hibrido width="100%"}
 
 ## 5.3 Explicabilidad Biofísica con TreeSHAP
 
@@ -368,12 +384,12 @@ Para abrir la "caja negra" del modelo híbrido de ignición primaria ($\mathcal{
 
 | Ranking | Región Occidental (Chaco) | Región Oriental |
 | :--- | :--- | :--- |
-| **1** | dist_foco_hist_km [0.471] | dist_foco_hist_km [0.283] |
-| **2** | pct_bosque_seco [0.190] | focalizacion_antropica_local [0.219] |
-| **3** | dist_corredor_antropico_km [0.081] | dist_corredor_antropico_km [0.118] |
-| **4** | focalizacion_antropica_local [0.077] | pct_humedal_palmar [0.091] |
-| **5** | doy_cos [0.034] | freq_hist_1km [0.067] |
-| **6** | pct_pastura [0.030] | pct_sabana_pastizal [0.059] |
+| **1** | dist_foco_hist_km [0.468] | dist_foco_hist_km [0.284] |
+| **2** | pct_bosque_seco [0.188] | focalizacion_antropica_local [0.220] |
+| **3** | dist_corredor_antropico_km [0.080] | dist_corredor_antropico_km [0.119] |
+| **4** | focalizacion_antropica_local [0.078] | pct_humedal_palmar [0.090] |
+| **5** | pct_pastura [0.034] | freq_hist_1km [0.064] |
+| **6** | doy_cos [0.033] | pct_sabana_pastizal [0.061] |
 
 : Ranking TreeSHAP del modelo híbrido M3. Las variables de priors causales dominan el ranking; la comparación con M2 está en `scripts/08_analisis_shap.py`. {#tbl-shap}
 
@@ -390,11 +406,11 @@ La descomposición de la explicabilidad biofísica del ensamble mediante el impa
 ## 5.4 Evaluación de Latencia y Rendimiento en Tiempo Real
 
 El servicio automatizado de alerta (`src/alerta.py`) se midió sobre la totalidad del país ($400.006$ celdas) el 2024-09-09:
-- **Ingesta, priors causales y gating:** $1,154\text{ s}$.
-- **Inferencia dual LightGBM:** $0,253\text{ s}$.
-- **Agregación y boletín:** $0,018\text{ s}$.
-- **Tiempo total de punta a punta:** **$1,425\text{ s}$**.
-- **RAM pico medida:** **$2.200,8\text{ MB}$**.
+- **Ingesta, priors causales y gating:** $1,268\text{ s}$.
+- **Inferencia dual LightGBM:** $0,285\text{ s}$.
+- **Agregación y boletín:** $0,016\text{ s}$.
+- **Tiempo total de punta a punta:** **$1,569\text{ s}$**.
+- **RAM pico medida:** **$2.182,1\text{ MB}$**.
 
 Este rendimiento garantiza que una agencia estatal (como el Cuerpo de Bomberos o el INFONA) pueda ejecutar predicciones cada hora si se dispone de pronósticos numéricos de alta frecuencia sin requerir infraestructura de supercómputo. La cartografía operativa resultante a resolución nacional de 1 km² se ilustra en la @fig-mapa-operativo.
 
@@ -419,6 +435,12 @@ Para separar la capacidad de generalización espacial de la memorización de cel
 
 El resultado es contundente: **la ventaja de M3 no se transfiere espacialmente**. En bloques no vistos, M3 cae a ROC-AUC 0,6246 (Chaco) y 0,5721 (Oriental), mientras que M1 —sin priors de fuego— obtiene 0,6346 y 0,6195. La ganancia de M3 en celdas con historia de fuego (0,7912/0,7338) proviene en gran medida de la recurrencia específica de la celda, no de una señal biofísica transferible. Por tanto, M3 debe presentarse como un **nowcast temporal para celdas con historia observada**, y M1 como la opción más robusta para extrapolación espacial. Esta es una limitación central del enfoque híbrido actual.
 
+### 5.5.1 Por qué M3 se usa en la alerta
+
+La alerta operativa es un **nowcast sobre celdas con historia de fuego**, no un modelo de extrapolación a paisajes nuevos. El 90,94 % de las celdas de test ya estaban presentes en train, y la ventaja de M3 se concentra en la recurrencia espacial. Por eso M3 se usa para priorizar celdas ya conocidas por el sistema; para celdas sin historia de fuego debe preferirse M1 o marcar el resultado como fuera de dominio.
+
+El servicio actual no implementa todavía un *fallback* automático a M1: usa M3 en todas las celdas activas. Esa es una limitación de ingeniería declarada, no una afirmación de transferibilidad espacial.
+
 ---
 
 ## 5.6 Evaluación con clima de t-1 (24 h de anticipación)
@@ -434,7 +456,26 @@ Para estimar el costo de eliminar el clima del mismo día, se repitió la evalua
 
 : Evaluación con clima de t-1 (persistencia, 24 h de anticipación). Comparar con la Tabla 1 (clima del mismo día). {#tbl-lead-time}
 
-M3 conserva casi todo su rendimiento con clima de ayer (0,7834/0,7462 vs. 0,7852/0,7480), lo que confirma que su señal dominante son los priors de recurrencia y no el clima del día. M1 cae ligeramente en Oriental (0,6339). Para un sistema operativo real se requiere un pronóstico day-ahead; la persistencia es sólo una cota.
+M3 conserva casi todo su rendimiento con clima de ayer (0,7834/0,7462 vs. 0,7851/0,7485), lo que confirma que su señal dominante son los priors de recurrencia y no el clima del día. M1 cae ligeramente en Oriental (0,6339). Para un sistema operativo real se requiere un pronóstico day-ahead; la persistencia es sólo una cota.
+
+## 5.7 Utilidad operativa: análisis cost-loss
+
+Las métricas de discriminación no responden por sí solas si conviene emitir una alerta. Se aplicó un análisis cost-loss poblacional con razón \(\alpha=C/L\), donde \(C\) es el costo de una acción preventiva y \(L\) la pérdida asociada a un incendio no atendido. El valor relativo \(V(\alpha)\) se calculó con los pesos poblacionales del muestreo D2.
+
+| Región | Target | Modelo | \(\alpha\) óptimo | \(V_{\max}\) |
+| :--- | :--- | :--- | ---: | ---: |
+| Chaco | Ignición | M2 | 0,0001 | 0,357 |
+| Chaco | Ignición | M3 | 0,0001 | 0,353 |
+| Chaco | Propagación | Propagación | 0,0020 | 0,623 |
+| Oriental | Ignición | M2 | 0,0005 | 0,300 |
+| Oriental | Ignición | M3 | 0,0005 | 0,309 |
+| Oriental | Propagación | Propagación | 0,0020 | 0,391 |
+: Análisis cost-loss poblacional. FWI/INPE se excluyen porque no son probabilidades calibradas. {#tbl-costloss}
+
+El resultado es sobrio: **M3 no supera de forma clara a M2 en utilidad cost-loss para ignición**; en Chaco, M2 es ligeramente superior en el óptimo, y en Oriental M3 lo supera por un margen pequeño. La capa de propagación sí muestra un valor operativo claramente mayor, con un óptimo alrededor de \(\alpha=0{,}002\). Esto refuerza la conclusión de que M3 debe presentarse como un nowcast de recurrencia y no como un modelo universal de ignición.
+
+![Curvas cost-loss poblacionales para ignición y propagación. La línea horizontal marca el valor nulo.](figuras/fig08_cost_loss.png){#fig-costloss width="100%"}
+
 
 ---
 
@@ -442,7 +483,7 @@ M3 conserva casi todo su rendimiento con clima de ayer (0,7834/0,7462 vs. 0,7852
 
 ## 6.1 Por qué Fallan los Índices Boreales Canónicos en el Gran Chaco
 
-En la muestra case-control, la adopción acrítica del **Canadian FWI** y del índice **INPE Risco de Fogo** muestra una capacidad de discriminación baja en el Gran Chaco. En el Gran Chaco, el Proxy INPE obtiene un ROC-AUC de apenas **$0,4997$** y el Canadian FWI (ISI) un **$0,5177$**, comportándose estadísticamente indistinguibles de una adivinación aleatoria ($ROC \approx 0,50$). Esta baja discriminación se traduce en muchas falsas alarmas en la muestra case-control: **$147.661$ falsos positivos** en el INPE y **$142.912$** en el FWI en la muestra case-control del test ciego.
+En la muestra case-control, la adopción acrítica del **Canadian FWI** y del índice **INPE Risco de Fogo** muestra una capacidad de discriminación baja en el Gran Chaco. En el Gran Chaco, el INPE Risco de Fogo obtiene un ROC-AUC de **$0,5386$** y el Canadian FWI completo un **$0,5185$**, ambos cercanos a una adivinación aleatoria ($ROC \approx 0,50$). Esta baja discriminación se traduce en muchas falsas alarmas en la muestra case-control: **$15.910$ falsos positivos** en el INPE y **$150.654$** en el FWI en el test ciego.
 
 El FWI fue calibrado originalmente bajo el supuesto de bosques cerrados de coníferas boreales (*Pinus banksiana*), donde el combustible crítico es el mantillo orgánico profundo (*duff layer*) y las tasas de evaporación son moderadas [@vanwagner1987; @flannigan2009]. 
 
@@ -456,7 +497,7 @@ En el Gran Chaco y en mosaicos ecológicos análogos del Cerrado y Pantanal [@al
 La literatura reciente de machine learning aplicado al fuego abunda en publicaciones que reportan precisiones aparentemente excepcionales ($> 95\text{ \%}$) mediante modelos monolíticos únicos que agrupan variables meteorológicas con la distancia inmediata a focos previos [@sayad2019; @coffield2019]. Tal como advierten las revisiones metodológicas contemporáneas [@jain2020review; @ploton2020], esos modelos sufren de **ceguera selectiva ante la ignición primaria**: cuando se elimina el atajo del fuego anterior, su capacidad predictiva real colapsa. En esos trabajos, al evaluar sobre celdas sin fuego activo contiguo, el desempeño de los modelos acoplados suele caer cerca del azar, lo que sugiere que el clasificador aprendió persistencia de vecindad más que la física del combustible. En esta versión no se implementó ese control negativo, por lo que no se cuantifica aquí.
 
 Al separar analíticamente la **Ignición Primaria Híbrida** de la **Propagación Táctica**:
-- Proveemos una herramienta que señala dónde el combustible, la atmósfera y la accesibilidad humana delimitan riesgo de ignición, alcanzando un ROC-AUC de $0,7852$ en el Chaco y $0,7480$ en la Región Oriental en celdas sin foco inmediato $t-1$ (el test no es un holdout espacial). Las precisiones case-control $F_{0.5}$ son $27,52\text{ \%}$ y $32,63\text{ \%}$; las poblacionales caen a $0,062\text{ \%}$ y $0,242\text{ \%}$.
+- Proveemos una herramienta que señala dónde el combustible, la atmósfera y la accesibilidad humana delimitan riesgo de ignición, alcanzando un ROC-AUC de $0,7851$ en el Chaco y $0,7485$ en la Región Oriental en celdas sin foco inmediato $t-1$ (el test no es un holdout espacial). Las precisiones case-control $F_{0.5}$ son $27,54\text{ \%}$ y $29,67\text{ \%}$; las poblacionales caen a $0,062\text{ \%}$ y $0,206\text{ \%}$.
 - Proveemos a los bomberos y brigadas en el terreno un modelo táctico de combate capaz de anticipar hacia qué cuadrante avanzará el frente activo en las próximas 24 horas con una precisión case-control del $84,47\text{ \%}$ en el Chaco (con solo $4.902$ falsos positivos frente a $147.661$ del índice INPE) y del $60,78\text{ \%}$ en la Región Oriental. En población, la precisión es $9,853\text{ \%}$ y $4,183\text{ \%}$.
 
 ## 6.3 Interacción Bi-Escala: Susceptibilidad Estática (Dónde) vs. Detonante Dinámico (Cuándo)
@@ -472,7 +513,7 @@ Gracias a las **restricciones de monotonicidad biofísica** impuestas en LightGB
 ## 6.4 Física del Paisaje y Asimetría Regional de Escala de Disturbio
 
 La comparación entre macro-regiones revela una asimetría ecológica y operativa fundamental en el comportamiento del fuego:
-- En la **Región Oriental**, la capa de **Ignición Primaria Híbrida ($\mathcal{M}_3$)** alcanza un rendimiento discriminante superior ($ROC = 0,7480$, $PR = 0,2314$) frente al Chaco ($ROC = 0,7852$, $PR = 0,2411$). Este fenómeno se explica por la estructura del paisaje: en la Región Oriental, la ignición responde a un régimen antrópico fuertemente ligado a la red vial, parcelas de pastura y calendario agropecuario, donde el ancla histórica de susceptibilidad espacial y los umbrales de desecación fina ($FFMC$) delimitan con gran nitidez *dónde y cuándo* puede encenderse un foco en ausencia de incendios preexistentes.
+- En la **Región Oriental**, la capa de **Ignición Primaria Híbrida ($\mathcal{M}_3$)** alcanza un rendimiento discriminante superior ($ROC = 0,7485$, $PR = 0,2318$) frente al Chaco ($ROC = 0,7851$, $PR = 0,2410$). Este fenómeno se explica por la estructura del paisaje: en la Región Oriental, la ignición responde a un régimen antrópico fuertemente ligado a la red vial, parcelas de pastura y calendario agropecuario, donde el ancla histórica de susceptibilidad espacial y los umbrales de desecación fina ($FFMC$) delimitan con gran nitidez *dónde y cuándo* puede encenderse un foco en ausencia de incendios preexistentes.
 - En contraste, en el **Gran Chaco**, una vez establecida la ignición en mosaicos xerofíticos continuos, la **Propagación Táctica** alcanza ROC = $0,8988$ y PR = $0,6828$; su precisión case-control es $84,47\text{ \%}$ y la poblacional $9,853\text{ \%}$. En la Región Oriental, la precisión case-control es $60,78\text{ \%}$ y la poblacional $4,183\text{ \%}$. Las cifras case-control no son operativas.
 
 ## 6.5 Cuantificación de Incertidumbre y Garantías Conformes
@@ -485,17 +526,17 @@ Una barrera frecuente para la adopción de inteligencia artificial en países en
 
 `Incendios_PY` fue deliberadamente concebido para derribar esta barrera y democratizar la analítica GeoAI:
 - Al utilizar **DuckDB** [@raasveldt2019duckdb] y **Polars**, el pipeline procesa la serie temporal de 8 años completa en menos de 4 GB de RAM bajo una arquitectura columnar *Zero-Copy*.
-- Evalúa la totalidad del territorio nacional ($400.006$ celdas) en apenas **$1,425$ segundos** en un procesador estándar de consumo ordinario (Apple Silicon M-Series o Intel/AMD x86_64), reduciendo el costo recurrente de infraestructura cloud a exactamente \$0.
+- Evalúa la totalidad del territorio nacional ($400.006$ celdas) en apenas **$1,569$ segundos** en un procesador estándar de consumo ordinario (Apple Silicon M-Series o Intel/AMD x86_64), reduciendo el costo recurrente de infraestructura cloud a exactamente \$0.
 - El reentrenamiento es viable en un equipo de consumo, aunque no se reporta un benchmark formal de tiempo de entrenamiento.
 - Todo el código es 100 % abierto, sin dependencias propietarias ni licencias privativas de software SIG, asegurando transferibilidad institucional directa hacia el **MADES**, el **INFONA** y los **Cuerpos de Bomberos Voluntarios del Paraguay (CBVP)**.
 
 ## 6.7 Limitaciones
 
 El marco actual presenta limitaciones que deben reconocerse:
-1. **Perfil de combustible estático:** se usa MapBiomas real 2023; no hay una serie anual de cobertura, por lo que los SHAP de biomasa y el proxy INPE deben interpretarse con cautela.
-2. **Baja generalización espacial:** el holdout por bloques de 50 km con buffer de 20 km muestra que M3 cae a ROC-AUC 0,6246/0,5721 en bloques no vistos, mientras que M1 obtiene 0,6346/0,6195. La ventaja de M3 es temporal y específica de celdas con historia de fuego; no debe presentarse como un modelo de extrapolación espacial.
+1. **Perfil de combustible estático:** se usa MapBiomas real 2023; no hay una serie anual de cobertura, por lo que los SHAP de biomasa y el INPE Risco de Fogo deben interpretarse con cautela.
+2. **Baja generalización espacial:** el holdout por bloques de 50 km con buffer de 20 km muestra que M3 cae a ROC-AUC 0,6246/0,5721 en bloques no vistos, mientras que M1 obtiene 0,6346/0,6195. La ventaja de M3 es temporal y específica de celdas con historia de fuego; no debe presentarse como un modelo de extrapolación espacial. El servicio de alerta actual usa M3 en todas las celdas y aún no tiene un fallback automático a M1 para celdas sin historia.
 3. **Nowcast, no pronóstico:** las features climáticas son del mismo día (reanálisis). Para alerta temprana real se requiere un pronóstico day-ahead o features de $t-1$; el sistema actual es un nowcast/hindcast.
-4. **Calibración poblacional aproximada:** la reponderación usa los conteos del plan D2 por fecha, región y target. La precisión poblacional (0,062 %/0,242 % para ignición; 9,853 %/4,183 % para propagación) depende de la calidad de la máscara de dominio y de la observabilidad satelital.
+4. **Calibración poblacional aproximada:** la reponderación usa los conteos del plan D2 por fecha, región y target. La precisión poblacional (0,062 %/0,206 % para ignición; 9,853 %/4,183 % para propagación) depende de la calidad de la máscara de dominio y de la observabilidad satelital.
 5. **Resolución meteorológica:** ERA5-Land se usa sobre una grilla de nodos de 0,25° (~25 km), aunque su resolución nativa es ~0,1°. El clima v2 se descargó de CDS en resolución 3-hourly y la precipitación diaria se reconstruyó sumando incrementos; el archivo actual tiene un máximo de 237,38 mm/día y ningún valor >300 mm. La resolución 3-hourly puede subestimar picos intradiarios de VPD y viento.
 6. **Cobertura nubosa y observabilidad:** VIIRS puede perder focos bajo nubes densas. No se implementó una función explícita $P(\text{Obs})$ ni una máscara de nubosidad; la confianza `low` se descarta, pero la atenuación por nubes no se modela.
 7. **Conformal:** la cobertura empírica (89,85 %/90,19 % para 90 %; 95,02 %/94,56 % para 95 %) no constituye una garantía formal bajo cambio temporal.
@@ -508,7 +549,7 @@ El marco actual presenta limitaciones que deben reconocerse:
 Este trabajo introduce un marco computacional riguroso, desacoplado y reproducible para la predicción del peligro de incendios a escala soberana en Paraguay. Las conclusiones principales son:
 
 1. El cribado biofísico de primera etapa reduce el 21,7 % de las celdas-día y retiene el 97,17 % de las detecciones térmicas.
-2. El desacoplamiento entre ignición y propagación táctica mejora la discriminación frente a los índices canónicos: $\mathcal{M}_3$ alcanza ROC-AUC 0,7852/0,7480 y la propagación 0,8988/0,7798 (Chaco/Oriental), frente a 0,5177/0,5605 del FWI (ISI) y 0,4997/0,5274 del proxy INPE. En la muestra case-control, la precisión $F_{0.5}$ es 27,52 %/32,63 % y 84,47 %/60,78 %; en población real cae a 0,062 %/0,242 % y 9,853 %/4,183 %.
+2. El desacoplamiento entre ignición y propagación táctica mejora la discriminación frente a los índices canónicos: $\mathcal{M}_3$ alcanza ROC-AUC 0,7851/0,7485 y la propagación 0,8988/0,7798 (Chaco/Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE Risco de Fogo. En la muestra case-control, la precisión $F_{0.5}$ es 27,54 %/29,67 % y 84,47 %/60,78 %; en población real cae a 0,062 %/0,206 % y 9,853 %/4,183 %.
 3. Los priors históricos causales (corte mensual, ventana de 3 años) y los corredores antrópicos son los principales predictores, junto con el viento y el FFMC. El perfil de combustible es MapBiomas real 2023; las conclusiones biofísicas siguen limitadas por su carácter estático.
 4. El pipeline completo se midió en ~1,4 s y ~2,0 GB de RAM pico. Es un nowcast/hindcast: las features climáticas son del mismo día; para alerta temprana real se requiere un pronóstico day-ahead.
 5. En el holdout espacial por bloques, M3 cae a ROC-AUC 0,6246/0,5721 y M1 obtiene 0,6346/0,6195. La ventaja híbrida es temporal y específica de celdas con historia de fuego; para celdas nuevas debe preferirse M1 o un reentrenamiento con validación espacial.
@@ -518,7 +559,7 @@ Este trabajo introduce un marco computacional riguroso, desacoplado y reproducib
 ### Delimitación Metodológica y Madurez del Alcance Actual
 En el diseño de `Incendios_PY`, la incorporación de sensores de microondas activas o reflectancias espectrales de alta frecuencia —tales como la misión de humedad de suelo NASA SMAP o el contenido de agua del dosel de Copernicus Sentinel-3 OLCI— fue deliberadamente reservada como trabajo futuro en función de dos criterios de prudencia metodológica:
 1. **Preservación de la Serie Temporal Multianual Homogénea (2018–2025):** Sentinel-3B y NOAA-20 entraron en régimen operativo regular en 2018, mientras que el radar activo de SMAP cesó en 2015, aunque su radiómetro continúa operativo. Forzar la inclusión de flujos asimétricos habría fragmentado el horizonte homogéneo de 8 años gobernado por la constelación dual Suomi-NPP y NOAA-20, impidiendo un entrenamiento y validación rigurosamente estables.
-2. **Defensa de la Soberanía Tecnológica y Bajo Costo Computacional:** El objetivo primario de este trabajo fue demostrar que un país en desarrollo puede desplegar un sistema soberano de alerta temprana de clase mundial con un tiempo de inferencia de $1,425\text{ segundos}$ en computadoras de consumo ordinarias. La asimilación de flujos diarios masivos de microondas en formato HDF5 habría impuesto cargas de almacenamiento en terabytes y dependencias de supercómputo en la nube, desvirtuando la vocación de transferibilidad operativa directa hacia el Cuerpo de Bomberos, la SEN y el MADES.
+2. **Defensa de la Soberanía Tecnológica y Bajo Costo Computacional:** El objetivo primario de este trabajo fue demostrar que un país en desarrollo puede desplegar un sistema soberano de alerta temprana de clase mundial con un tiempo de inferencia de $1,569\text{ segundos}$ en computadoras de consumo ordinarias. La asimilación de flujos diarios masivos de microondas en formato HDF5 habría impuesto cargas de almacenamiento en terabytes y dependencias de supercómputo en la nube, desvirtuando la vocación de transferibilidad operativa directa hacia el Cuerpo de Bomberos, la SEN y el MADES.
 
 ### Líneas de Evolución Futura
 A partir de la línea base consolidada en este estudio, la siguiente generación de la plataforma contemplará:

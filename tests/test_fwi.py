@@ -40,3 +40,15 @@ class TestFWI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestFWICompleto(unittest.TestCase):
+    def test_componentes_fwi(self):
+        from src.fwi import calcular_bui, calcular_dc, calcular_dmc, calcular_fwi
+        dmc = calcular_dmc(30.0, 40.0, 20.0, 0.0, 6.0)
+        dc = calcular_dc(30.0, 0.0, 15.0)
+        bui = calcular_bui(dmc, dc)
+        fwi = calcular_fwi(10.0, bui)
+        self.assertGreaterEqual(dmc, 0.0)
+        self.assertGreaterEqual(dc, 0.0)
+        self.assertGreaterEqual(bui, 0.0)
+        self.assertGreaterEqual(fwi, 0.0)

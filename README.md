@@ -19,7 +19,7 @@ Sistema de modelado y alerta temprana de incendios para Paraguay a resolución d
 - Targets D2: muestreo poblacional 1:10 por target y dominio (`datos/processed/targets_poblacionales/`).
 - Modelos: M2, M3 y propagación reentrenados; calibración Platt y umbrales F0.5 derivados en validación.
 - Alertas: M3 solo en dominio de ignición; propagación solo en dominio t-1; prevalencias D2.
-- Tests: **54 OK**.
+- Tests: **60 OK**.
 
 ## Resultados en test D2
 
@@ -41,7 +41,7 @@ La muestra case-control es 1:10 (prevalencia ~9,09 %). **No es precisión operat
 | Chaco | M3 ignición | 0,062 % | 27,14 % | 0,7884 | 0,0007 |
 | Chaco | M2 ignición | 0,047 % | 39,14 % | 0,7768 | 0,0005 |
 | Chaco | Propagación | 9,853 % | 49,17 % | 0,9048 | 0,1104 |
-| Oriental | M3 ignición | 0,242 % | 17,01 % | 0,7609 | 0,0017 |
+| Oriental | M3 ignición | 0,206 % | 22,78 % | 0,7618 | 0,0017 |
 | Oriental | M2 ignición | 0,165 % | 26,10 % | 0,7505 | 0,0014 |
 | Oriental | Propagación | 4,183 % | 20,48 % | 0,7913 | 0,0281 |
 
@@ -49,8 +49,10 @@ La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,1
 
 ## Benchmarking y validación
 
-- Canadian FWI (ISI): ROC-AUC 0,5177/0,5605 en ignición Chaco/Oriental.
-- Proxy INPE: 0,4997/0,5274.
+- Canadian FWI completo: ROC-AUC 0,5185/0,5569 en ignición Chaco/Oriental.
+- INPE Risco de Fogo: 0,5386/0,4994.
+- Cost-loss: M3 no supera claramente a M2 en ignición; propagación muestra valor operativo cerca de α=0,002.
+- Rendimiento: 1,569 s y 2.182,1 MB de RAM pico en ARM64.
 - Bootstrap pareado: ver `tablas/tabla10_significancia_pareada.csv`.
 - Holdout espacial: M1 0,6346/0,6195; M3 0,6246/0,5721. M3 **no** debe presentarse como modelo de extrapolación espacial.
 - Clima t-1: M3 0,7834/0,7462; M1 0,6221/0,6339.
@@ -62,7 +64,7 @@ La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,1
 Incendios_PY/
 ├── scripts/                 # pipeline 00–21 + 05b/05c/05d + 10b
 ├── src/                     # ingesta, rasgos, targets, modelos, métricas, alerta
-├── tests/                   # 54 tests
+├── tests/                   # 60 tests
 ├── datos/
 │   ├── raw/                 # FIRMS, ERA5, MapBiomas, vectores (no versionado)
 │   ├── processed/           # grilla, clima, focos, dataset, targets
@@ -84,6 +86,8 @@ python scripts/00_generar_grilla_nacional.py
 python scripts/01b_descargar_firms_api.py
 python scripts/01_descargar_firms.py
 python scripts/02b_descargar_era5_cds.py --workers 2
+python scripts/02d_calcular_fwi_completo.py
+python scripts/02e_calcular_inpe.py
 python scripts/03_procesar_combustible.py
 python scripts/04_construir_dataset.py
 
@@ -100,6 +104,8 @@ python scripts/13_benchmarking_modelos.py
 python scripts/18_evaluacion_poblacional.py
 python scripts/20_validacion_espacial_bloques.py
 python scripts/21_evaluacion_lead_time.py
+python scripts/22_analisis_cost_loss.py
+python scripts/23_benchmark_computacional.py
 
 # 4. Productos
 python scripts/09_servicio_alerta.py --fecha 2024-09-09

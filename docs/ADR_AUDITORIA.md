@@ -167,6 +167,14 @@ Evaluación poblacional (tabla 7):
 
 Holdout espacial (tabla 8): M1 0,6346/0,6195; M3 0,6246/0,5721.
 
+## Benchmark completo y utilidad
+
+- FWI completo calculado con mediodía ERA5-Land (15 UTC) y spin-up 2018.
+- INPE v11 con PSE, riesgo básico senoidal, factores de T/HR y corrección latitudinal; sin corrección por focos.
+- Benchmark solo en dominio de ignición; FWI/INPE no se comparan contra propagación.
+- Cost-loss: M3 no supera claramente a M2 en ignición; propagación muestra valor operativo cerca de α=0,002.
+- Benchmark computacional: lookup `cell_id` 7,3×10⁻⁴ s; pipeline total 1,569 s y 2.182,1 MB.
+
 ## Impacto del clima v2 en el gating
 
 - Dataset v2: **915.562.849** celdas-día candidatas (antes 707,1 M con clima v1).
