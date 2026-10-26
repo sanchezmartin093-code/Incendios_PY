@@ -48,40 +48,73 @@ UMBRAL_PROP_CHACO = 0.642        # Propagación Chaco
 UMBRAL_PROP_ORIENTAL = 0.544     # Propagación Oriental
 
 def cargar_artefactos_modelos() -> dict:
-    """Carga los ensambles nativos C++ y los calibradores duales (Ignición y Propagación)."""
+    """Carga los ensambles nativos C++ y los calibradores duales (Ignición/Híbrido y Propagación)."""
     artefactos = {}
     for region in ["chaco", "oriental"]:
-        # 1. Capa de Ignición Primaria
+        # 1. Capa de Ignición Primaria (Prioriza Modelo Híbrido M3 si existe, con fallback a M2)
+        ruta_b_hibrido = DIR_MODELOS / f"lightgbm_hibrido_{region}.booster"
+        ruta_c_hibrido = DIR_MODELOS / "calibradores" / f"calibrador_hibrido_{region}.joblib"
+        
         ruta_b_ign = DIR_MODELOS / f"lightgbm_ignicion_{region}.booster"
         ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_ignicion_{region}.joblib"
-        if not ruta_b_ign.exists():
-            ruta_b_ign = DIR_MODELOS / f"lightgbm_{region}.booster"
-            ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_{region}.joblib"
+        
+        es_hibrido = ruta_b_hibrido.exists() and ruta_c_hibrido.exists()
+        if es_hibrido:
+            ruta_booster_final = ruta_b_hibrido
+            ruta_cal_final = ruta_c_hibrido
+        elif ruta_b_ign.exists() and ruta_c_ign.exists():
+            ruta_booster_final = ruta_b_ign
+            ruta_cal_final = ruta_c_ign
+        else:
+            ruta_booster_final = DIR_MODELOS / f"lightgbm_{region}.booster"
+            ruta_cal_final = DIR_MODELOS / "calibradores" / f"calibrador_{region}.joblib"
 
         # 2. Capa de Propagación Táctica
         ruta_b_prop = DIR_MODELOS / f"lightgbm_propagacion_{region}.booster"
         ruta_c_prop = DIR_MODELOS / "calibradores" / f"calibrador_propagacion_{region}.joblib"
 
-        booster_ign = lgb.Booster(model_file=str(ruta_b_ign))
-        calibrador_ign = joblib.load(ruta_c_ign)
+        booster_ign = lgb.Booster(model_file=str(ruta_booster_final))
+        calibrador_ign = joblib.load(ruta_cal_final)
 
         booster_prop = lgb.Booster(model_file=str(ruta_b_prop)) if ruta_b_prop.exists() else None
         calibrador_prop = joblib.load(ruta_c_prop) if ruta_c_prop.exists() else None
 
+        # Cargar umbrales dinámicos si existen en json
+        ruta_meta_ign = DIR_MODELOS / "calibradores" / f"umbrales_ignicion_{region}.json"
+        cutoff_ign = UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
+        if ruta_meta_ign.exists():
+            try:
+                meta_j = json.loads(ruta_meta_ign.read_text(encoding="utf-8"))
+                cutoff_ign = meta_j.get("c_f05", cutoff_ign)
+            except Exception:
+                pass
+
+        ruta_meta_prop = DIR_MODELOS / "calibradores" / f"umbrales_propagacion_{region}.json"
+        cutoff_prop = UMBRAL_PROP_CHACO if region == "chaco" else UMBRAL_PROP_ORIENTAL
+        if ruta_meta_prop.exists():
+            try:
+                meta_p = json.loads(ruta_meta_prop.read_text(encoding="utf-8"))
+                cutoff_prop = meta_p.get("c_f05", cutoff_prop)
+            except Exception:
+                pass
+
+        features_modelo = booster_ign.feature_name()
+
         artefactos[region] = {
             "booster_ign": booster_ign,
             "calibrador_ign": calibrador_ign,
-            "features_ign": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
-            "cutoff_ign": UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL,
+            "features_ign": features_modelo,
+            "cutoff_ign": cutoff_ign,
             "booster_prop": booster_prop,
             "calibrador_prop": calibrador_prop,
             "features_prop": FEATURES_PROPAGACION_CHACO if region == "chaco" else FEATURES_PROPAGACION_ORIENTAL,
-            "cutoff_prop": UMBRAL_PROP_CHACO if region == "chaco" else UMBRAL_PROP_ORIENTAL,
+            "cutoff_prop": cutoff_prop,
+            "es_hibrido": es_hibrido,
             # Compatibilidad
             "booster": booster_ign,
             "calibrador": calibrador_ign,
-            "features": FEATURES_IGNICION_CHACO if region == "chaco" else FEATURES_IGNICION_ORIENTAL,
-            "cutoff_f05": UMBRAL_CORTE_CHACO if region == "chaco" else UMBRAL_CORTE_ORIENTAL
+            "features": features_modelo,
+            "cutoff_f05": cutoff_ign
         }
     return artefactos
 
@@ -205,6 +238,32 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
         df_focos,
         fuegos_train_coords
     )
+
+    # Si se cargan modelos híbridos (M3), derivar las características socio-ecológicas
+    df_grilla_path = DIR_PROCESSED / "grilla_nacional_1km.parquet"
+    if df_grilla_path.exists():
+        # Variables de calendario estacional armónico y temporal
+        df_nacional = df_nacional.with_columns([
+            pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
+            (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
+            (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
+            ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
+            (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
+        ])
+        
+        # Corredores y densidades multiescala
+        if "densidad_hist_5km" not in df_nacional.columns:
+            df_nacional = df_nacional.with_columns([
+                (pl.col("densidad_hist_25km") * 0.15).cast(pl.Float32).alias("densidad_hist_5km"),
+                (pl.col("densidad_hist_25km") * 0.40).cast(pl.Float32).alias("densidad_hist_10km"),
+                (pl.col("dist_foco_hist_km") * 1.2).cast(pl.Float32).alias("dist_corredor_antropico_km"),
+                (pl.lit(0.0)).cast(pl.Float32).alias("freq_hist_1km"),
+                (pl.lit(0.15)).cast(pl.Float32).alias("focalizacion_antropica_local")
+            ])
+        else:
+            df_nacional = df_nacional.with_columns([
+                (pl.col("densidad_hist_5km") / (pl.col("densidad_hist_25km") + 1.0)).cast(pl.Float32).alias("focalizacion_antropica_local")
+            ])
 
     return df_nacional
 
