@@ -5,7 +5,7 @@ Filosofía de Producción:
   * Etapa 1: Filtro biofísico O(1). Descarta de plano celdas no combustibles (agua, urbano),
     precipitaciones extintoras (P_48h >= 10 mm) o atmósferas saturadas (VPD < 0.8 kPa).
   * Etapa 2: Inferencia de ensamble discriminante regional (LightGBM Booster C++) calibrado
-    isotónicamente P(Fuego|X) ∈ [0.0, 1.0].
+    monótonamente (Platt) P(Fuego|X) ∈ [0.0, 1.0].
 - Clasificación de riesgo operativa según umbrales de máxima precisión (F0.5):
   * NULO: Sin material combustible vegetal (agua o casco urbano consolidado).
   * BAJO: Condiciones subcríticas (P < c*).
@@ -31,15 +31,18 @@ from src.constantes import (
     UMBRAL_LLUVIA_48H_MM
 )
 from src.modelo import (
-    FEATURES_CHACO,
-    FEATURES_ORIENTAL,
-    FEATURES_IGNICION_CHACO,
-    FEATURES_IGNICION_ORIENTAL,
     FEATURES_PROPAGACION_CHACO,
     FEATURES_PROPAGACION_ORIENTAL,
-    predecir_probabilidad
+    predecir_probabilidad,
 )
-from src.espaciotemporal import enriquecer_dataset_espaciotemporal
+from src.metricas import corregir_prior_probabilidades
+from src.espaciotemporal import (
+    agregar_features_antropicas,
+    enriquecer_dataset_espaciotemporal,
+)
+
+# Prevalencia de la muestra case-control 1:10 usada para calibrar Platt.
+PREVALENCIA_MUESTREO = 1.0 / 11.0
 
 # Umbrales óptimos derivados estrictamente en validación out-of-time (F0.5 de máxima precisión anti-falsas alarmas)
 UMBRAL_CORTE_CHACO = 0.399       # Ignición Chaco
@@ -47,9 +50,60 @@ UMBRAL_CORTE_ORIENTAL = 0.273    # Ignición Oriental
 UMBRAL_PROP_CHACO = 0.642        # Propagación Chaco
 UMBRAL_PROP_ORIENTAL = 0.544     # Propagación Oriental
 
+def _cargar_prevalencias_poblacionales() -> dict:
+    """
+    Carga la prevalencia poblacional estimada sobre celdas-día candidatas.
+
+    El archivo lo genera scripts/19_estimar_prevalencias.py. Si no existe, se
+    devuelve un diccionario vacío y el servicio mantiene las probabilidades
+    case-control (con una advertencia explícita).
+    """
+    ruta_d2 = DIR_MODELOS / "calibradores" / "prevalencias_poblacionales_d2.json"
+    if ruta_d2.exists():
+        try:
+            data = json.loads(ruta_d2.read_text(encoding="utf-8"))
+            tasks = data.get("tasks", {})
+            return {
+                str(task).lower(): {
+                    str(k).lower(): v for k, v in regiones.items()
+                    if isinstance(v, dict)
+                }
+                for task, regiones in tasks.items()
+            }
+        except Exception:
+            pass
+
+    ruta = DIR_MODELOS / "calibradores" / "prevalencias_poblacionales.json"
+    if not ruta.exists():
+        return {}
+    try:
+        data = json.loads(ruta.read_text(encoding="utf-8"))
+        regiones = data.get("regiones", data)
+        norm = {
+            str(k).lower(): v for k, v in regiones.items()
+            if isinstance(v, dict)
+        }
+        return {"ignicion": norm, "propagacion": norm}
+    except Exception:
+        return {}
+
+
+def _corregir_cutoff(cutoff_muestreo: float, prevalencia_poblacion: float | None) -> float:
+    if not prevalencia_poblacion:
+        return float(cutoff_muestreo)
+    return float(
+        corregir_prior_probabilidades(
+            np.array([cutoff_muestreo]),
+            PREVALENCIA_MUESTREO,
+            prevalencia_poblacion,
+        )[0]
+    )
+
+
 def cargar_artefactos_modelos() -> dict:
     """Carga los ensambles nativos C++ y los calibradores duales (Ignición/Híbrido y Propagación)."""
     artefactos = {}
+    prevalencias = _cargar_prevalencias_poblacionales()
     for region in ["chaco", "oriental"]:
         # 1. Capa de Ignición Primaria (Prioriza Modelo Híbrido M3 si existe, con fallback a M2)
         ruta_b_hibrido = DIR_MODELOS / f"lightgbm_hibrido_{region}.booster"
@@ -108,6 +162,20 @@ def cargar_artefactos_modelos() -> dict:
             except Exception:
                 pass
 
+        # Pasar los umbrales (y las probabilidades) de la escala case-control a
+        # la escala poblacional. Sin esta corrección, un corte de 0,40 en una
+        # muestra con 9,09 % de prevalencia marca una fracción enorme del país.
+        prev_ign = prevalencias.get("ignicion", {}).get(region, {}).get("global")
+        prev_prop = prevalencias.get("propagacion", {}).get(region, {}).get("global")
+        if not prev_ign or not prev_prop:
+            print(
+                f"[ADVERTENCIA] Faltan prevalencias D2 para {region}. "
+                "Las probabilidades y umbrales quedan en escala case-control; "
+                "ejecute scripts/19_estimar_prevalencias.py."
+            )
+        cutoff_ign = _corregir_cutoff(cutoff_ign, prev_ign)
+        cutoff_prop = _corregir_cutoff(cutoff_prop, prev_prop)
+
         features_modelo = booster_ign.feature_name()
 
         artefactos[region] = {
@@ -120,6 +188,9 @@ def cargar_artefactos_modelos() -> dict:
             "features_prop": FEATURES_PROPAGACION_CHACO if region == "chaco" else FEATURES_PROPAGACION_ORIENTAL,
             "cutoff_prop": cutoff_prop,
             "es_hibrido": es_hibrido,
+            "prevalencia_muestreo": PREVALENCIA_MUESTREO,
+            "prevalencia_ignicion": prev_ign,
+            "prevalencia_propagacion": prev_prop,
             # Compatibilidad
             "booster": booster_ign,
             "calibrador": calibrador_ign,
@@ -221,6 +292,14 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
 
     # 1. Unir grilla y biomasa por cell_id
     df_nacional = grilla.join(biomasa, on="cell_id", how="left")
+    if "origen_datos" in df_nacional.columns:
+        origenes = set(df_nacional["origen_datos"].drop_nulls().unique().to_list())
+        if origenes == {"sintetico_referencia"}:
+            print(
+                "[ADVERTENCIA] El perfil de combustible es SINTÉTICO "
+                "(sintetico_referencia). No use estas alertas como producto "
+                "biofísico operativo hasta sustituirlo por MapBiomas real."
+            )
 
     # 2. Unir clima por nodo_clima_id
     df_nacional = df_nacional.join(clima, on="nodo_clima_id", how="left")
@@ -237,33 +316,27 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
         ((pl.col("viento_max_kmh") / 10.0).pow(2)).alias("potencial_viento_cuadratico")
     ])
 
-    # 4. Enriquecimiento espaciotemporal
-    # Si existe la capa precalculada de priors socioecológicos estáticos (O(1)), unirse instantáneamente
-    path_priors = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
-    if path_priors.exists():
-        df_priors = pl.read_parquet(path_priors)
-        df_nacional = df_nacional.join(df_priors, on="cell_id", how="left")
-        # Completar ecotono y contagio t-1
-        path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
-        df_focos = pl.read_parquet(path_focos) if path_focos.exists() else pl.DataFrame()
-        from src.espaciotemporal import calcular_indice_ecotono, calcular_variables_contagio_lag
-        df_nacional = df_nacional.with_columns(calcular_indice_ecotono(df_nacional))
-        df_nacional = calcular_variables_contagio_lag(df_nacional, df_focos)
-    else:
-        path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
-        df_focos = pl.read_parquet(path_focos) if path_focos.exists() else pl.DataFrame()
-        ruta_coords_hist = DIR_MODELOS / "fuegos_train_coords.npy"
-        fuegos_train_coords = np.load(ruta_coords_hist) if ruta_coords_hist.exists() else None
-        df_nacional = enriquecer_dataset_espaciotemporal(df_nacional, df_focos, fuegos_train_coords)
+    # 4. Enriquecimiento espaciotemporal causal.
+    # Los priors se calculan con los focos estrictamente anteriores al primer
+    # día del mes de la fecha de alerta. No se usa el archivo estático
+    # priors_socioecologicos_1km.parquet, que podía quedar desactualizado.
+    path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
+    if not path_focos.exists():
+        raise FileNotFoundError(
+            f"Archivo de focos no encontrado: {path_focos}. "
+            "Ejecuta scripts/01b_descargar_firms_api.py y scripts/05_muestrear_ausencias.py."
+        )
+    df_focos = pl.read_parquet(path_focos)
+    fecha_corte = f"{dt.year:04d}-{dt.month:02d}-01"
+    df_nacional = enriquecer_dataset_espaciotemporal(
+        df_nacional,
+        df_focos,
+        usar_priors_causales=True,
+        fecha_corte=fecha_corte,
+    )
 
     # Variables de calendario estacional armónico y temporal para el modelo híbrido (M3)
-    df_nacional = df_nacional.with_columns([
-        pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
-        (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
-        (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
-        ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
-        (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
-    ])
+    df_nacional = agregar_features_antropicas(df_nacional)
 
     return df_nacional
 
@@ -312,22 +385,34 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         else:
             p_prop = p_ign
 
-        # Probabilidad de fuego consolidada (máximo riesgo entre ambas capas)
-        p_fuego = np.maximum(p_ign, p_prop)
+        # Guardar la probabilidad case-control para diagnóstico y corregir a
+        # prevalencia poblacional antes de clasificar/alertar.
+        p_ign_muestreo = p_ign.copy()
+        p_prop_muestreo = p_prop.copy()
+        prev_ign = art.get("prevalencia_ignicion")
+        prev_prop = art.get("prevalencia_propagacion")
+        if prev_ign:
+            p_ign = corregir_prior_probabilidades(p_ign, PREVALENCIA_MUESTREO, prev_ign)
+        if prev_prop:
+            p_prop = corregir_prior_probabilidades(p_prop, PREVALENCIA_MUESTREO, prev_prop)
 
-        # Asignar niveles de alerta de forma vectorizada O(1) con sus respectivos umbrales
+        en_propagacion = df_reg["focos_25km_t1"].to_numpy() > 0
+        p_fuego = np.where(en_propagacion, p_prop, p_ign)
+
         cutoff_ign = art.get("cutoff_ign", UMBRAL_CORTE_CHACO if reg_key == "chaco" else UMBRAL_CORTE_ORIENTAL)
         cutoff_prop = art.get("cutoff_prop", UMBRAL_PROP_CHACO if reg_key == "chaco" else UMBRAL_PROP_ORIENTAL)
 
         niveles_ign = categorizar_riesgo_vectorizado(p_ign, cutoff=cutoff_ign, modo="ignicion")
         niveles_prop = categorizar_riesgo_vectorizado(p_prop, cutoff=cutoff_prop, modo="propagacion")
-        niveles_tot = consolidar_nivel_alerta(niveles_ign, niveles_prop)
+        niveles_tot = np.where(en_propagacion, niveles_prop, niveles_ign)
 
         df_reg = df_reg.with_columns([
             pl.Series("probabilidad_ignicion", p_ign.astype(np.float32)),
             pl.Series("probabilidad_propagacion", p_prop.astype(np.float32)),
             pl.Series("probabilidad_fuego", p_fuego.astype(np.float32)),
-            pl.Series("probabilidad_cruda", p_ign.astype(np.float32)),
+            pl.Series("probabilidad_cruda", p_ign_muestreo.astype(np.float32)),
+            pl.Series("probabilidad_ignicion_muestreo", p_ign_muestreo.astype(np.float32)),
+            pl.Series("probabilidad_propagacion_muestreo", p_prop_muestreo.astype(np.float32)),
             pl.Series("nivel_alerta_ignicion", niveles_ign),
             pl.Series("nivel_alerta_propagacion", niveles_prop),
             pl.Series("nivel_alerta", niveles_tot)
@@ -345,6 +430,8 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_propagacion"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_fuego"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_cruda"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_ignicion_muestreo"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_propagacion_muestreo"),
             pl.Series("nivel_alerta_ignicion", niveles_desc),
             pl.Series("nivel_alerta_propagacion", niveles_desc),
             pl.Series("nivel_alerta", niveles_desc)

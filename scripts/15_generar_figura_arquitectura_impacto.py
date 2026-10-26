@@ -20,6 +20,7 @@ import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
 import geopandas as gpd
 import polars as pl
+import pandas as pd
 import numpy as np
 
 def crear_figura_impacto(
@@ -45,6 +46,39 @@ def crear_figura_impacto(
         df_test = pl.read_parquet(path_preds)
         print(f"Predicciones de prueba cargadas: {len(df_test):,} registros.")
 
+    # Métricas dinámicas desde las tablas generadas (evita KPIs hardcodeados).
+    def _tabla(nombre: str) -> pd.DataFrame | None:
+        ruta = ROOT_DIR / "tablas" / nombre
+        return pd.read_csv(ruta) if ruta.exists() else None
+
+    t04 = _tabla("tabla04_benchmarking_internacional.csv")
+    t07 = _tabla("tabla07_evaluacion_poblacional.csv")
+    tS4 = _tabla("tablaS4_perfil_computacional.csv")
+
+    def _roc(tabla, region: str, patron: str, defecto: float) -> float:
+        if tabla is None or "modelo" not in tabla.columns:
+            return defecto
+        sub = tabla[(tabla["region"] == region) & tabla["modelo"].str.contains(patron, regex=False)]
+        return float(sub["roc_auc"].iloc[0]) if len(sub) else defecto
+
+    roc_m3_chaco = _roc(t04, "Chaco", "Híbrida M3", 0.786)
+    roc_m3_oriental = _roc(t04, "Oriental", "Híbrida M3", 0.828)
+    roc_prop_chaco = _roc(t04, "Chaco", "Propagación Táctica", 0.912)
+    roc_fwi_chaco = _roc(t04, "Chaco", "Canadian FWI", 0.518)
+    roc_inpe_chaco = _roc(t04, "Chaco", "Proxy INPE", 0.504)
+
+    precision_prop_pob = 11.87
+    if t07 is not None and "modelo" in t07.columns:
+        sub = t07[(t07["region"] == "Chaco") & (t07["modelo"] == "M2_propagacion_tactica")]
+        if len(sub):
+            precision_prop_pob = float(sub["precision_poblacional_pct"].iloc[0])
+
+    latency_s = 1.77
+    if tS4 is not None and "etapa" in tS4.columns:
+        sub = tS4[tS4["etapa"].str.contains("TOTAL", na=False)]
+        if len(sub):
+            latency_s = float(sub["latencia_arm64_s"].iloc[0])
+
     # 2. Configuración de Tipografía y Estilo Editorial
     plt.rcParams["font.family"] = "sans-serif"
     plt.rcParams["font.sans-serif"] = ["Helvetica", "Arial", "DejaVu Sans", "Liberation Sans"]
@@ -59,7 +93,7 @@ def crear_figura_impacto(
     # -------------------------------------------------------------
     fig.text(0.03, 0.965, "INCENDIOS_PY · SOVEREIGN GEOAI SYSTEM", fontsize=11, fontweight="bold", color="#1E40AF")
     fig.text(0.03, 0.932, "Decoupled Biophysical Ignition Hazard & Tactical Wildfire Propagation Framework", fontsize=16, fontweight="bold", color="#0F172A")
-    fig.text(0.97, 0.938, "24-HOUR FORECAST · 1-km² RESOLUTION · SUB-SECOND INFERENCE", fontsize=10, fontweight="bold", color="#64748B", ha="right")
+    fig.text(0.97, 0.938, "DAILY HAZARD NOWCAST · 1-km² RESOLUTION", fontsize=10, fontweight="bold", color="#64748B", ha="right")
 
     # Grilla principal de 3 paneles horizontales
     # Gutter ancho entre paneles para dar espacio a flechas y etiquetas horizontales limpias
@@ -129,7 +163,7 @@ def crear_figura_impacto(
     fuentes_info = [
         ("NASA FIRMS (VIIRS 375m)", "Suomi-NPP, NOAA-20, NOAA-21\nBow-Tie filtered (scan ≤ 1.5 km)", "#DC2626", "#FEF2F2"),
         ("ERA5-Land Reanalysis", "0.25° grid (640 national nodes)\nVPD, Wind, CDD, FFMC, ISI", "#2563EB", "#EFF6FF"),
-        ("MapBiomas Collection 4", "30m aggregated to 1 km²\n5 dominant fuel/forest classes", "#16A34A", "#F0FDF4"),
+        ("Fuel Cover (MapBiomas)", "Real collection2_2023\n400.006 cells", "#16A34A", "#F0FDF4"),
     ]
     
     # 3 tarjetas con altura 0.27 y espaciado de 0.05 (desde y=0.04 hasta y=0.95 -> 0% de corte inferior)
@@ -274,12 +308,12 @@ def crear_figura_impacto(
 
     # Cuadrícula interna de métricas clave
     kpis_data = [
-        ("Inference Latency", "< 0.75 s", "#0F172A"),
+        ("Pipeline Latency", f"{latency_s:.2f} s", "#0F172A"),
         ("Sovereign Grid", "400,006 cells", "#0F172A"),
-        ("Tactical Precision", "86.73 %", "#15803D"),
-        ("Chaco Spread ROC", "0.874", "#DC2626"),
-        ("Oriental Hybrid ROC", "0.816", "#0284C7"),
-        ("Chaco Hybrid ROC", "0.725", "#0284C7"),
+        ("Population Precision (Propagation)", f"{precision_prop_pob:.1f} %", "#15803D"),
+        ("Chaco Spread ROC", f"{roc_prop_chaco:.3f}", "#DC2626"),
+        ("Oriental Hybrid ROC", f"{roc_m3_oriental:.3f}", "#0284C7"),
+        ("Chaco Hybrid ROC", f"{roc_m3_chaco:.3f}", "#0284C7"),
     ]
     y_kpi = 0.67
     for label_k, val_k, col_k in kpis_data:
@@ -294,7 +328,7 @@ def crear_figura_impacto(
         sp.set_color("#CBD5E1")
 
     modelos = ["Incendios_PY\n(Spread)", "Incendios_PY\n(Hybrid M3)", "Canadian\nFWI (ISI)", "Proxy INPE\nRisco Fogo"]
-    roc_scores = [0.874, 0.725, 0.518, 0.504]
+    roc_scores = [roc_prop_chaco, roc_m3_chaco, roc_fwi_chaco, roc_inpe_chaco]
     colores_bar = ["#DC2626", "#0284C7", "#64748B", "#94A3B8"]
 
     bars = ax3_bench.bar(range(len(modelos)), roc_scores, color=colores_bar, width=0.55, zorder=3)

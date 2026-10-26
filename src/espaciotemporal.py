@@ -138,45 +138,249 @@ def calcular_prior_espacial_historico(
     dist_max_km: float = 100.0
 ) -> pl.DataFrame:
     """
-    Calcula variables de susceptibilidad geográfica histórica a partir de las coordenadas
-    de focos del conjunto de entrenamiento:
-    - dist_foco_hist_km: Distancia al fuego histórico más cercano.
-    - densidad_hist_25km: Conteo de fuegos históricos en radio de 25 km.
+    [Deprecado] Prior estático calculado con todas las coordenadas de train.
+
+    Se conserva sólo para compatibilidad y tests. No usar en el pipeline:
+    incluye los fuegos del propio periodo de entrenamiento (fuga de etiqueta).
+    Use ``calcular_priors_causales``.
     """
     coords_df = asegurar_coordenadas_utm(df)
     tree_hist = cKDTree(fuegos_train_coords)
 
-    # Distancia al fuego histórico más cercano (k=1, multithreaded)
     dists, _ = tree_hist.query(coords_df, k=1, workers=-1)
     dist_hist_km = np.clip(dists / 1000.0, 0.0, dist_max_km).astype(np.float32)
-
-    # Densidad en radio de 25 km con return_length vectorizado O(N)
-    densidad_hist = tree_hist.query_ball_point(coords_df, r=radio_m, return_length=True, workers=-1).astype(np.float32)
+    densidad_hist = tree_hist.query_ball_point(
+        coords_df, r=radio_m, return_length=True, workers=-1
+    ).astype(np.float32)
 
     return df.with_columns([
         pl.Series("dist_foco_hist_km", dist_hist_km),
-        pl.Series("densidad_hist_25km", densidad_hist)
+        pl.Series("densidad_hist_25km", densidad_hist),
+        pl.lit(0.0).cast(pl.Float32).alias("freq_hist_1km"),
+        pl.lit(float(dist_max_km)).cast(pl.Float32).alias("dist_corredor_antropico_km"),
+        pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_5km"),
+        pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_10km"),
+        pl.lit(0.0).cast(pl.Float32).alias("focalizacion_antropica_local"),
     ])
+
+
+def _asegurar_fecha_focos(focos_df: pl.DataFrame) -> pl.DataFrame:
+    """Normaliza acq_date a string ISO y valida columnas mínimas."""
+    if focos_df.is_empty():
+        return focos_df
+    cols = set(focos_df.columns)
+    if "cell_id" not in cols:
+        raise ValueError("focos_df debe contener la columna cell_id")
+    if "acq_date" not in cols:
+        raise ValueError("focos_df debe contener la columna acq_date")
+    return focos_df.with_columns(
+        pl.col("acq_date").cast(pl.String).str.slice(0, 10).alias("_fecha")
+    )
+
+
+def _priors_para_corte(
+    sub: pl.DataFrame,
+    focos_prev: pl.DataFrame,
+    dist_max_km: float,
+    radio_m: float,
+) -> pl.DataFrame:
+    """Calcula priors espaciales con los focos estrictamente anteriores al corte."""
+    coords_df = asegurar_coordenadas_utm(sub)
+    n = len(sub)
+
+    if focos_prev.is_empty():
+        return sub.with_columns([
+            pl.lit(float(dist_max_km)).cast(pl.Float32).alias("dist_foco_hist_km"),
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_25km"),
+            pl.lit(0.0).cast(pl.Float32).alias("freq_hist_1km"),
+            pl.lit(float(dist_max_km)).cast(pl.Float32).alias("dist_corredor_antropico_km"),
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_5km"),
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_10km"),
+            pl.lit(0.0).cast(pl.Float32).alias("focalizacion_antropica_local"),
+        ])
+
+    coords_focos = asegurar_coordenadas_utm(focos_prev)
+    tree_hist = cKDTree(coords_focos)
+
+    dists, _ = tree_hist.query(coords_df, k=1, workers=-1)
+    dist_hist_km = np.clip(dists / 1000.0, 0.0, dist_max_km).astype(np.float32)
+
+    dens_25 = tree_hist.query_ball_point(
+        coords_df, r=radio_m, return_length=True, workers=-1
+    ).astype(np.float32)
+    dens_10 = tree_hist.query_ball_point(
+        coords_df, r=10000.0, return_length=True, workers=-1
+    ).astype(np.float32)
+    dens_5 = tree_hist.query_ball_point(
+        coords_df, r=5000.0, return_length=True, workers=-1
+    ).astype(np.float32)
+
+    # Frecuencia histórica por celda (días-fuego, no años)
+    freq = (
+        focos_prev.group_by("cell_id")
+        .len()
+        .rename({"len": "freq_hist_1km"})
+    )
+    sub = sub.join(freq, on="cell_id", how="left").with_columns(
+        pl.col("freq_hist_1km").fill_null(0).cast(pl.Float32)
+    )
+
+    # Corredores: celdas con recurrencia crónica (>= 3 días-fuego previos).
+    # Se usa el mismo criterio que la definición operativa original; el
+    # manuscrito debe describirlo como días-fuego, no como "temporadas".
+    corredores = freq.filter(pl.col("freq_hist_1km") >= 3)
+    if corredores.is_empty():
+        dist_corredor = np.full(n, dist_max_km, dtype=np.float32)
+    else:
+        xs, ys = cell_id_a_coordenadas_centro(corredores["cell_id"].to_numpy())
+        tree_corr = cKDTree(np.column_stack([xs, ys]))
+        dists_corr, _ = tree_corr.query(coords_df, k=1, workers=-1)
+        dist_corredor = np.clip(dists_corr / 1000.0, 0.0, dist_max_km).astype(np.float32)
+
+    focalizacion = (dens_5 / (dens_25 + 1.0)).astype(np.float32)
+
+    return sub.with_columns([
+        pl.Series("dist_foco_hist_km", dist_hist_km),
+        pl.Series("densidad_hist_25km", dens_25),
+        pl.Series("dist_corredor_antropico_km", dist_corredor),
+        pl.Series("densidad_hist_5km", dens_5),
+        pl.Series("densidad_hist_10km", dens_10),
+        pl.Series("focalizacion_antropica_local", focalizacion),
+    ])
+
+
+def agregar_features_antropicas(df: pl.DataFrame) -> pl.DataFrame:
+    """
+    Añade variables derivadas de calendario y presión antrópica usadas por M3.
+
+    Se centraliza aquí para que train, val, test y el servicio de alerta usen
+    exactamente la misma definición.
+    """
+    return df.with_columns([
+        pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
+        (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
+        (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
+        (
+            (pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa")
+            * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)
+        ).cast(pl.Float32).alias("presion_quema_pastura"),
+        (
+            np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")
+        ).cast(pl.Float32).alias("interaccion_acceso_vpd"),
+    ])
+
+
+def calcular_priors_causales(
+    df: pl.DataFrame,
+    focos_df: pl.DataFrame,
+    fecha_corte: str | None = None,
+    radio_m: float = 25000.0,
+    dist_max_km: float = 100.0,
+    ventana_anios: int | None = 3,
+    excluir_cell_ids: list[int] | None = None,
+) -> pl.DataFrame:
+    """
+    Calcula priors de susceptibilidad histórica estrictamente causales.
+
+    Por defecto usa como corte el primer día de cada mes: para una fila del
+    mes M sólo se usan focos con ``acq_date`` anterior al día 1 de M. Así se
+    excluyen el evento actual, los eventos futuros y los del mismo mes. En
+    inferencia operativa se puede pasar ``fecha_corte`` (p. ej. el primer día
+    del mes de la alerta) para mantener exactamente la misma definición.
+
+    ``ventana_anios`` limita la historia a los últimos N años antes del corte
+    (por defecto 3). Esto evita que las filas de 2025 tengan una densidad
+    histórica mucho mayor que las de 2018 por pura acumulación de años.
+
+    Columnas generadas:
+    - dist_foco_hist_km, densidad_hist_25km
+    - freq_hist_1km, dist_corredor_antropico_km
+    - densidad_hist_5km, densidad_hist_10km, focalizacion_antropica_local
+    """
+    if df.is_empty():
+        return df
+    if "fecha" not in df.columns:
+        raise ValueError("df debe contener la columna fecha")
+
+    cols_prior = [
+        "dist_foco_hist_km", "densidad_hist_25km", "freq_hist_1km",
+        "dist_corredor_antropico_km", "densidad_hist_5km",
+        "densidad_hist_10km", "focalizacion_antropica_local",
+    ]
+    df = df.drop([c for c in cols_prior if c in df.columns])
+
+    focos = _asegurar_fecha_focos(focos_df)
+    df = df.with_row_index("_orden_priors")
+    df = df.with_columns(pl.col("fecha").cast(pl.String).str.slice(0, 10).alias("_fecha_df"))
+
+    if fecha_corte is not None:
+        cortes = [str(fecha_corte)[:10]]
+        grupos = [df]
+    else:
+        df = df.with_columns(pl.col("_fecha_df").str.slice(0, 7).alias("_mes"))
+        meses = sorted(df["_mes"].unique().to_list())
+        cortes = [f"{m}-01" for m in meses]
+        grupos = [df.filter(pl.col("_mes") == m) for m in meses]
+
+    resultados = []
+    for corte, sub in zip(cortes, grupos):
+        if sub.is_empty():
+            continue
+        if focos.is_empty():
+            focos_prev = focos
+        elif ventana_anios:
+            dt_corte = datetime.strptime(corte, "%Y-%m-%d")
+            dt_ini = dt_corte.replace(year=dt_corte.year - int(ventana_anios))
+            fecha_ini = dt_ini.strftime("%Y-%m-%d")
+            focos_prev = focos.filter(
+                (pl.col("_fecha") >= fecha_ini) & (pl.col("_fecha") < corte)
+            )
+        else:
+            focos_prev = focos.filter(pl.col("_fecha") < corte)
+
+        if excluir_cell_ids is not None and not focos_prev.is_empty():
+            focos_prev = focos_prev.filter(
+                ~pl.col("cell_id").is_in(excluir_cell_ids)
+            )
+
+        resultados.append(_priors_para_corte(sub, focos_prev, dist_max_km, radio_m))
+
+    if not resultados:
+        return df.drop(["_orden_priors", "_fecha_df", "_mes"], strict=False)
+
+    out = pl.concat(resultados, how="diagonal_relaxed").sort("_orden_priors")
+    cols_drop = [c for c in ["_orden_priors", "_fecha_df", "_mes"] if c in out.columns]
+    return out.drop(cols_drop)
+
 
 def enriquecer_dataset_espaciotemporal(
     df: pl.DataFrame,
     focos_df: pl.DataFrame,
-    fuegos_train_coords: np.ndarray | None = None
+    fuegos_train_coords: np.ndarray | None = None,
+    usar_priors_causales: bool = True,
+    fecha_corte: str | None = None,
+    excluir_cell_ids: list[int] | None = None,
 ) -> pl.DataFrame:
-    """Aplica de forma secuencial todo el paquete de ingeniería espaciotemporal."""
-    # 1. Índice de ecotono
+    """Aplica ecotono, contagio causal t-1 y priors históricos causales."""
     df = df.with_columns(calcular_indice_ecotono(df))
-
-    # 2. Contagio causal t-1
     df = calcular_variables_contagio_lag(df, focos_df)
 
-    # 3. Prior histórico espacial
-    if fuegos_train_coords is not None and len(fuegos_train_coords) > 0:
+    if usar_priors_causales:
+        df = calcular_priors_causales(
+            df, focos_df, fecha_corte=fecha_corte,
+            excluir_cell_ids=excluir_cell_ids,
+        )
+    elif fuegos_train_coords is not None and len(fuegos_train_coords) > 0:
         df = calcular_prior_espacial_historico(df, fuegos_train_coords)
     else:
         df = df.with_columns([
             pl.lit(50.0).cast(pl.Float32).alias("dist_foco_hist_km"),
-            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_25km")
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_25km"),
+            pl.lit(0.0).cast(pl.Float32).alias("freq_hist_1km"),
+            pl.lit(50.0).cast(pl.Float32).alias("dist_corredor_antropico_km"),
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_5km"),
+            pl.lit(0.0).cast(pl.Float32).alias("densidad_hist_10km"),
+            pl.lit(0.0).cast(pl.Float32).alias("focalizacion_antropica_local"),
         ])
 
     return df

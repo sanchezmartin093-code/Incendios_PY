@@ -50,29 +50,38 @@ def evaluar_modelo_en_test():
     print("EVALUACIÓN CIEGA OUT-OF-TIME (TEST SET NO VISTO)")
     print("=" * 65)
 
-    p_test = DIR_PROCESSED / "test_dataset.parquet"
-    if not p_test.exists():
-        raise FileNotFoundError(f"Dataset de test no encontrado en {p_test}. Ejecuta scripts/05_muestrear_ausencias.py primero.")
+    dir_targets = DIR_PROCESSED / "targets_poblacionales"
+    p_ign = dir_targets / "test_ignicion.parquet"
+    p_prop = dir_targets / "test_propagacion.parquet"
+    for p in [p_ign, p_prop]:
+        if not p.exists():
+            raise FileNotFoundError(
+                f"Dataset de test no encontrado en {p}. "
+                "Ejecuta scripts/05d_muestrear_poblacional_d2.py primero."
+            )
 
-    df_test = pl.read_parquet(p_test)
-    print(f"Cargado dataset de test: {len(df_test):,} registros.")
-    print(f"Fuegos positivos en test: {(df_test['fuego'] == 1).sum():,}")
+    df_test_ign = pl.read_parquet(p_ign)
+    df_test_prop = pl.read_parquet(p_prop)
+    print(f"Test ignición: {len(df_test_ign):,} registros.")
+    print(f"Test propagación: {len(df_test_prop):,} registros.")
 
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     regiones = ["Chaco", "Oriental"]
     modos = [
         ("ignicion", "Ignición Primaria"),
-        ("propagacion", "Propagación Táctica")
+        ("propagacion", "Propagación Táctica"),
+        ("hibrido", "Ignición Híbrida M3"),
     ]
     
     filas_metricas = []
     preds_por_region = {}
 
     for region in regiones:
-        df_reg_test = df_test.filter(pl.col("region") == region)
         nombre_lower = region.lower()
-        
-        preds_dict = {}
+        df_reg_ign = df_test_ign.filter(pl.col("region") == region)
+        df_reg_prop = df_test_prop.filter(pl.col("region") == region)
+        preds_ign = {}
+        preds_prop = {}
 
         for modo_clave, modo_nombre in modos:
             print(f"\n--- EVALUANDO: {region.upper()} [{modo_nombre}] ---")
@@ -87,7 +96,10 @@ def evaluar_modelo_en_test():
             booster, calibrador = cargar_modelo_y_calibrador(ruta_b, ruta_c)
 
             # 2. Extraer matriz X e y del conjunto de test
-            X_test, y_test, feats = preparar_matrices_xy(df_test, region, modo=modo_clave)
+            es_prop = modo_clave == "propagacion"
+            df_fuente = df_test_prop if es_prop else df_test_ign
+            preds_dict = preds_prop if es_prop else preds_ign
+            X_test, y_test, feats = preparar_matrices_xy(df_fuente, region, modo=modo_clave)
 
             n_pos = int(y_test.sum())
             n_neg = int(len(y_test) - n_pos)
@@ -98,6 +110,8 @@ def evaluar_modelo_en_test():
             preds_dict[f"probabilidad_{modo_clave}"] = probs
             if modo_clave == "ignicion":
                 preds_dict["probabilidad_calibrada"] = probs
+            if modo_clave == "hibrido":
+                preds_dict["probabilidad_hibrido"] = probs
 
             # 4. Métricas de discriminación y calibración global
             auc = float(roc_auc_score(y_test, probs))
@@ -119,8 +133,8 @@ def evaluar_modelo_en_test():
             if ruta_meta.exists():
                 import json
                 meta_val = json.loads(ruta_meta.read_text(encoding="utf-8"))
-                c_youden = meta_val["c_youden"]
-                c_f05 = meta_val["c_f05"]
+                c_youden = meta_val.get("c_youden", meta_val.get("c_f05", 0.5))
+                c_f05 = meta_val.get("c_f05", 0.5)
             else:
                 c_youden, _ = calcular_umbral_optimo_youden(y_test, probs)
                 c_f05, _ = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
@@ -163,12 +177,14 @@ def evaluar_modelo_en_test():
                     "falsos_negativos": fn
                 })
 
-        # Unir columnas de predicción a df_reg_test
-        for col_name, p_vals in preds_dict.items():
-            df_reg_test = df_reg_test.with_columns(pl.Series(col_name, p_vals))
-        preds_por_region[region] = df_reg_test
+        for col_name, p_vals in preds_ign.items():
+            df_reg_ign = df_reg_ign.with_columns(pl.Series(col_name, p_vals))
+        for col_name, p_vals in preds_prop.items():
+            df_reg_prop = df_reg_prop.with_columns(pl.Series(col_name, p_vals))
+        preds_por_region[region] = (df_reg_ign, df_reg_prop)
 
-    dfs_predicciones = list(preds_por_region.values())
+    dfs_ign = [v[0] for v in preds_por_region.values()]
+    dfs_prop = [v[1] for v in preds_por_region.values()]
 
     # 6. Consolidar tabla de resultados
     df_tabla = pd.DataFrame(filas_metricas)
@@ -182,12 +198,15 @@ def evaluar_modelo_en_test():
     md_content += df_tabla.to_markdown(index=False) + "\n"
     path_md.write_text(md_content, encoding="utf-8")
 
-    # Guardar predicciones completas en Parquet
-    if dfs_predicciones:
-        df_preds_total = pl.concat(dfs_predicciones)
-        out_preds = DIR_PROCESSED / "evaluacion_test_predicciones.parquet"
-        df_preds_total.write_parquet(out_preds, compression="zstd")
-        print(f"\n✓ Predicciones individuales guardadas en: {out_preds.name}")
+    # Guardar predicciones separadas por target
+    if dfs_ign:
+        out_ign = DIR_PROCESSED / "evaluacion_test_ignicion.parquet"
+        pl.concat(dfs_ign).write_parquet(out_ign, compression="zstd")
+        print(f"\n✓ Predicciones de ignición: {out_ign.name}")
+    if dfs_prop:
+        out_prop = DIR_PROCESSED / "evaluacion_test_propagacion.parquet"
+        pl.concat(dfs_prop).write_parquet(out_prop, compression="zstd")
+        print(f"✓ Predicciones de propagación: {out_prop.name}")
 
     print(f"✓ Tabla CSV exportada: {path_csv.name}")
     print(f"✓ Tabla Markdown exportada: {path_md.name}")

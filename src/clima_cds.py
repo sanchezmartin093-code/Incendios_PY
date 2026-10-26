@@ -41,6 +41,44 @@ TRIMESTRES_MESES = {
     4: ["10", "11", "12"]
 }
 
+def agregar_precipitacion_diaria(tp_mm: np.ndarray) -> np.ndarray:
+    """
+    Agrega una serie subdiaria de precipitación a totales diarios.
+
+    El primer paso temporal se descarta porque en ERA5-Land puede contener el
+    acumulado del día anterior. La cola se interpreta como acumulada si es
+    monótona y, si no, como incrementos subdiarios. El resultado tiene forma
+    ``(nodos,)``.
+    """
+    valores = np.asarray(tp_mm, dtype=float)
+    if valores.ndim == 1:
+        valores = valores[:, None]
+
+    totales = np.full(valores.shape[1], np.nan, dtype=float)
+    for j in range(valores.shape[1]):
+        serie = valores[:, j]
+        validos = np.isfinite(serie)
+        if not validos.any():
+            continue
+        s = serie[validos]
+        if s.size == 1:
+            totales[j] = max(float(s[0]), 0.0)
+            continue
+
+        cola_raw = serie[1:]
+        cola = cola_raw[np.isfinite(cola_raw)]
+        if cola.size == 0:
+            totales[j] = max(float(s[0]), 0.0)
+            continue
+        diferencias = np.diff(cola)
+        tolerancia = 1e-2
+        if diferencias.size > 0 and np.all(diferencias >= -tolerancia):
+            totales[j] = max(float(cola[-1]), 0.0)
+        else:
+            totales[j] = float(np.nansum(np.clip(cola, 0.0, None)))
+    return totales
+
+
 def descargar_trimestre_cds(
     client: cdsapi.Client,
     anio: int,
@@ -48,7 +86,7 @@ def descargar_trimestre_cds(
     dir_salida: Path
 ) -> Path:
     """
-    Solicita y descarga un trimestre de ERA5-Land (3 meses, 3-hourly) desde Copernicus CDS.
+    Solicita y descarga un trimestre de ERA5-Land (3 meses, resolución 3-hourly) desde Copernicus CDS.
     """
     dir_salida.mkdir(parents=True, exist_ok=True)
     archivo_nc = dir_salida / f"era5_land_py_{anio}_Q{trimestre}.nc"
@@ -68,6 +106,8 @@ def descargar_trimestre_cds(
 
     meses = TRIMESTRES_MESES[trimestre]
     dias = [f"{d:02d}" for d in range(1, 32)]
+    # Se solicita resolución 3-hourly por límites de costo de CDS; la lluvia
+    # diaria se reconstruye sumando los incrementos subdiarios.
     horas = [f"{h:02d}:00" for h in range(0, 24, 3)]
 
     peticion = {
@@ -171,8 +211,7 @@ def procesar_nc_a_nodos_diarios(
 
         t_max_dia = np.nanmax(t2m_c[mascara_h, :], axis=0)
         t_min_dia = np.nanmin(t2m_c[mascara_h, :], axis=0)
-        # En ERA5-Land, tp es precipitación acumulada por ciclo diurno; el acumulado diario es el máximo registrado en el día
-        prec_dia = np.nanmax(tp_mm[mascara_h, :], axis=0)
+        prec_dia = agregar_precipitacion_diaria(tp_mm[mascara_h, :])
         viento_max_dia = np.nanmax(viento_kmh[mascara_h, :], axis=0)
         vpd_max_dia = np.nanmax(vpd_kpa[mascara_h, :], axis=0)
 
@@ -184,7 +223,10 @@ def procesar_nc_a_nodos_diarios(
                 "temp_min_c": float(t_min_dia[n_i]),
                 "precipitacion_mm": float(prec_dia[n_i]),
                 "viento_max_kmh": float(viento_max_dia[n_i]),
+                # ERA5-Land no publica ráfagas. Se deja un proxy lineal
+                # documentado y se excluye del conjunto de features.
                 "rafaga_max_kmh": float(viento_max_dia[n_i] * 1.3),
+                # ET0 no se solicita en esta descarga; se deja explícito.
                 "et0_mm": 0.0,
                 "vpd_max_kpa": float(vpd_max_dia[n_i])
             })

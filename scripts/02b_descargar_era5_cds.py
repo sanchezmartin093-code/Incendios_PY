@@ -22,9 +22,15 @@ from src.constantes import DIR_PROCESSED, DIR_RAW
 from src.clima import generar_malla_nodos_clima, asignar_nodos_a_grilla, calcular_indices_fwi_y_sequedad
 from src.clima_cds import descargar_trimestre_cds, procesar_nc_a_nodos_diarios
 
-def procesar_un_trimestre(anio: int, q: int, dir_cds_raw: Path, df_nodos_filtrados: pl.DataFrame) -> pl.DataFrame | None:
+def procesar_un_trimestre(
+    anio: int,
+    q: int,
+    dir_cds_raw: Path,
+    df_nodos_filtrados: pl.DataFrame,
+    forzar: bool = False,
+) -> pl.DataFrame | None:
     archivo_parquet_q = dir_cds_raw / f"lote_clima_{anio}_Q{q}.parquet"
-    if archivo_parquet_q.exists():
+    if archivo_parquet_q.exists() and not forzar:
         print(f" ✓ Lote en caché: {archivo_parquet_q.name}")
         return pl.read_parquet(archivo_parquet_q)
 
@@ -35,15 +41,12 @@ def procesar_un_trimestre(anio: int, q: int, dir_cds_raw: Path, df_nodos_filtrad
         df_q = procesar_nc_a_nodos_diarios(ruta_nc, df_nodos_filtrados)
         print(f"   ✓ {len(df_q):,} registros diarios procesados para {anio} Q{q}.")
         df_q.write_parquet(archivo_parquet_q, compression="zstd")
-        # Limpiar archivo NetCDF pesado para ahorrar espacio en disco
-        if ruta_nc.exists():
-            ruta_nc.unlink()
         return df_q
     except Exception as e:
         print(f"   ✗ Error procesando {anio} Q{q}: {e}")
         return None
 
-def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2):
+def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2, forzar: bool = False):
     print("=" * 65)
     print(f"INGESTA ERA5-LAND DESDE COPERNICUS CDS: AÑOS {anios[0]} a {anios[-1]}")
     print(f"Workers concurrentes: {max_workers}")
@@ -57,6 +60,9 @@ def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2):
     df_grilla = pl.read_parquet(path_grilla)
     df_nodos = generar_malla_nodos_clima(resolucion_deg=0.25)
     df_grilla = asignar_nodos_a_grilla(df_grilla, df_nodos)
+    # Persistir la asignación para que scripts posteriores (04) puedan hacer
+    # el join por nodo_clima_id aunque no se haya ejecutado el script 02.
+    df_grilla.write_parquet(path_grilla, compression="zstd")
 
     nodos_activos = df_grilla["nodo_clima_id"].unique().to_list()
     df_nodos_filtrados = df_nodos.filter(pl.col("nodo_clima_id").is_in(nodos_activos))
@@ -71,25 +77,40 @@ def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2):
             tareas.append((anio, q))
 
     dfs_trimestrales = []
+    fallidos = []
     print(f"\nIniciando cola de procesamiento ({len(tareas)} trimestres)...")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futuros = {
-            executor.submit(procesar_un_trimestre, anio, q, dir_cds_raw, df_nodos_filtrados): (anio, q)
+            executor.submit(
+                procesar_un_trimestre,
+                anio, q, dir_cds_raw, df_nodos_filtrados, forzar,
+            ): (anio, q)
             for anio, q in tareas
         }
         for fut in as_completed(futuros):
             anio, q = futuros[fut]
             try:
                 res = fut.result()
-                if res is not None:
+                if res is None:
+                    fallidos.append((anio, q))
+                else:
                     dfs_trimestrales.append(res)
             except Exception as e:
+                fallidos.append((anio, q))
                 print(f"   ✗ Excepción en tarea {anio} Q{q}: {e}")
 
-    if not dfs_trimestrales:
-        print("No se procesaron datos climáticos.")
-        return
+    if fallidos:
+        detalle = ", ".join(f"{a}-Q{q}" for a, q in sorted(fallidos))
+        raise RuntimeError(
+            f"Fallaron {len(fallidos)} trimestre(s) de ERA5-Land: {detalle}. "
+            "No se actualiza el clima para evitar datos parciales."
+        )
+    if len(dfs_trimestrales) != len(tareas):
+        raise RuntimeError(
+            f"Se esperaban {len(tareas)} trimestres y se procesaron "
+            f"{len(dfs_trimestrales)}. No se actualiza el clima."
+        )
 
     print("\n2. Consolidando serie temporal completa...")
     df_total_crudo = pl.concat(dfs_trimestrales).sort(["nodo_clima_id", "fecha"])
@@ -112,6 +133,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Descarga ERA5-Land desde Copernicus CDS")
     parser.add_argument("--anios", nargs="+", type=int, default=list(range(2018, 2026)), help="Lista de años AAAA")
     parser.add_argument("--workers", type=int, default=2, help="Número de descargas concurrentes en CDS (máx 2 recomendado)")
+    parser.add_argument(
+        "--forzar",
+        action="store_true",
+        help="Ignorar los parquet trimestrales en caché y reprocesar desde NetCDF/CDS.",
+    )
     args = parser.parse_args()
 
-    ejecutar_pipeline_cds(anios=args.anios, max_workers=args.workers)
+    ejecutar_pipeline_cds(
+        anios=args.anios,
+        max_workers=args.workers,
+        forzar=args.forzar,
+    )

@@ -9,24 +9,46 @@ Incluye:
 
 import numpy as np
 
-def calcular_curva_roc(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _puntos_roc_agrupados(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calcula FPR, TPR y umbrales ordenados de forma vectorizada.
+    Calcula puntos ROC agrupando puntuaciones empatadas.
+
+    Con empates, el orden interno del argsort es arbitrario. Si se acumulan
+    TP/FP registro a registro se generan puntos ROC inválidos y umbrales que
+    no reproducen la métrica al clasificar con ``>=``. Este helper acumula al
+    final de cada grupo de puntuaciones idénticas.
     """
-    orden = np.argsort(y_prob)[::-1]
-    y_true_ord = y_true[orden]
-    y_prob_ord = y_prob[orden]
-    
-    tp_acum = np.cumsum(y_true_ord)
-    fp_acum = np.cumsum(1.0 - y_true_ord)
-    
-    total_pos = tp_acum[-1]
-    total_neg = fp_acum[-1]
-    
+    y_true = np.asarray(y_true).astype(float).ravel()
+    y_prob = np.asarray(y_prob).astype(float).ravel()
+    n = len(y_true)
+    if n == 0:
+        return np.array([0.0]), np.array([0.0]), np.array([1.0])
+
+    orden = np.argsort(y_prob, kind="mergesort")[::-1]
+    y_ord = y_true[orden]
+    p_ord = y_prob[orden]
+
+    # Último índice de cada grupo de puntuaciones idénticas
+    cambios = np.where(np.diff(p_ord) != 0)[0]
+    fines = np.r_[cambios, n - 1]
+
+    tp_acum = np.cumsum(y_ord)[fines]
+    fp_acum = np.cumsum(1.0 - y_ord)[fines]
+    thresholds = p_ord[fines]
+
+    total_pos = float(tp_acum[-1])
+    total_neg = float(fp_acum[-1])
     tpr = tp_acum / total_pos if total_pos > 0 else np.zeros_like(tp_acum)
     fpr = fp_acum / total_neg if total_neg > 0 else np.zeros_like(fp_acum)
-    
-    return fpr, tpr, y_prob_ord
+
+    return fpr, tpr, thresholds
+
+
+def calcular_curva_roc(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Calcula FPR, TPR y umbrales agrupados por puntuación (tie-aware).
+    """
+    return _puntos_roc_agrupados(y_true, y_prob)
 
 def calcular_umbral_optimo_youden(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[float, float]:
     """
@@ -45,23 +67,191 @@ def calcular_umbral_optimo_f_beta(y_true: np.ndarray, y_prob: np.ndarray, beta: 
     Con beta = 0.5, se le da el doble de peso a la Precisión (minimizar falsas alarmas) sobre el Recall.
     Retorna: (umbral_optimo, max_f_beta)
     """
-    orden = np.argsort(y_prob)[::-1]
-    y_true_ord = y_true[orden]
-    y_prob_ord = y_prob[orden]
-    
-    tp_acum = np.cumsum(y_true_ord)
-    fp_acum = np.cumsum(1.0 - y_true_ord)
-    total_pos = tp_acum[-1]
-    
+    y_true = np.asarray(y_true).astype(float).ravel()
+    y_prob = np.asarray(y_prob).astype(float).ravel()
+    n = len(y_true)
+    if n == 0:
+        return 1.0, 0.0
+
+    orden = np.argsort(y_prob, kind="mergesort")[::-1]
+    y_ord = y_true[orden]
+    p_ord = y_prob[orden]
+
+    # Agrupar empates: el umbral se aplica con >=, por lo que todos los
+    # registros con la misma puntuación entran juntos.
+    cambios = np.where(np.diff(p_ord) != 0)[0]
+    fines = np.r_[cambios, n - 1]
+
+    tp_acum = np.cumsum(y_ord)[fines]
+    fp_acum = np.cumsum(1.0 - y_ord)[fines]
+    thresholds = p_ord[fines]
+    total_pos = float(tp_acum[-1])
+
     with np.errstate(divide="ignore", invalid="ignore"):
         precision = np.where((tp_acum + fp_acum) > 0, tp_acum / (tp_acum + fp_acum), 1.0)
         recall = tp_acum / total_pos if total_pos > 0 else np.zeros_like(tp_acum)
-        
+
         numerador = (1.0 + beta ** 2) * (precision * recall)
         denominador = ((beta ** 2) * precision) + recall
         f_beta = np.where(denominador > 0, numerador / denominador, 0.0)
+
     idx_opt = np.argmax(f_beta)
-    return float(y_prob_ord[idx_opt]), float(f_beta[idx_opt])
+    return float(thresholds[idx_opt]), float(f_beta[idx_opt])
+
+def corregir_prior_probabilidades(
+    p_muestreo: np.ndarray,
+    prevalencia_muestreo: float,
+    prevalencia_poblacion: float,
+) -> np.ndarray:
+    """
+    Corrige probabilidades calibradas sobre una muestra case-control para
+    estimar la probabilidad poblacional.
+
+    Si el modelo fue calibrado con una prevalencia artificial ``pi_s`` y la
+    prevalencia real es ``pi_p``, el ajuste correcto es un desplazamiento del
+    logit:
+
+        logit(p_pob) = logit(p_muestreo) + logit(pi_p) - logit(pi_s)
+
+    Es la corrección estándar de intercepto para muestreo caso-control.
+    """
+    pi_s = float(prevalencia_muestreo)
+    pi_p = float(prevalencia_poblacion)
+    if not (0.0 < pi_s < 1.0) or not (0.0 < pi_p < 1.0):
+        raise ValueError("Las prevalencias deben estar estrictamente en (0, 1)")
+
+    p = np.clip(np.asarray(p_muestreo, dtype=float), 1e-9, 1.0 - 1e-9)
+    odds = p / (1.0 - p)
+    factor = (pi_p / (1.0 - pi_p)) / (pi_s / (1.0 - pi_s))
+    odds_corr = odds * factor
+    return odds_corr / (1.0 + odds_corr)
+
+
+def calcular_metricas_poblacionales(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    weights: np.ndarray,
+    cutoff: float,
+    beta: float = 0.5,
+    n_bins: int = 10,
+) -> dict[str, float]:
+    """
+    Métricas ponderadas por el inverso de la probabilidad de muestreo.
+
+    ``weights`` debe ser 1 para las presencias y ``N_neg_poblacion /
+    N_neg_muestra`` para las ausencias. Así la muestra case-control se
+    reexpande a la población de celdas-día.
+    """
+    from sklearn.metrics import roc_auc_score, average_precision_score
+
+    y = np.asarray(y_true, dtype=int).ravel()
+    p = np.asarray(y_prob, dtype=float).ravel()
+    w = np.asarray(weights, dtype=float).ravel()
+    if len(y) != len(p) or len(y) != len(w):
+        raise ValueError("y_true, y_prob y weights deben tener la misma longitud")
+    if np.any(w < 0):
+        raise ValueError("weights no puede contener valores negativos")
+    w_sum = float(np.sum(w))
+    if w_sum <= 0:
+        raise ValueError("La suma de weights debe ser positiva")
+    w_norm = w / w_sum
+
+    pred = (p >= cutoff).astype(int)
+    tp = float(np.sum(w_norm * ((y == 1) & (pred == 1))))
+    fp = float(np.sum(w_norm * ((y == 0) & (pred == 1))))
+    fn = float(np.sum(w_norm * ((y == 1) & (pred == 0))))
+    tn = float(np.sum(w_norm * ((y == 0) & (pred == 0))))
+
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+    fbeta = (
+        (1.0 + beta ** 2) * precision * recall
+        / ((beta ** 2) * precision + recall)
+        if ((beta ** 2) * precision + recall) > 0 else 0.0
+    )
+
+    brier = float(np.sum(w_norm * (p - y) ** 2))
+    prev_pob = float(np.sum(w_norm * y))
+    brier_base = float(np.sum(w_norm * (prev_pob - y) ** 2))
+    bss = 1.0 - brier / brier_base if brier_base > 0 else 0.0
+
+    # ECE ponderado por peso poblacional
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    ece = 0.0
+    for i in range(n_bins):
+        low, high = edges[i], edges[i + 1]
+        mask = (p >= low) & (p <= high) if i == n_bins - 1 else (p >= low) & (p < high)
+        w_bin = float(np.sum(w_norm[mask]))
+        if w_bin > 0:
+            acc = float(np.sum(w_norm[mask] * y[mask]) / w_bin)
+            conf = float(np.sum(w_norm[mask] * p[mask]) / w_bin)
+            ece += w_bin * abs(acc - conf)
+
+    auc = float(roc_auc_score(y, p, sample_weight=w)) if len(np.unique(y)) > 1 else 0.5
+    pr_auc = (
+        float(average_precision_score(y, p, sample_weight=w))
+        if len(np.unique(y)) > 1 else prev_pob
+    )
+
+    return {
+        "roc_auc_poblacional": auc,
+        "pr_auc_poblacional": pr_auc,
+        "precision_poblacional": precision,
+        "recall_poblacional": recall,
+        "especificidad_poblacional": specificity,
+        "f05_poblacional": fbeta,
+        "brier_poblacional": brier,
+        "bss_poblacional": bss,
+        "ece_poblacional": ece,
+        "prevalencia_poblacional": prev_pob,
+        "tp_poblacional": tp,
+        "fp_poblacional": fp,
+        "fn_poblacional": fn,
+        "tn_poblacional": tn,
+    }
+
+
+def bootstrap_diferencia_roc(
+    y_true: np.ndarray,
+    p_modelo: np.ndarray,
+    p_referencia: np.ndarray,
+    n_bootstrap: int = 1000,
+    semilla: int = 42,
+) -> tuple[float, float]:
+    """
+    Test pareado de diferencia de ROC-AUC mediante bootstrap.
+
+    Remuestrea filas con reemplazo, calcula AUC(modelo) - AUC(referencia) y
+    devuelve (delta observado, p-valor bilateral). El p-valor es una
+    aproximación bootstrap, no un test exacto.
+    """
+    from sklearn.metrics import roc_auc_score
+
+    y = np.asarray(y_true).reshape(-1)
+    p1 = np.asarray(p_modelo).reshape(-1)
+    p0 = np.asarray(p_referencia).reshape(-1)
+    if not (len(y) == len(p1) == len(p0)):
+        raise ValueError("y_true, p_modelo y p_referencia deben tener la misma longitud")
+
+    delta = float(roc_auc_score(y, p1) - roc_auc_score(y, p0))
+    rng = np.random.default_rng(semilla)
+    n = len(y)
+    deltas = []
+    for _ in range(n_bootstrap):
+        idx = rng.choice(n, size=n, replace=True)
+        if len(np.unique(y[idx])) < 2:
+            continue
+        deltas.append(roc_auc_score(y[idx], p1[idx]) - roc_auc_score(y[idx], p0[idx]))
+    if not deltas:
+        return delta, 1.0
+    deltas = np.asarray(deltas)
+    # p bilateral: proporción de deltas al otro lado de cero
+    p_inf = float(np.mean(deltas <= 0))
+    p_sup = float(np.mean(deltas >= 0))
+    p_val = 2.0 * min(p_inf, p_sup)
+    return delta, float(min(max(p_val, 1.0 / len(deltas)), 1.0))
+
 
 def calcular_brier_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     """Calcula el Brier Score: promedio de (y_prob - y_true)^2"""

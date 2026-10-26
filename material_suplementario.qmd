@@ -35,12 +35,16 @@ format:
 
 - **Texto Suplementario S1:** Protocolo de corrección geométrica del efecto *Bow-Tie* y armonización multi-constelación VIIRS 375 m.
 - **Texto Suplementario S2:** Demostración analítica y condiciones de monotonicidad de la calibración monótona acotada de Platt.
-- **Texto Suplementario S3:** Análisis de autocorrelación espacial por semivariograma y determinación del radio de zona muerta (20 km).
-- **Tabla Suplementaria S1:** Diccionario completo y especificación física de las 39 variables predictoras del sistema.
-- **Tabla Suplementaria S2:** Espacio de búsqueda de hiperparámetros y regularización óptima de LightGBM por región y capa.
+- **Texto Suplementario S3:** Buffer de 20 km y estratificación por distancia al foco $t-1$; el semivariograma de 18,4 km no está implementado.
+- **Tabla Suplementaria S1:** Diccionario de variables y especificación física; M3 usa 33–34 variables, M2 24 y M1 17.
+- **Tabla Suplementaria S2:** Configuración real de hiperparámetros de los modelos operativos y de la ablación controlada.
 - **Tabla Suplementaria S3:** Desglose departamental exhaustivo de desempeño predictivo en las 17 gobernaciones de Paraguay.
-- **Tabla Suplementaria S4:** Perfil de consumo computacional, latencia por bloque y memoria RAM en procesadores ARM64 y x86_64.
-- **Tabla Suplementaria S5:** Calibración conforme inductiva (Split Conformal Prediction) y evaluación de cobertura empírica marginal.
+- **Tabla Suplementaria S4:** Perfil de consumo computacional y latencia medidos en ARM64; x86_64 no medido.
+- **Tabla Suplementaria S5:** Calibración conforme inductiva (Split Conformal Prediction) y cobertura empírica.
+- **Tabla Suplementaria S6:** Evaluación poblacional con corrección de prevalencia.
+- **Tabla Suplementaria S7:** Significancia pareada de diferencias de ROC-AUC.
+- **Tabla Suplementaria S8:** Validación espacial por bloques de 50 km.
+- **Tabla Suplementaria S9:** Evaluación con clima de t-1 (24 h de anticipación).
 
 ---
 
@@ -57,7 +61,7 @@ En la función `procesar_focos_firms_a_grilla` (`src/firms.py`), aplicamos una r
 
 $$\mathcal{D}_{\text{filtrado}} = \left\{ f \in \mathcal{D}_{\text{raw}} \mid \text{scan}(f) \le 1,5\text{ km} \;\land\; \text{confidence}(f) \neq \text{'low'} \right\}$$
 
-Tras aplicar este filtro, los focos duplicados generados por el solapamiento óptico de los tres satélites en la misma fecha civil se consolidan mediante agregación relacional sobre la celda de 1 km²:
+En la ventana de datos usada, el máximo observado de `scan` fue 0,8 km, por lo que esta regla no descartó registros; se mantiene por robustez para ventanas orbitales con mayor ángulo. Tras aplicar el filtro, los focos duplicados generados por el solapamiento óptico de los dos satélites en la misma fecha civil se consolidan mediante agregación relacional sobre la celda de 1 km²:
 - $\text{num\_focos\_dia} = \text{count}(f)$
 - $\text{max\_frp\_dia} = \max(FRP_f)$
 - $\text{sum\_frp\_dia} = \sum FRP_f$
@@ -100,41 +104,25 @@ La cota inferior $w \ge 0,10$ garantiza la monotonicidad estricta y previene el 
 
 ---
 
-# Texto Suplementario S3: Semivariograma Espacial y Justificación Física del Buffer de 20 km
+# Texto Suplementario S3: Buffer de 20 km y estratificación por distancia al foco t-1
 
-Para determinar empíricamente la distancia a la cual se extingue la dependencia espacial entre eventos térmicos contiguos, calculamos el **semivariograma espacial experimental** $\hat{\gamma}(h)$ sobre las observaciones térmicas del sensor VIIRS:
+El repositorio **no incluye** el cálculo del semivariograma experimental ni el ajuste esférico de 18,4 km. Ese valor no debe citarse como reproducido hasta que se incorpore el script correspondiente. El buffer de 20 km se aplica únicamente al muestreo de pseudo-ausencias: para cada fecha, las ausencias se seleccionan fuera de un radio de 20 km de los focos activos de esa misma fecha.
 
-$$\hat{\gamma}(h) = \frac{1}{2 |N(h)|} \sum_{(i,j) \in N(h)} (y_i - y_j)^2$$
+La tabla siguiente **no es un análisis de sensibilidad al buffer**. Es una estratificación del conjunto de test según la distancia mínima al foco de ayer (`dist_foco_t1_km`). Para evaluar la sensibilidad real al buffer hay que remuestrear y reentrenar con 10, 20 y 30 km; eso queda como trabajo pendiente.
 
-donde $N(h)$ es el conjunto de pares de celdas separados por una distancia euclidiana $|s_i - s_j| \in [h - \delta, h + \delta]$.
-
-El ajuste de un modelo esférico teórico:
-
-$$\gamma(h) = c_0 + c \left[ \frac{3h}{2a} - \frac{1}{2}\left(\frac{h}{a}\right)^3 \right] \quad \text{para } h \le a$$
-
-reveló un **alcance espacial (*range*) de $a = 18,4\text{ km}$**, con un efecto pepita (*nugget*) $c_0 = 0,082$ y una meseta (*sill*) $c_0 + c = 0,914$.
-
-A distancias $h < 18,4\text{ km}$, la probabilidad de que una celda presente fuego está significativamente correlacionada con la presencia de fuego en su vecina, principalmente debido a:
-1. El avance advectivo del frente de llamas por vientos regionales del sector norte.
-2. La ignición secundaria por transporte de pavesas y material incandescente suspendido en la columna convectiva (*spotting fires*).
-3. La atenuación parcial de la insolación directa por plumas de humo extensas que abarcan hasta 15 km a favor del viento.
-
-Por consiguiente, fijar el **radio del *dead-zone buffer* en $20\text{ km}$** (ligeramente superior al alcance empírico de $18,4\text{ km}$) garantiza formalmente que las celdas muestreadas como pseudo-ausencias pertenezcan al dominio asintótico del semivariograma ($\gamma(h) \approx \text{sill}$), eliminando la fuga de información por autocorrelación espacial.
-
-### Análisis de Sensibilidad del Radio del Buffer Espacial
-Para evaluar la estabilidad del diseño experimental frente a la elección del radio del *dead-zone buffer*, evaluamos el rendimiento discriminante bajo tres configuraciones de exclusión ($10\text{ km}$, $20\text{ km}$ y $30\text{ km}$) sobre el conjunto de prueba ciego:
-
-| Radio del Buffer ($\text{km}$) | Condición Espacial respecto al Semivariograma | ROC-AUC (Ignición Chaco) | ROC-AUC (Ignición Oriental) | ROC-AUC (Propagación Chaco) |
+| Distancia mínima al foco t-1 | Condición | ROC-AUC ignición Chaco | ROC-AUC propagación Chaco | ROC-AUC ignición Oriental |
 | :---: | :--- | :---: | :---: | :---: |
-| **10 km** | Sub-umbral (dentro del alcance espacial $h < a$) | $0,7213$ | $0,7722$ | $0,7314$ |
-| **20 km** | **Configuración Operativa Canónica** ($h \approx a + 1,6\text{ km}$) | **$0,7089$** | **$0,7639$** | **$0,7038$** |
-| **30 km** | Sobre-umbral ultra-conservador ($h \gg a$) | $0,7061$ | $0,7691$ | $0,7028$ |
+| **10 km** | Incluye celdas a >=10 km del foco t-1 | $0,7984$ | $0,8067$ | $0,7976$ |
+| **20 km** | Incluye celdas a >=20 km del foco t-1 | $0,7993$ | $0,7929$ | $0,7970$ |
+| **30 km** | Sólo celdas a >=30 km del foco t-1 | $0,8029$ | $0,7982$ | $0,8016$ |
 
-Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AUC} < 0,013$), demostrando que la superioridad de `Incendios_PY` frente a los índices canónicos internacionales es un comportamiento robusto de la física del modelo y no un artefacto de la delimitación geométrica del buffer de entrenamiento.
+: Estratificación del desempeño por distancia al foco t-1. No sustituye un análisis de sensibilidad al buffer de muestreo.
 
 ---
 
 # Tabla Suplementaria S1: Diccionario Exhaustivo de Variables Predictoras
+
+> **Nota de versión:** el perfil de combustible incluido en este repositorio es sintético de referencia (`origen_datos = sintetico_referencia`). Las filas de cobertura MapBiomas describen la fuente objetivo, no el dato actual. `rafaga_max_kmh` es un proxy lineal de ERA5-Land y no se usa como feature. Los priors históricos usan una ventana causal móvil de 3 años, no todo 2018–2022.
 
 | Variable | Nombre Técnico | Dominio Físico | Fuente de Datos | Resolución Original | Rol en Arquitectura |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -147,7 +135,7 @@ Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AU
 | 7 | `precipitacion_48h_mm` | Lluvia acumulada en 48 horas antecedentes ($\text{mm}$) | Derivada Temporal | $0,25^\circ$ (~25 km) | Gating / Ignición / Prop. |
 | 8 | `dias_secos_consecutivos` | Conteo de días consecutivos con lluvia $< 1,0\text{ mm}$ ($CDD$) | Derivada Temporal | $0,25^\circ$ (~25 km) | Ignición / Propagación |
 | 9 | `viento_max_kmh` | Velocidad máxima del viento a 10 m ($\text{km/h}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
-| 10 | `rafaga_max_kmh` | Ráfaga máxima intradiaria de viento ($\text{km/h}$) | ERA5-Land (CDS) | $0,25^\circ$ (~25 km) | Ignición / Propagación |
+| 10 | `rafaga_max_kmh` | Proxy lineal de viento ($1,3 \times v$); no es ráfaga ERA5-Land | Proxy | — | **No usada** |
 | 11 | `potencial_viento_cuadratico` | Presión dinámica del viento ($(v/10)^2$, $\text{adimensional}$) | Derivada Mecánica | $0,25^\circ$ (~25 km) | Ignición / Propagación |
 | 12 | `interaccion_viento_vpd` | Acoplamiento advectivo-desecante ($Viento \times VPD$) | Interacción Física | $0,25^\circ$ (~25 km) | Ignición / Propagación |
 | 13 | `ffmc` | *Fine Fuel Moisture Code* (Humedad combustible fino) | Derivada FWI | $0,25^\circ$ (~25 km) | Ignición / Propagación |
@@ -156,14 +144,14 @@ Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AU
 | 16 | `es_fin_de_semana` | Indicador binario de fin de semana (sábado/domingo) | Calendario Civil | Temporal | Ignición / Propagación |
 | 17 | `mes` | Estacionalidad fenológica mensual ($1\text{--}12$) | Calendario Civil | Temporal | Ignición / Propagación |
 | 18 | `dia_del_anio` | Día ordinal del año calendario ($1\text{--}366$) | Calendario Civil | Temporal | Ignición / Propagación |
-| 19 | `pct_pastura` | Porcentaje de pastura ganadera cultivada ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 20 | `pct_sabana_pastizal` | Porcentaje de sabana y pastizal natural ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 21 | `pct_humedal_palmar` | Porcentaje de humedales y palmares inundables ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Propagación |
-| 22 | `pct_bosque_seco` | Porcentaje de bosque xerofítico chaqueño ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Prop. (Chaco) |
-| 23 | `pct_bosque_humedo` | Porcentaje de bosque atlántico húmedo BAAPA ($[0, 100]\,\%$) | MapBiomas Col. 4 | $30\text{ m}$ | Ignición / Prop. (Oriental) |
+| 19 | `pct_pastura` | Porcentaje de pastura ganadera cultivada ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
+| 20 | `pct_sabana_pastizal` | Porcentaje de sabana y pastizal natural ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
+| 21 | `pct_humedal_palmar` | Porcentaje de humedales y palmares inundables ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
+| 22 | `pct_bosque_seco` | Porcentaje de bosque xerofítico chaqueño ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Prop. (Chaco) |
+| 23 | `pct_bosque_humedo` | Porcentaje de bosque atlántico húmedo BAAPA ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Prop. (Oriental) |
 | 24 | `indice_ecotono` | Disrupción de borde bosque/pastura ($\mathcal{E}_i$) | Derivada Espacial | $1\text{ km}^2$ | Ignición / Propagación |
-| 25 | `dist_foco_hist_km` | Distancia euclidiana mínima a focos de entrenamiento | NASA FIRMS 2018–2022 | $1\text{ km}^2$ | Ignición / Propagación |
-| 26 | `densidad_hist_25km` | Densidad acumulada de fuegos históricos en $25\text{ km}$ | NASA FIRMS 2018–2022 | $1\text{ km}^2$ | Ignición / Propagación |
+| 25 | `dist_foco_hist_km` | Distancia euclidiana mínima a focos de entrenamiento | NASA FIRMS (ventana causal 3 años) | $1\text{ km}^2$ | Ignición / Propagación |
+| 26 | `densidad_hist_25km` | Densidad acumulada de fuegos históricos en $25\text{ km}$ | NASA FIRMS (ventana causal 3 años) | $1\text{ km}^2$ | Ignición / Propagación |
 | 27 | `dist_foco_t1_km` | Distancia euclidiana mínima al foco activo en $t-1$ | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
 | 28 | `focos_25km_t1` | Conteo de focos activos en $R = 25\text{ km}$ en $t-1$ | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
 | 29 | `frp_25km_t1` | Potencia radiativa acumulada en $R = 25\text{ km}$ ($t-1$, $\text{MW}$) | Kernel Espacial Causal | $1\text{ km}^2$ | **Solo Propagación** |
@@ -182,83 +170,156 @@ Las variaciones en las métricas principales son marginales ($\Delta\text{ROC-AU
 
 ---
 
-# Tabla Suplementaria S2: Espacio de Búsqueda y Configuración Óptima de Hiperparámetros
+# Tabla Suplementaria S2: Configuración de Hiperparámetros
 
-Los hiperparámetros de los cuatro ensambles LightGBM fueron fijados mediante exploración sistemática sobre el conjunto de validación (año 2023 completo), seleccionando arquitecturas parsimoniosas que maximizan el área bajo la curva Precision-Recall (PR-AUC) y previenen el sobreajuste.
+Los modelos operativos no se seleccionaron mediante una búsqueda sistemática registrada. La tabla refleja la configuración **real** de los boosters entrenados por `scripts/06_entrenar_modelos.py` y `scripts/16_ablacion_modelo_hibrido.py`. La ablación M1/M2/M3 usa una capacidad común (45/60 rounds y 23/31 hojas) para aislar el efecto de las features.
 
-| Hiperparámetro | Espacio de Búsqueda | Ignición Base $\mathcal{M}_2$ (Chaco) | Propagación Chaco | Ignición Base $\mathcal{M}_2$ (Oriental) | Propagación Oriental | Híbrido $\mathcal{M}_3$ (Chaco) | Híbrido $\mathcal{M}_3$ (Oriental) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `objective` | — | `binary` | `binary` | `binary` | `binary` | `binary` | `binary` |
-| `learning_rate` | $[0,01; \, 0,10]$ | $0,03$ | $0,03$ | $0,03$ | $0,03$ | $0,05$ | $0,05$ |
-| `num_leaves` | $[10; \, 31]$ | $15$ | $15$ | $15$ | $15$ | $31$ | $31$ |
-| `max_depth` | $[3; \, 6]$ | $5$ | $5$ | $5$ | $5$ | $6$ | $6$ |
-| `min_child_samples` | $[10; \, 50]$ | $20$ | $20$ | $10$ | $10$ | $20$ | $10$ |
-| `scale_pos_weight` | $[1,0; \, 5,0]$ | $1,00$ | $1,00$ | $2,00$ | $2,00$ | $1,00$ | $2,00$ |
-| `feature_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,85$ | $0,85$ |
-| `bagging_fraction` | $[0,6; \, 1,0]$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,85$ | $0,85$ |
-| `lambda_l1` (L1) | $[0,0; \, 5,0]$ | $0,20$ | $0,20$ | $0,20$ | $0,20$ | $0,50$ | $0,50$ |
-| `lambda_l2` (L2) | $[0,0; \, 5,0]$ | $1,00$ | $1,00$ | $1,00$ | $1,00$ | $2,00$ | $2,00$ |
-| `num_boost_round` | $[10; \, 150]$ | $20$ | $20$ | $40$ | $40$ | $120$ | $140$ |
-| `early_stopping` | — | None (Fijo) | None (Fijo) | None (Fijo) | None (Fijo) | None (Fijo) | None (Fijo) |
-: Configuración óptima de hiperparámetros por macro-región y modo operativo (obtenida con `scripts/06_entrenar_modelos.py` y `scripts/16_ablacion_modelo_hibrido.py`). {#tbl-hiperparametros}
+| Hiperparámetro | M2 Chaco | Propagación Chaco | M2 Oriental | Propagación Oriental | M3 Chaco | M3 Oriental |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `objective` | `binary` | `binary` | `binary` | `binary` | `binary` | `binary` |
+| `learning_rate` | $0,03$ | $0,03$ | $0,03$ | $0,03$ | $0,03$ | $0,03$ |
+| `num_leaves` | $15$ | $15$ | $15$ | $15$ | $23$ | $31$ |
+| `max_depth` | $5$ | $5$ | $5$ | $5$ | $5$ | $5$ |
+| `min_child_samples` | $20$ | $20$ | $10$ | $10$ | $20$ | $10$ |
+| `scale_pos_weight` | $1,0$ | $1,0$ | $2,0$ | $2,0$ | $1,0$ | $2,0$ |
+| `feature_fraction` | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ |
+| `bagging_fraction` | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ | $0,80$ |
+| `lambda_l1` | $0,20$ | $0,20$ | $0,20$ | $0,20$ | $0,20$ | $0,20$ |
+| `lambda_l2` | $1,00$ | $1,00$ | $1,00$ | $1,00$ | $1,00$ | $1,00$ |
+| `num_boost_round` | $20$ | $20$ | $40$ | $40$ | $45$ | $60$ |
+| `early_stopping` | Ninguno | Ninguno | Ninguno | Ninguno | Ninguno | Ninguno |
+
+: Configuración real de los modelos operativos y de la ablación controlada.
 
 ---
 
 # Tabla Suplementaria S3: Desglose Departamental de Desempeño Predictivo
 
-Métricas evaluadas sobre el conjunto ciego *out-of-time* (2024–2025, $N = 1.841.147$ celdas) para los 17 departamentos de la República del Paraguay y el Distrito Capital (Asunción) bajo el modelo híbrido $\mathcal{M}_3$.
+Métricas case-control sobre el test ciego 2024–2025. La prevalencia de la muestra es ~9,09 %; no son precisiones operativas poblacionales. Para la evaluación poblacional vea la Tabla Suplementaria S6 del manuscrito.
 
-| Código ADM1 | Departamento | Macro-Región | Celdas Soberanas (1 km²) | Muestras Test | Fuegos Test | ROC-AUC (Ignición $\mathcal{M}_3$) | ROC-AUC (Propagación) | Precisión Táctica (%) |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **PY-17** | Alto Paraguay | Chaco | $78.613$ | $265.679$ | $21.108$ | $\mathbf{0,741}$ | $\mathbf{0,898}$ | $94,1\text{ \%}$ |
-| **PY-16** | Boquerón | Chaco | $88.623$ | $292.632$ | $17.583$ | $\mathbf{0,633}$ | $\mathbf{0,843}$ | $84,3\text{ \%}$ |
-| **PY-15** | Presidente Hayes | Chaco | $73.644$ | $207.794$ | $30.955$ | $\mathbf{0,728}$ | $\mathbf{0,844}$ | $83,3\text{ \%}$ |
-| **PY-01** | Concepción | Oriental | $18.523$ | $136.865$ | $10.739$ | $\mathbf{0,757}$ | $\mathbf{0,798}$ | $73,6\text{ \%}$ |
-| **PY-02** | San Pedro | Oriental | $20.854$ | $105.302$ | $16.243$ | $\mathbf{0,744}$ | $\mathbf{0,780}$ | $67,0\text{ \%}$ |
-| **PY-13** | Amambay | Oriental | $12.555$ | $75.588$ | $9.870$ | $\mathbf{0,788}$ | $\mathbf{0,813}$ | $89,3\text{ \%}$ |
-| **PY-14** | Canindeyú | Oriental | $15.052$ | $108.025$ | $11.721$ | $\mathbf{0,915}$ | $\mathbf{0,932}$ | $87,6\text{ \%}$ |
-| **PY-10** | Alto Paraná | Oriental | $14.206$ | $153.241$ | $2.878$ | $\mathbf{0,907}$ | $\mathbf{0,904}$ | $83,2\text{ \%}$ |
-| **PY-07** | Itapúa | Oriental | $15.868$ | $138.121$ | $5.574$ | $\mathbf{0,894}$ | $\mathbf{0,896}$ | $76,7\text{ \%}$ |
-| **PY-05** | Caaguazú | Oriental | $12.901$ | $59.603$ | $8.395$ | $\mathbf{0,793}$ | $\mathbf{0,804}$ | $73,3\text{ \%}$ |
-| **PY-06** | Caazapá | Oriental | $9.554$ | $42.655$ | $7.653$ | $\mathbf{0,752}$ | $\mathbf{0,802}$ | $67,0\text{ \%}$ |
-| **PY-12** | Ñeembucú | Oriental | $11.672$ | $93.221$ | $7.949$ | $\mathbf{0,714}$ | $\mathbf{0,802}$ | $72,6\text{ \%}$ |
-| **PY-09** | Paraguarí | Oriental | $8.593$ | $49.843$ | $5.072$ | $\mathbf{0,636}$ | $\mathbf{0,708}$ | $59,6\text{ \%}$ |
-| **PY-08** | Misiones | Oriental | $8.157$ | $52.090$ | $4.086$ | $\mathbf{0,661}$ | $\mathbf{0,741}$ | $68,8\text{ \%}$ |
-| **PY-03** | Cordillera | Oriental | $4.791$ | $24.328$ | $3.695$ | $\mathbf{0,707}$ | $\mathbf{0,779}$ | $75,9\text{ \%}$ |
-| **PY-04** | Guairá | Oriental | $3.866$ | $19.350$ | $1.927$ | $\mathbf{0,723}$ | $\mathbf{0,743}$ | $64,5\text{ \%}$ |
-| **PY-11** | Central | Oriental | $2.406$ | $16.810$ | $1.944$ | $\mathbf{0,760}$ | $\mathbf{0,814}$ | $78,7\text{ \%}$ |
-| **PY-ASU**| Asunción (Distrito Capital) | Oriental | $128$ | $0$ | $0$ | — | — | — |
-: Evaluación estratificada por unidad político-administrativa ADM1 en el conjunto de prueba ciego bajo el modelo híbrido multiescala $\mathcal{M}_3$ (generada de forma reproducible por `scripts/14_auditoria_suplementaria.py`). {#tbl-departamentos}
+| Departamento     | Macro-Región   |   Celdas soberanas |   Muestras test |   Fuegos test | ROC-AUC Ignición M3   | ROC-AUC Propagación   | Precisión táctica   |
+|:-----------------|:---------------|-------------------:|----------------:|--------------:|:----------------------|:----------------------|:--------------------|
+| SAN PEDRO        | Oriental       |              20854 |          105302 |         16243 | 0.788                 | 0.809                 | 68.8 %              |
+| CONCEPCION       | Oriental       |              18523 |          136865 |         10739 | 0.799                 | 0.837                 | 74.1 %              |
+| ITAPUA           | Oriental       |              15868 |          138121 |          5574 | 0.883                 | 0.897                 | 76.3 %              |
+| CANINDEYU        | Oriental       |              15052 |          108025 |         11721 | 0.946                 | 0.95                  | 89.4 %              |
+| ALTO PARANA      | Oriental       |              14206 |          153241 |          2878 | 0.908                 | 0.915                 | 78.6 %              |
+| CAAGUAZU         | Oriental       |              12901 |           59603 |          8395 | 0.803                 | 0.809                 | 72.3 %              |
+| AMAMBAY          | Oriental       |              12555 |           75588 |          9870 | 0.845                 | 0.867                 | 88.3 %              |
+| ÑEEMBUCU         | Oriental       |              11672 |           93221 |          7949 | 0.646                 | 0.813                 | 73.3 %              |
+| CAAZAPA          | Oriental       |               9554 |           42655 |          7653 | 0.752                 | 0.807                 | 71.2 %              |
+| PARAGUARI        | Oriental       |               8593 |           49843 |          5072 | 0.634                 | 0.734                 | 62.8 %              |
+| MISIONES         | Oriental       |               8157 |           52090 |          4086 | 0.619                 | 0.756                 | 67.8 %              |
+| CORDILLERA       | Oriental       |               4791 |           24328 |          3695 | 0.69                  | 0.789                 | 76.6 %              |
+| GUAIRA           | Oriental       |               3866 |           19350 |          1927 | 0.73                  | 0.746                 | 62.7 %              |
+| CENTRAL          | Oriental       |               2406 |           16810 |          1944 | 0.721                 | 0.822                 | 80.6 %              |
+| ASUNCION         | Oriental       |                128 |               0 |             0 | —                     | —                     | —                   |
+| BOQUERON         | Chaco          |              88623 |          292632 |         17583 | 0.835                 | 0.908                 | 95.0 %              |
+| ALTO PARAGUAY    | Chaco          |              78613 |          265679 |         21108 | 0.765                 | 0.935                 | 96.9 %              |
+| PRESIDENTE HAYES | Chaco          |              73644 |          207794 |         30955 | 0.731                 | 0.866                 | 92.2 %              |
+
+: Evaluación estratificada por departamento en el conjunto de prueba ciego (generada por `scripts/14_auditoria_suplementaria.py`).
 
 ---
 
 # Tabla Suplementaria S4: Perfil de Rendimiento Computacional y Consumo de Memoria
 
-Las pruebas de rendimiento se realizaron en dos entornos de referencia:
-1. **Entorno A (Edge / Workstation ARM64):** Apple Silicon ARM64 (Apple M5, 10 núcleos CPU, 16 GB memoria unificada, macOS).
-2. **Entorno B (Servidor Cloud x86_64):** Intel Xeon Platinum 8375C (8 vCPU, 32 GB RAM, Ubuntu 22.04 LTS).
+Medición real de `scripts/14_auditoria_suplementaria.py` sobre la fecha 2024-09-09, incluyendo ingesta, priors causales, gating, inferencia dual y boletín. El tiempo depende del hardware y de la caché del sistema operativo.
 
-| Etapa del Flujo Computacional | Motor de Cómputo | Memoria RAM Pico (MB) | Tiempo Entorno A (ARM64) | Tiempo Entorno B (x86_64) |
-| :--- | :--- | :---: | :---: | :---: |
-| 1. Cruce Grilla + Ingesta MapBiomas/Clima | DuckDB (Zero-Copy) | $450\text{ MB}$ | $0,15\text{ s}$ | $0,19\text{ s}$ |
-| 2. Gating Biofísico de Etapa 1 | Polars (Vectorizado) | $220\text{ MB}$ | $0,08\text{ s}$ | $0,11\text{ s}$ |
-| 3. Inferencia Dual LightGBM y Kernel $t-1$ | LightGBM C++ / SciPy | $380\text{ MB}$ | $0,42\text{ s}$ | $0,54\text{ s}$ |
-| 4. Calibración y Exportación GeoTIFF/Parquet | NumPy / Rasterio / Polars | $140\text{ MB}$ | $0,10\text{ s}$ | $0,14\text{ s}$ |
-| **Tiempo Total Pipeline Nacional Completo** | **Punta a Punta** | **$< 600\text{ MB}$** | **$0,75\text{ s}$** | **$0,98\text{ s}$** |
-: Desglose computacional por componente algorítmico sobre las 400.006 celdas del territorio nacional. {#tbl-computo}
+| Etapa del flujo | Motor | Tiempo medido (s) | RAM pico (MB) |
+| :--- | :--- | :---: | :---: |
+| 1. Ingesta, priors causales y gating | Polars / cKDTree | $1,129$ | — |
+| 2. Inferencia dual LightGBM | LightGBM C++ / NumPy | $0,241$ | — |
+| 3. Agregación y boletín | Polars | $0,015$ | — |
+| **Total pipeline nacional** | **Consolidado** | **$1,385$** | **$2.040,7$** |
+
+: Perfil medido en un equipo macOS ARM64. La columna x86_64 no se midió en esta ejecución.
 
 ---
 
 # Tabla Suplementaria S5: Calibración Conforme y Cobertura Empírica Out-of-Time
 
-Calibración de intervalos de predicción conformal mediante Split Conformal Prediction. Los umbrales de no-conformidad $\hat{q}_{1-\alpha}$ se calibraron estrictamente sobre el conjunto de validación (2023) y la cobertura empírica se evaluó de forma independiente sobre el conjunto ciego *out-of-time* (2024–2025, $N = 1.841.147$ celdas) bajo el modelo híbrido multiescala $\mathcal{M}_3$.
+El calibrador Platt y el cuantil conformal se estiman en subconjuntos cronológicos distintos de validación (60 % / 40 %). La cobertura se evalúa en el test ciego 2024–2025. Bajo cambio temporal no hay garantía formal de exchangeability; se reporta cobertura empírica.
 
-| Macro-Región | Umbral $\hat{q}_{0,90}$ | Cobertura Empírica ($1-\alpha = 0,90$) | Umbral $\hat{q}_{0,95}$ | Cobertura Empírica ($1-\alpha = 0,95$) |
+| Macro-Región | $\hat{q}_{0,90}$ | Cobertura empírica ($1-\alpha=0,90$) | $\hat{q}_{0,95}$ | Cobertura empírica ($1-\alpha=0,95$) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Chaco** | $0,3637$ | $88,60\text{ \%}$ | $0,7814$ | $94,07\text{ \%}$ |
-| **Región Oriental** | $0,4115$ | $89,73\text{ \%}$ | $0,7572$ | $94,94\text{ \%}$ |
-| **Nivel Nacional Ponderado** | — | $\mathbf{89,26\text{ \%}}$ | — | $\mathbf{94,58\text{ \%}}$ |
-: Evaluación de calibración conforme y cobertura empírica out-of-time para el modelo $\mathcal{M}_3$ (generada por `scripts/14_auditoria_suplementaria.py`). {#tbl-conformal}
+| **Chaco** | $0,4130$ | $89,67\text{ \%}$ | $0,7593$ | $93,62\text{ \%}$ |
+| **Región Oriental** | $0,4186$ | $90,30\text{ \%}$ | $0,7308$ | $93,96\text{ \%}$ |
+| **Nivel Nacional Ponderado** | — | $\mathbf{90,04\text{ \%}}$ | — | $\mathbf{93,82\text{ \%}}$ |
+
+: Cobertura empírica conformal. No es una garantía formal bajo cambio temporal.
+
+---
+
+# Tabla Suplementaria S6: Evaluación Poblacional con Corrección de Prevalencia
+
+Métricas reponderadas por el inverso de la probabilidad de muestreo y corregidas a la prevalencia poblacional del periodo de test. La reponderación usa todas las ausencias (no sólo las que quedan fuera del buffer de 20 km), por lo que es una estimación de primer orden; la precisión real podría ser menor.
+
+| Región   | Modelo                 |   Prevalencia poblacional |   Corte F0.5 poblacional |   ROC-AUC poblacional |   PR-AUC poblacional |   Precisión (%) |   Recall (%) |    BSS |   N población test |
+|:---------|:-----------------------|--------------------------:|-------------------------:|----------------------:|---------------------:|----------------:|-------------:|-------:|-------------------:|
+| Chaco    | M3_ignicion_hibrida    |               0.000625377 |                 0.004641 |                0.7911 |               0.004  |           0.743 |       12.538 | 0.0016 |          111366456 |
+| Chaco    | M2_propagacion_tactica |               0.000625377 |                 0.020325 |                0.9126 |               0.2287 |          11.87  |       48.471 | 0.0613 |          111366456 |
+| Oriental | M3_ignicion_hibrida    |               0.0015186   |                 0.008393 |                0.8323 |               0.023  |           1.957 |       24.247 | 0.0091 |           64365943 |
+| Oriental | M2_propagacion_tactica |               0.0015186   |                 0.01926  |                0.8662 |               0.1063 |           6.073 |       31.888 | 0.0353 |           64365943 |
+
+: Evaluación poblacional generada por `scripts/18_evaluacion_poblacional.py`.
+
+---
+
+# Tabla Suplementaria S7: Significancia Pareada de Diferencias de ROC-AUC
+
+Bootstrap pareado con $B=1.000$ sobre la muestra case-control del test. El p-valor es una aproximación bootstrap bilateral; la resolución mínima es 0,001. No corrige prevalencia ni dependencia espacial.
+
+| region   | comparacion                                                    |   delta_roc |   p_value_bootstrap |   n_bootstrap |
+|:---------|:---------------------------------------------------------------|------------:|--------------------:|--------------:|
+| Oriental | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2221 |               0.001 |          1000 |
+| Oriental | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2412 |               0.001 |          1000 |
+| Oriental | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.2615 |               0.001 |          1000 |
+| Oriental | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.2806 |               0.001 |          1000 |
+| Chaco    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2675 |               0.001 |          1000 |
+| Chaco    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2822 |               0.001 |          1000 |
+| Chaco    | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.3937 |               0.001 |          1000 |
+| Chaco    | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.4084 |               0.001 |          1000 |
+
+: Diferencias pareadas de ROC-AUC generadas por `scripts/13_benchmarking_modelos.py`.
+
+---
+
+# Tabla Suplementaria S8: Validación Espacial por Bloques de 50 km
+
+Holdout espacial con buffer de 20 km; los priors excluyen las celdas retenidas. `holdout_espacial` son bloques no vistos; `heldin_referencia` son bloques no retenidos en las mismas fechas.
+
+| region   | modelo       | evaluacion        |      n |   n_pos |   roc_auc | roc_ci_95       |   pr_auc |   brier |     bss |    ece |   precision |   recall |    f05 |
+|:---------|:-------------|:------------------|-------:|--------:|----------:|:----------------|---------:|--------:|--------:|-------:|------------:|---------:|-------:|
+| Chaco    | M1_biofisico | holdout_espacial  | 150520 |   16932 |    0.5105 | [0.507 - 0.515] |   0.1151 |  0.1039 | -0.0403 | 0.0498 |      0.1117 |   0.153  | 0.1181 |
+| Chaco    | M1_biofisico | heldin_referencia | 615585 |   52714 |    0.6395 | [0.637 - 0.642] |   0.1485 |  0.077  |  0.0162 | 0.0206 |      0.1783 |   0.268  | 0.1911 |
+| Chaco    | M2_base      | holdout_espacial  | 150520 |   16932 |    0.4893 | [0.485 - 0.495] |   0.1192 |  0.1072 | -0.0739 | 0.0849 |      0.2903 |   0.0005 | 0.0026 |
+| Chaco    | M2_base      | heldin_referencia | 615585 |   52714 |    0.7962 | [0.794 - 0.798] |   0.2495 |  0.0722 |  0.0778 | 0.0195 |      0.3268 |   0.1857 | 0.2837 |
+| Chaco    | M3_hibrido   | holdout_espacial  | 150520 |   16932 |    0.4737 | [0.469 - 0.479] |   0.1139 |  0.1078 | -0.0798 | 0.0883 |      0.2308 |   0.0005 | 0.0026 |
+| Chaco    | M3_hibrido   | heldin_referencia | 615585 |   52714 |    0.8062 | [0.804 - 0.808] |   0.2804 |  0.0705 |  0.0993 | 0.0169 |      0.3927 |   0.1521 | 0.2983 |
+| Oriental | M1_biofisico | holdout_espacial  | 329729 |   22373 |    0.6139 | [0.610 - 0.618] |   0.1232 |  0.0648 | -0.0245 | 0.0443 |      0.1458 |   0.1995 | 0.1541 |
+| Oriental | M1_biofisico | heldin_referencia | 745313 |   75373 |    0.6113 | [0.609 - 0.613] |   0.1576 |  0.0904 |  0.0057 | 0.0161 |      0.1745 |   0.2131 | 0.1811 |
+| Oriental | M2_base      | holdout_espacial  | 329729 |   22373 |    0.5962 | [0.593 - 0.600] |   0.1042 |  0.0657 | -0.0389 | 0.0541 |      1      |   0.0002 | 0.0009 |
+| Oriental | M2_base      | heldin_referencia | 745313 |   75373 |    0.7798 | [0.778 - 0.781] |   0.2774 |  0.082  |  0.0983 | 0.0073 |      0.2976 |   0.2887 | 0.2957 |
+| Oriental | M3_hibrido   | holdout_espacial  | 329729 |   22373 |    0.5942 | [0.591 - 0.598] |   0.1051 |  0.0664 | -0.0497 | 0.0597 |      1      |   0.0004 | 0.002  |
+| Oriental | M3_hibrido   | heldin_referencia | 745313 |   75373 |    0.807  | [0.806 - 0.808] |   0.35   |  0.0779 |  0.1433 | 0.0131 |      0.4471 |   0.2484 | 0.3854 |
+
+: Validación espacial generada por `scripts/20_validacion_espacial_bloques.py`.
+
+---
+
+# Tabla Suplementaria S9: Evaluación con Clima de t-1 (24 h de Anticipación)
+
+Sustitución de las variables meteorológicas por las del día anterior (persistencia). No es un pronóstico numérico real; es una cota de persistencia.
+
+| region   | modelo          |       n |   n_pos |   roc_auc |   pr_auc |   brier |     bss |    ece |   cutoff_f05 |   precision |   recall |    f05 |     fp |    fn |
+|:---------|:----------------|--------:|--------:|----------:|---------:|--------:|--------:|-------:|-------------:|------------:|---------:|-------:|-------:|------:|
+| Chaco    | M1_biofisico_t1 |  766105 |   69646 |    0.6146 |   0.1349 |  0.0817 |  0.0111 | 0.0119 |      0.15959 |      0.1592 |   0.3139 | 0.1766 | 115458 | 47783 |
+| Chaco    | M3_hibrido_t1   |  766105 |   69646 |    0.7857 |   0.2706 |  0.0748 |  0.0945 | 0.0163 |      0.33273 |      0.3414 |   0.1862 | 0.2926 |  25018 | 56678 |
+| Oriental | M1_biofisico_t1 | 1075042 |   97746 |    0.5905 |   0.1311 |  0.0834 | -0.0089 | 0.017  |      0.15142 |      0.156  |   0.1963 | 0.1626 | 103827 | 78561 |
+| Oriental | M3_hibrido_t1   | 1075042 |   97746 |    0.8243 |   0.3548 |  0.07   |  0.153  | 0.0132 |      0.30943 |      0.4417 |   0.2606 | 0.3878 |  32195 | 72276 |
+
+: Evaluación con clima de t-1 generada por `scripts/21_evaluacion_lead_time.py`.
 
 ---
 

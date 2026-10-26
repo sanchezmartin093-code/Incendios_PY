@@ -62,5 +62,21 @@ class TestClima(unittest.TestCase):
         self.assertGreater(res["ffmc"][3], res["ffmc"][0])
         self.assertLess(res["ffmc"][4], 60.0)
 
+    def test_continuidad_falla_con_gap(self):
+        df_clima_test = pl.DataFrame({
+            "nodo_clima_id": [1, 1, 1],
+            "fecha": ["2024-09-01", "2024-09-02", "2024-09-04"],
+            "temp_max_c": [35.0, 36.0, 38.0],
+            "temp_min_c": [20.0, 21.0, 22.0],
+            "precipitacion_mm": [0.0, 0.0, 0.0],
+            "viento_max_kmh": [20.0, 25.0, 30.0],
+            "rafaga_max_kmh": [30.0, 35.0, 45.0],
+            "et0_mm": [5.0, 5.5, 6.0],
+            "vpd_max_kpa": [3.0, 3.5, 4.0],
+        })
+
+        with self.assertRaises(ValueError):
+            calcular_indices_fwi_y_sequedad(df_clima_test)
+
 if __name__ == "__main__":
     unittest.main()

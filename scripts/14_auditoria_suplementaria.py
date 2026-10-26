@@ -19,13 +19,22 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+import resource
 import numpy as np
 import pandas as pd
 import polars as pl
+import lightgbm as lgb
 from sklearn.metrics import roc_auc_score, average_precision_score, confusion_matrix
 
+from src.alerta import (
+    cargar_artefactos_modelos,
+    preparar_datos_diarios,
+    evaluar_alerta_nacional,
+    generar_boletin_operativo,
+)
+from src.espaciotemporal import agregar_features_antropicas
+
 from src.constantes import DIR_PROCESSED, DIR_TABLAS, DIR_MODELOS
-from src.modelo import cargar_modelo_y_calibrador, predecir_probabilidad, preparar_matrices_xy
 from src.metricas import (
     calcular_umbral_optimo_f_beta,
     calcular_cuantil_conforme,
@@ -59,9 +68,12 @@ def auditar_tablas_suplementarias():
     ]).sort(["region", "celdas_soberanas"], descending=[True, True])
 
     filas_depto = []
-    # Umbrales óptimos F0.5 de alta precisión derivados estrictamente en validación
-    c_f05_chaco = 0.642
-    c_f05_oriental = 0.544
+    # Umbrales F0.5 de propagación derivados en validación (leer metadatos reales).
+    import json
+    meta_prop_c = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_chaco.json").read_text())
+    meta_prop_o = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_oriental.json").read_text())
+    c_f05_chaco = float(meta_prop_c.get("c_f05", 0.642))
+    c_f05_oriental = float(meta_prop_o.get("c_f05", 0.544))
 
     for row in censo_deptos.iter_rows():
         dep_nom, reg, celdas_tot = row[0], row[1], row[2]
@@ -115,16 +127,18 @@ def auditar_tablas_suplementarias():
     print(f"   ✓ Guardado en {p_csv_s3.name} y {p_md_s3.name}")
 
     # -------------------------------------------------------------
-    # 2. TABLA SENSIBILIDAD BUFFER (10 km, 20 km, 30 km)
+    # 2. ESTRATIFICACIÓN POR DISTANCIA AL FOCO t-1
+    #    (no es una sensibilidad al buffer de muestreo: eso requiere
+    #     remuestrear y reentrenar; se deja como análisis pendiente)
     # -------------------------------------------------------------
-    print("\n2. Computando análisis de sensibilidad empírico del buffer espacial...")
+    print("\n2. Computando estratificación por distancia al foco t-1...")
     sub_c = df_preds.filter(pl.col("region") == "Chaco")
     sub_o = df_preds.filter(pl.col("region") == "Oriental")
 
     condiciones = {
-        10: "Sub-umbral (dentro del alcance espacial h < a)",
-        20: "Configuración Canónica (h ≈ a + 1.6 km)",
-        30: "Sobre-umbral ultra-conservador (h >> a)"
+        10: "Incluye celdas a >=10 km del foco t-1",
+        20: "Incluye celdas a >=20 km del foco t-1",
+        30: "Sólo celdas a >=30 km del foco t-1 (alejadas)"
     }
     col_ign_c = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_c.columns else "probabilidad_calibrada"
     col_ign_o = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_o.columns else "probabilidad_calibrada"
@@ -146,7 +160,7 @@ def auditar_tablas_suplementarias():
         auc_io = float(roc_auc_score(y_o, p_ign_o))
 
         sensibilidad_datos.append({
-            "radio_buffer": f"{d} km",
+            "distancia_min_t1_km": d,
             "condicion": condiciones[d],
             "n_muestras_chaco": int(mask_c.sum()),
             "auc_ign_chaco": round(auc_ic, 4),
@@ -159,43 +173,80 @@ def auditar_tablas_suplementarias():
     p_csv_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.csv"
     p_md_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.md"
     df_sens.to_csv(p_csv_sens, index=False)
-    p_md_sens.write_text("# Tabla de Sensibilidad del Buffer Espacial\n\n" + df_sens.to_markdown(index=False) + "\n", encoding="utf-8")
+    p_md_sens.write_text(
+        "# Estratificación del desempeño por distancia al foco t-1\n\n"
+        "Esta tabla NO es un análisis de sensibilidad al buffer de muestreo. "
+        "Para evaluar el buffer hay que remuestrear y reentrenar con 10, 20 y "
+        "30 km. Aquí sólo se filtra el test por distancia al foco de ayer.\n\n"
+        + df_sens.to_markdown(index=False)
+        + "\n",
+        encoding="utf-8",
+    )
     print(f"   ✓ Guardado en {p_csv_sens.name}")
 
     # -------------------------------------------------------------
-    # 3. TABLA S4: Perfil Computacional Real (Apple Silicon ARM64)
+    # 3. TABLA S4: Perfil Computacional Real
     # -------------------------------------------------------------
-    print("\n3. Midiendo perfil computacional y latencia en tiempo real...")
-    
-    t0 = time.perf_counter()
-    _ = pl.read_parquet(p_grilla)
-    t_carga = time.perf_counter() - t0
+    print("\n3. Midiendo perfil computacional y latencia del pipeline real...")
+
+    # Usar un día de alta actividad; si no existe, el último disponible.
+    df_fechas = pl.read_parquet(
+        DIR_PROCESSED / "clima_era5_diario.parquet", columns=["fecha"]
+    )
+    fechas_disponibles = set(df_fechas["fecha"].unique().to_list())
+    fecha_bench = "2024-09-09" if "2024-09-09" in fechas_disponibles else sorted(fechas_disponibles)[-1]
 
     t0 = time.perf_counter()
-    # Inferencia sobre las 400.006 celdas
-    ruta_b_chaco = DIR_MODELOS / "lightgbm_hibrido_chaco.booster"
-    ruta_c_chaco = DIR_MODELOS / "calibradores" / "calibrador_hibrido_chaco.joblib"
-    if not ruta_b_chaco.exists():
-        ruta_b_chaco = DIR_MODELOS / "lightgbm_ignicion_chaco.booster"
-        ruta_c_chaco = DIR_MODELOS / "calibradores" / "calibrador_ignicion_chaco.joblib"
+    artefactos = cargar_artefactos_modelos()
+    df_nacional = preparar_datos_diarios(fecha_bench)
+    t_ingesta = time.perf_counter() - t0
 
-    if ruta_b_chaco.exists():
-        b_c, c_c = cargar_modelo_y_calibrador(ruta_b_chaco, ruta_c_chaco)
-        num_feats = b_c.num_feature()
-        X_dummy = np.random.randn(400006, num_feats).astype(np.float32)
-        _ = predecir_probabilidad(b_c, c_c, X_dummy)
+    t0 = time.perf_counter()
+    df_evaluado = evaluar_alerta_nacional(df_nacional, artefactos)
     t_inferencia = time.perf_counter() - t0
 
-    lat_carga = round(max(t_carga, 0.05), 2)
-    lat_inf = round(max(t_inferencia, 0.20), 2)
-    lat_tot = round(lat_carga + 0.08 + lat_inf + 0.10, 2)
+    t0 = time.perf_counter()
+    _resumen, _boletin = generar_boletin_operativo(df_evaluado, fecha_bench)
+    t_boletin = time.perf_counter() - t0
+
+    lat_tot = t_ingesta + t_inferencia + t_boletin
+    peak_raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    # macOS devuelve bytes; Linux devuelve kilobytes.
+    peak_mb = peak_raw / (1024 * 1024) if sys.platform == "darwin" else peak_raw / 1024
 
     perfil_datos = [
-        {"etapa": "1. Ingesta y cruce relacional (DuckDB Zero-Copy)", "motor": "DuckDB C++", "ram_pico_mb": 450, "latencia_arm64_s": lat_carga, "latencia_x86_s": round(lat_carga * 1.3, 2)},
-        {"etapa": "2. Gating Biofísico de Etapa 1", "motor": "Polars Vectorizado", "ram_pico_mb": 220, "latencia_arm64_s": 0.08, "latencia_x86_s": 0.11},
-        {"etapa": "3. Inferencia Dual LightGBM y Kernel t-1", "motor": "LightGBM C++ / OpenMP / SciPy", "ram_pico_mb": 380, "latencia_arm64_s": lat_inf, "latencia_x86_s": round(lat_inf * 1.3, 2)},
-        {"etapa": "4. Calibración y Exportación GeoTIFF/Parquet", "motor": "NumPy / Rasterio / Polars", "ram_pico_mb": 140, "latencia_arm64_s": 0.10, "latencia_x86_s": 0.14},
-        {"etapa": "TOTAL PIPELINE NACIONAL (PUNTA A PUNTA)", "motor": "Consolidado O(1)", "ram_pico_mb": 580, "latencia_arm64_s": lat_tot, "latencia_x86_s": round(lat_tot * 1.3, 2)}
+        {
+            "etapa": "1. Ingesta, priors causales y gating",
+            "motor": "Polars / cKDTree",
+            "ram_pico_mb": np.nan,
+            "latencia_arm64_s": round(t_ingesta, 3),
+            "latencia_x86_s": np.nan,
+            "nota": "medido en el equipo de ejecución",
+        },
+        {
+            "etapa": "2. Inferencia dual LightGBM",
+            "motor": "LightGBM C++ / NumPy",
+            "ram_pico_mb": np.nan,
+            "latencia_arm64_s": round(t_inferencia, 3),
+            "latencia_x86_s": np.nan,
+            "nota": "medido en el equipo de ejecución",
+        },
+        {
+            "etapa": "3. Agregación y boletín",
+            "motor": "Polars",
+            "ram_pico_mb": np.nan,
+            "latencia_arm64_s": round(t_boletin, 3),
+            "latencia_x86_s": np.nan,
+            "nota": "medido en el equipo de ejecución",
+        },
+        {
+            "etapa": "TOTAL PIPELINE NACIONAL (PUNTA A PUNTA)",
+            "motor": "Consolidado",
+            "ram_pico_mb": round(peak_mb, 1),
+            "latencia_arm64_s": round(lat_tot, 3),
+            "latencia_x86_s": np.nan,
+            "nota": f"fecha={fecha_bench}; x86_64 no medido",
+        },
     ]
 
     df_s4 = pd.DataFrame(perfil_datos)
@@ -210,41 +261,42 @@ def auditar_tablas_suplementarias():
     # -------------------------------------------------------------
     print("\n4. Evaluando cuantificación de incertidumbre conforme (Split Conformal Prediction)...")
     p_val = DIR_PROCESSED / "val_dataset.parquet"
-    p_priors = DIR_PROCESSED / "priors_socioecologicos_1km.parquet"
-    
-    if p_val.exists() and p_priors.exists():
-        df_val = pl.read_parquet(p_val)
-        priors = pl.read_parquet(p_priors)
-        cols_priors = [c for c in priors.columns if c != "cell_id" and c not in ["dist_foco_hist_km", "densidad_hist_25km"]]
-        df_val = df_val.join(priors.select(["cell_id"] + cols_priors), on="cell_id", how="left")
-        df_val = df_val.with_columns([
-            pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
-            (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
-            (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
-            ((pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa") * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)).cast(pl.Float32).alias("presion_quema_pastura"),
-            (pl.col("densidad_hist_5km") / (pl.col("densidad_hist_25km") + 1.0)).cast(pl.Float32).alias("focalizacion_antropica_local"),
-            (np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")).cast(pl.Float32).alias("interaccion_acceso_vpd")
-        ])
 
+    if p_val.exists():
+        from src.modelo import CalibradorPlattMonotono
         from src.modelo import FEATURES_HIBRIDO_CHACO, FEATURES_HIBRIDO_ORIENTAL
-        
+
+        df_val = agregar_features_antropicas(pl.read_parquet(p_val))
+
         filas_conf = []
         for reg, feats in [("Chaco", FEATURES_HIBRIDO_CHACO), ("Oriental", FEATURES_HIBRIDO_ORIENTAL)]:
-            sub_val = df_val.filter(pl.col("region") == reg)
-            b, c = cargar_modelo_y_calibrador(
-                DIR_MODELOS / f"lightgbm_hibrido_{reg.lower()}.booster",
-                DIR_MODELOS / "calibradores" / f"calibrador_hibrido_{reg.lower()}.joblib"
-            )
-            p_val = predecir_probabilidad(b, c, sub_val.select(feats).to_numpy())
-            y_val = sub_val["fuego"].to_numpy().astype(int)
+            sub_val = df_val.filter(pl.col("region") == reg).sort("fecha")
 
-            q_hat_90 = calcular_cuantil_conforme(y_val, p_val, alpha=0.10)
-            q_hat_95 = calcular_cuantil_conforme(y_val, p_val, alpha=0.05)
+            # Separar calibración (60% cronológico) y conformal (40% restante).
+            # El calibrador Platt y q_hat NO se estiman sobre los mismos datos.
+            fechas = sorted(sub_val["fecha"].unique().to_list())
+            n_cal = max(1, int(len(fechas) * 0.60))
+            fechas_cal = set(fechas[:n_cal])
+            fechas_conf = set(fechas[n_cal:])
+            sub_cal = sub_val.filter(pl.col("fecha").is_in(list(fechas_cal)))
+            sub_conf = sub_val.filter(pl.col("fecha").is_in(list(fechas_conf)))
+            if sub_conf.is_empty():
+                sub_conf = sub_cal
+
+            b = lgb.Booster(model_file=str(DIR_MODELOS / f"lightgbm_hibrido_{reg.lower()}.booster"))
+            raw_cal = b.predict(sub_cal.select(feats).to_numpy())
+            raw_conf = b.predict(sub_conf.select(feats).to_numpy())
+            cal = CalibradorPlattMonotono().fit(raw_cal, sub_cal["fuego"].to_numpy())
+            p_conf = cal.predict(raw_conf)
+            y_conf = sub_conf["fuego"].to_numpy().astype(int)
+
+            q_hat_90 = calcular_cuantil_conforme(y_conf, p_conf, alpha=0.10)
+            q_hat_95 = calcular_cuantil_conforme(y_conf, p_conf, alpha=0.05)
 
             sub_test = df_preds.filter(pl.col("region") == reg)
             y_test = sub_test["fuego"].to_numpy().astype(int)
-            col_prob = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_test.columns else "probabilidad_calibrada"
-            p_test = sub_test[col_prob].to_numpy()
+            raw_test = b.predict(sub_test.select(feats).to_numpy())
+            p_test = cal.predict(raw_test)
 
             c0_90, c1_90 = predecir_conjuntos_conformes(p_test, q_hat_90)
             cov_90 = float(np.where(y_test == 1, c1_90, c0_90).mean())

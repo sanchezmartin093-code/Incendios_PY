@@ -35,11 +35,11 @@ def calcular_ffmc(temp: float, rh: float, wind: float, prec: float, ffmc_prev: f
     # 1. Ajuste por precipitación
     if prec > 0.5:
         rf = prec - 0.5
-        if ffmc_prev > 150.0:
-            mo = 150.0
-        else:
-            mo = 147.2 * (101.0 - ffmc_prev) / (59.5 + ffmc_prev)
-            
+        mo = 147.2 * (101.0 - ffmc_prev) / (59.5 + ffmc_prev)
+
+        if rf <= 0.0:
+            rf = 0.0
+
         if mo > 150.0:
             mr = mo + 42.5 * rf * np.exp(-100.0 / (251.0 - mo)) * (1.0 - np.exp(-6.93 / rf))
         else:

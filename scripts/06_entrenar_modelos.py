@@ -1,8 +1,8 @@
 """
-Script 06: Entrenamiento y Calibración Isotónica de Modelos Regionales (LightGBM).
+Script 06: Entrenamiento y Calibración Monótona de Platt de Modelos Regionales (LightGBM).
 - Entrena 2 modelos especializados independientes: Modelo Chaco vs. Modelo Región Oriental.
 - Ajuste de hiperparámetros con Early Stopping en validación.
-- Calibración Isotónica de probabilidades P(Y=1) ∈ [0.0, 1.0].
+- Calibración monótona de Platt de probabilidades P(Y=1) ∈ [0.0, 1.0].
 - Serialización interoperable en modelos/*.booster (C++) y modelos/calibradores/*.joblib.
 """
 
@@ -35,15 +35,24 @@ def entrenar_pipeline():
     print("ENTRENAMIENTO Y CALIBRACIÓN DUAL (IGNICIÓN & PROPAGACIÓN TÁCTICA)")
     print("=" * 65)
 
-    p_train = DIR_PROCESSED / "train_dataset.parquet"
-    p_val = DIR_PROCESSED / "val_dataset.parquet"
-
-    for p in [p_train, p_val]:
-        if not p.exists():
-            raise FileNotFoundError(f"Archivo requerido no encontrado: {p}. Ejecuta scripts/05_muestrear_ausencias.py primero.")
-
-    df_train = pl.read_parquet(p_train)
-    df_val = pl.read_parquet(p_val)
+    dir_targets = DIR_PROCESSED / "targets_poblacionales"
+    rutas = {
+        "ignicion": (
+            dir_targets / "train_ignicion.parquet",
+            dir_targets / "val_ignicion.parquet",
+        ),
+        "propagacion": (
+            dir_targets / "train_propagacion.parquet",
+            dir_targets / "val_propagacion.parquet",
+        ),
+    }
+    for modo, (p_train, p_val) in rutas.items():
+        for p in [p_train, p_val]:
+            if not p.exists():
+                raise FileNotFoundError(
+                    f"Archivo requerido no encontrado: {p}. "
+                    "Ejecuta scripts/05d_muestrear_poblacional_d2.py primero."
+                )
 
     DIR_MODELOS.mkdir(parents=True, exist_ok=True)
     dir_calibradores = DIR_MODELOS / "calibradores"
@@ -61,9 +70,13 @@ def entrenar_pipeline():
         print(f"CAPA MODELIZADA: {modo_nombre}")
         print(f"=======================================================")
 
+        p_train, p_val = rutas[modo_clave]
+        df_train = pl.read_parquet(p_train)
+        df_val = pl.read_parquet(p_val)
+
         for region in regiones:
             print(f"\n--- ENTRENANDO MODELO: {region.upper()} [{modo_clave.upper()}] ---")
-            
+
             # 1. Preparar matrices X e y
             X_train, y_train, feats = preparar_matrices_xy(df_train, region, modo=modo_clave)
             X_val, y_val, _ = preparar_matrices_xy(df_val, region, modo=modo_clave)

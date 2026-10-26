@@ -3,11 +3,17 @@ Pruebas unitarias para el módulo biomasa.py (categorización de combustible y m
 """
 
 import unittest
+import tempfile
+from pathlib import Path
+import numpy as np
 import polars as pl
+import rasterio
+from rasterio.transform import from_origin
 from src.biomasa import (
     categorizar_combustible,
     calcular_metricas_combustible_desde_conteo,
-    generar_perfil_combustible_base
+    generar_perfil_combustible_base,
+    procesar_geotiff_mapbiomas_a_grilla,
 )
 
 class TestBiomasa(unittest.TestCase):
@@ -52,6 +58,34 @@ class TestBiomasa(unittest.TestCase):
         self.assertFalse(perfil.filter(pl.col("cell_id") == 2000)["es_combustible"][0])
         # Alto Paraguay debe tener alto bosque seco
         self.assertGreater(perfil.filter(pl.col("cell_id") == 1000)["pct_bosque_seco"][0], 50.0)
+
+    def test_ingesta_mapbiomas_geotiff(self):
+        """La extracción real debe devolver fracciones por celda, no aleatorios."""
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = Path(tmp) / "mapbiomas_test.tif"
+            ancho = alto = 100
+            data = np.zeros((alto, ancho), dtype=np.uint8)
+            data[:, :33] = 15   # pastura
+            data[:, 33:] = 3    # bosque
+            with rasterio.open(
+                ruta, "w", driver="GTiff", height=alto, width=ancho,
+                count=1, dtype="uint8", crs="EPSG:32721",
+                transform=from_origin(499500.0, 7501500.0, 30.0, 30.0),
+            ) as dst:
+                dst.write(data, 1)
+
+            grilla = pl.DataFrame({
+                "cell_id": [1, 2, 3, 4],
+                "x_utm": [500000.0, 501000.0, 500000.0, 501000.0],
+                "y_utm": [7501000.0, 7501000.0, 7500000.0, 7500000.0],
+                "region": ["Chaco"] * 4,
+            })
+            perfil = procesar_geotiff_mapbiomas_a_grilla(grilla, [ruta])
+            self.assertEqual(perfil["origen_datos"].unique().to_list(), ["mapbiomas_real"])
+            izq = perfil.filter(pl.col("cell_id") == 1)
+            der = perfil.filter(pl.col("cell_id") == 2)
+            self.assertGreater(float(izq["pct_pastura"][0]), 80.0)
+            self.assertGreater(float(der["pct_bosque_seco"][0]), 80.0)
 
 if __name__ == "__main__":
     unittest.main()

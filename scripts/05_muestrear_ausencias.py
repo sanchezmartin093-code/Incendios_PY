@@ -15,17 +15,16 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import polars as pl
-import numpy as np
-from src.constantes import DIR_PROCESSED, DIR_MODELOS, BUFFER_ZONA_MUERTA_KM, RATIO_AUSENCIAS_PRESENCIAS
+from src.constantes import DIR_PROCESSED, BUFFER_ZONA_MUERTA_KM, RATIO_AUSENCIAS_PRESENCIAS
 from src.muestreo import (
     muestrear_dataset_unificado_por_meses,
-    muestrear_pseudo_ausencias_estratificadas,
     particionar_dataset_out_of_time
 )
 from src.espaciotemporal import (
+    agregar_features_antropicas,
     enriquecer_dataset_espaciotemporal,
-    asegurar_coordenadas_utm
 )
+from src.targets import definir_targets_d2
 
 def main():
     print("=" * 65)
@@ -56,28 +55,38 @@ def main():
     print("\nGenerando partición temporal out-of-time (Anti-Data-Leakage)...")
     df_train, df_val, df_test = particionar_dataset_out_of_time(df_balanceado)
 
-    # 3. Enriquecimiento espaciotemporal (Ecotono, Contagio causal t-1 y Prior espacial histórico)
-    print("\nAplicando ingeniería de características espaciotemporales (Ecotono, Contagio t-1 y Prior histórico)...")
+    # 3. Enriquecimiento espaciotemporal causal:
+    #    - Contagio t-1 (sólo fuegos de ayer)
+    #    - Priors históricos con corte mensual: sólo fuegos anteriores al
+    #      primer día del mes de cada fila. Nunca se incluye el evento actual
+    #      ni fuegos futuros.
+    print("\nAplicando ingeniería de características espaciotemporales (Ecotono, Contagio t-1 y Priors causales)...")
     path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
     if not path_focos.exists():
         raise FileNotFoundError(f"Archivo de focos no encontrado: {path_focos}")
     df_focos = pl.read_parquet(path_focos)
 
-    # Coordenadas históricas calculadas ÚNICAMENTE sobre presencias de Train (Anti-Leakage)
-    df_train_fuegos = df_train.filter(pl.col("fuego") == 1)
-    fuegos_train_coords = asegurar_coordenadas_utm(df_train_fuegos)
-    print(f" • Presencias de entrenamiento para prior espacial histórico: {len(fuegos_train_coords):,}")
-
-    DIR_MODELOS.mkdir(parents=True, exist_ok=True)
-    np.save(DIR_MODELOS / "fuegos_train_coords.npy", fuegos_train_coords)
-    print(f" • Coordenadas históricas de referencia guardadas en: {DIR_MODELOS / 'fuegos_train_coords.npy'}")
-
     print(" • Enriqueciendo Train...")
-    df_train = enriquecer_dataset_espaciotemporal(df_train, df_focos, fuegos_train_coords)
+    df_train = definir_targets_d2(
+        agregar_features_antropicas(
+            enriquecer_dataset_espaciotemporal(df_train, df_focos, usar_priors_causales=True)
+        ),
+        df_focos,
+    )
     print(" • Enriqueciendo Val...")
-    df_val = enriquecer_dataset_espaciotemporal(df_val, df_focos, fuegos_train_coords)
+    df_val = definir_targets_d2(
+        agregar_features_antropicas(
+            enriquecer_dataset_espaciotemporal(df_val, df_focos, usar_priors_causales=True)
+        ),
+        df_focos,
+    )
     print(" • Enriqueciendo Test...")
-    df_test = enriquecer_dataset_espaciotemporal(df_test, df_focos, fuegos_train_coords)
+    df_test = definir_targets_d2(
+        agregar_features_antropicas(
+            enriquecer_dataset_espaciotemporal(df_test, df_focos, usar_priors_causales=True)
+        ),
+        df_focos,
+    )
     print(" ✓ Particiones enriquecidas exitosamente.")
 
     p_train = DIR_PROCESSED / "train_dataset.parquet"

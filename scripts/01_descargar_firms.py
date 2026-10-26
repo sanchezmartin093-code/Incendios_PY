@@ -32,10 +32,12 @@ SENSORES_FALLBACK_NRT = [
     ("NOAA-21", URL_VIIRS_NOAA21_7D, "viirs_noaa-21_nrt_7d.csv")
 ]
 
-def descargar_e_ingestar_firms():
+def descargar_e_ingestar_firms(usar_nrt: bool = False):
     print("=" * 65)
     print("INGESTA Y ARMONIZACIÓN DE NASA FIRMS (VIIRS 375m) - PARAGUAY")
     print("=" * 65)
+    if usar_nrt:
+        print("[MODO NRT] Se priorizarán los CSV de los últimos 7 días.")
 
     path_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
     if not path_grilla.exists():
@@ -57,44 +59,55 @@ def descargar_e_ingestar_firms():
             with zipfile.ZipFile(p_zip, "r") as zf:
                 zf.extractall(dir_firms_raw)
 
-    # 2. Buscar archivos CSV históricos o NRT en el directorio
-    archivos_csv = list(dir_firms_raw.glob("*.csv"))
-    dfs_crudos = []
-
-    # Priorizar archivos históricos si existen
-    csvs_historicos = [c for c in archivos_csv if "nrt" not in c.name.lower()]
-    csvs_a_cargar = csvs_historicos if csvs_historicos else archivos_csv
-
-    if csvs_a_cargar:
-        print(f"\nCargando {len(csvs_a_cargar)} archivo(s) CSV satelitales:")
-        for ruta_csv in csvs_a_cargar:
-            print(f" - Leyendo: {ruta_csv.name} ({ruta_csv.stat().st_size / (1024*1024):.2f} MB)...")
-            try:
-                # Lectura flexible
-                df_sub = pd.read_csv(ruta_csv, low_memory=False)
-                dfs_crudos.append(df_sub)
-                print(f"   ✓ {len(df_sub):,} registros cargados.")
-            except Exception as e:
-                print(f"   ✗ Error leyendo {ruta_csv.name}: {e}")
+    # 2. Preferir el parquet histórico canónico si existe. Así se evita que
+    #    una ejecución de este script reemplace 8 años de focos por la ventana
+    #    NRT de 7 días.
+    parquets_historicos = sorted(dir_firms_raw.glob("viirs_historico_*.parquet"))
+    if parquets_historicos and not usar_nrt:
+        ruta_hist = parquets_historicos[-1]
+        print(f"\nUsando archivo histórico canónico: {ruta_hist.name}")
+        print(" (para forzar la ventana NRT ejecutar con --usar-nrt)")
+        df_total_raw = pd.read_parquet(ruta_hist)
+        dfs_crudos = []
     else:
-        # Fallback a descarga NRT si no hay ningún CSV
-        print("\nNo se encontraron archivos CSV históricos locales. Descargando feed operativo NRT...")
-        for nombre_sensor, url, archivo_nom in SENSORES_FALLBACK_NRT:
-            ruta_archivo = dir_firms_raw / archivo_nom
-            try:
-                df_temp = pd.read_csv(url)
-                print(f"   ✓ {nombre_sensor}: {len(df_temp):,} detecciones recibidas.")
-                df_temp.to_csv(ruta_archivo, index=False)
-                dfs_crudos.append(df_temp)
-            except Exception as e:
-                print(f"   ✗ Error descargando {nombre_sensor}: {e}")
+        # 3. Buscar archivos CSV históricos o NRT en el directorio
+        archivos_csv = list(dir_firms_raw.glob("*.csv"))
+        dfs_crudos = []
 
-    if not dfs_crudos:
-        print("No se pudieron cargar datos de focos térmicos.")
-        return
+        # Priorizar archivos históricos si existen
+        csvs_historicos = [c for c in archivos_csv if "nrt" not in c.name.lower()]
+        csvs_a_cargar = csvs_historicos if csvs_historicos else archivos_csv
 
-    # 3. Concatenar y deduplicar registros crudos
-    df_total_raw = pd.concat(dfs_crudos, ignore_index=True)
+        if csvs_a_cargar:
+            print(f"\nCargando {len(csvs_a_cargar)} archivo(s) CSV satelitales:")
+            for ruta_csv in csvs_a_cargar:
+                print(f" - Leyendo: {ruta_csv.name} ({ruta_csv.stat().st_size / (1024*1024):.2f} MB)...")
+                try:
+                    # Lectura flexible
+                    df_sub = pd.read_csv(ruta_csv, low_memory=False)
+                    dfs_crudos.append(df_sub)
+                    print(f"   ✓ {len(df_sub):,} registros cargados.")
+                except Exception as e:
+                    print(f"   ✗ Error leyendo {ruta_csv.name}: {e}")
+        else:
+            # Fallback a descarga NRT si no hay ningún CSV
+            print("\nNo se encontraron archivos CSV históricos locales. Descargando feed operativo NRT...")
+            for nombre_sensor, url, archivo_nom in SENSORES_FALLBACK_NRT:
+                ruta_archivo = dir_firms_raw / archivo_nom
+                try:
+                    df_temp = pd.read_csv(url)
+                    print(f"   ✓ {nombre_sensor}: {len(df_temp):,} detecciones recibidas.")
+                    df_temp.to_csv(ruta_archivo, index=False)
+                    dfs_crudos.append(df_temp)
+                except Exception as e:
+                    print(f"   ✗ Error descargando {nombre_sensor}: {e}")
+
+        if not dfs_crudos:
+            print("No se pudieron cargar datos de focos térmicos.")
+            return
+
+        # 4. Concatenar y deduplicar registros crudos
+        df_total_raw = pd.concat(dfs_crudos, ignore_index=True)
     cols_dedup = [c for c in ["latitude", "longitude", "acq_date", "acq_time"] if c in df_total_raw.columns]
     if cols_dedup:
         len_antes = len(df_total_raw)
@@ -140,4 +153,12 @@ def descargar_e_ingestar_firms():
     print("=" * 65)
 
 if __name__ == "__main__":
-    descargar_e_ingestar_firms()
+    import argparse
+    parser = argparse.ArgumentParser(description="Ingesta NASA FIRMS VIIRS 375m para Paraguay")
+    parser.add_argument(
+        "--usar-nrt",
+        action="store_true",
+        help="Forzar la ventana NRT de 7 días aunque exista un parquet histórico",
+    )
+    args = parser.parse_args()
+    descargar_e_ingestar_firms(usar_nrt=args.usar_nrt)

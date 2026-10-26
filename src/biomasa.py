@@ -10,19 +10,32 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 import rasterio
+from rasterio.warp import reproject, Resampling
+from rasterio.transform import from_origin
+from rasterio.windows import Window
 
 # Mapeo oficial de códigos de cobertura MapBiomas Cono Sur
+ORIGEN_PERFIL_SINTETICO = "sintetico_referencia"
+
+# Leyenda MapBiomas Paraguay Colección 2 (10 clases).
+# 3/4/6: bosques (cerrado, abierto, inundado); 9: plantación forestal;
+# 11: humedal; 12: pastizal; 15: pastura; 18: agricultura;
+# 22: no vegetado; 26: agua.
 CODIGOS_MAPBIOMAS = {
     3: "bosque",
-    4: "sabana",
+    4: "bosque",
+    6: "bosque",
+    9: "pastura",
     11: "humedal_palmar",
     12: "pastizal_natural",
     15: "pastura_cultivada",
     18: "agricultura",
     21: "mosaico_agropecuario",
+    22: "no_combustible",
     24: "urbano",
     25: "suelo_desnudo",
-    33: "cuerpo_agua"
+    26: "no_combustible",
+    33: "cuerpo_agua",
 }
 
 def categorizar_combustible(codigo: int, region: str) -> str:
@@ -30,17 +43,18 @@ def categorizar_combustible(codigo: int, region: str) -> str:
     Asigna un código numérico de MapBiomas a una categoría funcional de combustible
     según la ecorregión (Chaco vs. Región Oriental).
     """
-    if codigo in (15, 18, 21):
-        return "pastura"  # Combustible fino de rápida ignición (pasturas implantadas y rastrojos)
-    elif codigo in (4, 12):
-        return "sabana_pastizal"  # Sabana natural y pastizales nativos
-    elif codigo == 3:
-        # En el Chaco el bosque es xerofítico seco; en la Oriental es Bosque Atlántico denso
+    if codigo in (9, 15, 18, 21):
+        return "pastura"  # Pasturas, agricultura y plantaciones: combustible fino
+    elif codigo in (3, 4, 6):
+        # Bosque cerrado, abierto o inundado. En el Chaco es xerofítico;
+        # en la Oriental, Bosque Atlántico.
         return "bosque_seco" if region == "Chaco" else "bosque_humedo"
+    elif codigo == 12:
+        return "sabana_pastizal"  # Pastizal natural
     elif codigo == 11:
         return "humedal_palmar"  # Palmares de karanda'y y vegetación palustre
-    elif codigo in (24, 33):
-        return "no_combustible"  # Agua o cascos urbanos consolidados
+    elif codigo in (22, 24, 26, 33):
+        return "no_combustible"  # No vegetado, urbano o agua
     else:
         return "otro"
 
@@ -94,6 +108,117 @@ def calcular_metricas_combustible_desde_conteo(conteo_codigos: dict[int, int], r
         "pct_no_combustible": pct_no_comb,
         "es_combustible": es_combustible
     }
+
+def procesar_geotiff_mapbiomas_a_grilla(
+    df_grilla: pl.DataFrame,
+    rutas_tif: list[Path],
+    resolucion_m: int = 1000,
+    ventana_px: int = 2048,
+) -> pl.DataFrame:
+    """
+    Extrae fracciones de clases MapBiomas (30 m) a la grilla de 1 km.
+
+    Para cada código se crea una máscara binaria en la resolución nativa y se
+    reproyecta por ventanas a la grilla de 1 km con ``average``. El procesamiento
+    por ventanas evita cargar el raster completo (Paraguay ~1.1e9 píxeles) en
+    memoria. Se asume que los GeoTIFF no se solapan; si se solapan, las
+    fracciones se suman y luego se normalizan a 100.
+
+    La leyenda implementada es la de MapBiomas Paraguay Colección 2:
+    3/4/6 bosque, 9 plantación, 11 humedal, 12 pastizal, 15/18 pastura/agro,
+    22 no vegetado, 26 agua.
+    """
+    if not rutas_tif:
+        raise ValueError("Se requiere al menos un GeoTIFF MapBiomas")
+
+    x = df_grilla["x_utm"].to_numpy()
+    y = df_grilla["y_utm"].to_numpy()
+    min_x = float(np.min(x)) - resolucion_m / 2.0
+    max_y = float(np.max(y)) + resolucion_m / 2.0
+    max_x = float(np.max(x)) + resolucion_m / 2.0
+    min_y = float(np.min(y)) - resolucion_m / 2.0
+    width = int(round((max_x - min_x) / resolucion_m))
+    height = int(round((max_y - min_y) / resolucion_m))
+    dst_transform = from_origin(min_x, max_y, resolucion_m, resolucion_m)
+
+    c_idx = np.round((x - min_x - resolucion_m / 2.0) / resolucion_m).astype(int)
+    r_idx = np.round((max_y - resolucion_m / 2.0 - y) / resolucion_m).astype(int)
+    if c_idx.min() < 0 or c_idx.max() >= width or r_idx.min() < 0 or r_idx.max() >= height:
+        raise ValueError("La grilla no cabe en el raster destino")
+
+    codigos = list(CODIGOS_MAPBIOMAS.keys())
+    acumulado = {cod: np.zeros(width * height, dtype=np.float32) for cod in codigos}
+
+    for ruta in rutas_tif:
+        print(f"  Procesando MapBiomas: {ruta.name}")
+        with rasterio.open(ruta) as src:
+            destinos = {cod: np.zeros((height, width), dtype=np.float32) for cod in codigos}
+            for row in range(0, src.height, ventana_px):
+                for col in range(0, src.width, ventana_px):
+                    h = min(ventana_px, src.height - row)
+                    w = min(ventana_px, src.width - col)
+                    window = Window(col, row, w, h)
+                    data = src.read(1, window=window)
+                    src_transform = src.window_transform(window)
+                    for cod in codigos:
+                        mascara = (data == cod).astype(np.float32)
+                        if mascara.max() == 0:
+                            continue
+                        reproject(
+                            source=mascara,
+                            destination=destinos[cod],
+                            src_transform=src_transform,
+                            src_crs=src.crs,
+                            dst_transform=dst_transform,
+                            dst_crs="EPSG:32721",
+                            resampling=Resampling.average,
+                            init_dest_nodata=False,
+                        )
+            for cod in codigos:
+                acumulado[cod] += destinos[cod].ravel()
+
+    # Fracciones por código en el orden de la grilla (0-100)
+    frac = {cod: acumulado[cod][r_idx * width + c_idx] * 100.0 for cod in codigos}
+
+    suma = np.zeros(len(df_grilla), dtype=np.float32)
+    for cod in codigos:
+        suma += frac[cod]
+    factor = np.where(suma > 100.0, 100.0 / np.maximum(suma, 1e-9), 1.0).astype(np.float32)
+
+    regiones = df_grilla["region"].to_list()
+    pct = {
+        "pct_pastura": np.zeros(len(df_grilla), dtype=np.float32),
+        "pct_sabana_pastizal": np.zeros(len(df_grilla), dtype=np.float32),
+        "pct_bosque_seco": np.zeros(len(df_grilla), dtype=np.float32),
+        "pct_bosque_humedo": np.zeros(len(df_grilla), dtype=np.float32),
+        "pct_humedal_palmar": np.zeros(len(df_grilla), dtype=np.float32),
+        "pct_no_combustible": np.zeros(len(df_grilla), dtype=np.float32),
+    }
+    for cod in codigos:
+        valores = frac[cod] * factor
+        cat = categorizar_combustible(cod, "Chaco")
+        if cat in ("bosque_seco", "bosque_humedo"):
+            for i, reg in enumerate(regiones):
+                key = "pct_bosque_seco" if reg == "Chaco" else "pct_bosque_humedo"
+                pct[key][i] += valores[i]
+        else:
+            key = {
+                "pastura": "pct_pastura",
+                "sabana_pastizal": "pct_sabana_pastizal",
+                "humedal_palmar": "pct_humedal_palmar",
+                "no_combustible": "pct_no_combustible",
+            }.get(cat)
+            if key:
+                pct[key] += valores
+
+    pct_no_comb = np.clip(pct["pct_no_combustible"], 0.0, 100.0)
+    return pl.DataFrame({
+        "cell_id": df_grilla["cell_id"],
+        **{k: v.astype(np.float32) for k, v in pct.items()},
+        "es_combustible": pct_no_comb < 80.0,
+        "origen_datos": ["mapbiomas_real"] * len(df_grilla),
+    })
+
 
 def generar_perfil_combustible_base(df_grilla: pl.DataFrame) -> pl.DataFrame:
     """
@@ -177,5 +302,6 @@ def generar_perfil_combustible_base(df_grilla: pl.DataFrame) -> pl.DataFrame:
         "pct_bosque_humedo": pct_b_humedo,
         "pct_humedal_palmar": pct_palmar,
         "pct_no_combustible": pct_no_comb,
-        "es_combustible": es_comb
+        "es_combustible": es_comb,
+        "origen_datos": [ORIGEN_PERFIL_SINTETICO] * n,
     })
