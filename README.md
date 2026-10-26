@@ -178,8 +178,8 @@ Raw datasets are public but are not redistributed in this repository:
 4. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models are intended
-for archival in Zenodo/OSF; the archival DOI is pending final release.
+`fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models are archived in Zenodo with DOI
+[`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279).
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
@@ -189,8 +189,8 @@ licenses and terms.
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
 - Release: <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0>
-- Code archive DOI: pending Zenodo release.
-- Data archive DOI: pending Zenodo release.
+- Code archive DOI: [`10.5281/zenodo.23675105`](https://doi.org/10.5281/zenodo.23675105) (concept DOI: `10.5281/zenodo.23675104`).
+- Data archive DOI: [`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279) (concept DOI: `10.5281/zenodo.23675278`).
 - License: MIT.
 - Contact: Martín Sánchez Insfrán, `sanchez.martin093@gmail.com`.
 - ORCID: <https://orcid.org/0000-0003-4138-9668>
@@ -220,8 +220,7 @@ calibration, metrics, bootstrap resampling and the alert layer.
 
 ## Citation
 
-See `CITATION.cff`. Until a Zenodo DOI is assigned, cite the repository URL and the
-manuscript title.
+See `CITATION.cff`. Cite the code archive as `10.5281/zenodo.23675105` and the data archive as `10.5281/zenodo.23675279`.
 
 ## License
 

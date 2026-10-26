@@ -10,6 +10,7 @@ authors:
     affiliation: "Independent Researcher, Asunción, Paraguay"
 version: 1.0.0
 date-released: 2026-10-26
+doi: "10.5281/zenodo.23675105"
 repository-code: "https://github.com/sanchezmartin093-code/Incendios_PY"
 url: "https://github.com/sanchezmartin093-code/Incendios_PY"
 license: MIT

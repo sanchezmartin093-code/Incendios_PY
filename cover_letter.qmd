@@ -40,7 +40,7 @@ Our work sits precisely at the convergence of **Computer Science Applications** 
 
 ### Mandatory Declarations
 - This manuscript has not been published previously, is not under consideration for publication elsewhere, and its publication has been approved by the author.
-- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v2.csv` and archived on Zenodo/OSF.
+- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v2.csv` and archived on Zenodo (code DOI: 10.5281/zenodo.23675105; data DOI: 10.5281/zenodo.23675279).
 - We declare no competing financial or non-financial conflicts of interest.
 
 Thank you very much for your time, consideration, and editorial guidance.
