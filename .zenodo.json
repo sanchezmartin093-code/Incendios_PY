@@ -24,5 +24,17 @@
     "Gran Chaco",
     "Paraguay"
   ],
-  "notes": "Code archive. Processed data and trained models are deposited separately with their own DOI. Third-party raw data retain their original licenses."
+  "notes": "Code archive. Processed data and trained models are deposited separately with their own DOI. Third-party raw data retain their original licenses.",
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.23675279",
+      "relation": "isSupplementedBy",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "10.5281/zenodo.23675278",
+      "relation": "isSupplementedBy",
+      "resource_type": "dataset"
+    }
+  ]
 }
