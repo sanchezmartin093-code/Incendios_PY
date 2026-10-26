@@ -230,11 +230,20 @@ def ejecutar_estudio_ablacion():
         p_te_m3 = predecir_probabilidad(b_m3, c_m3, X_te_m3)
         c_opt_m3, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m3, beta=0.5)
 
-        # Guardar Modelo Híbrido Serializado
+        # Guardar Modelo Híbrido Serializado y Metadatos de Umbral Óptimo de Validación (Anti-Leakage)
         guardar_modelo_y_calibrador(
             b_m3, c_m3,
             DIR_MODELOS / f"lightgbm_hibrido_{region.lower()}.booster",
             dir_cal / f"calibrador_hibrido_{region.lower()}.joblib"
+        )
+        meta_hibrido = {
+            "region": region,
+            "arquitectura": "M3_hibrido_socioecologico",
+            "c_f05": round(float(c_opt_m3), 4),
+            "n_vars": len(feats_m3)
+        }
+        (dir_cal / f"umbrales_hibrido_{region.lower()}.json").write_text(
+            json.dumps(meta_hibrido, indent=2), encoding="utf-8"
         )
 
         # Calcular SHAP del Modelo Híbrido M3
