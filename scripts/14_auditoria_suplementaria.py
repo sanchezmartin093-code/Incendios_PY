@@ -26,7 +26,11 @@ from sklearn.metrics import roc_auc_score, average_precision_score, confusion_ma
 
 from src.constantes import DIR_PROCESSED, DIR_TABLAS, DIR_MODELOS
 from src.modelo import cargar_modelo_y_calibrador, predecir_probabilidad, preparar_matrices_xy
-from src.metricas import calcular_umbral_optimo_f_beta
+from src.metricas import (
+    calcular_umbral_optimo_f_beta,
+    calcular_cuantil_conforme,
+    predecir_conjuntos_conformes
+)
 
 def auditar_tablas_suplementarias():
     print("=" * 70)
@@ -70,7 +74,8 @@ def auditar_tablas_suplementarias():
         c_corte = c_f05_chaco if reg == "Chaco" else c_f05_oriental
 
         if n_pos >= 2 and (n_tot - n_pos) >= 2:
-            p_ign = sub["probabilidad_calibrada"].to_numpy()
+            col_ign = "probabilidad_hibrido" if "probabilidad_hibrido" in sub.columns else "probabilidad_calibrada"
+            p_ign = sub[col_ign].to_numpy()
             p_prop = sub["probabilidad_propagacion"].to_numpy()
             
             auc_ign = float(roc_auc_score(y_true, p_ign))
@@ -112,16 +117,44 @@ def auditar_tablas_suplementarias():
     # -------------------------------------------------------------
     # 2. TABLA SENSIBILIDAD BUFFER (10 km, 20 km, 30 km)
     # -------------------------------------------------------------
-    print("\n2. Computando análisis de sensibilidad del buffer espacial...")
-    # Variación empírica en torno a la configuración canónica (20 km) sobre el test set
-    auc_ign_c = 0.7219
-    auc_ign_o = 0.7978
-    auc_prop_c = 0.8741
-    sensibilidad_datos = [
-        {"radio_buffer": "10 km", "condicion": "Sub-umbral (dentro del alcance espacial h < a)", "auc_ign_chaco": round(auc_ign_c - 0.0064, 4), "auc_ign_oriental": round(auc_ign_o - 0.0081, 4), "auc_prop_chaco": round(auc_prop_c + 0.0046, 4)},
-        {"radio_buffer": "20 km", "condicion": "Configuración Canónica (h ≈ a + 1.6 km)", "auc_ign_chaco": auc_ign_c, "auc_ign_oriental": auc_ign_o, "auc_prop_chaco": auc_prop_c},
-        {"radio_buffer": "30 km", "condicion": "Sobre-umbral ultra-conservador (h >> a)", "auc_ign_chaco": round(auc_ign_c + 0.0057, 4), "auc_ign_oriental": round(auc_ign_o + 0.0074, 4), "auc_prop_chaco": round(auc_prop_c - 0.0063, 4)}
-    ]
+    print("\n2. Computando análisis de sensibilidad empírico del buffer espacial...")
+    sub_c = df_preds.filter(pl.col("region") == "Chaco")
+    sub_o = df_preds.filter(pl.col("region") == "Oriental")
+
+    condiciones = {
+        10: "Sub-umbral (dentro del alcance espacial h < a)",
+        20: "Configuración Canónica (h ≈ a + 1.6 km)",
+        30: "Sobre-umbral ultra-conservador (h >> a)"
+    }
+    col_ign_c = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_c.columns else "probabilidad_calibrada"
+    col_ign_o = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_o.columns else "probabilidad_calibrada"
+
+    sensibilidad_datos = []
+    for d in [10, 20, 30]:
+        mask_c = (sub_c["dist_foco_t1_km"] >= d).to_numpy()
+        mask_o = (sub_o["dist_foco_t1_km"] >= d).to_numpy()
+
+        y_c = sub_c["fuego"].to_numpy()[mask_c]
+        p_ign_c = sub_c[col_ign_c].to_numpy()[mask_c]
+        p_prop_c = sub_c["probabilidad_propagacion"].to_numpy()[mask_c]
+
+        y_o = sub_o["fuego"].to_numpy()[mask_o]
+        p_ign_o = sub_o[col_ign_o].to_numpy()[mask_o]
+
+        auc_ic = float(roc_auc_score(y_c, p_ign_c))
+        auc_pc = float(roc_auc_score(y_c, p_prop_c))
+        auc_io = float(roc_auc_score(y_o, p_ign_o))
+
+        sensibilidad_datos.append({
+            "radio_buffer": f"{d} km",
+            "condicion": condiciones[d],
+            "n_muestras_chaco": int(mask_c.sum()),
+            "auc_ign_chaco": round(auc_ic, 4),
+            "auc_prop_chaco": round(auc_pc, 4),
+            "n_muestras_oriental": int(mask_o.sum()),
+            "auc_ign_oriental": round(auc_io, 4)
+        })
+
     df_sens = pd.DataFrame(sensibilidad_datos)
     p_csv_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.csv"
     p_md_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.md"
@@ -171,6 +204,40 @@ def auditar_tablas_suplementarias():
     df_s4.to_csv(p_csv_s4, index=False)
     p_md_s4.write_text("# Tabla Suplementaria S4. Perfil de Rendimiento Computacional y Consumo de Memoria\n\n" + df_s4.to_markdown(index=False) + "\n", encoding="utf-8")
     print(f"   ✓ Guardado en {p_csv_s4.name} y {p_md_s4.name}")
+
+    # -------------------------------------------------------------
+    # 4. TABLA S5: Predicción Conforme (Split Conformal Prediction)
+    # -------------------------------------------------------------
+    print("\n4. Evaluando cuantificación de incertidumbre conforme (Split Conformal Prediction)...")
+    filas_conf = []
+    for reg in ["Chaco", "Oriental"]:
+        sub_reg = df_preds.filter(pl.col("region") == reg)
+        y_reg = sub_reg["fuego"].to_numpy().astype(int)
+        col_prob = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_reg.columns else "probabilidad_calibrada"
+        p_reg = sub_reg[col_prob].to_numpy()
+
+        q_hat_90 = calcular_cuantil_conforme(y_reg, p_reg, alpha=0.10)
+        c0, c1 = predecir_conjuntos_conformes(p_reg, q_hat_90)
+        cov_90 = float(np.where(y_reg == 1, c1, c0).mean())
+
+        q_hat_95 = calcular_cuantil_conforme(y_reg, p_reg, alpha=0.05)
+        c0_95, c1_95 = predecir_conjuntos_conformes(p_reg, q_hat_95)
+        cov_95 = float(np.where(y_reg == 1, c1_95, c0_95).mean())
+
+        filas_conf.append({
+            "region": reg,
+            "q_hat_90": round(q_hat_90, 4),
+            "cobertura_empirica_90": f"{cov_90 * 100:.2f} %",
+            "q_hat_95": round(q_hat_95, 4),
+            "cobertura_empirica_95": f"{cov_95 * 100:.2f} %"
+        })
+
+    df_s5 = pd.DataFrame(filas_conf)
+    p_csv_s5 = DIR_TABLAS / "tablaS5_prediccion_conforme.csv"
+    p_md_s5 = DIR_TABLAS / "tablaS5_prediccion_conforme.md"
+    df_s5.to_csv(p_csv_s5, index=False)
+    p_md_s5.write_text("# Tabla Suplementaria S5. Calibración Conforme y Cobertura Empírica\n\n" + df_s5.to_markdown(index=False) + "\n", encoding="utf-8")
+    print(f"   ✓ Guardado en {p_csv_s5.name} y {p_md_s5.name}")
 
     print("\n" + "=" * 70)
     print("AUDITORÍA SUPLEMENTARIA COMPLETADA CON ÉXITO")

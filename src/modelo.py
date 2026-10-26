@@ -107,6 +107,22 @@ FEATURES_PROPAGACION_BASE = FEATURES_IGNICION_BASE + [
 FEATURES_PROPAGACION_CHACO = FEATURES_PROPAGACION_BASE + ["pct_bosque_seco"]
 FEATURES_PROPAGACION_ORIENTAL = FEATURES_PROPAGACION_BASE + ["pct_bosque_humedo"]
 
+# 3. Variables del Modelo Híbrido Socio-Ecológico Multiescala (M3)
+FEATURES_ANTROPICO_MULTIESCALA = [
+    "dist_corredor_antropico_km",
+    "densidad_hist_5km",
+    "densidad_hist_10km",
+    "temporada_quema_ganadera",
+    "doy_sin",
+    "doy_cos",
+    "presion_quema_pastura",
+    "focalizacion_antropica_local",
+    "interaccion_acceso_vpd"
+]
+
+FEATURES_HIBRIDO_CHACO = FEATURES_IGNICION_CHACO + FEATURES_ANTROPICO_MULTIESCALA
+FEATURES_HIBRIDO_ORIENTAL = FEATURES_IGNICION_ORIENTAL + FEATURES_ANTROPICO_MULTIESCALA + ["freq_hist_1km"]
+
 # Alias de compatibilidad hacia atrás
 FEATURES_BASE = FEATURES_IGNICION_BASE
 FEATURES_CHACO = FEATURES_IGNICION_CHACO
@@ -119,12 +135,15 @@ def preparar_matrices_xy(
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """
     Filtra el dataset por región, extrae las features correspondientes según el modo
-    ('ignicion' para peligro primario, o 'propagacion' para avance táctico) y la etiqueta Y.
+    ('ignicion' para peligro primario base, 'hibrido' para socio-ecológico M3,
+    o 'propagacion' para avance táctico) y la etiqueta Y.
     """
     df_reg = df.filter(pl.col("region") == region)
     
     if modo == "propagacion":
         features = FEATURES_PROPAGACION_CHACO if region == "Chaco" else FEATURES_PROPAGACION_ORIENTAL
+    elif modo == "hibrido":
+        features = FEATURES_HIBRIDO_CHACO if region == "Chaco" else FEATURES_HIBRIDO_ORIENTAL
     else:
         features = FEATURES_IGNICION_CHACO if region == "Chaco" else FEATURES_IGNICION_ORIENTAL
     
