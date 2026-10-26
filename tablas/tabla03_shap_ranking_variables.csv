@@ -1,68 +1,68 @@
 region,feature,nombre_legible,shap_importancia_media,ranking
-Chaco,dist_foco_hist_km,Distancia a Fuego Histórico (km),0.4681076044197709,1
-Chaco,pct_bosque_seco,Bosque Xerofítico Chaqueño (%),0.18777879785655183,2
-Chaco,dist_corredor_antropico_km,dist_corredor_antropico_km,0.08034449009625862,3
-Chaco,focalizacion_antropica_local,focalizacion_antropica_local,0.07787636792710474,4
-Chaco,pct_pastura,Cobertura de Pastura (%),0.03417978927810184,5
+Chaco,dist_foco_hist_km,Distance to historical fire (km),0.4681076044197709,1
+Chaco,pct_bosque_seco,Dry Chaco forest (%),0.18777879785655183,2
+Chaco,dist_corredor_antropico_km,Distance to active anthropogenic corridor (km),0.08034449009625862,3
+Chaco,focalizacion_antropica_local,Local focalization index (5 km / 25 km),0.07787636792710474,4
+Chaco,pct_pastura,Pasture cover (%),0.03417978927810184,5
 Chaco,doy_cos,doy_cos,0.03279763436293741,6
-Chaco,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.01586511719733701,7
-Chaco,densidad_hist_5km,densidad_hist_5km,0.011481977776029611,8
-Chaco,presion_quema_pastura,presion_quema_pastura,0.010717820780099478,9
-Chaco,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.00949488748116706,10
-Chaco,pct_humedal_palmar,Palmares de Karanda'y (%),0.007562660111395155,11
-Chaco,precipitacion_mm,Precipitación Diaria (mm),0.007240404173538699,12
-Chaco,interaccion_viento_vpd,Interacción Viento × VPD,0.006593051403596822,13
-Chaco,isi,Índice Propagación Inicial (FWI ISI),0.00602728726127009,14
-Chaco,temp_min_c,Temperatura Mínima (°C),0.004735398727953721,15
-Chaco,dia_del_anio,Día del Año,0.004214401427795288,16
-Chaco,viento_max_kmh,Velocidad de Viento Máx (km/h),0.003908011358049131,17
-Chaco,densidad_hist_25km,Densidad Histórica de Ignición (25 km),0.003180209800154655,18
-Chaco,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.002964561503940835,19
-Chaco,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.0023197452205103797,20
-Chaco,temp_max_c,Temperatura Máxima (°C),0.002108180000229588,21
-Chaco,interaccion_acceso_vpd,interaccion_acceso_vpd,0.0020980288970364777,22
-Chaco,mes,Estacionalidad (Mes),0.0012458839268426414,23
+Chaco,potencial_viento_cuadratico,Dynamic wind pressure (v²),0.01586511719733701,7
+Chaco,densidad_hist_5km,Local anthropogenic ignition density (5 km),0.011481977776029611,8
+Chaco,presion_quema_pastura,Pasture burning pressure (pasture × VPD × month),0.010717820780099478,9
+Chaco,indice_ecotono,Forest–pasture ecotone fragmentation index,0.00949488748116706,10
+Chaco,pct_humedal_palmar,Palm / wetland cover (%),0.007562660111395155,11
+Chaco,precipitacion_mm,Daily rainfall (mm),0.007240404173538699,12
+Chaco,interaccion_viento_vpd,Wind × VPD interaction,0.006593051403596822,13
+Chaco,isi,Initial spread index (ISI),0.00602728726127009,14
+Chaco,temp_min_c,Minimum temperature (°C),0.004735398727953721,15
+Chaco,dia_del_anio,Day of year,0.004214401427795288,16
+Chaco,viento_max_kmh,Maximum wind speed (km/h),0.003908011358049131,17
+Chaco,densidad_hist_25km,Historical ignition density (25 km),0.003180209800154655,18
+Chaco,dias_secos_consecutivos,Consecutive dry days (CDD),0.002964561503940835,19
+Chaco,deficit_hidrico_acumulado,Accumulated water deficit (VPD × CDD),0.0023197452205103797,20
+Chaco,temp_max_c,Maximum temperature (°C),0.002108180000229588,21
+Chaco,interaccion_acceso_vpd,Accessibility–desiccation synergy,0.0020980288970364777,22
+Chaco,mes,Month,0.0012458839268426414,23
 Chaco,doy_sin,doy_sin,0.001230929792339115,24
-Chaco,ffmc,Índice Hojarasca Fina (FWI FFMC),0.0011490639757775205,25
+Chaco,ffmc,Fine fuel moisture code (FFMC),0.0011490639757775205,25
 Chaco,temporada_quema_ganadera,temporada_quema_ganadera,0.000677260478020472,26
-Chaco,rango_termico_diario,Amplitud Térmica Diaria (°C),0.00045197423090690715,27
-Chaco,densidad_hist_10km,densidad_hist_10km,0.0003961409144000667,28
-Chaco,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.0003262752777076842,29
-Chaco,dia_semana,Día de la Semana,0.0001861687110252823,30
-Chaco,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.0,31
-Chaco,es_fin_de_semana,Efecto Fin de Semana (Antrópico),0.0,32
-Chaco,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.0,33
-Oriental,dist_foco_hist_km,Distancia a Fuego Histórico (km),0.283984073972218,1
-Oriental,focalizacion_antropica_local,focalizacion_antropica_local,0.21970845414452486,2
-Oriental,dist_corredor_antropico_km,dist_corredor_antropico_km,0.11897473112127688,3
-Oriental,pct_humedal_palmar,Palmares de Karanda'y (%),0.09017956316614005,4
-Oriental,freq_hist_1km,freq_hist_1km,0.06412567811583819,5
-Oriental,pct_sabana_pastizal,Cobertura de Sabana / Pastizal (%),0.06074811169618395,6
-Oriental,pct_pastura,Cobertura de Pastura (%),0.034920515726898485,7
-Oriental,ffmc,Índice Hojarasca Fina (FWI FFMC),0.024360223934458396,8
-Oriental,dia_del_anio,Día del Año,0.020409792591598332,9
-Oriental,indice_ecotono,Índice Fragmentación Ecotono Bosque-Pastura,0.018477439868188877,10
-Oriental,presion_quema_pastura,presion_quema_pastura,0.012628452080735306,11
-Oriental,deficit_hidrico_acumulado,Déficit Hídrico Acumulado (VPD × CDD),0.012189108243305184,12
-Oriental,precipitacion_mm,Precipitación Diaria (mm),0.012098414085652402,13
-Oriental,precipitacion_48h_mm,Precipitación Acumulada 48h (mm),0.01204490688711429,14
-Oriental,isi,Índice Propagación Inicial (FWI ISI),0.011634794821854276,15
-Oriental,mes,Estacionalidad (Mes),0.0070376570831618464,16
-Oriental,dias_secos_consecutivos,Días Secos Consecutivos (CDD),0.007002395589849748,17
-Oriental,interaccion_acceso_vpd,interaccion_acceso_vpd,0.006710018887235998,18
+Chaco,rango_termico_diario,Daily thermal range (°C),0.00045197423090690715,27
+Chaco,densidad_hist_10km,Local anthropogenic ignition density (10 km),0.0003961409144000667,28
+Chaco,vpd_max_kpa,"Vapor pressure deficit (VPD, kPa)",0.0003262752777076842,29
+Chaco,dia_semana,Day of week,0.0001861687110252823,30
+Chaco,pct_sabana_pastizal,Savanna / natural grassland cover (%),0.0,31
+Chaco,es_fin_de_semana,Weekend effect (anthropogenic),0.0,32
+Chaco,precipitacion_48h_mm,48-h accumulated rainfall (mm),0.0,33
+Oriental,dist_foco_hist_km,Distance to historical fire (km),0.283984073972218,1
+Oriental,focalizacion_antropica_local,Local focalization index (5 km / 25 km),0.21970845414452486,2
+Oriental,dist_corredor_antropico_km,Distance to active anthropogenic corridor (km),0.11897473112127688,3
+Oriental,pct_humedal_palmar,Palm / wetland cover (%),0.09017956316614005,4
+Oriental,freq_hist_1km,Chronic recurrence in a 1-km² cell,0.06412567811583819,5
+Oriental,pct_sabana_pastizal,Savanna / natural grassland cover (%),0.06074811169618395,6
+Oriental,pct_pastura,Pasture cover (%),0.034920515726898485,7
+Oriental,ffmc,Fine fuel moisture code (FFMC),0.024360223934458396,8
+Oriental,dia_del_anio,Day of year,0.020409792591598332,9
+Oriental,indice_ecotono,Forest–pasture ecotone fragmentation index,0.018477439868188877,10
+Oriental,presion_quema_pastura,Pasture burning pressure (pasture × VPD × month),0.012628452080735306,11
+Oriental,deficit_hidrico_acumulado,Accumulated water deficit (VPD × CDD),0.012189108243305184,12
+Oriental,precipitacion_mm,Daily rainfall (mm),0.012098414085652402,13
+Oriental,precipitacion_48h_mm,48-h accumulated rainfall (mm),0.01204490688711429,14
+Oriental,isi,Initial spread index (ISI),0.011634794821854276,15
+Oriental,mes,Month,0.0070376570831618464,16
+Oriental,dias_secos_consecutivos,Consecutive dry days (CDD),0.007002395589849748,17
+Oriental,interaccion_acceso_vpd,Accessibility–desiccation synergy,0.006710018887235998,18
 Oriental,doy_cos,doy_cos,0.006679539709597642,19
-Oriental,temp_min_c,Temperatura Mínima (°C),0.006191762852394707,20
-Oriental,rango_termico_diario,Amplitud Térmica Diaria (°C),0.0051923459184866,21
-Oriental,temp_max_c,Temperatura Máxima (°C),0.004344855158308891,22
+Oriental,temp_min_c,Minimum temperature (°C),0.006191762852394707,20
+Oriental,rango_termico_diario,Daily thermal range (°C),0.0051923459184866,21
+Oriental,temp_max_c,Maximum temperature (°C),0.004344855158308891,22
 Oriental,doy_sin,doy_sin,0.003978547821043745,23
-Oriental,densidad_hist_5km,densidad_hist_5km,0.003968027767446935,24
-Oriental,pct_bosque_humedo,Bosque Atlántico BAAPA (%),0.002688532102901895,25
-Oriental,interaccion_viento_vpd,Interacción Viento × VPD,0.001591681126243894,26
-Oriental,vpd_max_kpa,"Déficit de Presión de Vapor (VPD, kPa)",0.0014675677183573089,27
-Oriental,viento_max_kmh,Velocidad de Viento Máx (km/h),0.001080272148751986,28
-Oriental,densidad_hist_10km,densidad_hist_10km,0.0007870637433797088,29
-Oriental,densidad_hist_25km,Densidad Histórica de Ignición (25 km),0.0007612026051793945,30
-Oriental,potencial_viento_cuadratico,Presión Dinámica del Viento (v²),0.0007234691593833394,31
-Oriental,dia_semana,Día de la Semana,0.0003108734622006973,32
-Oriental,es_fin_de_semana,Efecto Fin de Semana (Antrópico),1.3611838087603273e-05,33
+Oriental,densidad_hist_5km,Local anthropogenic ignition density (5 km),0.003968027767446935,24
+Oriental,pct_bosque_humedo,Atlantic forest BAAPA (%),0.002688532102901895,25
+Oriental,interaccion_viento_vpd,Wind × VPD interaction,0.001591681126243894,26
+Oriental,vpd_max_kpa,"Vapor pressure deficit (VPD, kPa)",0.0014675677183573089,27
+Oriental,viento_max_kmh,Maximum wind speed (km/h),0.001080272148751986,28
+Oriental,densidad_hist_10km,Local anthropogenic ignition density (10 km),0.0007870637433797088,29
+Oriental,densidad_hist_25km,Historical ignition density (25 km),0.0007612026051793945,30
+Oriental,potencial_viento_cuadratico,Dynamic wind pressure (v²),0.0007234691593833394,31
+Oriental,dia_semana,Day of week,0.0003108734622006973,32
+Oriental,es_fin_de_semana,Weekend effect (anthropogenic),1.3611838087603273e-05,33
 Oriental,temporada_quema_ganadera,temporada_quema_ganadera,0.0,34

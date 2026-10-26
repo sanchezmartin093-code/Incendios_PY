@@ -82,9 +82,12 @@ def main():
         for reg, ls in [("Chaco", "-"), ("Oriental", "--")]:
             for nombre, _, _ in [m for m in MODELOS if m[1] == task]:
                 sub = df[(df["region"] == reg) & (df["task"] == task) & (df["modelo"] == nombre)]
-                ax.plot(sub["alpha"], sub["valor"], ls, label=f"{reg} {nombre}")
+                label = {"M3_ignicion_hibrida": "M3 hybrid ignition",
+                         "M2_ignicion_base": "M2 baseline ignition",
+                         "Propagacion_tactica": "Tactical propagation"}.get(nombre, nombre)
+                ax.plot(sub["alpha"], sub["valor"], ls, label=f"{reg} {label}")
         ax.axhline(0, color="grey", lw=0.8)
-        ax.set_title(f"Cost-loss — {task}")
+        ax.set_title(f"Cost-loss — {'ignition' if task == 'ignicion' else 'propagation'}")
         ax.set_xlabel("α = C/L")
         ax.set_ylabel("V(α)")
         ax.legend(fontsize=7)

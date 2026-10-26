@@ -282,11 +282,11 @@ def ejecutar_estudio_ablacion():
         c_opt_inpe, _ = calcular_umbral_optimo_f_beta(y_va.astype(int), p_inpe_val, beta=0.5)
 
         evaluados = [
-            ("M3: Híbrido Socio-Ecológico Multiescala", len(feats_m3), p_te_m3, c_opt_m3, "#1f77b4", "-"),
-            ("M2: Ignición con Ancla Macro (v1)", len(feats_m2), p_te_m2, c_opt_m2, "#2ca02c", "--"),
-            ("M1: Biofísico Puro (Sin Antrópico)", len(feats_m1), p_te_m1, c_opt_m1, "#ff7f0e", "-."),
-            ("Benchmark: Canadian FWI completo", 6, p_fwi, c_opt_fwi, "#9467bd", ":"),
-            ("Benchmark: INPE Risco de Fogo", 7, p_inpe, c_opt_inpe, "#d62728", ":")
+            ("M3: multiscale socio-ecological hybrid", len(feats_m3), p_te_m3, c_opt_m3, "#1f77b4", "-"),
+            ("M2: macro-anchor ignition (v1)", len(feats_m2), p_te_m2, c_opt_m2, "#2ca02c", "--"),
+            ("M1: biophysical only (no anthropic)", len(feats_m1), p_te_m1, c_opt_m1, "#ff7f0e", "-."),
+            ("Benchmark: full Canadian FWI", 6, p_fwi, c_opt_fwi, "#9467bd", ":"),
+            ("Benchmark: INPE Fire Risk", 7, p_inpe, c_opt_inpe, "#d62728", ":")
         ]
 
         curvas_reg[region] = {"y_true": y_te, "modelos": []}
@@ -355,19 +355,19 @@ def ejecutar_estudio_ablacion():
             prec, rec, _ = precision_recall_curve(y_true, m["p"])
             ax_r.plot(fpr, tpr, color=m["color"], linestyle=m["ls"], linewidth=2.0, label=f"{m['nombre']} ({m['auc']:.3f})")
             ax_p.plot(rec, prec, color=m["color"], linestyle=m["ls"], linewidth=2.0, label=f"{m['nombre']} ({m['pr_auc']:.3f})")
-        ax_r.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Azar (0.500)")
-        ax_r.set_title(f"Ablación ROC — {reg.upper()}", fontweight="bold")
-        ax_r.set_xlabel("1 - Especificidad (FPR)")
-        ax_r.set_ylabel("Sensibilidad (TPR)")
+        ax_r.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Chance (0.500)")
+        ax_r.set_title(f"Ablation ROC — {reg}", fontweight="bold")
+        ax_r.set_xlabel("False positive rate (FPR)")
+        ax_r.set_ylabel("True positive rate (TPR)")
         ax_r.legend(loc="lower right", fontsize=8)
 
-        ax_p.axhline(float(y_true.mean()), color="grey", linestyle=":", label="Prevalencia Base")
-        ax_p.set_title(f"Ablación Precision-Recall — {reg.upper()}", fontweight="bold")
-        ax_p.set_xlabel("Sensibilidad (Recall)")
-        ax_p.set_ylabel("Precisión Operativa (PPV)")
+        ax_p.axhline(float(y_true.mean()), color="grey", linestyle=":", label="Base prevalence")
+        ax_p.set_title(f"Ablation precision–recall — {reg}", fontweight="bold")
+        ax_p.set_xlabel("Recall")
+        ax_p.set_ylabel("Operational precision (PPV)")
         ax_p.legend(loc="upper right", fontsize=8)
 
-    plt.suptitle("Estudio de Ablación: Modelo Biofísico Puro (M1) vs. Híbrido Socio-Ecológico (M3) vs. Benchmarks (Test Ciego 2024–2025)", fontweight="bold", y=0.99)
+    plt.suptitle("Controlled ablation: biophysical M1 vs socio-ecological M3 vs benchmarks (blind test 2024–2025)", fontweight="bold", y=0.99)
     plt.tight_layout()
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.png", dpi=300)
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.pdf")
