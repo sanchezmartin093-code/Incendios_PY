@@ -28,6 +28,9 @@ class TestServicioAlerta(unittest.TestCase):
         self.assertEqual(categorizar_riesgo(0.60, "Chaco", True), "ALTO")
         # Extremo Chaco (P >= 0.73)
         self.assertEqual(categorizar_riesgo(0.85, "Chaco", True), "EXTREMO")
+        # Verificación con cutoff dinámico explícito de M3 (0.4045)
+        self.assertEqual(categorizar_riesgo(0.40, "Chaco", True, cutoff=0.4045), "BAJO")
+        self.assertEqual(categorizar_riesgo(0.42, "Chaco", True, cutoff=0.4045), "MODERADO")
 
     def test_carga_artefactos(self):
         """Verifica que los modelos serializados y calibradores existan y carguen."""
