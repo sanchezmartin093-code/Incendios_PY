@@ -98,6 +98,7 @@ def main():
             df_val = pl.read_parquet(dir_targets / f"val_{task}.parquet").filter(pl.col("region") == region)
             df_test = pl.read_parquet(dir_targets / f"test_{task}.parquet").filter(pl.col("region") == region)
             y = df_test[target_col].to_numpy().astype(int)
+            bloques = df_test["fecha"].to_numpy()
             n_pos = int(y.sum())
             prevalencia = n_pos / len(y)
 
@@ -133,7 +134,7 @@ def main():
                     ece = float(calcular_expected_calibration_error(y, p_mod))
                 else:
                     bs = bss = ece = np.nan
-                ci_low, ci_high = calcular_bootstrap_ci_roc(y, p_mod, n_bootstrap=500) if len(np.unique(p_mod)) > 1 else (0.5, 0.5)
+                ci_low, ci_high = calcular_bootstrap_ci_roc(y, p_mod, n_bootstrap=500, block_ids=bloques) if len(np.unique(p_mod)) > 1 else (0.5, 0.5)
 
                 if len(np.unique(p_mod)) > 1:
                     y_bin = (p_mod >= cutoff).astype(int)
@@ -170,7 +171,7 @@ def main():
                 pares = []
             prob_por_nombre = {n: p for n, p, _ in modelos}
             for a, b in pares:
-                delta, p_val = bootstrap_diferencia_roc(y, prob_por_nombre[a], prob_por_nombre[b], n_bootstrap=1000)
+                delta, p_val = bootstrap_diferencia_roc(y, prob_por_nombre[a], prob_por_nombre[b], n_bootstrap=1000, block_ids=bloques)
                 significancia.append({
                     "region": region,
                     "task": task,

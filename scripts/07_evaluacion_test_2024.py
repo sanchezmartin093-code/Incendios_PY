@@ -100,6 +100,7 @@ def evaluar_modelo_en_test():
             df_fuente = df_test_prop if es_prop else df_test_ign
             preds_dict = preds_prop if es_prop else preds_ign
             X_test, y_test, feats = preparar_matrices_xy(df_fuente, region, modo=modo_clave)
+            bloques = df_fuente.filter(pl.col("region") == region)["fecha"].to_numpy()
 
             n_pos = int(y_test.sum())
             n_neg = int(len(y_test) - n_pos)
@@ -119,7 +120,7 @@ def evaluar_modelo_en_test():
             bs = float(calcular_brier_score(y_test, probs))
             bss = float(calcular_brier_skill_score(y_test, probs))
             ece = float(calcular_expected_calibration_error(y_test, probs))
-            ci_low, ci_high = calcular_bootstrap_ci_roc(y_test, probs, n_bootstrap=500)
+            ci_low, ci_high = calcular_bootstrap_ci_roc(y_test, probs, n_bootstrap=500, block_ids=bloques)
 
             print(f" • ROC-AUC:            {auc:.4f} [{ci_low:.3f} - {ci_high:.3f}]")
             print(f" • PR-AUC:             {pr_auc:.4f}")

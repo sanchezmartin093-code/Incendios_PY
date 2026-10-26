@@ -147,7 +147,7 @@ Los archivos están en `datos/processed/targets_poblacionales/`. Los antiguos `d
 
 **Figuras actualizadas:** fig01 macro-regiones, fig01 arquitectura, fig02 ROC/PR, fig03 mapa operativo, fig04 SHAP, fig05 benchmarking y fig07 ablación. fig06 es conceptual y no cambió.
 
-**Pendiente:** `14` (S3/S5), `tabla00`, manuscrito, suplemento, README y PROTOCOLO.
+**Completado:** `14` (S3/S5), `tabla00`, manuscrito, suplemento, README, PROTOCOLO, fallback M1 y bootstrap agrupado por fecha. IC y p-valores de test/ablación/holdout regenerados con bloques temporales.
 
 ## Reentrenamiento D2
 
@@ -155,17 +155,17 @@ Modelos reentrenados sobre `targets_poblacionales`:
 
 | Modelo | Chaco ROC-AUC | Oriental ROC-AUC |
 |---|---:|---:|
-| M3 ignición híbrida | 0,7852 | 0,7480 |
-| M2 ignición base | 0,7733 | 0,7323 |
-| Propagación táctica | 0,8988 | 0,7798 |
+| M3 ignición híbrida | 0,7851 | 0,7485 |
+| M2 ignición base | 0,7733 | 0,7324 |
+| Propagación táctica | 0,8989 | 0,7799 |
 
 Evaluación poblacional (tabla 7):
 
-- M3 precisión: 0,062 % Chaco / 0,242 % Oriental.
+- M3 precisión: 0,062 % Chaco / 0,206 % Oriental.
 - M2 precisión: 0,047 % / 0,165 %.
-- Propagación: 9,853 % / 4,183 %.
+- Propagación: 9,96 % / 4,49 %.
 
-Holdout espacial (tabla 8): M1 0,6346/0,6195; M3 0,6246/0,5721.
+Holdout espacial (tabla 8): M1 0,6338/0,6176; M3 0,6243/0,5754.
 
 ## Benchmark completo y utilidad
 

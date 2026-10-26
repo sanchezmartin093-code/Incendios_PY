@@ -27,10 +27,10 @@ Sistema de modelado y alerta temprana de incendios para Paraguay a resolución d
 |---|---|---:|---:|---:|
 | Chaco | M3 ignición híbrida | 0,7852 | 0,2411 | 27,52 % |
 | Chaco | M2 ignición base | 0,7733 | 0,2149 | 23,10 % |
-| Chaco | Propagación táctica | 0,8988 | 0,6828 | 84,47 % |
+| Chaco | Propagación táctica | 0,8989 | 0,6831 | 84,94 % |
 | Oriental | M3 ignición híbrida | 0,7480 | 0,2314 | 32,63 % |
 | Oriental | M2 ignición base | 0,7323 | 0,2033 | 23,95 % |
-| Oriental | Propagación táctica | 0,7798 | 0,3650 | 60,78 % |
+| Oriental | Propagación táctica | 0,7799 | 0,3651 | 62,42 % |
 
 La muestra case-control es 1:10 (prevalencia ~9,09 %). **No es precisión operativa.**
 
@@ -38,12 +38,12 @@ La muestra case-control es 1:10 (prevalencia ~9,09 %). **No es precisión operat
 
 | Región | Modelo | Precisión | Recall | ROC-AUC | PR-AUC |
 |---|---|---:|---:|---:|---:|
-| Chaco | M3 ignición | 0,062 % | 27,14 % | 0,7884 | 0,0007 |
+| Chaco | M3 ignición | 0,062 % | 27,56 % | 0,7884 | 0,0007 |
 | Chaco | M2 ignición | 0,047 % | 39,14 % | 0,7768 | 0,0005 |
-| Chaco | Propagación | 9,853 % | 49,17 % | 0,9048 | 0,1104 |
+| Chaco | Propagación | 9,96 % | 48,91 % | 0,9050 | 0,1120 |
 | Oriental | M3 ignición | 0,206 % | 22,78 % | 0,7618 | 0,0017 |
 | Oriental | M2 ignición | 0,165 % | 26,10 % | 0,7505 | 0,0014 |
-| Oriental | Propagación | 4,183 % | 20,48 % | 0,7913 | 0,0281 |
+| Oriental | Propagación | 4,49 % | 19,61 % | 0,7913 | 0,0280 |
 
 La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,155–0,210 % para propagación.
 
@@ -53,9 +53,9 @@ La prevalencia poblacional del dominio es ~0,015–0,041 % para ignición y ~0,1
 - INPE Risco de Fogo: 0,5386/0,4994.
 - Cost-loss: M3 no supera claramente a M2 en ignición; propagación muestra valor operativo cerca de α=0,002.
 - Rendimiento: 1,569 s y 2.182,1 MB de RAM pico en ARM64.
-- Bootstrap pareado: ver `tablas/tabla10_significancia_pareada.csv`.
-- Holdout espacial: M1 0,6346/0,6195; M3 0,6246/0,5721. M3 **no** debe presentarse como modelo de extrapolación espacial.
-- Clima t-1: M3 0,7834/0,7462; M1 0,6221/0,6339.
+- Bootstrap pareado agrupado por fecha: ver `tablas/tabla10_significancia_pareada.csv`.
+- Holdout espacial: M1 0,6338/0,6176; M3 0,6243/0,5754. M3 **no** debe presentarse como modelo de extrapolación espacial.
+- Clima t-1: M3 0,7841/0,7465; M1 0,6222/0,6340.
 - Conformal: cobertura empírica 89,85/90,19 % para 90 %; 95,02/94,56 % para 95 %.
 
 ## Estructura

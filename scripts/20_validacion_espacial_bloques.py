@@ -111,10 +111,10 @@ def _celdas_buffer(holdout_cells: set[int], train_cells: pl.DataFrame) -> set[in
     return set(ids[dists < BUFFER_M].tolist())
 
 
-def _metricas(y, p, cutoff, nombre):
+def _metricas(y, p, cutoff, nombre, block_ids=None):
     auc = float(roc_auc_score(y, p)) if len(np.unique(y)) > 1 else 0.5
     pr = float(average_precision_score(y, p)) if len(np.unique(y)) > 1 else float(np.mean(y))
-    ci_l, ci_h = calcular_bootstrap_ci_roc(y, p, n_bootstrap=300) if len(np.unique(y)) > 1 else (0.5, 0.5)
+    ci_l, ci_h = calcular_bootstrap_ci_roc(y, p, n_bootstrap=300, block_ids=block_ids) if len(np.unique(y)) > 1 else (0.5, 0.5)
     y_bin = (p >= cutoff).astype(int)
     tp = int(((y == 1) & (y_bin == 1)).sum())
     fp = int(((y == 0) & (y_bin == 1)).sum())
@@ -248,11 +248,11 @@ def main():
             p_th = predecir_probabilidad(booster, cal, X_th)
             p_ti = predecir_probabilidad(booster, cal, X_ti)
 
-            for nombre_eval, y_eval, p_eval in [
-                ("holdout_espacial", y_th, p_th),
-                ("heldin_referencia", y_ti, p_ti),
+            for nombre_eval, y_eval, p_eval, bloques_eval in [
+                ("holdout_espacial", y_th, p_th, te_h["fecha"].to_numpy()),
+                ("heldin_referencia", y_ti, p_ti, te_i["fecha"].to_numpy()),
             ]:
-                m = _metricas(y_eval, p_eval, cutoff, nombre_eval)
+                m = _metricas(y_eval, p_eval, cutoff, nombre_eval, block_ids=bloques_eval)
                 m["region"] = region
                 m["modelo"] = nombre_modelo
                 m["n_train"] = int(len(tr))

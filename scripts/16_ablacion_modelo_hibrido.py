@@ -301,7 +301,7 @@ def ejecutar_estudio_ablacion():
                 ece = float(calcular_expected_calibration_error(y_te, p_vec))
             else:
                 bs = bss = ece = float("nan")
-            ci_l, ci_h = calcular_bootstrap_ci_roc(y_te, p_vec, n_bootstrap=300)
+            ci_l, ci_h = calcular_bootstrap_ci_roc(y_te, p_vec, n_bootstrap=300, block_ids=te_r["fecha"].to_numpy())
 
             y_bin = (p_vec >= cut).astype(int)
             tn, fp, fn, tp = confusion_matrix(y_te, y_bin).ravel()
