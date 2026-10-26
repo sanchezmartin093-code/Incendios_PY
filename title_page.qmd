@@ -57,11 +57,11 @@ format:
 
 > *Lineamientos de Computers & Geosciences: 3 a 5 puntos concisos, máximo 85 caracteres cada uno (incluidos espacios).*
 
-1. **Two-stage bio-physical gating cuts 39.2% of national cells (89.9% recall).** (77 chars)
-2. **Decoupled models isolate physical ignition risk from tactical $t-1$ fire spread.** (84 chars)
-3. **Monotonic Platt-calibrated LightGBM beats full Canadian FWI and INPE Risco de Fogo.** (81 chars)
-4. **20-km negative-sampling buffer and temporal holdout; spatial holdout pending.** (74 chars)
-5. **Zero-copy DuckDB and Polars pipeline predicts 400,006 sovereign cells in <1 s.** (81 chars)
+1. **Biophysical gating removes 21.7% of cell-days and retains 97.17% of detections.** (79 chars)
+2. **Decoupled models isolate physical ignition risk from tactical t-1 fire spread.** (78 chars)
+3. **Monotonic Platt-calibrated LightGBM beats full Canadian FWI and INPE Risco de Fogo.** (83 chars)
+4. **50-km spatial block holdout completed; M1 fallback for cells without fire history.** (82 chars)
+5. **DuckDB and Polars score 400,006 cells in 1.57 s and 2.18 GB peak RAM.** (69 chars)
 
 ---
 
