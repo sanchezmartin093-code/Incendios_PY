@@ -18,7 +18,7 @@ Sistema de modelado y alerta temprana de incendios para Paraguay a resolución d
 - Combustible: MapBiomas real (`collection2_2023.tif`).
 - Targets D2: muestreo poblacional 1:10 por target y dominio (`datos/processed/targets_poblacionales/`).
 - Modelos: M2, M3 y propagación reentrenados; calibración Platt y umbrales F0.5 derivados en validación.
-- Alertas: M3 solo en dominio de ignición; propagación solo en dominio t-1; prevalencias D2.
+- Alertas: M3 en celdas con historia de fuego, M1 como fallback en celdas sin historia; propagación solo en dominio t-1; prevalencias D2.
 - Tests: **60 OK**.
 
 ## Resultados en test D2
