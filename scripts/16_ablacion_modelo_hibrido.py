@@ -100,7 +100,10 @@ NOMBRES_LEGIBLES_HIBRIDO = {
     "pct_pastura": "Fracción de Pastura Cultivada (%)",
     "pct_bosque_seco": "Fracción de Bosque Seco Chaqueño (%)",
     "pct_bosque_humedo": "Fracción de Bosque Atlántico (%)",
-    "dia_semana": "Día de la Semana"
+    "dia_semana": "Día de la Semana",
+    "dia_del_anio": "Día Ordinal del Año (DOY)",
+    "pct_humedal_palmar": "Fracción de Palmar/Humedal (%)",
+    "precipitacion_mm": "Precipitación Diaria (mm)"
 }
 
 def construir_features_socioecologicas(
@@ -246,15 +249,22 @@ def ejecutar_estudio_ablacion():
         df_shap_reg["ranking"] = df_shap_reg.index + 1
         rankings_shap.append(df_shap_reg.head(10))
 
-        # --- BENCHMARKS INTERNACIONALES ---
+        # --- BENCHMARKS INTERNACIONALES (Umbrales derivados en Validación para Anti-Leakage) ---
+        isi_val = va_r["isi"].to_numpy()
+        isi_min_val, isi_max_val = float(isi_val.min()), float(isi_val.max())
         isi_raw = te_r["isi"].to_numpy()
-        p_fwi = (isi_raw - isi_raw.min()) / (isi_raw.max() - isi_raw.min() + 1e-6)
-        c_opt_fwi, _ = calcular_umbral_optimo_f_beta(y_te, p_fwi, beta=0.5)
+        p_fwi = np.clip((isi_raw - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
+        p_fwi_val = np.clip((isi_val - isi_min_val) / (isi_max_val - isi_min_val + 1e-6), 0.0, 1.0)
+        c_opt_fwi, _ = calcular_umbral_optimo_f_beta(y_va.astype(int), p_fwi_val, beta=0.5)
+
+        veg_pct_val = va_r["pct_pastura"].to_numpy() if region == "Oriental" else va_r["pct_bosque_seco"].to_numpy()
+        cdd_vpd_val = va_r["dias_secos_consecutivos"].to_numpy() * va_r["vpd_max_kpa"].to_numpy() * (0.5 + veg_pct_val / 100.0)
+        p_inpe_val = np.clip(1.0 - np.exp(-0.05 * cdd_vpd_val), 0.0, 1.0)
+        c_opt_inpe, _ = calcular_umbral_optimo_f_beta(y_va.astype(int), p_inpe_val, beta=0.5)
 
         veg_pct = te_r["pct_pastura"].to_numpy() if region == "Oriental" else te_r["pct_bosque_seco"].to_numpy()
         cdd_vpd = te_r["dias_secos_consecutivos"].to_numpy() * te_r["vpd_max_kpa"].to_numpy() * (0.5 + veg_pct / 100.0)
         p_inpe = np.clip(1.0 - np.exp(-0.05 * cdd_vpd), 0.0, 1.0)
-        c_opt_inpe, _ = calcular_umbral_optimo_f_beta(y_te, p_inpe, beta=0.5)
 
         evaluados = [
             ("M3: Híbrido Socio-Ecológico Multiescala", len(feats_m3), p_te_m3, c_opt_m3, "#1f77b4", "-"),

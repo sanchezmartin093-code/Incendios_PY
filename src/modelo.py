@@ -146,10 +146,15 @@ def obtener_restricciones_monotonas(nombres_features: list[str]) -> list[int]:
     restricciones = []
     positivas = {
         "vpd_max_kpa", "ffmc", "isi", "dias_secos_consecutivos", 
-        "deficit_hidrico_acumulado", "potencial_viento_cuadratico", "densidad_hist_25km"
+        "deficit_hidrico_acumulado", "potencial_viento_cuadratico", "densidad_hist_25km",
+        # Nuevas variables socio-ecológicas del Modelo Híbrido (M3)
+        "densidad_hist_5km", "densidad_hist_10km", "freq_hist_1km",
+        "presion_quema_pastura", "interaccion_acceso_vpd", "temporada_quema_ganadera"
     }
     negativas = {
-        "precipitacion_mm", "precipitacion_48h_mm", "dist_foco_t1_km", "dist_foco_hist_km"
+        "precipitacion_mm", "precipitacion_48h_mm", "dist_foco_t1_km", "dist_foco_hist_km",
+        # A mayor distancia del corredor antrópico consolidado, menor probabilidad de ignición
+        "dist_corredor_antropico_km"
     }
     for f in nombres_features:
         if f in positivas:
