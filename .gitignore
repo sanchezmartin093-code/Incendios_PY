@@ -37,3 +37,5 @@ _output/
 **/*.quarto_ipynb
 *_files/
 *.html.md
+# Backups locales de auditoría
+modelos/legacy_v1/
