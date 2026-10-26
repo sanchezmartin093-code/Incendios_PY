@@ -10,6 +10,7 @@ Script 01b: Ingesta masiva automatizada de focos NASA FIRMS (VIIRS 375m) 2018–
 
 from pathlib import Path
 import sys
+import os
 import argparse
 from datetime import datetime, timedelta
 import concurrent.futures
@@ -26,7 +27,8 @@ if str(ROOT_DIR) not in sys.path:
 from src.constantes import DIR_RAW, DIR_PROCESSED, BBOX_PARAGUAY
 from src.firms import procesar_focos_firms_a_grilla, agregar_focos_diarios
 
-MAP_KEY_DEFAULT = "1dc47e185c5ca92bf3784313e08234dc"
+# Obtener clave de API desde variable de entorno o fallback seguro
+MAP_KEY_DEFAULT = os.environ.get("FIRMS_MAP_KEY", "1dc47e185c5ca92bf3784313e08234dc")
 BBOX_STR = f"{BBOX_PARAGUAY['min_lon']},{BBOX_PARAGUAY['min_lat']},{BBOX_PARAGUAY['max_lon']},{BBOX_PARAGUAY['max_lat']}"
 
 def _descargar_intervalo(

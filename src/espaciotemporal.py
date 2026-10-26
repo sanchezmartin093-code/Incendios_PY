@@ -60,15 +60,30 @@ def calcular_variables_contagio_lag(
     fechas_df = [str(f)[:10] for f in df["fecha"].to_list()]
     fechas_unicas = sorted(list(set(fechas_df)))
 
-    # Pre-agrupar focos por fecha para O(1) hashing
-    focos_fechas = np.array([str(f)[:10] for f in focos_df["acq_date"].to_list()])
-    focos_frp = focos_df["sum_frp_dia"].to_numpy()
+    # Determinar exactamente qué fechas de focos se necesitan (fechas de ayer)
+    fechas_ayer_necesarias = set()
+    for f_act in fechas_unicas:
+        dt_act = datetime.strptime(f_act, "%Y-%m-%d").date()
+        fechas_ayer_necesarias.add((dt_act - timedelta(days=1)).strftime("%Y-%m-%d"))
+
+    # Pre-filtrar focos exclusivamente a las fechas de ayer requeridas para O(1) hashing y evitar construir miles de árboles
+    focos_filtrados = focos_df.filter(pl.col("acq_date").cast(pl.String).str.slice(0, 10).is_in(list(fechas_ayer_necesarias)))
+    if focos_filtrados.is_empty():
+        return df.with_columns([
+            pl.lit(dist_max_km).cast(pl.Float32).alias("dist_foco_t1_km"),
+            pl.lit(0.0).cast(pl.Float32).alias("focos_25km_t1"),
+            pl.lit(0.0).cast(pl.Float32).alias("frp_25km_t1")
+        ])
+
+    coords_focos_filtrados = asegurar_coordenadas_utm(focos_filtrados)
+    focos_fechas = np.array([str(f)[:10] for f in focos_filtrados["acq_date"].to_list()])
+    focos_frp = focos_filtrados["sum_frp_dia"].to_numpy()
 
     trees_por_fecha = {}
     frp_por_fecha = {}
     for f in np.unique(focos_fechas):
         mask = (focos_fechas == f)
-        trees_por_fecha[f] = cKDTree(coords_focos[mask])
+        trees_por_fecha[f] = cKDTree(coords_focos_filtrados[mask])
         frp_por_fecha[f] = focos_frp[mask]
 
     n_rows = len(df)
