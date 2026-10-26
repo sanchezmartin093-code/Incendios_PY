@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "incendios_py"
-version = "0.1.0"
-description = "Modelado predictivo y sistema de alerta temprana de incendios en Paraguay"
+version = "1.0.0"
+description = "Reproducible decoupled GeoAI framework for wildfire ignition and propagation modelling"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
-  { name = "Martín Sánchez" }
+  { name = "Martín Sánchez Insfrán" }
 ]
 license = { text = "MIT" }
 dependencies = [

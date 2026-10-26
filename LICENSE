@@ -1,13 +1,3 @@
-# Licencia del Repositorio
-
-El contenido de este repositorio se distribuye bajo dos licencias diferenciadas conforme a las mejores prácticas de Ciencia Abierta (*Open Science*):
-
----
-
-## 1. Código Computacional (Módulos Python, Scripts y Pipelines)
-
-El código fuente contenido en las carpetas `src/`, `scripts/`, `tests/` y los bloques ejecutables del manuscrito están licenciados bajo la **Licencia MIT**:
-
 MIT License
 
 Copyright (c) 2026 Martín Sánchez Insfrán
@@ -29,24 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## 2. Manuscrito, Tablas, Figuras y Datasets Curados
-
-El texto del manuscrito (`manuscrito.qmd`, `title_page.qmd`, `material_suplementario.qmd`), los conjuntos de datos tabulares (`datos/processed/`), las tablas analíticas (`tablas/`, `tablas_generadas/`) y las ilustraciones gráficas (`figuras/`) están licenciados bajo la **Licencia Creative Commons Atribución 4.0 Internacional (CC BY 4.0)**:
-
-Usted es libre de:
-- **Compartir** — copiar y redistribuir el material en cualquier medio o formato.
-- **Adaptar** — remezclar, transformar y construir a partir del material para cualquier propósito, incluso comercialmente.
-
-Bajo los siguientes términos:
-- **Atribución** — Debe dar crédito de manera adecuada, brindar un enlace a la licencia, e indicar si se han realizado cambios. Puede hacerlo en cualquier forma razonable, pero no de forma tal que sugiera que usted o su uso tienen el apoyo de la licenciante.
-
-Texto completo de la licencia: https://creativecommons.org/licenses/by/4.0/deed.es
-
----
-
-## 3. Fuentes Satelitales y Cartográficas de Origen
-
-Los datos crudos satelitales (NASA FIRMS / VIIRS), meteorológicos (ECMWF ERA5-Land vía Copernicus / Open-Meteo), de cobertura vegetal (MapBiomas Chaco y Bosque Atlántico) y límites soberanos (geoBoundaries / MADES) se rigen por sus respectivas políticas públicas de datos abiertos para la investigación científica.

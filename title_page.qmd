@@ -35,7 +35,7 @@ format:
 - **Áreas Temáticas de la Revista:**  
   *Computer Science Applications* & *Earth and Planetary Sciences*
 - **Modalidad de Revisión / Peer Review Track:**  
-  Doble Ciego Anónimo (*Double-Anonymous Peer Review*)
+  Revisión de un solo anonimizado (*Single-Anonymized Peer Review*, política de C&G)
 - **Tipo de Artículo / Article Type:**  
   *Research Paper* (Metodología Computacional y Algorítmica en Geociencias)
 
@@ -94,7 +94,7 @@ Operational wildfire prediction via machine learning faces spatial shortcut lear
 - **Desarrollador / Contacto:** Martín Sánchez Insfrán (`sanchez.martin093@gmail.com`)
 - **Año de Primera Disponibilidad:** 2026
 - **Hardware Requerido:** Procesador multinúcleo x86_64 o ARM64 (Apple Silicon M-Series o procesador estándar Intel/AMD); mínimo 8 GB de RAM.
-- **Software Requerido:** Python 3.11+ / 3.12, DuckDB $\ge 1.0$, Polars $\ge 1.0$, LightGBM $\ge 4.0$, Quarto $\ge 1.5$.
+- **Software Requerido:** Python 3.12+, DuckDB $\ge 1.0$, Polars $\ge 1.0$, LightGBM $\ge 4.0$, Quarto $\ge 1.5$.
 - **Lenguaje de Programación:** Python (con extensiones vectorizadas en C++ y Rust).
 - **Disponibilidad y Licencia:** Código abierto bajo Licencia MIT.
 - **Repositorio Oficial:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)
