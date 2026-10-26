@@ -114,3 +114,27 @@ class TestMetricas(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestBootstrapBloques(unittest.TestCase):
+    def test_ci_bootstrap_bloques(self):
+        import numpy as np
+        from src.metricas import calcular_bootstrap_ci_roc
+        rng = np.random.default_rng(1)
+        y = rng.integers(0, 2, 200)
+        p = y * 0.6 + rng.random(200) * 0.4
+        b = np.repeat(np.arange(20), 10)
+        lo, hi = calcular_bootstrap_ci_roc(y, p, n_bootstrap=50, block_ids=b)
+        self.assertLessEqual(lo, hi)
+
+    def test_diferencia_bootstrap_bloques(self):
+        import numpy as np
+        from src.metricas import bootstrap_diferencia_roc
+        rng = np.random.default_rng(2)
+        y = rng.integers(0, 2, 200)
+        p1 = y * 0.7 + rng.random(200) * 0.3
+        p0 = y * 0.2 + rng.random(200) * 0.8
+        b = np.repeat(np.arange(20), 10)
+        delta, p = bootstrap_diferencia_roc(y, p1, p0, n_bootstrap=50, block_ids=b)
+        self.assertGreater(delta, 0.0)
+        self.assertGreaterEqual(p, 0.0)
+        self.assertLessEqual(p, 1.0)

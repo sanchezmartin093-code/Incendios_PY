@@ -92,8 +92,8 @@ Resumen en test D2:
 |---|---|---|---:|---:|
 | Ignición | Chaco | M3 | 0,7852 | 0,2411 |
 | Ignición | Oriental | M3 | 0,7480 | 0,2314 |
-| Propagación | Chaco | Propagación | 0,8988 | 0,6828 |
-| Propagación | Oriental | Propagación | 0,7798 | 0,3650 |
+| Propagación | Chaco | Propagación | 0,8989 | 0,6831 |
+| Propagación | Oriental | Propagación | 0,7799 | 0,3651 |
 | Ignición | Chaco | Canadian FWI (ISI) | 0,5177 | 0,0931 |
 | Ignición | Oriental | Canadian FWI (ISI) | 0,5605 | 0,1074 |
 | Ignición | Chaco | Proxy INPE | 0,4997 | 0,0913 |

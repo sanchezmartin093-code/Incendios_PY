@@ -238,6 +238,9 @@ def entrenar_modelo_lightgbm(
         "lambda_l1": 0.2,
         "lambda_l2": 1.0,
         "random_state": semilla,
+        "deterministic": True,
+        "force_row_wise": True,
+        "num_threads": 1,
         "verbose": -1
     }
 

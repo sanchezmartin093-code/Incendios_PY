@@ -218,13 +218,15 @@ def bootstrap_diferencia_roc(
     p_referencia: np.ndarray,
     n_bootstrap: int = 1000,
     semilla: int = 42,
+    block_ids: np.ndarray | None = None,
 ) -> tuple[float, float]:
     """
     Test pareado de diferencia de ROC-AUC mediante bootstrap.
 
-    Remuestrea filas con reemplazo, calcula AUC(modelo) - AUC(referencia) y
-    devuelve (delta observado, p-valor bilateral). El p-valor es una
-    aproximación bootstrap, no un test exacto.
+    Remuestrea filas (o bloques completos si ``block_ids`` se provee) con
+    reemplazo, calcula AUC(modelo) - AUC(referencia) y devuelve (delta
+    observado, p-valor bilateral). El p-valor es una aproximación bootstrap,
+    no un test exacto.
     """
     from sklearn.metrics import roc_auc_score
 
@@ -238,8 +240,16 @@ def bootstrap_diferencia_roc(
     rng = np.random.default_rng(semilla)
     n = len(y)
     deltas = []
+    if block_ids is not None:
+        bloques = np.asarray(block_ids)
+        unicos = np.unique(bloques)
+        mapa = {b: np.where(bloques == b)[0] for b in unicos}
     for _ in range(n_bootstrap):
-        idx = rng.choice(n, size=n, replace=True)
+        if block_ids is None:
+            idx = rng.choice(n, size=n, replace=True)
+        else:
+            elegidos = rng.choice(unicos, size=len(unicos), replace=True)
+            idx = np.concatenate([mapa[b] for b in elegidos])
         if len(np.unique(y[idx])) < 2:
             continue
         deltas.append(roc_auc_score(y[idx], p1[idx]) - roc_auc_score(y[idx], p0[idx]))
@@ -308,19 +318,29 @@ def calcular_bootstrap_ci_roc(
     y_prob: np.ndarray,
     n_bootstrap: int = 1000,
     alpha: float = 0.05,
-    semilla: int = 42
+    semilla: int = 42,
+    block_ids: np.ndarray | None = None,
 ) -> tuple[float, float]:
     """
     Calcula el Intervalo de Confianza al (1 - alpha)% (por defecto 95%) para el ROC-AUC
-    mediante muestreo no paramétrico con reemplazo.
+    mediante bootstrap no paramétrico. Si ``block_ids`` se provee, remuestrea
+    bloques completos (p. ej., fechas) en lugar de filas individuales.
     """
     from sklearn.metrics import roc_auc_score
     rng = np.random.default_rng(semilla)
     n = len(y_true)
     boot_scores = []
+    if block_ids is not None:
+        bloques = np.asarray(block_ids)
+        unicos = np.unique(bloques)
+        mapa = {b: np.where(bloques == b)[0] for b in unicos}
 
     for _ in range(n_bootstrap):
-        idx = rng.choice(n, size=n, replace=True)
+        if block_ids is None:
+            idx = rng.choice(n, size=n, replace=True)
+        else:
+            elegidos = rng.choice(unicos, size=len(unicos), replace=True)
+            idx = np.concatenate([mapa[b] for b in elegidos])
         if len(np.unique(y_true[idx])) > 1:
             boot_scores.append(roc_auc_score(y_true[idx], y_prob[idx]))
 

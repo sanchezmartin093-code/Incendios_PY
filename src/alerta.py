@@ -6,6 +6,8 @@ Filosofía de Producción:
     precipitaciones extintoras (P_48h >= 10 mm) o atmósferas saturadas (VPD < 0.8 kPa).
   * Etapa 2: Inferencia de ensamble discriminante regional (LightGBM Booster C++) calibrado
     monótonamente (Platt) P(Fuego|X) ∈ [0.0, 1.0].
+  * Fallback M1: en celdas sin historia de fuego (`freq_hist_1km = 0`) se usa el
+    modelo biofísico M1; M3 se reserva para celdas con recurrencia observada.
 - Clasificación de riesgo operativa según umbrales de máxima precisión (F0.5):
   * NULO: Sin material combustible vegetal (agua o casco urbano consolidado).
   * BAJO: Condiciones subcríticas (P < c*).

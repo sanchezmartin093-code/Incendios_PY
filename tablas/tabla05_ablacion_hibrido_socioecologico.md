@@ -2,13 +2,13 @@
 
 | region   | arquitectura                            |   n_vars |   roc_auc | roc_ci_95       |   pr_auc |   brier_score |      bss |      ece |   precision_pct |   recall_pct |   f05_score |   falsos_positivos |
 |:---------|:----------------------------------------|---------:|----------:|:----------------|---------:|--------------:|---------:|---------:|----------------:|-------------:|------------:|-------------------:|
-| Chaco    | M3: Híbrido Socio-Ecológico Multiescala |       33 |    0.7851 | [0.782 - 0.789] |   0.241  |        0.0752 |   0.0896 |   0.011  |           27.54 |        30.8  |      0.2813 |              13016 |
-| Chaco    | M2: Ignición con Ancla Macro (v1)       |       24 |    0.7751 | [0.772 - 0.778] |   0.2219 |        0.0761 |   0.0787 |   0.011  |           23.27 |        39.26 |      0.2533 |              20787 |
-| Chaco    | M1: Biofísico Puro (Sin Antrópico)      |       17 |    0.6287 | [0.624 - 0.633] |   0.1515 |        0.0809 |   0.0207 |   0.0106 |           16.86 |        17.38 |      0.1696 |              13765 |
-| Chaco    | Benchmark: Canadian FWI completo        |        6 |    0.5185 | [0.514 - 0.523] |   0.096  |      nan      | nan      | nan      |            9.29 |        96.08 |      0.1134 |             150654 |
-| Chaco    | Benchmark: INPE Risco de Fogo           |        7 |    0.5386 | [0.534 - 0.543] |   0.103  |      nan      | nan      | nan      |           11.6  |        13    |      0.1185 |              15910 |
-| Oriental | M3: Híbrido Socio-Ecológico Multiescala |       34 |    0.7485 | [0.745 - 0.752] |   0.2318 |        0.0766 |   0.0735 |   0.0065 |           29.67 |        20.4  |      0.2719 |               8789 |
-| Oriental | M2: Ignición con Ancla Macro (v1)       |       24 |    0.734  | [0.731 - 0.738] |   0.2044 |        0.0778 |   0.0592 |   0.0053 |           23.91 |        24.24 |      0.2397 |              14021 |
-| Oriental | M1: Biofísico Puro (Sin Antrópico)      |       17 |    0.6421 | [0.638 - 0.646] |   0.1422 |        0.081  |   0.0197 |   0.0031 |           16.46 |        21.86 |      0.1732 |              20165 |
-| Oriental | Benchmark: Canadian FWI completo        |        6 |    0.5569 | [0.553 - 0.561] |   0.1063 |      nan      | nan      | nan      |           10.98 |        35.74 |      0.1275 |              52650 |
-| Oriental | Benchmark: INPE Risco de Fogo           |        7 |    0.4994 | [0.495 - 0.504] |   0.0909 |      nan      | nan      | nan      |            9.24 |        79.79 |      0.1123 |             142453 |
+| Chaco    | M3: Híbrido Socio-Ecológico Multiescala |       33 |    0.7851 | [0.780 - 0.791] |   0.241  |        0.0752 |   0.0896 |   0.011  |           27.54 |        30.8  |      0.2813 |              13016 |
+| Chaco    | M2: Ignición con Ancla Macro (v1)       |       24 |    0.7751 | [0.769 - 0.781] |   0.2219 |        0.0761 |   0.0787 |   0.011  |           23.27 |        39.26 |      0.2533 |              20787 |
+| Chaco    | M1: Biofísico Puro (Sin Antrópico)      |       17 |    0.6287 | [0.622 - 0.636] |   0.1515 |        0.0809 |   0.0207 |   0.0106 |           16.86 |        17.38 |      0.1696 |              13765 |
+| Chaco    | Benchmark: Canadian FWI completo        |        6 |    0.5185 | [0.513 - 0.524] |   0.096  |      nan      | nan      | nan      |            9.29 |        96.08 |      0.1134 |             150654 |
+| Chaco    | Benchmark: INPE Risco de Fogo           |        7 |    0.5386 | [0.527 - 0.548] |   0.103  |      nan      | nan      | nan      |           11.6  |        13    |      0.1185 |              15910 |
+| Oriental | M3: Híbrido Socio-Ecológico Multiescala |       34 |    0.7485 | [0.742 - 0.754] |   0.2318 |        0.0766 |   0.0735 |   0.0065 |           29.67 |        20.4  |      0.2719 |               8789 |
+| Oriental | M2: Ignición con Ancla Macro (v1)       |       24 |    0.734  | [0.728 - 0.740] |   0.2044 |        0.0778 |   0.0592 |   0.0053 |           23.91 |        24.24 |      0.2397 |              14021 |
+| Oriental | M1: Biofísico Puro (Sin Antrópico)      |       17 |    0.6421 | [0.634 - 0.650] |   0.1422 |        0.081  |   0.0197 |   0.0031 |           16.46 |        21.86 |      0.1732 |              20165 |
+| Oriental | Benchmark: Canadian FWI completo        |        6 |    0.5569 | [0.548 - 0.567] |   0.1063 |      nan      | nan      | nan      |           10.98 |        35.74 |      0.1275 |              52650 |
+| Oriental | Benchmark: INPE Risco de Fogo           |        7 |    0.4994 | [0.489 - 0.509] |   0.0909 |      nan      | nan      | nan      |            9.24 |        79.79 |      0.1123 |             142453 |
