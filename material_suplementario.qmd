@@ -122,7 +122,7 @@ La tabla siguiente **no es un análisis de sensibilidad al buffer**. Es una estr
 
 # Tabla Suplementaria S1: Diccionario Exhaustivo de Variables Predictoras
 
-> **Nota de versión:** el perfil de combustible incluido en este repositorio es sintético de referencia (`origen_datos = sintetico_referencia`). Las filas de cobertura MapBiomas describen la fuente objetivo, no el dato actual. `rafaga_max_kmh` es un proxy lineal de ERA5-Land y no se usa como feature. Los priors históricos usan una ventana causal móvil de 3 años, no todo 2018–2022.
+> **Nota de versión D2:** el perfil de combustible usado es MapBiomas real (`collection2_2023.tif`). `rafaga_max_kmh` es un proxy lineal de ERA5-Land y no se usa como feature. Los priors históricos usan una ventana causal móvil de 3 años, no todo 2018–2022. Los targets siguen la definición D2 (ignición primaria y propagación en dominio t-1).
 
 | Variable | Nombre Técnico | Dominio Físico | Fuente de Datos | Resolución Original | Rol en Arquitectura |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -144,11 +144,11 @@ La tabla siguiente **no es un análisis de sensibilidad al buffer**. Es una estr
 | 16 | `es_fin_de_semana` | Indicador binario de fin de semana (sábado/domingo) | Calendario Civil | Temporal | Ignición / Propagación |
 | 17 | `mes` | Estacionalidad fenológica mensual ($1\text{--}12$) | Calendario Civil | Temporal | Ignición / Propagación |
 | 18 | `dia_del_anio` | Día ordinal del año calendario ($1\text{--}366$) | Calendario Civil | Temporal | Ignición / Propagación |
-| 19 | `pct_pastura` | Porcentaje de pastura ganadera cultivada ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
-| 20 | `pct_sabana_pastizal` | Porcentaje de sabana y pastizal natural ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
-| 21 | `pct_humedal_palmar` | Porcentaje de humedales y palmares inundables ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Propagación |
-| 22 | `pct_bosque_seco` | Porcentaje de bosque xerofítico chaqueño ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Prop. (Chaco) |
-| 23 | `pct_bosque_humedo` | Porcentaje de bosque atlántico húmedo BAAPA ($[0, 100]\,\%$) | MapBiomas real (pendiente; demo sintética) | $30\text{ m}$ | Ignición / Prop. (Oriental) |
+| 19 | `pct_pastura` | Porcentaje de pastura ganadera cultivada ($[0, 100]\,\%$) | MapBiomas real (collection2_2023) | $30\text{ m}$ | Ignición / Propagación |
+| 20 | `pct_sabana_pastizal` | Porcentaje de sabana y pastizal natural ($[0, 100]\,\%$) | MapBiomas real (collection2_2023) | $30\text{ m}$ | Ignición / Propagación |
+| 21 | `pct_humedal_palmar` | Porcentaje de humedales y palmares inundables ($[0, 100]\,\%$) | MapBiomas real (collection2_2023) | $30\text{ m}$ | Ignición / Propagación |
+| 22 | `pct_bosque_seco` | Porcentaje de bosque xerofítico chaqueño ($[0, 100]\,\%$) | MapBiomas real (collection2_2023) | $30\text{ m}$ | Ignición / Prop. (Chaco) |
+| 23 | `pct_bosque_humedo` | Porcentaje de bosque atlántico húmedo BAAPA ($[0, 100]\,\%$) | MapBiomas real (collection2_2023) | $30\text{ m}$ | Ignición / Prop. (Oriental) |
 | 24 | `indice_ecotono` | Disrupción de borde bosque/pastura ($\mathcal{E}_i$) | Derivada Espacial | $1\text{ km}^2$ | Ignición / Propagación |
 | 25 | `dist_foco_hist_km` | Distancia euclidiana mínima a focos de entrenamiento | NASA FIRMS (ventana causal 3 años) | $1\text{ km}^2$ | Ignición / Propagación |
 | 26 | `densidad_hist_25km` | Densidad acumulada de fuegos históricos en $25\text{ km}$ | NASA FIRMS (ventana causal 3 años) | $1\text{ km}^2$ | Ignición / Propagación |
@@ -165,7 +165,7 @@ La tabla siguiente **no es un análisis de sensibilidad al buffer**. Es una estr
 | 37 | `presion_quema_pastura` | Presión multiplicativa en pasturas ($p_{\text{pastura}} \times VPD \times w_{\text{mes}}$) | Interacción Humano-Clima | $1\text{ km}^2$ | **Híbrido Socio-Ecológico ($\mathcal{M}_3$)** |
 | 38 | `focalizacion_antropica_local` | Índice de concentración espacial local/macro ($\rho_{5\text{km}} / (\rho_{25\text{km}} + 1)$) | Ratio Multiescala | $1\text{ km}^2$ | **Híbrido Socio-Ecológico ($\mathcal{M}_3$)** |
 | 39 | `interaccion_acceso_vpd` | Sinergia accesibilidad y desecación ($\exp(-d_{\text{hist}}/5) \times VPD$) | Interacción Humano-Clima | $1\text{ km}^2$ | **Híbrido Socio-Ecológico ($\mathcal{M}_3$)** |
-| — | `es_combustible` | Indicador binario de biomasa combustible | MapBiomas Col. 4 | $1\text{ km}^2$ | Gating Biofísico Etapa 1 |
+| — | `es_combustible` | Indicador binario de biomasa combustible | MapBiomas Colección 2, 2023 | $1\text{ km}^2$ | Gating Biofísico Etapa 1 |
 : Especificación técnica y catálogo exhaustivo de variables predictoras del sistema `Incendios_PY`. {#tbl-variables}
 
 ---
@@ -253,75 +253,65 @@ El calibrador Platt y el cuantil conformal se estiman en subconjuntos cronológi
 
 # Tabla Suplementaria S6: Evaluación Poblacional con Corrección de Prevalencia
 
-Métricas reponderadas por el inverso de la probabilidad de muestreo y corregidas a la prevalencia poblacional del periodo de test. La reponderación usa todas las ausencias (no sólo las que quedan fuera del buffer de 20 km), por lo que es una estimación de primer orden; la precisión real podría ser menor.
+| region   | task        | modelo                 |   prevalencia_poblacion_test |   prevalencia_muestra_test |   cutoff_f05_poblacional |   roc_auc_poblacional |   pr_auc_poblacional |   precision_poblacional_pct |   recall_poblacional_pct |   f05_poblacional |   brier_poblacional |   bss_poblacional |   ece_poblacional |   n_poblacion_test |   n_pos_poblacion_test |   n_muestra_test |   n_pos_muestra_test |
+|:---------|:------------|:-----------------------|-----------------------------:|---------------------------:|-------------------------:|----------------------:|---------------------:|----------------------------:|-------------------------:|------------------:|--------------------:|------------------:|------------------:|-------------------:|-----------------------:|-----------------:|---------------------:|
+| Chaco    | ignicion    | M3_ignicion_hibrida    |                  0.000152948 |                  0.0909091 |                 0.000419 |                0.7884 |               0.0007 |                       0.062 |                   27.143 |            0.0008 |            0.000153 |            0.0002 |            0      |          104976526 |                  16056 |           176616 |                16056 |
+| Chaco    | ignicion    | M2_ignicion_base       |                  0.000152948 |                  0.0909091 |                 0.000301 |                0.7768 |               0.0005 |                       0.047 |                   39.144 |            0.0006 |            0.000153 |            0.0002 |            0      |          104976526 |                  16056 |           176616 |                16056 |
+| Chaco    | propagacion | M2_propagacion_tactica |                  0.00155283  |                  0.0909091 |                 0.025643 |                0.9048 |               0.1104 |                       9.853 |                   49.165 |            0.1173 |            0.001455 |            0.0615 |            0.0002 |           33748163 |                  52405 |           576455 |                52405 |
+| Oriental | ignicion    | M3_ignicion_hibrida    |                  0.000414151 |                  0.0909091 |                 0.001267 |                0.7609 |               0.0017 |                       0.242 |                   17.011 |            0.003  |            0.000414 |            0.0006 |            0.0001 |           43887357 |                  18176 |           199936 |                18176 |
+| Oriental | ignicion    | M2_ignicion_base       |                  0.000414151 |                  0.0909091 |                 0.000905 |                0.7505 |               0.0014 |                       0.165 |                   26.095 |            0.0021 |            0.000414 |            0.0004 |            0      |           43887357 |                  18176 |           199936 |                18176 |
+| Oriental | propagacion | M2_propagacion_tactica |                  0.00210202  |                  0.0909091 |                 0.015164 |                0.7913 |               0.0281 |                       4.183 |                   20.481 |            0.0497 |            0.002071 |            0.0128 |            0.0003 |           37235186 |                  78269 |           860959 |                78269 |
 
-| Región   | Modelo                 |   Prevalencia poblacional |   Corte F0.5 poblacional |   ROC-AUC poblacional |   PR-AUC poblacional |   Precisión (%) |   Recall (%) |    BSS |   N población test |
-|:---------|:-----------------------|--------------------------:|-------------------------:|----------------------:|---------------------:|----------------:|-------------:|-------:|-------------------:|
-| Chaco    | M3_ignicion_hibrida    |               0.000625377 |                 0.004641 |                0.7911 |               0.004  |           0.743 |       12.538 | 0.0016 |          111366456 |
-| Chaco    | M2_propagacion_tactica |               0.000625377 |                 0.020325 |                0.9126 |               0.2287 |          11.87  |       48.471 | 0.0613 |          111366456 |
-| Oriental | M3_ignicion_hibrida    |               0.0015186   |                 0.008393 |                0.8323 |               0.023  |           1.957 |       24.247 | 0.0091 |           64365943 |
-| Oriental | M2_propagacion_tactica |               0.0015186   |                 0.01926  |                0.8662 |               0.1063 |           6.073 |       31.888 | 0.0353 |           64365943 |
+: Evaluación poblacional D2 generada por scripts/18_evaluacion_poblacional.py.
 
-: Evaluación poblacional generada por `scripts/18_evaluacion_poblacional.py`.
-
----
 
 # Tabla Suplementaria S7: Significancia Pareada de Diferencias de ROC-AUC
 
-Bootstrap pareado con $B=1.000$ sobre la muestra case-control del test. El p-valor es una aproximación bootstrap bilateral; la resolución mínima es 0,001. No corrige prevalencia ni dependencia espacial.
+| region   | task        | comparacion                                                    |   delta_roc |   p_value_bootstrap |   n_bootstrap |
+|:---------|:------------|:---------------------------------------------------------------|------------:|--------------------:|--------------:|
+| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.1875 |               0.001 |          1000 |
+| Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2206 |               0.001 |          1000 |
+| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.238  |               0.001 |          1000 |
+| Oriental | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.264  |               0.001 |          1000 |
+| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2676 |               0.001 |          1000 |
+| Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2855 |               0.001 |          1000 |
+| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.3888 |               0.001 |          1000 |
+| Chaco    | propagacion | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.377  |               0.001 |          1000 |
 
-| region   | comparacion                                                    |   delta_roc |   p_value_bootstrap |   n_bootstrap |
-|:---------|:---------------------------------------------------------------|------------:|--------------------:|--------------:|
-| Oriental | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2221 |               0.001 |          1000 |
-| Oriental | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2412 |               0.001 |          1000 |
-| Oriental | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.2615 |               0.001 |          1000 |
-| Oriental | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.2806 |               0.001 |          1000 |
-| Chaco    | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI (ISI)       |      0.2675 |               0.001 |          1000 |
-| Chaco    | Incendios_PY (Ignición Híbrida M3) vs Proxy INPE Risco de Fogo |      0.2822 |               0.001 |          1000 |
-| Chaco    | Incendios_PY (Propagación Táctica) vs Canadian FWI (ISI)       |      0.3937 |               0.001 |          1000 |
-| Chaco    | Incendios_PY (Propagación Táctica) vs Proxy INPE Risco de Fogo |      0.4084 |               0.001 |          1000 |
+: Bootstrap pareado B=1000 sobre la muestra case-control del test D2.
 
-: Diferencias pareadas de ROC-AUC generadas por `scripts/13_benchmarking_modelos.py`.
-
----
 
 # Tabla Suplementaria S8: Validación Espacial por Bloques de 50 km
 
-Holdout espacial con buffer de 20 km; los priors excluyen las celdas retenidas. `holdout_espacial` son bloques no vistos; `heldin_referencia` son bloques no retenidos en las mismas fechas.
+| region   | modelo       | evaluacion        |      n |   n_pos |   prevalencia |   roc_auc | roc_ci_95       |   pr_auc |   brier |     bss |    ece |   cutoff_f05 |   precision |   recall |    f05 |    fp |    fn |   n_train |   n_val |
+|:---------|:-------------|:------------------|-------:|--------:|--------------:|----------:|:----------------|---------:|--------:|--------:|-------:|-------------:|------------:|---------:|-------:|------:|------:|----------:|--------:|
+| Chaco    | M1_biofisico | holdout_espacial  |  34219 |    3390 |      0.099068 |    0.6346 | [0.626 - 0.644] |   0.1614 |  0.0873 |  0.0221 | 0.0032 |      0.13955 |      0.1619 |   0.2386 | 0.173  |  4189 |  2581 |    288674 |   78403 |
+| Chaco    | M1_biofisico | heldin_referencia | 142397 |   12666 |      0.088949 |    0.6201 | [0.615 - 0.625] |   0.1456 |  0.0796 |  0.0172 | 0.0103 |      0.13955 |      0.1484 |   0.2214 | 0.1588 | 16096 |  9862 |    288674 |   78403 |
+| Chaco    | M2_base      | holdout_espacial  |  34219 |    3390 |      0.099068 |    0.6331 | [0.625 - 0.642] |   0.1427 |  0.0921 | -0.0315 | 0.0631 |      0.17498 |      0      |   0      | 0      |     9 |  3390 |    288674 |   78403 |
+| Chaco    | M2_base      | heldin_referencia | 142397 |   12666 |      0.088949 |    0.7825 | [0.779 - 0.786] |   0.2247 |  0.0743 |  0.0834 | 0.0109 |      0.17498 |      0.2403 |   0.379  | 0.2593 | 15180 |  7865 |    288674 |   78403 |
+| Chaco    | M3_hibrido   | holdout_espacial  |  34219 |    3390 |      0.099068 |    0.6246 | [0.617 - 0.634] |   0.1408 |  0.0922 | -0.0329 | 0.0635 |      0.23631 |      0.16   |   0.0012 | 0.0057 |    21 |  3386 |    288674 |   78403 |
+| Chaco    | M3_hibrido   | heldin_referencia | 142397 |   12666 |      0.088949 |    0.7912 | [0.787 - 0.795] |   0.2489 |  0.0733 |  0.0949 | 0.0089 |      0.23631 |      0.2973 |   0.2401 | 0.2838 |  7187 |  9625 |    288674 |   78403 |
+| Oriental | M1_biofisico | holdout_espacial  |  58563 |    4389 |      0.074945 |    0.6195 | [0.611 - 0.628] |   0.1106 |  0.0693 | -0.0002 | 0.023  |      0.15675 |      0.1278 |   0.2098 | 0.1386 |  6286 |  3468 |    176813 |   65021 |
+| Oriental | M1_biofisico | heldin_referencia | 141373 |   13787 |      0.097522 |    0.6334 | [0.629 - 0.638] |   0.1486 |  0.0864 |  0.0186 | 0.0048 |      0.15675 |      0.1681 |   0.2328 | 0.178  | 15885 | 10577 |    176813 |   65021 |
+| Oriental | M2_base      | holdout_espacial  |  58563 |    4389 |      0.074945 |    0.5999 | [0.591 - 0.608] |   0.1106 |  0.0707 | -0.0195 | 0.0443 |      0.18189 |      0      |   0      | 0      |     0 |  4389 |    176813 |   65021 |
+| Oriental | M2_base      | heldin_referencia | 141373 |   13787 |      0.097522 |    0.7237 | [0.719 - 0.728] |   0.2079 |  0.0831 |  0.0562 | 0.0066 |      0.18189 |      0.2395 |   0.2308 | 0.2377 | 10102 | 10605 |    176813 |   65021 |
+| Oriental | M3_hibrido   | holdout_espacial  |  58563 |    4389 |      0.074945 |    0.5721 | [0.563 - 0.581] |   0.0988 |  0.0713 | -0.0279 | 0.0478 |      0.23068 |      0      |   0      | 0      |     2 |  4389 |    176813 |   65021 |
+| Oriental | M3_hibrido   | heldin_referencia | 141373 |   13787 |      0.097522 |    0.7338 | [0.730 - 0.738] |   0.231  |  0.082  |  0.068  | 0.0053 |      0.23068 |      0.3071 |   0.1673 | 0.2632 |  5204 | 11480 |    176813 |   65021 |
 
-| region   | modelo       | evaluacion        |      n |   n_pos |   roc_auc | roc_ci_95       |   pr_auc |   brier |     bss |    ece |   precision |   recall |    f05 |
-|:---------|:-------------|:------------------|-------:|--------:|----------:|:----------------|---------:|--------:|--------:|-------:|------------:|---------:|-------:|
-| Chaco    | M1_biofisico | holdout_espacial  | 150520 |   16932 |    0.5105 | [0.507 - 0.515] |   0.1151 |  0.1039 | -0.0403 | 0.0498 |      0.1117 |   0.153  | 0.1181 |
-| Chaco    | M1_biofisico | heldin_referencia | 615585 |   52714 |    0.6395 | [0.637 - 0.642] |   0.1485 |  0.077  |  0.0162 | 0.0206 |      0.1783 |   0.268  | 0.1911 |
-| Chaco    | M2_base      | holdout_espacial  | 150520 |   16932 |    0.4893 | [0.485 - 0.495] |   0.1192 |  0.1072 | -0.0739 | 0.0849 |      0.2903 |   0.0005 | 0.0026 |
-| Chaco    | M2_base      | heldin_referencia | 615585 |   52714 |    0.7962 | [0.794 - 0.798] |   0.2495 |  0.0722 |  0.0778 | 0.0195 |      0.3268 |   0.1857 | 0.2837 |
-| Chaco    | M3_hibrido   | holdout_espacial  | 150520 |   16932 |    0.4737 | [0.469 - 0.479] |   0.1139 |  0.1078 | -0.0798 | 0.0883 |      0.2308 |   0.0005 | 0.0026 |
-| Chaco    | M3_hibrido   | heldin_referencia | 615585 |   52714 |    0.8062 | [0.804 - 0.808] |   0.2804 |  0.0705 |  0.0993 | 0.0169 |      0.3927 |   0.1521 | 0.2983 |
-| Oriental | M1_biofisico | holdout_espacial  | 329729 |   22373 |    0.6139 | [0.610 - 0.618] |   0.1232 |  0.0648 | -0.0245 | 0.0443 |      0.1458 |   0.1995 | 0.1541 |
-| Oriental | M1_biofisico | heldin_referencia | 745313 |   75373 |    0.6113 | [0.609 - 0.613] |   0.1576 |  0.0904 |  0.0057 | 0.0161 |      0.1745 |   0.2131 | 0.1811 |
-| Oriental | M2_base      | holdout_espacial  | 329729 |   22373 |    0.5962 | [0.593 - 0.600] |   0.1042 |  0.0657 | -0.0389 | 0.0541 |      1      |   0.0002 | 0.0009 |
-| Oriental | M2_base      | heldin_referencia | 745313 |   75373 |    0.7798 | [0.778 - 0.781] |   0.2774 |  0.082  |  0.0983 | 0.0073 |      0.2976 |   0.2887 | 0.2957 |
-| Oriental | M3_hibrido   | holdout_espacial  | 329729 |   22373 |    0.5942 | [0.591 - 0.598] |   0.1051 |  0.0664 | -0.0497 | 0.0597 |      1      |   0.0004 | 0.002  |
-| Oriental | M3_hibrido   | heldin_referencia | 745313 |   75373 |    0.807  | [0.806 - 0.808] |   0.35   |  0.0779 |  0.1433 | 0.0131 |      0.4471 |   0.2484 | 0.3854 |
+: Validación espacial generada por scripts/20_validacion_espacial_bloques.py.
 
-: Validación espacial generada por `scripts/20_validacion_espacial_bloques.py`.
-
----
 
 # Tabla Suplementaria S9: Evaluación con Clima de t-1 (24 h de Anticipación)
 
-Sustitución de las variables meteorológicas por las del día anterior (persistencia). No es un pronóstico numérico real; es una cota de persistencia.
+| region   | modelo          |      n |   n_pos |   roc_auc |   pr_auc |   brier |    bss |    ece |   cutoff_f05 |   precision |   recall |    f05 |    fp |    fn |
+|:---------|:----------------|-------:|--------:|----------:|---------:|--------:|-------:|-------:|-------------:|------------:|---------:|-------:|------:|------:|
+| Chaco    | M1_biofisico_t1 | 176616 |   16056 |    0.6221 |   0.1475 |  0.0811 | 0.0187 | 0.0105 |      0.13783 |      0.1454 |   0.217  | 0.1557 | 20472 | 12572 |
+| Chaco    | M3_hibrido_t1   | 176616 |   16056 |    0.7834 |   0.2373 |  0.0754 | 0.0873 | 0.012  |      0.18886 |      0.2655 |   0.3386 | 0.2775 | 15042 | 10619 |
+| Oriental | M1_biofisico_t1 | 199936 |   18176 |    0.6339 |   0.1412 |  0.0812 | 0.018  | 0.0027 |      0.13496 |      0.1555 |   0.2703 | 0.17   | 26676 | 13263 |
+| Oriental | M3_hibrido_t1   | 199936 |   18176 |    0.7462 |   0.2287 |  0.0767 | 0.072  | 0.0057 |      0.205   |      0.2847 |   0.213  | 0.2667 |  9727 | 14305 |
 
-| region   | modelo          |       n |   n_pos |   roc_auc |   pr_auc |   brier |     bss |    ece |   cutoff_f05 |   precision |   recall |    f05 |     fp |    fn |
-|:---------|:----------------|--------:|--------:|----------:|---------:|--------:|--------:|-------:|-------------:|------------:|---------:|-------:|-------:|------:|
-| Chaco    | M1_biofisico_t1 |  766105 |   69646 |    0.6146 |   0.1349 |  0.0817 |  0.0111 | 0.0119 |      0.15959 |      0.1592 |   0.3139 | 0.1766 | 115458 | 47783 |
-| Chaco    | M3_hibrido_t1   |  766105 |   69646 |    0.7857 |   0.2706 |  0.0748 |  0.0945 | 0.0163 |      0.33273 |      0.3414 |   0.1862 | 0.2926 |  25018 | 56678 |
-| Oriental | M1_biofisico_t1 | 1075042 |   97746 |    0.5905 |   0.1311 |  0.0834 | -0.0089 | 0.017  |      0.15142 |      0.156  |   0.1963 | 0.1626 | 103827 | 78561 |
-| Oriental | M3_hibrido_t1   | 1075042 |   97746 |    0.8243 |   0.3548 |  0.07   |  0.153  | 0.0132 |      0.30943 |      0.4417 |   0.2606 | 0.3878 |  32195 | 72276 |
+: Evaluación con clima de t-1 generada por scripts/21_evaluacion_lead_time.py.
 
-: Evaluación con clima de t-1 generada por `scripts/21_evaluacion_lead_time.py`.
-
----
 
 # Referencias Suplementarias {.unnumbered}
 ::: {#refs}

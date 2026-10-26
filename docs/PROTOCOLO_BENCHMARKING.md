@@ -78,33 +78,28 @@ Un modelo superior debe mantener $V(\alpha) > 0$ en el rango operativo típico d
 
 ---
 
-## 📈 5. Resultados Empíricos del Benchmarking (Evaluación Out-of-Time 2024)
+## 📈 5. Resultados empíricos D2 (2026)
 
-Evaluación cuantitativa sobre el conjunto de testeo ciego con Dead-Zone Buffer de 20 km, desacoplando **Ignición Primaria (Física Pura)** y **Propagación Táctica (Contagio $t-1$)**:
+Los resultados anteriores de esta sección quedaron **obsoletos** tras la corrección D2, el clima CDS v2 y el muestreo poblacional. Las cifras vigentes están en:
 
-| Región | Modelo Predictivo | ROC-AUC | PR-AUC | Precisión ($F_{0.5}$) | Sensibilidad | Falsos Positivos | Brier Skill Score | $F_{0.5}$-Score |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Oriental** | **Incendios_PY (Ignición Física)** | **0.7711** | **0.2810** | **34.09%** | 37.50% | **29** | **+0.0740** | **0.3472** |
-| **Oriental** | **Incendios_PY (Propagación Táctica)**| **0.8650** | **0.5430** | **100.00%**| 22.50% | **0** | **+0.2910** | **0.5921** |
-| Oriental | Proxy INPE Risco de Fogo | 0.3995 | 0.0703 | 9.69% | 85.00% | 317 | -8.2341 | 0.1177 |
-| Oriental | Canadian FWI (ISI) | 0.3892 | 0.0779 | 10.25% | 92.50% | 324 | -2.7331 | 0.1247 |
-| Oriental | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
-| **Chaco** | **Incendios_PY (Ignición Física)** | **0.5952** | **0.1290** | **23.88%** | 19.28% | **102** | **+0.0013** | **0.2279** |
-| **Chaco** | **Incendios_PY (Propagación Táctica)**| **0.9410** | **0.8486** | **97.71%** | 77.11% | **3** | **+0.6664** | **0.9275** |
-| Chaco | Proxy INPE Risco de Fogo | 0.6457 | 0.1314 | 13.89% | 72.89% | 750 | -8.0707 | 0.1658 |
-| Chaco | Canadian FWI (ISI) | 0.5432 | 0.0967 | 11.25% | 78.31% | 1026 | -0.9321 | 0.1357 |
-| Chaco | Línea Base Climatológica | 0.5000 | 0.0909 | 0.00% | 0.00% | **0** | +0.0000 | 0.0000 |
+- `tablas/tabla04_benchmarking_internacional.csv`
+- `tablas/tabla10_significancia_pareada.csv`
+- `tablas/tabla07_evaluacion_poblacional.csv`
 
-### Conclusiones de Rendimiento y Honestidad Metodológica:
-1. **Desacoplamiento Ignición vs. Propagación:**
-   - La capa de **Ignición Primaria** predice el nacimiento espontáneo o antrópico de fuegos nuevos sin utilizar atajos espaciales ni información de focos previos en $t-1$. En la Región Oriental supera con creces al FWI y al INPE (ROC 0.7711 vs. sub-azar <0.40) y reduce las falsas alarmas en un **91.0%** (29 FP frente a 324 del FWI).
-   - La capa de **Propagación Táctica** modela el avance condicional de frentes de fuego activos ya detectados por satélite ($t-1$), alcanzando un ROC de **0.9410** en el Chaco con una precisión del **97.71%** y solo 3 falsas alarmas sobre 1.660 celdas no quemadas.
-2. **Mitigación Masiva del Desgaste de Cuadrillas:**
-   - Frente a los 1.026 falsos avisos del FWI canadiense y 750 del INPE en el Chaco, la capa de Ignición Física reduce los falsos positivos a 102, y la capa de Propagación los reduce a solo 3, permitiendo una asignación quirúrgica de aeronaves y camiones cisterna de la SEN y el CBVP.
-3. **Calibración Probabilística Real (BSS):**
-   - Incendios_PY es el único modelo que obtiene Brier Skill Score positivo en ambas regiones y capas (+0.0740 / +0.2910 en Oriental, +0.0013 / +0.6664 en Chaco), mientras que el FWI y el INPE exhiben descalibraciones severas ($BSS < -0.90$).
+Resumen en test D2:
 
----
+| Target | Región | Modelo | ROC-AUC | PR-AUC |
+|---|---|---|---:|---:|
+| Ignición | Chaco | M3 | 0,7852 | 0,2411 |
+| Ignición | Oriental | M3 | 0,7480 | 0,2314 |
+| Propagación | Chaco | Propagación | 0,8988 | 0,6828 |
+| Propagación | Oriental | Propagación | 0,7798 | 0,3650 |
+| Ignición | Chaco | Canadian FWI (ISI) | 0,5177 | 0,0931 |
+| Ignición | Oriental | Canadian FWI (ISI) | 0,5605 | 0,1074 |
+| Ignición | Chaco | Proxy INPE | 0,4997 | 0,0913 |
+| Ignición | Oriental | Proxy INPE | 0,5274 | 0,0986 |
+
+La comparación es de discriminación en el dominio D2, no de precisión operativa. Las métricas poblacionales y los intervalos por bootstrap están en las tablas citadas.
 
 ## 🏛️ 6. Justificación Estratégica e Impacto en Paraguay (Socioeconómico y Salud Pública)
 

@@ -1,4 +1,4 @@
 distancia_min_t1_km,condicion,n_muestras_chaco,auc_ign_chaco,auc_prop_chaco,n_muestras_oriental,auc_ign_oriental
-10,Incluye celdas a >=10 km del foco t-1,695417,0.7984,0.8067,903310,0.7976
-20,Incluye celdas a >=20 km del foco t-1,614560,0.7993,0.7929,659153,0.797
-30,Sólo celdas a >=30 km del foco t-1 (alejadas),470316,0.8029,0.7982,428761,0.8016
+10,Incluye celdas a >=10 km del foco t-1,176616,0.7852,0.7331,199936,0.748
+20,Incluye celdas a >=20 km del foco t-1,176616,0.7852,0.7445,199936,0.748
+30,Sólo celdas a >=30 km del foco t-1 (alejadas),157663,0.7866,,168751,0.7495

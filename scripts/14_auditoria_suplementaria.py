@@ -46,14 +46,15 @@ def auditar_tablas_suplementarias():
     print("AUDITORÍA SUPLEMENTARIA: REPRODUCIBILIDAD DE TABLAS S3 Y S4")
     print("=" * 70)
 
-    p_test_preds = DIR_PROCESSED / "evaluacion_test_predicciones.parquet"
+    p_ign = DIR_PROCESSED / "evaluacion_test_ignicion.parquet"
+    p_prop = DIR_PROCESSED / "evaluacion_test_propagacion.parquet"
     p_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
-    p_test = DIR_PROCESSED / "test_dataset.parquet"
 
-    if not p_test_preds.exists() or not p_grilla.exists():
+    if not p_ign.exists() or not p_prop.exists() or not p_grilla.exists():
         raise FileNotFoundError("Archivos requeridos no encontrados en datos/processed/")
 
-    df_preds = pl.read_parquet(p_test_preds)
+    df_ign = pl.read_parquet(p_ign)
+    df_prop = pl.read_parquet(p_prop)
     df_grilla = pl.read_parquet(p_grilla)
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
 
@@ -77,31 +78,26 @@ def auditar_tablas_suplementarias():
 
     for row in censo_deptos.iter_rows():
         dep_nom, reg, celdas_tot = row[0], row[1], row[2]
-        sub = df_preds.filter(pl.col("departamento") == dep_nom)
-        
-        y_true = sub["fuego"].to_numpy().astype(int) if len(sub) > 0 else np.array([])
-        n_pos = int(y_true.sum()) if len(y_true) > 0 else 0
-        n_tot = len(sub)
-
+        sub_ign = df_ign.filter(pl.col("departamento") == dep_nom)
+        sub_prop = df_prop.filter(pl.col("departamento") == dep_nom)
+        y_ign = sub_ign["target_ignicion"].to_numpy().astype(int) if len(sub_ign) > 0 else np.array([])
+        y_prop = sub_prop["target_propagacion"].to_numpy().astype(int) if len(sub_prop) > 0 else np.array([])
+        n_pos = int(y_ign.sum()) if len(y_ign) > 0 else 0
+        n_tot = len(sub_ign)
         c_corte = c_f05_chaco if reg == "Chaco" else c_f05_oriental
 
         if n_pos >= 2 and (n_tot - n_pos) >= 2:
-            col_ign = "probabilidad_hibrido" if "probabilidad_hibrido" in sub.columns else "probabilidad_calibrada"
-            p_ign = sub[col_ign].to_numpy()
-            p_prop = sub["probabilidad_propagacion"].to_numpy()
-            
-            auc_ign = float(roc_auc_score(y_true, p_ign))
-            auc_prop = float(roc_auc_score(y_true, p_prop))
-            
-            y_bin = (p_prop >= c_corte).astype(int)
-            tn, fp, fn, tp = confusion_matrix(y_true, y_bin, labels=[0, 1]).ravel()
-            prec = float(tp / (tp + fp)) if (tp + fp) > 0 else 1.0
-        elif n_pos == 0:
-            auc_ign = np.nan
-            auc_prop = np.nan
-            prec = 1.0 if n_tot > 0 else np.nan
+            col_ign = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_ign.columns else "probabilidad_calibrada"
+            auc_ign = float(roc_auc_score(y_ign, sub_ign[col_ign].to_numpy()))
         else:
             auc_ign = np.nan
+
+        if len(y_prop) > 0 and len(np.unique(y_prop)) > 1:
+            auc_prop = float(roc_auc_score(y_prop, sub_prop["probabilidad_propagacion"].to_numpy()))
+            y_bin = (sub_prop["probabilidad_propagacion"].to_numpy() >= c_corte).astype(int)
+            tn, fp, fn, tp = confusion_matrix(y_prop, y_bin, labels=[0, 1]).ravel()
+            prec = float(tp / (tp + fp)) if (tp + fp) > 0 else np.nan
+        else:
             auc_prop = np.nan
             prec = np.nan
 
@@ -132,42 +128,28 @@ def auditar_tablas_suplementarias():
     #     remuestrear y reentrenar; se deja como análisis pendiente)
     # -------------------------------------------------------------
     print("\n2. Computando estratificación por distancia al foco t-1...")
-    sub_c = df_preds.filter(pl.col("region") == "Chaco")
-    sub_o = df_preds.filter(pl.col("region") == "Oriental")
-
     condiciones = {
         10: "Incluye celdas a >=10 km del foco t-1",
         20: "Incluye celdas a >=20 km del foco t-1",
-        30: "Sólo celdas a >=30 km del foco t-1 (alejadas)"
+        30: "Sólo celdas a >=30 km del foco t-1 (alejadas)",
     }
-    col_ign_c = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_c.columns else "probabilidad_calibrada"
-    col_ign_o = "probabilidad_hibrido" if "probabilidad_hibrido" in sub_o.columns else "probabilidad_calibrada"
-
     sensibilidad_datos = []
     for d in [10, 20, 30]:
-        mask_c = (sub_c["dist_foco_t1_km"] >= d).to_numpy()
-        mask_o = (sub_o["dist_foco_t1_km"] >= d).to_numpy()
-
-        y_c = sub_c["fuego"].to_numpy()[mask_c]
-        p_ign_c = sub_c[col_ign_c].to_numpy()[mask_c]
-        p_prop_c = sub_c["probabilidad_propagacion"].to_numpy()[mask_c]
-
-        y_o = sub_o["fuego"].to_numpy()[mask_o]
-        p_ign_o = sub_o[col_ign_o].to_numpy()[mask_o]
-
-        auc_ic = float(roc_auc_score(y_c, p_ign_c))
-        auc_pc = float(roc_auc_score(y_c, p_prop_c))
-        auc_io = float(roc_auc_score(y_o, p_ign_o))
-
-        sensibilidad_datos.append({
-            "distancia_min_t1_km": d,
-            "condicion": condiciones[d],
-            "n_muestras_chaco": int(mask_c.sum()),
-            "auc_ign_chaco": round(auc_ic, 4),
-            "auc_prop_chaco": round(auc_pc, 4),
-            "n_muestras_oriental": int(mask_o.sum()),
-            "auc_ign_oriental": round(auc_io, 4)
-        })
+        fila = {"distancia_min_t1_km": d, "condicion": condiciones[d]}
+        for reg in ["Chaco", "Oriental"]:
+            si = df_ign.filter(pl.col("region") == reg)
+            sp = df_prop.filter(pl.col("region") == reg)
+            mi = (si["dist_foco_t1_km"] >= d).to_numpy()
+            mp = (sp["dist_foco_t1_km"] >= d).to_numpy()
+            yi = si["target_ignicion"].to_numpy()[mi]
+            yp = sp["target_propagacion"].to_numpy()[mp]
+            pi = si["probabilidad_hibrido"].to_numpy()[mi]
+            pp = sp["probabilidad_propagacion"].to_numpy()[mp]
+            fila[f"n_muestras_{reg.lower()}"] = int(mi.sum())
+            fila[f"auc_ign_{reg.lower()}"] = round(float(roc_auc_score(yi, pi)), 4) if len(np.unique(yi)) > 1 else np.nan
+            if reg == "Chaco":
+                fila["auc_prop_chaco"] = round(float(roc_auc_score(yp, pp)), 4) if len(np.unique(yp)) > 1 else np.nan
+        sensibilidad_datos.append(fila)
 
     df_sens = pd.DataFrame(sensibilidad_datos)
     p_csv_sens = DIR_TABLAS / "tablaS3_sensibilidad_buffer.csv"
@@ -260,13 +242,13 @@ def auditar_tablas_suplementarias():
     # 4. TABLA S5: Predicción Conforme (Split Conformal Prediction)
     # -------------------------------------------------------------
     print("\n4. Evaluando cuantificación de incertidumbre conforme (Split Conformal Prediction)...")
-    p_val = DIR_PROCESSED / "val_dataset.parquet"
+    p_val = DIR_PROCESSED / "targets_poblacionales" / "val_ignicion.parquet"
 
     if p_val.exists():
         from src.modelo import CalibradorPlattMonotono
         from src.modelo import FEATURES_HIBRIDO_CHACO, FEATURES_HIBRIDO_ORIENTAL
 
-        df_val = agregar_features_antropicas(pl.read_parquet(p_val))
+        df_val = pl.read_parquet(p_val)
 
         filas_conf = []
         for reg, feats in [("Chaco", FEATURES_HIBRIDO_CHACO), ("Oriental", FEATURES_HIBRIDO_ORIENTAL)]:
@@ -286,15 +268,15 @@ def auditar_tablas_suplementarias():
             b = lgb.Booster(model_file=str(DIR_MODELOS / f"lightgbm_hibrido_{reg.lower()}.booster"))
             raw_cal = b.predict(sub_cal.select(feats).to_numpy())
             raw_conf = b.predict(sub_conf.select(feats).to_numpy())
-            cal = CalibradorPlattMonotono().fit(raw_cal, sub_cal["fuego"].to_numpy())
+            cal = CalibradorPlattMonotono().fit(raw_cal, sub_cal["target_ignicion"].to_numpy())
             p_conf = cal.predict(raw_conf)
-            y_conf = sub_conf["fuego"].to_numpy().astype(int)
+            y_conf = sub_conf["target_ignicion"].to_numpy().astype(int)
 
             q_hat_90 = calcular_cuantil_conforme(y_conf, p_conf, alpha=0.10)
             q_hat_95 = calcular_cuantil_conforme(y_conf, p_conf, alpha=0.05)
 
-            sub_test = df_preds.filter(pl.col("region") == reg)
-            y_test = sub_test["fuego"].to_numpy().astype(int)
+            sub_test = df_ign.filter(pl.col("region") == reg)
+            y_test = sub_test["target_ignicion"].to_numpy().astype(int)
             raw_test = b.predict(sub_test.select(feats).to_numpy())
             p_test = cal.predict(raw_test)
 
