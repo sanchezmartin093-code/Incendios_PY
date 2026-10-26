@@ -38,15 +38,15 @@ def main():
             if task == "ignicion":
                 (p_fwi, _), (p_inpe, _) = bench._benchmarks(df_val, df_test, region, target_col)
                 curva_modelo = bench._p_modelo(region, "hibrido", df_test)
-                nombre_modelo = "M3 ignición"
+                nombre_modelo = "M3 ignition"
                 curvas = [
                     (f"{region} {nombre_modelo}", curva_modelo, "-"),
-                    (f"{region} FWI completo", p_fwi, ":"),
+                    (f"{region} full FWI", p_fwi, ":"),
                     (f"{region} INPE", p_inpe, "--"),
                 ]
             else:
                 curva_modelo = bench._p_modelo(region, "propagacion", df_test)
-                nombre_modelo = "Propagación"
+                nombre_modelo = "Propagation"
                 curvas = [(f"{region} {nombre_modelo}", curva_modelo, "-")]
 
             for nombre, p, ls in curvas:
@@ -58,16 +58,16 @@ def main():
                 axes[fila, 1].plot(rec, prec, color=colores[region], linestyle=ls, linewidth=1.8, label=f"{nombre} ({ap:.3f})")
 
         axes[fila, 0].plot([0, 1], [0, 1], color="grey", linestyle=":", linewidth=1)
-        axes[fila, 0].set_title(f"ROC — {task.upper()}", fontweight="bold")
-        axes[fila, 0].set_xlabel("1 - Especificidad")
-        axes[fila, 0].set_ylabel("Sensibilidad")
+        axes[fila, 0].set_title(f"ROC — {task.title()}", fontweight="bold")
+        axes[fila, 0].set_xlabel("False positive rate")
+        axes[fila, 0].set_ylabel("True positive rate")
         axes[fila, 0].legend(fontsize=7, loc="lower right")
-        axes[fila, 1].set_title(f"Precision-Recall — {task.upper()}", fontweight="bold")
+        axes[fila, 1].set_title(f"Precision–recall — {task.title()}", fontweight="bold")
         axes[fila, 1].set_xlabel("Recall")
-        axes[fila, 1].set_ylabel("Precisión")
+        axes[fila, 1].set_ylabel("Precision")
         axes[fila, 1].legend(fontsize=7, loc="upper right")
 
-    plt.suptitle("Benchmarking D2: Incendios_PY vs Canadian FWI completo e INPE", fontweight="bold", y=0.99)
+    plt.suptitle("D2 benchmark: Incendios_PY vs full Canadian FWI and INPE", fontweight="bold", y=0.99)
     plt.tight_layout()
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
     fig.savefig(DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png", dpi=300)

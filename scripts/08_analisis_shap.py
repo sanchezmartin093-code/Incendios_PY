@@ -30,36 +30,42 @@ from src.modelo import preparar_matrices_xy
 
 # Diccionario de nombres legibles para publicación científica
 NOMBRES_LEGIBLES = {
-    "vpd_max_kpa": "Déficit de Presión de Vapor (VPD, kPa)",
-    "interaccion_viento_vpd": "Interacción Viento × VPD",
-    "rango_termico_diario": "Amplitud Térmica Diaria (°C)",
-    "deficit_hidrico_acumulado": "Déficit Hídrico Acumulado (VPD × CDD)",
-    "potencial_viento_cuadratico": "Presión Dinámica del Viento (v²)",
-    "viento_max_kmh": "Velocidad de Viento Máx (km/h)",
-    "rafaga_max_kmh": "Ráfaga Máxima de Viento (km/h)",
-    "ffmc": "Índice Hojarasca Fina (FWI FFMC)",
-    "isi": "Índice Propagación Inicial (FWI ISI)",
-    "temp_max_c": "Temperatura Máxima (°C)",
-    "temp_min_c": "Temperatura Mínima (°C)",
-    "dias_secos_consecutivos": "Días Secos Consecutivos (CDD)",
-    "precipitacion_mm": "Precipitación Diaria (mm)",
-    "precipitacion_48h_mm": "Precipitación Acumulada 48h (mm)",
-    "pct_pastura": "Cobertura de Pastura (%)",
-    "pct_sabana_pastizal": "Cobertura de Sabana / Pastizal (%)",
-    "pct_bosque_seco": "Bosque Xerofítico Chaqueño (%)",
-    "pct_bosque_humedo": "Bosque Atlántico BAAPA (%)",
-    "pct_humedal_palmar": "Palmares de Karanda'y (%)",
-    "es_fin_de_semana": "Efecto Fin de Semana (Antrópico)",
-    "dia_semana": "Día de la Semana",
-    "mes": "Estacionalidad (Mes)",
-    "dia_del_anio": "Día del Año",
-    # Dinámica espaciotemporal y ecotono (2024-2026)
-    "indice_ecotono": "Índice Fragmentación Ecotono Bosque-Pastura",
-    "dist_foco_t1_km": "Distancia a Foco Previo t-1 (km)",
-    "focos_25km_t1": "Densidad de Focos t-1 (Radio 25 km)",
-    "frp_25km_t1": "Potencia Radiativa t-1 (FRP en 25 km)",
-    "dist_foco_hist_km": "Distancia a Fuego Histórico (km)",
-    "densidad_hist_25km": "Densidad Histórica de Ignición (25 km)"
+    "vpd_max_kpa": "Vapor pressure deficit (VPD, kPa)",
+    "interaccion_viento_vpd": "Wind × VPD interaction",
+    "rango_termico_diario": "Daily thermal range (°C)",
+    "deficit_hidrico_acumulado": "Accumulated water deficit (VPD × CDD)",
+    "potencial_viento_cuadratico": "Dynamic wind pressure (v²)",
+    "viento_max_kmh": "Maximum wind speed (km/h)",
+    "rafaga_max_kmh": "Maximum gust (km/h)",
+    "ffmc": "Fine fuel moisture code (FFMC)",
+    "isi": "Initial spread index (ISI)",
+    "temp_max_c": "Maximum temperature (°C)",
+    "temp_min_c": "Minimum temperature (°C)",
+    "dias_secos_consecutivos": "Consecutive dry days (CDD)",
+    "precipitacion_mm": "Daily rainfall (mm)",
+    "precipitacion_48h_mm": "48-h accumulated rainfall (mm)",
+    "pct_pastura": "Pasture cover (%)",
+    "pct_sabana_pastizal": "Savanna / natural grassland cover (%)",
+    "pct_bosque_seco": "Dry Chaco forest (%)",
+    "pct_bosque_humedo": "Atlantic forest BAAPA (%)",
+    "pct_humedal_palmar": "Palm / wetland cover (%)",
+    "es_fin_de_semana": "Weekend effect (anthropogenic)",
+    "dia_semana": "Day of week",
+    "mes": "Month",
+    "dia_del_anio": "Day of year",
+    "indice_ecotono": "Forest–pasture ecotone fragmentation index",
+    "dist_foco_t1_km": "Distance to t-1 fire (km)",
+    "focos_25km_t1": "t-1 fire density (25-km radius)",
+    "frp_25km_t1": "t-1 radiative power (FRP within 25 km)",
+    "dist_foco_hist_km": "Distance to historical fire (km)",
+    "densidad_hist_25km": "Historical ignition density (25 km)",
+    "dist_corredor_antropico_km": "Distance to active anthropogenic corridor (km)",
+    "focalizacion_antropica_local": "Local focalization index (5 km / 25 km)",
+    "densidad_hist_5km": "Local anthropogenic ignition density (5 km)",
+    "densidad_hist_10km": "Local anthropogenic ignition density (10 km)",
+    "freq_hist_1km": "Chronic recurrence in a 1-km² cell",
+    "presion_quema_pastura": "Pasture burning pressure (pasture × VPD × month)",
+    "interaccion_acceso_vpd": "Accessibility–desiccation synergy"
 }
 
 def ejecutar_analisis_shap():
@@ -129,8 +135,8 @@ def ejecutar_analisis_shap():
         color = "#c0392b" if region == "Chaco" else "#27ae60"
         
         bars = ax.barh(top12["nombre_legible"], top12["shap_importancia_media"], color=color, alpha=0.85, edgecolor="black")
-        ax.set_xlabel("Impacto Medio Absoluto en la Predicción |SHAP|", fontsize=11, fontweight="bold")
-        ax.set_title(f"Importancia de Variables (TreeSHAP) - {region.upper()}", fontsize=13, fontweight="bold", pad=12)
+        ax.set_xlabel("Mean absolute SHAP impact", fontsize=11, fontweight="bold")
+        ax.set_title(f"Feature importance (TreeSHAP) — {region}", fontsize=13, fontweight="bold", pad=12)
         
         # Añadir etiquetas de valor al final de cada barra
         for bar in bars:
@@ -155,16 +161,16 @@ def ejecutar_analisis_shap():
         # Chaco
         d_chaco = datos_plot["Chaco"].head(10).sort_values(by="shap_importancia_media", ascending=True)
         ax1.barh(d_chaco["nombre_legible"], d_chaco["shap_importancia_media"], color="#c0392b", alpha=0.85, edgecolor="black")
-        ax1.set_title("Chaco (Régimen de Sequía y Biomasa Seca)", fontsize=12, fontweight="bold")
-        ax1.set_xlabel("Impacto Medio |SHAP|", fontsize=10, fontweight="bold")
+        ax1.set_title("Chaco (dry regime and dry biomass)", fontsize=12, fontweight="bold")
+        ax1.set_xlabel("Mean |SHAP|", fontsize=10, fontweight="bold")
 
         # Oriental
         d_oriental = datos_plot["Oriental"].head(10).sort_values(by="shap_importancia_media", ascending=True)
         ax2.barh(d_oriental["nombre_legible"], d_oriental["shap_importancia_media"], color="#27ae60", alpha=0.85, edgecolor="black")
-        ax2.set_title("Región Oriental (Régimen Antrópico y Pasturas)", fontsize=12, fontweight="bold")
-        ax2.set_xlabel("Impacto Medio |SHAP|", fontsize=10, fontweight="bold")
+        ax2.set_title("Oriental Region (anthropogenic regime and pastures)", fontsize=12, fontweight="bold")
+        ax2.set_xlabel("Mean |SHAP|", fontsize=10, fontweight="bold")
 
-        plt.suptitle("Comparativa de Drivers Biofísicos de Fuego por Ecorregión (TreeSHAP)", fontsize=14, fontweight="bold", y=0.98)
+        plt.suptitle("TreeSHAP comparison of fire drivers by ecoregion", fontsize=14, fontweight="bold", y=0.98)
         plt.tight_layout()
         p_comp_png = DIR_FIGURAS / "fig04_shap_comparativa_chaco_vs_oriental.png"
         p_comp_pdf = DIR_FIGURAS / "fig04_shap_comparativa_chaco_vs_oriental.pdf"

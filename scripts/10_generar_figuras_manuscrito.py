@@ -59,14 +59,14 @@ def generar_todas_las_figuras():
                     ha="center", va="center", fontsize=7, fontweight="bold",
                     color="#2c3e50", bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.65))
 
-    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (Occidental - 240.880 km²)")
-    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Región Oriental (159.126 km²)")
+    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (western region, 240,880 km²)")
+    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Oriental Region (159,126 km²)")
     ax.legend(handles=[patch_chaco, patch_oriental], loc="lower left", fontsize=9, frameon=True)
 
-    ax.set_title("Estratificación Macro-Regional del Territorio Paraguayo\nUnidad de Modelado Geoespacial: Malla Regular 1 km² (EPSG:32721)",
+    ax.set_title("Study domain and macro-regional stratification of Paraguay\n1-km² regular grid (EPSG:32721)",
                  fontsize=11, fontweight="bold", pad=12)
-    ax.set_xlabel("Longitud (°W)", fontsize=9)
-    ax.set_ylabel("Latitud (°S)", fontsize=9)
+    ax.set_xlabel("Longitude (°W)", fontsize=9)
+    ax.set_ylabel("Latitude (°S)", fontsize=9)
     plt.tight_layout()
 
     fig.savefig(DIR_FIGURAS / "fig01_macro_regiones_cobertura.png", dpi=300)
@@ -86,10 +86,10 @@ def generar_todas_las_figuras():
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5), dpi=300)
 
         modelos_curvas = [
-            ("Chaco", "Ignición Híbrida M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#d35400", "-"),
-            ("Chaco", "Propagación Táctica", df_prop, "target_propagacion", "probabilidad_propagacion", "#c0392b", "--"),
-            ("Oriental", "Ignición Híbrida M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#16a085", "-"),
-            ("Oriental", "Propagación Táctica", df_prop, "target_propagacion", "probabilidad_propagacion", "#27ae60", "--"),
+            ("Chaco", "Hybrid ignition M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#d35400", "-"),
+            ("Chaco", "Tactical propagation", df_prop, "target_propagacion", "probabilidad_propagacion", "#c0392b", "--"),
+            ("Oriental", "Hybrid ignition M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#16a085", "-"),
+            ("Oriental", "Tactical propagation", df_prop, "target_propagacion", "probabilidad_propagacion", "#27ae60", "--"),
         ]
 
         for reg, capa, df_fuente, col_y, col_prob, col, ls in modelos_curvas:
@@ -108,18 +108,18 @@ def generar_todas_las_figuras():
                 pr_score = average_precision_score(y_true, y_prob)
                 ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (PR-AUC = {pr_score:.3f})")
 
-        ax1.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Azar (AUC = 0.500)")
-        ax1.set_title("Curvas ROC (Receiver Operating Characteristic)", fontsize=11, fontweight="bold")
-        ax1.set_xlabel("Tasa de Falsos Positivos (1 - Especificidad)", fontsize=10)
-        ax1.set_ylabel("Tasa de Verdaderos Positivos (Sensibilidad / Recall)", fontsize=10)
+        ax1.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Chance (AUC = 0.500)")
+        ax1.set_title("ROC curves (receiver operating characteristic)", fontsize=11, fontweight="bold")
+        ax1.set_xlabel("False positive rate (1 − specificity)", fontsize=10)
+        ax1.set_ylabel("True positive rate (recall)", fontsize=10)
         ax1.legend(loc="lower right", fontsize=8.5)
 
-        ax2.set_title("Curvas Precision-Recall (Detección de Eventos Raros)", fontsize=11, fontweight="bold")
-        ax2.set_xlabel("Sensibilidad (Recall)", fontsize=10)
-        ax2.set_ylabel("Precisión (PPV)", fontsize=10)
+        ax2.set_title("Precision–recall curves (rare-event detection)", fontsize=11, fontweight="bold")
+        ax2.set_xlabel("Recall", fontsize=10)
+        ax2.set_ylabel("Precision (PPV)", fontsize=10)
         ax2.legend(loc="upper right", fontsize=8.5)
 
-        plt.suptitle("Evaluación de Desempeño Out-of-Time sobre el Conjunto Ciego (Test Set 2024–2025)",
+        plt.suptitle("Out-of-time performance on the blind test (2024–2025)",
                      fontsize=13, fontweight="bold", y=0.98)
         plt.tight_layout()
 
@@ -174,15 +174,15 @@ def generar_todas_las_figuras():
                     c=colores_nivel[nivel],
                     s=1.2,
                     alpha=0.7 if nivel in ["ALTO", "EXTREMO"] else 0.35,
-                    label=f"Nivel {nivel} ({df_alerta.filter(pl.col('nivel_alerta') == nivel).height:,} km²)",
+                    label=f"{ {'EXTREMO':'Extreme','ALTO':'High','MODERADO':'Moderate','BAJO':'Low','NULO':'None'}[nivel] } ({df_alerta.filter(pl.col('nivel_alerta') == nivel).height:,} km²)",
                     zorder=2 if nivel in ["ALTO", "EXTREMO"] else 1
                 )
 
-        ax.set_title(f"Mapa Operativo Nacional de Alerta Temprana de Incendios\nFecha: {fecha_alerta} | Resolución: 1 km² (Incendios_PY)",
+        ax.set_title(f"National operational fire alert map\nDate: {fecha_alerta} | Resolution: 1 km² (Incendios_PY)",
                      fontsize=11, fontweight="bold", pad=12)
-        ax.set_xlabel("Longitud (°W)", fontsize=9)
-        ax.set_ylabel("Latitud (°S)", fontsize=9)
-        ax.legend(loc="lower left", fontsize=8.5, frameon=True, title="Nivel de Alerta")
+        ax.set_xlabel("Longitude (°W)", fontsize=9)
+        ax.set_ylabel("Latitude (°S)", fontsize=9)
+        ax.legend(loc="lower left", fontsize=8.5, frameon=True, title="Alert level")
         plt.tight_layout()
 
         fig.savefig(DIR_FIGURAS / "fig03_mapa_riesgo_operativo_nacional.png", dpi=300)
