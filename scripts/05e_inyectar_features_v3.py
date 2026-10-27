@@ -35,14 +35,9 @@ ARCHIVOS = [
     for task in ("ignicion", "propagacion")
 ]
 
-COLS_NUEVAS_COMB = [
-    "pct_pastura_ganadera",
-    "pct_agricultura_anual",
-    "pct_plantacion_forestal",
-    "borde_bosque_agro_pct",
-]
 COLS_NUEVAS_CLIMA = [
     "swvl1_m3m3",
+    "et0_mm",
     "fdd_heladas_60d",
     "deficit_hidro_60d",
 ]
@@ -56,7 +51,7 @@ COLS_DERIVADAS = [
     "riesgo_estero_seco",
     "combustible_curado_helada",
 ]
-COLS_NUEVAS = COLS_NUEVAS_COMB + COLS_NUEVAS_CLIMA + COLS_NUEVAS_DESMONTE
+COLS_NUEVAS = COLS_NUEVAS_CLIMA + COLS_NUEVAS_DESMONTE
 
 
 def _validar_unicas(df: pl.DataFrame, columnas: list[str], nombre: str) -> None:
@@ -91,13 +86,6 @@ def main() -> None:
     ).select(["cell_id", "nodo_clima_id"])
     _validar_unicas(grilla, ["cell_id"], "grilla")
 
-    comb = _leer_requerido(
-        DIR_PROCESSED / "combustible_mapbiomas_1km.parquet",
-        ["cell_id"] + COLS_NUEVAS_COMB,
-        "combustible_mapbiomas_1km.parquet",
-    ).select(["cell_id"] + COLS_NUEVAS_COMB)
-    _validar_unicas(comb, ["cell_id"], "combustible")
-
     clima = _leer_requerido(
         DIR_PROCESSED / "clima_era5_diario.parquet",
         ["nodo_clima_id", "fecha"] + COLS_NUEVAS_CLIMA,
@@ -131,7 +119,6 @@ def main() -> None:
 
         df = (
             df.join(grilla, on="cell_id", how="left")
-            .join(comb, on="cell_id", how="left")
             .join(clima, on=["nodo_clima_id", "fecha"], how="left")
             .join(desmonte, on=["cell_id", "anio"], how="left")
         )

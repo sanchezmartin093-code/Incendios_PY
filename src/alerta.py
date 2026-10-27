@@ -307,18 +307,33 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
     the geographic grid, MapBiomas biomass and daily ERA5 meteorology.
     """
     p_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
-    p_biomasa = DIR_PROCESSED / "combustible_mapbiomas_1km.parquet"
+    p_biomasa_anual = DIR_PROCESSED / "combustible_mapbiomas_1km_anual.parquet"
+    p_biomasa_estatica = DIR_PROCESSED / "combustible_mapbiomas_1km.parquet"
     p_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
 
-    if not p_grilla.exists() or not p_biomasa.exists() or not p_clima.exists():
+    if not p_grilla.exists() or not p_clima.exists():
         raise FileNotFoundError("Archivos base procesados no encontrados en datos/processed/")
 
+    dt = datetime.strptime(fecha, "%Y-%m-%d")
     grilla = pl.read_parquet(p_grilla)
-    biomasa = pl.read_parquet(p_biomasa)
     clima = pl.read_parquet(p_clima).filter(pl.col("fecha") == fecha)
-
     if clima.height == 0:
         raise ValueError(f"No hay registros climáticos para la fecha {fecha} en clima_era5_diario.parquet")
+
+    if p_biomasa_anual.exists():
+        biomasa = pl.read_parquet(p_biomasa_anual).filter(
+            pl.col("anio_fila") == dt.year
+        )
+        if biomasa.height == 0:
+            raise ValueError(f"Sin filas de combustible anual para {dt.year}")
+    elif p_biomasa_estatica.exists():
+        print(
+            "[ADVERTENCIA] No existe combustible anual; se usa el perfil 2023 "
+            "para la alerta. Ejecutá scripts/03a_procesar_combustible_anual.py."
+        )
+        biomasa = pl.read_parquet(p_biomasa_estatica)
+    else:
+        raise FileNotFoundError("No hay perfil de combustible anual ni estático")
 
     # 1. Join grid and biomass by cell_id
     df_nacional = grilla.join(biomasa, on="cell_id", how="left")
@@ -336,7 +351,6 @@ def preparar_datos_diarios(fecha: str) -> pl.DataFrame:
 
     # 2b. Causal recent tree-cover loss (Hansen). The alert uses the Y-1/Y-2
     # values already precomputed by scripts/03b; no same-year loss is used.
-    dt = datetime.strptime(fecha, "%Y-%m-%d")
     p_desmonte = DIR_PROCESSED / "desmonte_hansen_1km.parquet"
     cols_desmonte = ["pct_desmonte_t1", "pct_desmonte_t2", "pct_desmonte_2a"]
     if p_desmonte.exists():

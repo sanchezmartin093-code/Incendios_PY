@@ -34,7 +34,7 @@ def construir_dataset_unificado(
     print("=" * 65)
 
     path_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
-    path_combustible = DIR_PROCESSED / "combustible_mapbiomas_1km.parquet"
+    path_combustible = DIR_PROCESSED / "combustible_mapbiomas_1km_anual.parquet"
     path_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
     path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
 
@@ -46,6 +46,15 @@ def construir_dataset_unificado(
         path_salida = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
 
     con = duckdb.connect()
+    # The annual-fuel join produces a wider 915M-row table than the old static
+    # profile. Keep DuckDB within the 16 GB machine and allow disk spilling.
+    con.execute("SET threads=2")
+    con.execute("SET memory_limit='9GB'")
+    con.execute("SET preserve_insertion_order=false")
+    tmp_dir = DIR_PROCESSED / "duckdb_tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    con.execute(f"SET temp_directory='{tmp_dir}'")
+    con.execute("SET max_temp_directory_size='150GB'")
 
     filtro_gating = ""
     if aplicar_gating:
@@ -53,9 +62,9 @@ def construir_dataset_unificado(
         # Strictly conditions on kinematic viability (fuel present, atmospheric dryness, and absence of recent rainfall)
         filtro_gating = f"""
             WHERE (
-                cli.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA} 
-                AND cli.precipitacion_48h_mm < {UMBRAL_LLUVIA_48H_MM}
-                AND gc.es_combustible = true
+                gcf.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA}
+                AND gcf.precipitacion_48h_mm < {UMBRAL_LLUVIA_48H_MM}
+                AND gcf.es_combustible = true
             )
         """
     else:
@@ -63,9 +72,8 @@ def construir_dataset_unificado(
 
     print("Ejecutando cruce relacional y enriquecimiento de variables...")
     query = f"""
-        CREATE OR REPLACE TABLE dataset_unificado AS
-        WITH grilla_comb AS (
-            SELECT 
+        WITH grilla_clima AS (
+            SELECT
                 g.cell_id,
                 g.nodo_clima_id,
                 g.departamento,
@@ -74,81 +82,87 @@ def construir_dataset_unificado(
                 g.y_utm,
                 g.lon,
                 g.lat,
+                cli.fecha,
+                cli.temp_max_c,
+                cli.temp_min_c,
+                cli.precipitacion_mm,
+                cli.viento_max_kmh,
+                cli.rafaga_max_kmh,
+                cli.et0_mm,
+                cli.vpd_max_kpa,
+                cli.swvl1_m3m3,
+                cli.precipitacion_48h_mm,
+                cli.dias_secos_consecutivos,
+                cli.ffmc,
+                cli.isi,
+                cli.interaccion_viento_vpd,
+                cli.fdd_heladas_60d,
+                cli.deficit_hidro_60d
+            FROM '{path_grilla}' g
+            JOIN '{path_clima}' cli
+                ON g.nodo_clima_id = cli.nodo_clima_id
+        ),
+        grilla_fuel AS (
+            SELECT
+                gc.*,
                 c.pct_pastura,
+                c.pct_pastura_ganadera,
+                c.pct_agricultura_anual,
+                c.pct_plantacion_forestal,
                 c.pct_sabana_pastizal,
                 c.pct_bosque_seco,
                 c.pct_bosque_humedo,
                 c.pct_humedal_palmar,
-                c.es_combustible
-            FROM '{path_grilla}' g
+                c.borde_bosque_agro_pct,
+                c.pct_no_combustible,
+                c.es_combustible,
+                c.anio_fila,
+                c.anio_mapa,
+                c.fuel_lag
+            FROM grilla_clima gc
             JOIN '{path_combustible}' c
-                ON g.cell_id = c.cell_id
+                ON gc.cell_id = c.cell_id
+                AND c.anio_fila = YEAR(CAST(gc.fecha AS DATE))
         )
-        SELECT 
-            gc.cell_id,
-            gc.departamento,
-            gc.region,
-            gc.x_utm,
-            gc.y_utm,
-            gc.lon,
-            gc.lat,
-            gc.pct_pastura,
-            gc.pct_sabana_pastizal,
-            gc.pct_bosque_seco,
-            gc.pct_bosque_humedo,
-            gc.pct_humedal_palmar,
-            cli.fecha,
-            -- Variables temporales y de calendario antrópico (estrictamente alineado con ISO y Python dt.weekday)
-            ISODOW(CAST(cli.fecha AS DATE)) - 1 AS dia_semana, -- 0=Lunes, 1=Martes, ..., 6=Domingo
-            CASE 
-                WHEN (ISODOW(CAST(cli.fecha AS DATE)) - 1) IN (5, 6) THEN 1 
-                ELSE 0 
+        SELECT
+            gcf.*,
+            -- Variables temporales y de calendario antrópico
+            ISODOW(CAST(gcf.fecha AS DATE)) - 1 AS dia_semana,
+            CASE
+                WHEN (ISODOW(CAST(gcf.fecha AS DATE)) - 1) IN (5, 6) THEN 1
+                ELSE 0
             END AS es_fin_de_semana,
-            MONTH(CAST(cli.fecha AS DATE)) AS mes,
-            DAYOFYEAR(CAST(cli.fecha AS DATE)) AS dia_del_anio,
-            -- Variables biofísicas y climáticas
-            cli.temp_max_c,
-            cli.temp_min_c,
-            cli.precipitacion_mm,
-            cli.precipitacion_48h_mm,
-            cli.viento_max_kmh,
-            cli.rafaga_max_kmh,
-            cli.et0_mm,
-            cli.vpd_max_kpa,
-            cli.dias_secos_consecutivos,
-            cli.ffmc,
-            cli.isi,
-            cli.interaccion_viento_vpd,
-            -- Nuevas variables biofísicas de desecación no lineal
-            (cli.temp_max_c - cli.temp_min_c) AS rango_termico_diario,
-            (cli.vpd_max_kpa * (cli.dias_secos_consecutivos + 1.0)) AS deficit_hidrico_acumulado,
-            POW(cli.viento_max_kmh / 10.0, 2) AS potencial_viento_cuadratico,
+            MONTH(CAST(gcf.fecha AS DATE)) AS mes,
+            DAYOFYEAR(CAST(gcf.fecha AS DATE)) AS dia_del_anio,
+            (gcf.temp_max_c - gcf.temp_min_c) AS rango_termico_diario,
+            (gcf.vpd_max_kpa * (gcf.dias_secos_consecutivos + 1.0)) AS deficit_hidrico_acumulado,
+            POW(gcf.viento_max_kmh / 10.0, 2) AS potencial_viento_cuadratico,
             -- Etiquetas de fuego
             COALESCE(f.fuego, 0) AS fuego,
             COALESCE(f.num_focos_dia, 0) AS num_focos_dia,
             COALESCE(f.max_frp_dia, 0.0) AS max_frp_dia,
             COALESCE(f.sum_frp_dia, 0.0) AS sum_frp_dia,
-            CASE 
-                WHEN f.fuego = 1 AND f.max_frp_dia >= 10.0 THEN 1 
-                ELSE 0 
+            CASE
+                WHEN f.fuego = 1 AND f.max_frp_dia >= 10.0 THEN 1
+                ELSE 0
             END AS fuego_severo
-        FROM grilla_comb gc
-        JOIN '{path_clima}' cli
-            ON gc.nodo_clima_id = cli.nodo_clima_id
+        FROM grilla_fuel gcf
         LEFT JOIN '{path_focos}' f
-            ON gc.cell_id = f.cell_id AND cli.fecha = f.acq_date
+            ON gcf.cell_id = f.cell_id AND gcf.fecha = f.acq_date
         {filtro_gating}
     """
 
-    con.execute(query)
-
-    # 1. Export to Parquet ZSTD
+    # 1. Export directly from the query to Parquet. This avoids materializing
+    # the 915M-row intermediate table in RAM.
     print(f"Exportando matriz integrada a: {path_salida.name}...")
-    con.execute(f"COPY dataset_unificado TO '{path_salida}' (FORMAT PARQUET, COMPRESSION ZSTD)")
+    con.execute(
+        f"COPY ({query}) TO '{path_salida}' "
+        "(FORMAT PARQUET, COMPRESSION ZSTD)"
+    )
 
     # 2. Metrics and descriptive statistics
-    stats = con.execute("""
-        SELECT 
+    stats = con.execute(f"""
+        SELECT
             COUNT(*) as total_filas,
             SUM(fuego) as total_fuegos,
             SUM(fuego_severo) as total_fuegos_severos,
@@ -157,7 +171,7 @@ def construir_dataset_unificado(
             AVG(temp_max_c) as t_max_media,
             AVG(vpd_max_kpa) as vpd_medio,
             AVG(ffmc) as ffmc_medio
-        FROM dataset_unificado
+        FROM read_parquet('{path_salida}')
     """).df()
 
     print("\n✓ Ensamble completado con éxito:")

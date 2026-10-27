@@ -21,18 +21,21 @@ Propagation is evaluated only in the `t-1` fire domain.
 
 ## Status
 
-- Data: `dataset_unificado` v2, 915,562,849 candidate cell-days, 867,354 fire
-  cell-days, 397,336 cells.
+- Data: `dataset_unificado` annual-fuel build, 915,561,114 candidate cell-days,
+  867,430 fire cell-days, 397,448 cells.
 - VIIRS: 892,533 fire cell-days after the corrected `low`/`l` confidence filter.
 - Climate: ERA5-Land CDS 3-hourly; 0-7 cm soil moisture from CDS and a
-  potential-evaporation ET0 proxy; antecedent frost/water-deficit features.
-- Fuel: MapBiomas Collection 2 (2023), split into pasture, annual agriculture,
-  forest plantation, savanna, woodlands and flooded grassland; forest-agriculture edge.
+  Hargreaves-Samani reference-ET0 approximation; antecedent frost/water-deficit
+  features.
+- Fuel: MapBiomas Collection 2 annual maps 2017-2023, joined to each row with
+  the prior-year map (`Y-1`); 2025 reuses 2023 (`fuel_lag=2`). Pasture, annual
+  agriculture, forest plantation, savanna, woodlands, flooded grassland and
+  forest-agriculture edge are separated.
 - Loss: Hansen GFC-2025-v1.13 annual tree-cover loss at `t-1` and `t-2`.
 - Targets: population-based D2 sampling at 1:10 per task and region.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M1 fallback; propagation restricted to the `t-1` domain.
-- Tests: **65 pass + 1 conditional skip** (v3 contract).
+- Tests: **66 pass** (v3 contract).
 - Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0).
 
 ## Installation
@@ -74,12 +77,13 @@ python scripts/00_generar_grilla_nacional.py
 python scripts/01b_descargar_firms_api.py
 python scripts/01_descargar_firms.py
 python scripts/02b_descargar_era5_cds.py --workers 2
-python scripts/02f_completar_clima_cds.py        # short CDS path: swvl1 + potential evaporation
+python scripts/02f_completar_clima_cds.py        # short CDS path: swvl1 + Hargreaves ET0
 # if annual CDS jobs are too heavy: python scripts/02f_completar_clima_cds.py --trimestre
 # 02c is optional and requires Open-Meteo quota; not needed for the short CDS path
 python scripts/02d_calcular_fwi_completo.py
 python scripts/02e_calcular_inpe.py
 python scripts/03_procesar_combustible.py
+python scripts/03a_procesar_combustible_anual.py  # prior-year fuel (2017-2023 maps)
 python scripts/03b_descargar_desmonte_hansen.py   # Hansen GFC 2025 v1.13
 python scripts/04_construir_dataset.py
 
@@ -116,12 +120,12 @@ python scripts/15_generar_figura_arquitectura_impacto.py
 
 | Region | Model | ROC-AUC | PR-AUC | Case-control F0.5 precision |
 |---|---|---:|---:|---:|
-| Chaco | M3 hybrid ignition | 0.7851 | 0.2410 | 27.54 % |
-| Chaco | M2 ignition baseline | 0.7733 | 0.2148 | 23.10 % |
-| Chaco | Tactical propagation | 0.8989 | 0.6831 | 84.94 % |
-| Oriental | M3 hybrid ignition | 0.7485 | 0.2318 | 29.67 % |
-| Oriental | M2 ignition baseline | 0.7324 | 0.2036 | 24.49 % |
-| Oriental | Tactical propagation | 0.7799 | 0.3651 | 62.42 % |
+| Chaco | M3 hybrid ignition | 0.8021 | 0.2843 | 33.97 % |
+| Chaco | M2 ignition baseline | 0.7945 | 0.2677 | 32.18 % |
+| Chaco | Tactical propagation | 0.9032 | 0.6910 | 85.11 % |
+| Oriental | M3 hybrid ignition | 0.7533 | 0.2338 | 29.15 % |
+| Oriental | M2 ignition baseline | 0.7369 | 0.2102 | 26.95 % |
+| Oriental | Tactical propagation | 0.7842 | 0.3710 | 63.25 % |
 
 The case-control test set has a 1:10 sampling ratio (approximately 9.09 % prevalence).
 These are **not** operational population-level precision values.
@@ -130,12 +134,12 @@ These are **not** operational population-level precision values.
 
 | Region | Model | Precision | Recall | ROC-AUC | PR-AUC |
 |---|---|---:|---:|---:|---:|
-| Chaco | M3 ignition | 0.062 % | 27.56 % | 0.7884 | 0.0007 |
-| Chaco | M2 ignition | 0.048 % | 38.07 % | 0.7771 | 0.0005 |
-| Chaco | Propagation | 9.96 % | 48.91 % | 0.9050 | 0.1120 |
-| Oriental | M3 ignition | 0.206 % | 22.78 % | 0.7618 | 0.0017 |
-| Oriental | M2 ignition | 0.169 % | 24.55 % | 0.7507 | 0.0014 |
-| Oriental | Propagation | 4.49 % | 19.61 % | 0.7913 | 0.0280 |
+| Chaco | M3 ignition | 0.086 % | 24.93 % | 0.8060 | 0.0011 |
+| Chaco | M2 ignition | 0.086 % | 25.70 % | 0.8021 | 0.0007 |
+| Chaco | Propagation | 10.24 % | 48.77 % | 0.9089 | 0.1218 |
+| Oriental | M3 ignition | 0.191 % | 23.15 % | 0.7632 | 0.0019 |
+| Oriental | M2 ignition | 0.167 % | 18.83 % | 0.7479 | 0.0014 |
+| Oriental | Propagation | 4.54 % | 19.22 % | 0.7938 | 0.0277 |
 
 The population prevalence is approximately 0.015–0.041 % for ignition and
 0.155–0.210 % for propagation. The population-level ignition precision is low; the
@@ -147,9 +151,9 @@ system is a nowcast and prioritisation tool, not a stand-alone early-warning sys
 - INPE Risco de Fogo: 0.5386/0.4994.
 - Grouped-by-date paired bootstrap: all main comparisons against FWI/INPE have
   `p ≤ 0.001` (`B = 1,000`).
-- Spatial block holdout (50 km blocks, 20 km buffer): M1 0.6338/0.6176,
-  M3 0.6243/0.5754. M3 should not be presented as a spatial extrapolation model.
-- Weather at `t-1`: M3 0.7841/0.7465; M1 0.6222/0.6340.
+- Spatial block holdout (50 km blocks, 20 km buffer): M1 0.6544/0.6875,
+  M3 0.6725/0.7010. M3 should not be presented as a spatial extrapolation model.
+- Weather at `t-1`: M3 0.8014/0.7516; M1 0.6358/0.6794.
 - Full pipeline: 1.569 s and 2,182.1 MB peak RAM on ARM64.
 - Conformal empirical coverage: 89.85 %/90.19 % for nominal 90 %; 95.02 %/94.56 %
   for nominal 95 %, without a formal guarantee under temporal shift.
@@ -209,13 +213,10 @@ licenses and terms.
 
 1. ERA5-Land is used on a 0.25° node grid; 3-hourly data may miss intra-day VPD and
    wind peaks.
-2. MapBiomas fuel is a static 2023 layer; no annual land-cover series is used.
-   The v3 feature contract (pasture/agriculture/plantation split, edge fraction,
-   soil moisture, frost/deficit and Hansen loss) is implemented, but the annual
-   prior-year MapBiomas rebuild remains the next methodological step to remove
-   future fuel information from the 2018-2022 training rows.
-   ``et0_mm`` in the short CDS path is ``potential_evaporation``, not FAO-56
-   reference ET0; it is an explicit proxy and models must be retrained.
+2. MapBiomas Collection 2 ends in 2023. Rows from 2024 use the 2023 map (lag 1),
+   and 2025 uses 2023 (lag 2). Collection 3 is not integrated yet.
+   ``et0_mm`` in the short CDS path is Hargreaves-Samani, not FAO-56 reference
+   ET0; it is an explicit approximation.
 3. D2 is a task-specific target definition; it is not a universal ignition model.
 4. M3 loses spatial generalisation in unseen blocks; M1 is more robust but also limited.
 5. The operational alert still requires institutional validation and a day-ahead
