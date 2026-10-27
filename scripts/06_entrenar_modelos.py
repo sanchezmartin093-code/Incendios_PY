@@ -1,15 +1,15 @@
 """
-Script 06: Entrenamiento y Calibración Monótona de Platt de Modelos Regionales (LightGBM).
-- Entrena 2 modelos especializados independientes: Modelo Chaco vs. Modelo Región Oriental.
-- Ajuste de hiperparámetros con Early Stopping en validación.
-- Calibración monótona de Platt de probabilidades P(Y=1) ∈ [0.0, 1.0].
-- Serialización interoperable en modelos/*.booster (C++) y modelos/calibradores/*.joblib.
+Script 06: Training and Monotonic Platt Calibration of Regional Models (LightGBM).
+- Trains 2 independent specialized models: Chaco Model vs. Oriental Region Model.
+- Hyperparameter tuning with Early Stopping on validation.
+- Monotonic Platt calibration of probabilities P(Y=1) ∈ [0.0, 1.0].
+- Interoperable serialization in modelos/*.booster (C++) and modelos/calibradores/*.joblib.
 """
 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -77,7 +77,7 @@ def entrenar_pipeline():
         for region in regiones:
             print(f"\n--- ENTRENANDO MODELO: {region.upper()} [{modo_clave.upper()}] ---")
 
-            # 1. Preparar matrices X e y
+            # 1. Prepare X and y matrices
             X_train, y_train, feats = preparar_matrices_xy(df_train, region, modo=modo_clave)
             X_val, y_val, _ = preparar_matrices_xy(df_val, region, modo=modo_clave)
 
@@ -91,7 +91,7 @@ def entrenar_pipeline():
                 print(f"Aviso: Sin datos positivos suficientes para entrenar {region}.")
                 continue
 
-            # 2. Entrenar LightGBM con hiperparámetros optimizados por ecorregión
+            # 2. Train LightGBM with hyperparameters optimized per ecoregion
             print(" • Ajustando árboles de gradiente...")
             lr = 0.03
             leaves = 15
@@ -115,11 +115,11 @@ def entrenar_pipeline():
             )
             print(f"   ✓ Iteraciones completadas: {booster.current_iteration()}")
 
-            # 3. Calibración Probabilística de Platt Monótona
+            # 3. Monotonic Platt Probabilistic Calibration
             print(" • Ajustando calibrador sigmoide de Platt (monótono)...")
             calibrador = calibrar_probabilidades_isotonica(booster, X_val, y_val, metodo="platt_monotono")
 
-            # 4. Inferencia y Evaluación en Validación
+            # 4. Inference and Evaluation on Validation
             probs_val = predecir_probabilidad(booster, calibrador, X_val)
             
             auc_val = float(roc_auc_score(y_val, probs_val)) if n_pos_val > 0 else 0.0
@@ -136,14 +136,14 @@ def entrenar_pipeline():
             print(f"   - Umbral Youden (J):  {c_youden:.3f} (J={max_j:.3f})")
             print(f"   - Umbral F0.5 (Prec): {c_f05:.3f} (F0.5={max_f:.3f})")
 
-            # 5. Serializar
+            # 5. Serialize
             nombre_lower = region.lower()
             ruta_b_especifica = DIR_MODELOS / f"lightgbm_{modo_clave}_{nombre_lower}.booster"
             ruta_c_especifica = dir_calibradores / f"calibrador_{modo_clave}_{nombre_lower}.joblib"
             guardar_modelo_y_calibrador(booster, calibrador, ruta_b_especifica, ruta_c_especifica)
             print(f"   ✓ Guardado: {ruta_b_especifica.name}")
 
-            # Guardar metadatos de calibración y umbrales óptimos derivados estrictamente en validación (Anti-Leakage)
+            # Save calibration metadata and optimal thresholds derived strictly on validation (Anti-Leakage)
             meta_umbrales = {
                 "region": region,
                 "modo": modo_clave,
@@ -158,7 +158,7 @@ def entrenar_pipeline():
             import json
             ruta_meta.write_text(json.dumps(meta_umbrales, indent=2), encoding="utf-8")
 
-            # Si es ignicion, también guardar bajo el nombre estándar
+            # If ignicion, also save under the standard name
             if modo_clave == "ignicion":
                 ruta_b_std = DIR_MODELOS / f"lightgbm_{nombre_lower}.booster"
                 ruta_c_std = dir_calibradores / f"calibrador_{nombre_lower}.joblib"

@@ -1,11 +1,11 @@
 """
-Test unitario para el módulo src/espaciotemporal.py.
-Verifica:
-1. Cálculo del índice de ecotono bosque-pastura.
-2. Extracción de coordenadas UTM desde cell_id.
-3. Variables de contagio causal en t-1 (distancia, conteo, FRP).
-4. Prior de propensión espacial histórico.
-5. Enriquecimiento integral de datasets.
+Unit test for the src/espaciotemporal.py module.
+Verifies:
+1. Calculation of the forest-pasture ecotone index.
+2. Extraction of UTM coordinates from cell_id.
+3. Causal contagion variables at t-1 (distance, count, FRP).
+4. Historical spatial propensity prior.
+5. Comprehensive enrichment of datasets.
 """
 
 import unittest
@@ -42,7 +42,7 @@ class TestEspaciotemporal(unittest.TestCase):
 
     def test_calcular_indice_ecotono(self):
         s_ecotono = calcular_indice_ecotono(self.df_sample)
-        # Chaco: 4 * 0.5 * 0.5 = 1.0 (máxima fragmentación)
+        # Chaco: 4 * 0.5 * 0.5 = 1.0 (maximum fragmentation)
         self.assertAlmostEqual(s_ecotono[0], 1.0, places=4)
         # Oriental: 4 * 0.8 * 0.2 = 0.64
         self.assertAlmostEqual(s_ecotono[1], 0.64, places=4)
@@ -58,7 +58,7 @@ class TestEspaciotemporal(unittest.TestCase):
         self.assertIn("focos_25km_t1", df_enr.columns)
         self.assertIn("frp_25km_t1", df_enr.columns)
 
-        # La celda 0 coincide exactamente con el foco de ayer (distancia 0 km)
+        # Cell 0 exactly matches yesterday's hotspot (distance 0 km)
         self.assertAlmostEqual(df_enr["dist_foco_t1_km"][0], 0.0, places=2)
         self.assertEqual(df_enr["focos_25km_t1"][0], 1.0)
         self.assertAlmostEqual(df_enr["frp_25km_t1"][0], 15.5, places=2)
@@ -95,8 +95,8 @@ class TestEspaciotemporal(unittest.TestCase):
             "pct_sabana_pastizal": [0.0, 0.0],
             "pct_humedal_palmar": [0.0, 0.0],
         })
-        # Celda 0: sólo fuego del mismo mes/día (debe excluirse).
-        # Celda 1: fuego de agosto (antes del corte mensual de octubre).
+        # Cell 0: only fire from the same month/day (must be excluded).
+        # Cell 1: fire from August (before the October monthly cutoff).
         focos = pl.DataFrame({
             "cell_id": [1160007419, 5840007451],
             "acq_date": ["2026-10-18", "2026-08-01"],

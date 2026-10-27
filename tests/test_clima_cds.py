@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para la agregación diaria de precipitación ERA5-Land.
+Unit tests for the daily aggregation of ERA5-Land precipitation.
 """
 
 import unittest

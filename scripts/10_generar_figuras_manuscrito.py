@@ -1,16 +1,16 @@
 """
-Script 10: Generador de Figuras Científicas de Alta Resolución para el Manuscrito Quarto.
-- Genera:
-  * fig01_macro_regiones_cobertura: Mapa nacional con división regional Chaco/Oriental y departamentos.
-  * fig02_curvas_roc_pr_test: Curvas ROC y Precision-Recall con umbrales operativos (0.50 vs Youden vs F0.5).
-  * fig03_mapa_riesgo_operativo_nacional: Mapa nacional de alerta operativa diaria 1 km² con niveles de riesgo.
-- Salidas en formatos PNG (300 DPI) y PDF vectorial en la carpeta figuras/.
+Script 10: High-Resolution Scientific Figure Generator for the Quarto Manuscript.
+- Generates:
+  * fig01_macro_regiones_cobertura: National map with Chaco/Oriental regional division and departments.
+  * fig02_curvas_roc_pr_test: ROC and Precision-Recall curves with operational thresholds (0.50 vs Youden vs F0.5).
+  * fig03_mapa_riesgo_operativo_nacional: National daily operational alert map at 1 km² with risk levels.
+- Outputs in PNG (300 DPI) and vector PDF formats in the figuras/ folder.
 """
 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -41,18 +41,18 @@ def generar_todas_las_figuras():
     )
 
     # -------------------------------------------------------------
-    # FIGURA 1: Mapa de Macro-Regiones y Cobertura Territorial
+    # FIGURE 1: Macro-Region and Territorial Coverage Map
     # -------------------------------------------------------------
     print("\n--- Generando Figura 01: Macro-Regiones y Departamentos ---")
     fig, ax = plt.subplots(figsize=(9, 10), dpi=300)
 
-    # Colores por región
+    # Colors by region
     colores_reg = {"Chaco": "#e67e22", "Oriental": "#27ae60"}
     gdf_deptos["color"] = gdf_deptos["region"].map(colores_reg)
 
     gdf_deptos.plot(ax=ax, color=gdf_deptos["color"], edgecolor="black", linewidth=0.8, alpha=0.6)
 
-    # Etiquetas departamentales
+    # Departmental labels
     for _, row in gdf_deptos.iterrows():
         centroid = row.geometry.centroid
         ax.annotate(row["departamento"], xy=(centroid.x, centroid.y),
@@ -75,7 +75,7 @@ def generar_todas_las_figuras():
     print(" ✓ Fig 01 guardada en PNG y PDF.")
 
     # -------------------------------------------------------------
-    # FIGURA 2: Curvas ROC y Precision-Recall (Test Ciego 2024–2025)
+    # FIGURE 2: ROC and Precision-Recall Curves (Blind Test 2024–2025)
     # -------------------------------------------------------------
     print("\n--- Generando Figura 02: Curvas ROC y PR en Test 2024–2025 (Dual) ---")
     p_ign = DIR_PROCESSED / "evaluacion_test_ignicion.parquet"
@@ -98,12 +98,12 @@ def generar_todas_las_figuras():
             y_prob = sub[col_prob].to_numpy()
 
             if len(np.unique(y_true)) > 1:
-                # Curva ROC
+                # ROC curve
                 fpr, tpr, _ = roc_curve(y_true, y_prob)
                 roc_score = auc(fpr, tpr)
                 ax1.plot(fpr, tpr, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (AUC = {roc_score:.3f})")
 
-                # Curva Precision-Recall
+                # Precision-Recall curve
                 prec, rec, _ = precision_recall_curve(y_true, y_prob)
                 pr_score = average_precision_score(y_true, y_prob)
                 ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (PR-AUC = {pr_score:.3f})")
@@ -129,7 +129,7 @@ def generar_todas_las_figuras():
         print(" ✓ Fig 02 guardada en PNG y PDF con 4 curvas.")
 
     # -------------------------------------------------------------
-    # FIGURA 3: Mapa Operativo Nacional de Riesgo de Incendios
+    # FIGURE 3: National Operational Fire Risk Map
     # -------------------------------------------------------------
     print("\n--- Generando Figura 03: Mapa Operativo Nacional de Riesgo ---")
     dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
@@ -147,13 +147,13 @@ def generar_todas_las_figuras():
     if p_alerta.exists():
         df_alerta = pl.read_parquet(p_alerta)
 
-        # Muestreo representativo de celdas para renderizado rápido cartográfico (1 de cada 3 celdas)
+        # Representative sampling of cells for fast cartographic rendering (1 out of every 3 cells)
         df_plot = df_alerta.gather_every(3)
 
         fig, ax = plt.subplots(figsize=(9, 10), dpi=300)
         gdf_deptos.boundary.plot(ax=ax, color="#7f8c8d", linewidth=0.7, zorder=3)
 
-        # Colorear puntos según nivel de riesgo
+        # Color points according to risk level
         colores_nivel = {
             "EXTREMO": "#962d2d",
             "ALTO": "#e74c3c",
@@ -162,7 +162,7 @@ def generar_todas_las_figuras():
             "NULO": "#ecf0f1"
         }
 
-        # Plottear por capas para que los niveles de mayor riesgo se vean encima
+        # Plot by layers so that higher risk levels appear on top
         for nivel in ["BAJO", "MODERADO", "ALTO", "EXTREMO"]:
             sub_n = df_plot.filter(pl.col("nivel_alerta") == nivel)
             if sub_n.height > 0:

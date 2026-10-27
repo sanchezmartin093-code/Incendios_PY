@@ -1,12 +1,13 @@
 """
-Script 02c: Corrige la precipitación diaria y completa ráfagas/ET0 usando
-Open-Meteo Historical Archive en UTC.
+Script 02c: Corrects daily precipitation and completes gusts/ET0 using
+Open-Meteo Historical Archive in UTC.
 
-Motivo: la versión CDS anterior tomaba el máximo de acumulados 3-hourly de
-`tp`, lo que producía valores imposibles (>1.000 mm/día) y truncaba las
-últimas horas del día. Este script conserva temperatura/VPD/viento del archivo
-CDS y sustituye precipitación, ráfaga y ET0 por series diarias de Open-Meteo.
-Luego recalcula 48 h, CDD, FFMC, ISI e interacción viento-VPD.
+Reason: the previous CDS version took the maximum of 3-hourly `tp` accumulations,
+which produced impossible values (>1 000 mm/day) and truncated the
+last hours of the day. This script keeps temperature/VPD/wind from the CDS
+file and replaces precipitation, gust, ET0 and 0-7 cm soil moisture with
+Open-Meteo daily series. Then it recalculates 48 h, CDD, FFMC, ISI, the
+wind-VPD interaction, frost severity and the 60-day water deficit.
 """
 
 from pathlib import Path
@@ -79,20 +80,33 @@ def main():
     ])
 
     base = pl.read_parquet(p_clima)
+    if "swvl1_m3m3" not in base.columns:
+        print(
+            "[ADVERTENCIA] clima_era5_diario.parquet no tiene swvl1_m3m3. "
+            "Regenerá 02b con volumetric_soil_water_layer_1; mientras tanto "
+            "se usará el balance simple como fallback."
+        )
+    else:
+        nulos_base_swvl1 = int(base["swvl1_m3m3"].null_count())
+        if nulos_base_swvl1:
+            print(f"[ADVERTENCIA] {nulos_base_swvl1:,} filas CDS sin swvl1_m3m3.")
     merged = base.join(nuevas, on=["nodo_clima_id", "fecha"], how="left")
     faltantes = int(merged["precipitacion_mm_om"].is_null().sum())
     if faltantes:
         print(f"[ADVERTENCIA] {faltantes:,} filas sin dato Open-Meteo; se usa el valor CDS previo.")
 
+    columnas_drop = [
+        "precipitacion_mm_om", "rafaga_max_kmh_om", "et0_mm_om",
+        "precipitacion_48h_mm", "dias_secos_consecutivos",
+        "ffmc", "isi", "interaccion_viento_vpd",
+        "fdd_heladas_60d", "deficit_hidro_60d",
+    ]
+
     merged = merged.with_columns([
         pl.coalesce([pl.col("precipitacion_mm_om"), pl.col("precipitacion_mm")]).alias("precipitacion_mm"),
         pl.coalesce([pl.col("rafaga_max_kmh_om"), pl.col("rafaga_max_kmh")]).alias("rafaga_max_kmh"),
         pl.coalesce([pl.col("et0_mm_om"), pl.col("et0_mm")]).alias("et0_mm"),
-    ]).drop([
-        "precipitacion_mm_om", "rafaga_max_kmh_om", "et0_mm_om",
-        "precipitacion_48h_mm", "dias_secos_consecutivos",
-        "ffmc", "isi", "interaccion_viento_vpd",
-    ])
+    ]).drop([c for c in columnas_drop if c in merged.columns])
 
     procesado = calcular_indices_fwi_y_sequedad(merged)
 
@@ -108,6 +122,10 @@ def main():
         "filas": procesado.height,
         "precipitacion_max_mm": float(procesado["precipitacion_mm"].max()),
         "precipitacion_48h_max_mm": float(procesado["precipitacion_48h_mm"].max()),
+        "swvl1_fuente": "Copernicus CDS ERA5-Land volumetric_soil_water_layer_1 (0-7 cm daily mean); fallback balance simple",
+        "swvl1_nulos": int(procesado["swvl1_m3m3"].null_count()),
+        "swvl1_min": float(procesado["swvl1_m3m3"].min()),
+        "swvl1_max": float(procesado["swvl1_m3m3"].max()),
     }
     (DIR_PROCESSED / "clima_era5_diario.meta.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"

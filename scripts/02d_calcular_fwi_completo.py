@@ -1,9 +1,9 @@
 """
-Script 02d: FWI canadiense completo a partir de ERA5-Land 3-hourly.
+Script 02d: Full Canadian FWI from ERA5-Land 3-hourly.
 
-Extrae temperatura, punto de rocío y viento a las 15 UTC (mediodía local
-aproximado), usa la lluvia diaria de clima_era5_diario y calcula
-FFMC, DMC, DC, BUI, ISI y FWI por nodo-día.
+Extracts temperature, dew point and wind at 15 UTC (approximate local
+noon), uses the daily rainfall from clima_era5_diario and computes
+FFMC, DMC, DC, BUI, ISI and FWI per node-day.
 """
 
 from pathlib import Path

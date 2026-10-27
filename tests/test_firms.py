@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para el módulo firms.py (filtrado de calidad y agregación espacial O(1)).
+Unit tests for the firms.py module (quality filtering and O(1) spatial aggregation).
 """
 
 import unittest
@@ -25,7 +25,7 @@ class TestFIRMS(unittest.TestCase):
         })
 
     def test_filtro_bow_tie_y_confianza(self):
-        # Puntos de prueba sintéticos
+        # Synthetic test points
         df_dummy = pd.DataFrame({
             "latitude": [-25.28, -25.29, -20.0, -25.28, -25.28],
             "longitude": [-57.63, -57.62, -58.0, -57.63, -57.63],

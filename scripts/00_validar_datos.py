@@ -1,9 +1,9 @@
 """
-Script 00b: Validación de integridad y calidad de los datos procesados.
+Script 00b: Validation of integrity and quality of the processed data.
 
-No entrena ni modifica nada. Genera un informe de invariantes que la suite de
-tests unitarios no cubre: prevalencia real, fuga de priors, rangos físicos de
-clima, cobertura de la grilla, tipos de FIRMS y estado del manifiesto.
+Does not train or modify anything. Generates a report of invariants that the
+unit test suite does not cover: actual prevalence, prior leakage, physical
+climate ranges, grid coverage, FIRMS types and manifest status.
 """
 
 from pathlib import Path
@@ -37,7 +37,7 @@ def add(seccion: str, chequeo: str, valor, estado: str, nota: str = ""):
 def main():
     con = duckdb.connect()
 
-    # 1. Grilla
+    # 1. Grid
     p_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
     if p_grilla.exists():
         df = pl.read_parquet(p_grilla)
@@ -49,7 +49,7 @@ def main():
     else:
         add("grilla", "archivo", "ausente", "FAIL")
 
-    # 2. Clima
+    # 2. Climate
     p_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
     if p_clima.exists():
         clima = pl.read_parquet(p_clima)
@@ -63,13 +63,68 @@ def main():
         add("clima", "precipitacion_max_mm", round(float(clima["precipitacion_mm"].max()), 3),
             "WARN" if float(clima["precipitacion_mm"].max()) > 500 else "OK",
             "pendiente ejecutar scripts/02c_corregir_clima_openmeteo.py cuando haya cuota externa")
-        add("clima", "et0_distinto_de_cero", int((clima["et0_mm"] != 0).sum()), "WARN")
+        n_et0 = int((clima["et0_mm"] != 0).sum())
+        add("clima", "et0_distinto_de_cero", n_et0, "OK" if n_et0 > 0 else "WARN",
+            "0 indica que 02f/02c no se ejecutó")
         diff_rafaga = float((clima["rafaga_max_kmh"] - 1.3 * clima["viento_max_kmh"]).abs().max())
         add("clima", "rafaga_es_proxy_1.3x", round(diff_rafaga, 6), "WARN" if diff_rafaga < 1e-3 else "OK")
+        for col, minimo, maximo in [
+            ("swvl1_m3m3", 0.0, 0.65),
+            ("fdd_heladas_60d", 0.0, 1_000.0),
+            ("deficit_hidro_60d", -10_000.0, 10_000.0),
+        ]:
+            if col not in clima.columns:
+                add("clima", f"{col}_presente", 0, "WARN",
+                    "regenerar 02c con la versión v3 del parser")
+                continue
+            nulos = int(clima[col].null_count())
+            add("clima", f"{col}_nulos", nulos, "WARN" if nulos else "OK")
+            if col == "swvl1_m3m3":
+                valores = clima[col].drop_nulls()
+                add("clima", f"{col}_min", round(float(valores.min()), 4), "OK")
+                add("clima", f"{col}_max", round(float(valores.max()), 4),
+                    "OK" if float(valores.max()) <= maximo else "WARN")
+            else:
+                add("clima", f"{col}_min", round(float(clima[col].min()), 3), "OK" if float(clima[col].min()) >= minimo else "WARN")
+                add("clima", f"{col}_max", round(float(clima[col].max()), 3), "OK" if float(clima[col].max()) <= maximo else "WARN")
     else:
         add("clima", "archivo", "ausente", "FAIL")
 
-    # 3. Focos FIRMS
+    # 2b. Fuel and annual desmonte
+    p_comb = DIR_PROCESSED / "combustible_mapbiomas_1km.parquet"
+    if p_comb.exists():
+        comb = pl.read_parquet(p_comb)
+        for col in ["pct_pastura_ganadera", "pct_agricultura_anual", "pct_plantacion_forestal", "borde_bosque_agro_pct"]:
+            add("combustible", f"{col}_presente", int(col in comb.columns), "OK" if col in comb.columns else "FAIL")
+        if {"pct_pastura", "pct_pastura_ganadera", "pct_agricultura_anual", "pct_plantacion_forestal"}.issubset(comb.columns):
+            error = float(
+                (comb["pct_pastura"] - (
+                    comb["pct_pastura_ganadera"]
+                    + comb["pct_agricultura_anual"]
+                    + comb["pct_plantacion_forestal"]
+                )).abs().max()
+            )
+            add("combustible", "suma_componentes_max_error", round(error, 6),
+                "OK" if error < 1e-3 else "FAIL")
+        if "borde_bosque_agro_pct" in comb.columns:
+            add("combustible", "borde_max", round(float(comb["borde_bosque_agro_pct"].max()), 3),
+                "OK" if float(comb["borde_bosque_agro_pct"].max()) <= 100.0 else "FAIL")
+    else:
+        add("combustible", "archivo", "ausente", "FAIL")
+
+    p_desm = DIR_PROCESSED / "desmonte_hansen_1km.parquet"
+    if p_desm.exists():
+        desm = pl.read_parquet(p_desm)
+        add("desmonte", "filas", desm.height, "OK")
+        add("desmonte", "anios", f"{desm['anio'].min()}-{desm['anio'].max()}", "OK")
+        add("desmonte", "pct_t1_max", round(float(desm["pct_desmonte_t1"].max()), 3),
+            "OK" if float(desm["pct_desmonte_t1"].max()) <= 100.0 else "FAIL")
+        add("desmonte", "nulos_t1", int(desm["pct_desmonte_t1"].null_count()),
+            "WARN" if int(desm["pct_desmonte_t1"].null_count()) else "OK")
+    else:
+        add("desmonte", "archivo", "ausente", "WARN")
+
+    # 3. FIRMS hotspots
     p_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
     if p_focos.exists():
         focos = pl.read_parquet(p_focos)
@@ -88,7 +143,7 @@ def main():
     else:
         add("firms_raw", "archivo", "ausente", "WARN")
 
-    # 4. Dataset unificado: prevalencia real
+    # 4. Unified dataset: actual prevalence
     p_ds = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
     if p_ds.exists():
         stats = con.sql(f"""
@@ -104,7 +159,7 @@ def main():
     else:
         add("dataset", "archivo", "ausente", "FAIL")
 
-    # 5. Particiones y fuga de priors
+    # 5. Partitions and prior leakage
     dir_targets = DIR_PROCESSED / "targets_poblacionales"
     for nombre in ["train_ignicion", "val_ignicion", "test_ignicion"]:
         p = dir_targets / f"{nombre}.parquet"
@@ -115,6 +170,17 @@ def main():
             "region", "target_ignicion", "fecha", "cell_id",
             "dist_foco_hist_km", "freq_hist_1km", "dist_corredor_antropico_km",
         ]
+        schema = pl.scan_parquet(p).collect_schema().names()
+        requeridas_v3 = [
+            "swvl1_m3m3", "fdd_heladas_60d", "deficit_hidro_60d",
+            "pct_pastura_ganadera", "pct_agricultura_anual",
+            "pct_plantacion_forestal", "borde_bosque_agro_pct",
+            "pct_desmonte_t1", "pct_desmonte_t2", "pct_desmonte_2a",
+        ]
+        faltantes_v3 = [c for c in requeridas_v3 if c not in schema]
+        add("particiones", f"{nombre}_features_v3_faltantes", len(faltantes_v3),
+            "OK" if not faltantes_v3 else "WARN",
+            ", ".join(faltantes_v3) if faltantes_v3 else "contrato v3 completo")
         df = pl.read_parquet(p, columns=cols)
         prev = float(df["target_ignicion"].mean())
         add("particiones", f"{nombre}_filas", df.height, "OK")
@@ -129,7 +195,7 @@ def main():
                     "FAIL" if pct_cero > 99.9 else "OK",
                     "100% indicaría fuga del propio evento")
 
-    # 6. Fuga espacial train/test
+    # 6. Spatial train/test leakage
     p_tr = dir_targets / "train_ignicion.parquet"
     p_te = dir_targets / "test_ignicion.parquet"
     if p_tr.exists() and p_te.exists():
@@ -142,14 +208,14 @@ def main():
             "WARN",
             "el test es temporal; un holdout espacial requiere bloques/regiones")
 
-    # 7. Modelos
+    # 7. Models
     for f in ["lightgbm_hibrido_chaco.booster", "lightgbm_hibrido_oriental.booster",
               "lightgbm_propagacion_chaco.booster", "lightgbm_propagacion_oriental.booster"]:
         ruta = DIR_MODELOS / f
         add("modelos", f, "presente" if ruta.exists() else "ausente",
             "OK" if ruta.exists() else "WARN")
 
-    # 8. Manifiesto
+    # 8. Manifest
     p_man = ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v2.csv"
     if p_man.exists():
         man = pd.read_csv(p_man)

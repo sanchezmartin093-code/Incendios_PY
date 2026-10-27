@@ -1,9 +1,9 @@
 """
-Script 02b: Ingesta meteorológica masiva ERA5-Land (2018–2025) desde Copernicus CDS.
-- Descarga archivos NetCDF anuales para la cuadrícula de Paraguay desde ECMWF CDS.
-- Extrae y procesa los 640 nodos meteorológicos en formato matricial xarray/Polars.
-- Calcula índices biofísicos de fuego: VPD diario (Tetens), CDD, lluvia 48h, FFMC, ISI.
-- Exporta en formato columnar ZSTD: datos/processed/clima_era5_diario.parquet.
+Script 02b: Massive ERA5-Land meteorological ingestion (2018–2025) from Copernicus CDS.
+- Downloads yearly NetCDF files for the Paraguay grid from ECMWF CDS.
+- Extracts and processes the 640 weather nodes in xarray/Polars matrix format.
+- Computes biophysical fire indices: daily VPD (Tetens), CDD, 48h rainfall, FFMC, ISI.
+- Exports in ZSTD columnar format: datos/processed/clima_era5_diario.parquet.
 """
 
 from pathlib import Path
@@ -11,7 +11,7 @@ import sys
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -37,7 +37,7 @@ def procesar_un_trimestre(
     print(f"\n--- PROCESANDO: AÑO {anio} - TRIMESTRE Q{q} ---")
     client = cdsapi.Client()
     try:
-        ruta_nc = descargar_trimestre_cds(client, anio, q, dir_cds_raw)
+        ruta_nc = descargar_trimestre_cds(client, anio, q, dir_cds_raw, forzar=forzar)
         df_q = procesar_nc_a_nodos_diarios(ruta_nc, df_nodos_filtrados)
         print(f"   ✓ {len(df_q):,} registros diarios procesados para {anio} Q{q}.")
         df_q.write_parquet(archivo_parquet_q, compression="zstd")
@@ -60,8 +60,8 @@ def ejecutar_pipeline_cds(anios: list[int], max_workers: int = 2, forzar: bool =
     df_grilla = pl.read_parquet(path_grilla)
     df_nodos = generar_malla_nodos_clima(resolucion_deg=0.25)
     df_grilla = asignar_nodos_a_grilla(df_grilla, df_nodos)
-    # Persistir la asignación para que scripts posteriores (04) puedan hacer
-    # el join por nodo_clima_id aunque no se haya ejecutado el script 02.
+    # Persist the assignment so later scripts (04) can perform
+    # the join by nodo_clima_id even if script 02 has not been run.
     df_grilla.write_parquet(path_grilla, compression="zstd")
 
     nodos_activos = df_grilla["nodo_clima_id"].unique().to_list()

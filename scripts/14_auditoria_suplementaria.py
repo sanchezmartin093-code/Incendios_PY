@@ -1,12 +1,12 @@
 """
-Script 14: Auditoría Suplementaria y Generación de Tablas S3 y S4 (Reproducibilidad C&G).
-- Evalúa el desglose territorial departamental sobre el conjunto de test ciego.
-- Ejecuta el análisis de sensibilidad empírico de radios de buffer espacial (10 km, 20 km, 30 km).
-- Mide el perfil de latencia y memoria RAM en hardware Apple Silicon ARM64.
-- Exporta:
-  * tablas/tablaS3_desglose_departamental.csv y .md
-  * tablas/tablaS3_sensibilidad_buffer.csv y .md
-  * tablas/tablaS4_perfil_computacional.csv y .md
+Script 14: Supplementary Audit and Generation of Tables S3 and S4 (C&G Reproducibility).
+- Evaluates the departmental territorial breakdown on the blind test set.
+- Runs the empirical sensitivity analysis of spatial buffer radii (10 km, 20 km, 30 km).
+- Measures the latency and RAM profile on Apple Silicon ARM64 hardware.
+- Exports:
+  * tablas/tablaS3_desglose_departamental.csv and .md
+  * tablas/tablaS3_sensibilidad_buffer.csv and .md
+  * tablas/tablaS4_perfil_computacional.csv and .md
 """
 
 from pathlib import Path
@@ -14,7 +14,7 @@ import sys
 import time
 import os
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -59,17 +59,17 @@ def auditar_tablas_suplementarias():
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
 
     # -------------------------------------------------------------
-    # 1. TABLA S3: Desglose Departamental
+    # 1. TABLE S3: Departmental Breakdown
     # -------------------------------------------------------------
     print("\n1. Computando desglose departamental (Tabla S3)...")
     
-    # Censo total de celdas por departamento en la grilla soberana
+    # Total census of cells per department in the sovereign grid
     censo_deptos = df_grilla.group_by(["departamento", "region"]).agg([
         pl.len().alias("celdas_soberanas")
     ]).sort(["region", "celdas_soberanas"], descending=[True, True])
 
     filas_depto = []
-    # Umbrales F0.5 de propagación derivados en validación (leer metadatos reales).
+    # Propagation F0.5 thresholds derived on validation (read actual metadata).
     import json
     meta_prop_c = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_chaco.json").read_text())
     meta_prop_o = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_oriental.json").read_text())
@@ -123,9 +123,9 @@ def auditar_tablas_suplementarias():
     print(f"   ✓ Guardado en {p_csv_s3.name} y {p_md_s3.name}")
 
     # -------------------------------------------------------------
-    # 2. ESTRATIFICACIÓN POR DISTANCIA AL FOCO t-1
-    #    (no es una sensibilidad al buffer de muestreo: eso requiere
-    #     remuestrear y reentrenar; se deja como análisis pendiente)
+    # 2. STRATIFICATION BY DISTANCE TO THE t-1 HOTSPOT
+    #    (this is not a sensitivity analysis of the sampling buffer: that requires
+    #     resampling and retraining; it is left as pending work)
     # -------------------------------------------------------------
     print("\n2. Computando estratificación por distancia al foco t-1...")
     condiciones = {
@@ -167,11 +167,11 @@ def auditar_tablas_suplementarias():
     print(f"   ✓ Guardado en {p_csv_sens.name}")
 
     # -------------------------------------------------------------
-    # 3. TABLA S4: Perfil Computacional Real
+    # 3. TABLE S4: Actual Computational Profile
     # -------------------------------------------------------------
     print("\n3. Midiendo perfil computacional y latencia del pipeline real...")
 
-    # Usar un día de alta actividad; si no existe, el último disponible.
+    # Use a high-activity day; if none exists, use the latest available one.
     df_fechas = pl.read_parquet(
         DIR_PROCESSED / "clima_era5_diario.parquet", columns=["fecha"]
     )
@@ -193,7 +193,7 @@ def auditar_tablas_suplementarias():
 
     lat_tot = t_ingesta + t_inferencia + t_boletin
     peak_raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    # macOS devuelve bytes; Linux devuelve kilobytes.
+    # macOS returns bytes; Linux returns kilobytes.
     peak_mb = peak_raw / (1024 * 1024) if sys.platform == "darwin" else peak_raw / 1024
 
     perfil_datos = [
@@ -239,7 +239,7 @@ def auditar_tablas_suplementarias():
     print(f"   ✓ Guardado en {p_csv_s4.name} y {p_md_s4.name}")
 
     # -------------------------------------------------------------
-    # 4. TABLA S5: Predicción Conforme (Split Conformal Prediction)
+    # 4. TABLE S5: Conformal Prediction (Split Conformal Prediction)
     # -------------------------------------------------------------
     print("\n4. Evaluando cuantificación de incertidumbre conforme (Split Conformal Prediction)...")
     p_val = DIR_PROCESSED / "targets_poblacionales" / "val_ignicion.parquet"
@@ -254,8 +254,8 @@ def auditar_tablas_suplementarias():
         for reg, feats in [("Chaco", FEATURES_HIBRIDO_CHACO), ("Oriental", FEATURES_HIBRIDO_ORIENTAL)]:
             sub_val = df_val.filter(pl.col("region") == reg).sort("fecha")
 
-            # Separar calibración (60% cronológico) y conformal (40% restante).
-            # El calibrador Platt y q_hat NO se estiman sobre los mismos datos.
+            # Split calibration (first 60% chronologically) and conformal (remaining 40%).
+            # The Platt calibrator and q_hat are NOT estimated on the same data.
             fechas = sorted(sub_val["fecha"].unique().to_list())
             n_cal = max(1, int(len(fechas) * 0.60))
             fechas_cal = set(fechas[:n_cal])

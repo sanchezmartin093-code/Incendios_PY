@@ -1,16 +1,16 @@
 """
-Script 11: Exportador de Alertas a Ráster GeoTIFF Estándar (EPSG:32721).
-- Convierte la capa tabular de alerta diaria Parquet en un GeoTIFF multi-banda listo para QGIS/ArcGIS.
-- Banda 1: Probabilidad continua P(Fuego|X) ∈ [0.0, 1.0].
-- Banda 2: Categoría de riesgo operativo (0 a 4).
-- Ubicación de salida: datos/outputs/raster_riesgo_diario/alerta_nacional_{fecha}.tif
+Script 11: Alert Exporter to Standard GeoTIFF Raster (EPSG:32721).
+- Converts the daily alert tabular Parquet layer into a multi-band GeoTIFF ready for QGIS/ArcGIS.
+- Band 1: Continuous probability P(Fire|X) ∈ [0.0, 1.0].
+- Band 2: Operational risk category (0 to 4).
+- Output location: datos/outputs/raster_riesgo_diario/alerta_nacional_{fecha}.tif
 """
 
 from pathlib import Path
 import sys
 import argparse
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))

@@ -1,5 +1,5 @@
 """
-Módulo cost_loss.py: análisis cost-loss para decisiones operativas.
+cost_loss.py module: cost-loss analysis for operational decisions.
 """
 
 import numpy as np
@@ -11,7 +11,7 @@ def valor_cost_loss(
     weights: np.ndarray,
     alpha: float,
 ) -> dict[str, float]:
-    """Valor relativo V(alpha) usando probabilidades y pesos poblacionales."""
+    """Relative value V(alpha) using probabilities and population weights."""
     y = np.asarray(y_true, dtype=int).ravel()
     p = np.asarray(y_prob, dtype=float).ravel()
     w = np.asarray(weights, dtype=float).ravel()

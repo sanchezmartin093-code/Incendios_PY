@@ -8,7 +8,7 @@ from src.raster import exportar_alerta_a_geotiff
 
 class TestRasterExport(unittest.TestCase):
     def test_exportar_geotiff_valido(self):
-        """Verifica que el archivo GeoTIFF exportado tenga el CRS correcto, 2 bandas y metadatos."""
+        """Verifies that the exported GeoTIFF file has the correct CRS, 2 bands and metadata."""
         dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
         archivos = sorted(list(dir_raster.glob("alerta_nacional_*.parquet")))
         if not archivos:
@@ -25,15 +25,15 @@ class TestRasterExport(unittest.TestCase):
                 self.assertEqual(src.crs.to_string(), CRS_PROYECTADO)
                 self.assertEqual(src.count, 2)
                 self.assertEqual(src.res, (1000.0, 1000.0))
-                # Leer banda 1 (probabilidad)
+                # Read band 1 (probability)
                 b1 = src.read(1)
                 self.assertEqual(b1.shape, (918, 860))
-                # Valores válidos deben estar en [0, 1] o ser nodata (-9999)
+                # Valid values must be in [0, 1] or be nodata (-9999)
                 validos = b1[b1 != -9999.0]
                 self.assertGreater(len(validos), 10000)
                 self.assertTrue(np.all((validos >= 0.0) & (validos <= 1.0)))
 
-                # Metadatos
+                # Metadata
                 tags = src.tags()
                 self.assertIn("SISTEMA", tags)
                 self.assertEqual(tags["SISTEMA"], "SAT-Incendios PY")

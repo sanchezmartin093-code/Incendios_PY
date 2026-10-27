@@ -1,14 +1,14 @@
 """
-Script 05d: muestreo poblacional D2 desde dataset_unificado v2.
+Script 05d: population sampling D2 from dataset_unificado v2.
 
-Genera un plan de muestreo por fecha/región:
-- Ignición: positivos fuera del buffer t-1 y sin fuego reciente en la celda;
-  negativos gated fuera del buffer t-1.
-- Propagación: positivos dentro del buffer t-1; negativos gated dentro del
-  buffer t-1.
+Generates a sampling plan by date/region:
+- Ignition: positives outside the t-1 buffer and without recent fire in the cell;
+  gated negatives outside the t-1 buffer.
+- Propagation: positives inside the t-1 buffer; gated negatives inside the
+  t-1 buffer.
 
-Luego recupera las features desde el dataset v2, enriquece y escribe
-train/val/test por target con ratio 1:10.
+Then retrieves the features from the v2 dataset, enriches them and writes
+train/val/test per target with a 1:10 ratio.
 """
 
 from pathlib import Path

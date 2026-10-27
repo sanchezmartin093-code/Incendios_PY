@@ -1,11 +1,11 @@
 """
-Script 01b: Ingesta masiva automatizada de focos NASA FIRMS (VIIRS 375m) 2018–2025.
-- Utiliza la NASA FIRMS Area API oficial con la MAP_KEY autenticada.
-- Descarga en paralelo por ventanas de 5 días para Suomi-NPP y NOAA-20.
-- Checkpointing en disco por mes en datos/raw/firms/batches/.
-- Aplica filtros de teledetección: Bow-Tie (scan <= 1.5 km), exclusión de confianza low.
-- Spatial Join determinista O(1) con la grilla nacional de 400.006 celdas.
-- Genera el dataset maestro en datos/processed/focos_viirs_diarios.parquet.
+Script 01b: Automated massive ingestion of NASA FIRMS hotspots (VIIRS 375m) 2018–2025.
+- Uses the official NASA FIRMS Area API with the authenticated MAP_KEY.
+- Downloads in parallel in 5-day windows for Suomi-NPP and NOAA-20.
+- On-disk checkpointing per month in datos/raw/firms/batches/.
+- Applies remote sensing filters: Bow-Tie (scan <= 1.5 km), exclusion of low confidence.
+- Deterministic O(1) spatial join with the national grid of 400 006 cells.
+- Generates the master dataset in datos/processed/focos_viirs_diarios.parquet.
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ import requests
 import pandas as pd
 import polars as pl
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -27,7 +27,7 @@ if str(ROOT_DIR) not in sys.path:
 from src.constantes import DIR_RAW, DIR_PROCESSED, BBOX_PARAGUAY
 from src.firms import procesar_focos_firms_a_grilla, agregar_focos_diarios
 
-# Obtener clave de API desde variable de entorno de forma segura
+# Obtain the API key from the environment variable securely
 MAP_KEY_DEFAULT = os.environ.get("FIRMS_MAP_KEY", "")
 BBOX_STR = f"{BBOX_PARAGUAY['min_lon']},{BBOX_PARAGUAY['min_lat']},{BBOX_PARAGUAY['max_lon']},{BBOX_PARAGUAY['max_lat']}"
 
@@ -39,7 +39,7 @@ def _descargar_intervalo(
     max_retries: int = 3
 ) -> pd.DataFrame:
     """
-    Descarga un rango de 5 días de focos activos para Paraguay desde NASA FIRMS API.
+    Downloads a 5-day range of active hotspots for Paraguay from the NASA FIRMS API.
     """
     url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{map_key}/{source}/{BBOX_STR}/{dias_rango}/{fecha_str}"
     
@@ -69,7 +69,7 @@ def descargar_mes_satelital(
     cache_dir: Path
 ) -> pd.DataFrame:
     """
-    Descarga y consolida un mes completo para una fuente satelital dada con checkpointing.
+    Downloads and consolidates a full month for a given satellite source with checkpointing.
     """
     archivo_cache = cache_dir / f"focos_{source}_{anio}_{mes:02d}.parquet"
     if archivo_cache.exists():
@@ -78,14 +78,14 @@ def descargar_mes_satelital(
         except Exception:
             archivo_cache.unlink(missing_ok=True)
 
-    # Generar ventanas de 5 días para el mes
+    # Generate 5-day windows for the month
     inicio_mes = datetime(anio, mes, 1)
     if mes == 12:
         fin_mes = datetime(anio + 1, 1, 1) - timedelta(days=1)
     else:
         fin_mes = datetime(anio, mes + 1, 1) - timedelta(days=1)
 
-    # Si es fecha futura respecto a hoy, truncar
+    # If the date is in the future relative to today, truncate
     hoy = datetime.now()
     if inicio_mes > hoy:
         return pd.DataFrame()
@@ -106,11 +106,11 @@ def descargar_mes_satelital(
 
     if dfs_intervalos:
         df_mes = pd.concat(dfs_intervalos, ignore_index=True)
-        # Deduplicar si se solaparon días
+        # Deduplicate if days overlapped
         cols_dedup = [c for c in ["latitude", "longitude", "acq_date", "acq_time"] if c in df_mes.columns]
         if cols_dedup:
             df_mes = df_mes.drop_duplicates(subset=cols_dedup)
-        # Guardar checkpoint
+        # Save checkpoint
         df_mes.to_parquet(archivo_cache, index=False)
         return df_mes
 
@@ -137,15 +137,15 @@ def ejecutar_descarga_masiva_firms(
     dir_cache = DIR_RAW / "firms" / "batches"
     dir_cache.mkdir(parents=True, exist_ok=True)
 
-    # Definir fuentes satelitales según el período histórico vs NRT
-    # Suomi-NPP: Standard Processing (SP) hasta mediados 2026, NRT después
-    # NOAA-20: SP desde 2018-04, NRT después
+    # Define satellite sources according to the historical vs NRT period
+    # Suomi-NPP: Standard Processing (SP) until mid-2026, NRT afterward
+    # NOAA-20: SP since 2018-04, NRT afterward
     tareas = []
     for anio in range(start_year, end_year + 1):
         for mes in range(1, 13):
             # Suomi-NPP
             tareas.append((map_key, "VIIRS_SNPP_SP", anio, mes, dir_cache))
-            # NOAA-20 (operativo desde abril de 2018)
+            # NOAA-20 (operational since April 2018)
             if not (anio == 2018 and mes < 4):
                 tareas.append((map_key, "VIIRS_NOAA20_SP", anio, mes, dir_cache))
 

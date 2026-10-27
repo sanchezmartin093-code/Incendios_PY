@@ -1,8 +1,8 @@
 """
-Módulo inpe.py: implementación del Risco de Fogo do INPE (Setzer et al., 2019).
+Module inpe.py: implementation of the INPE Risco de Fogo (Setzer et al., 2019).
 
-Se implementa la versión pública 11 sin la corrección por focos de los últimos
-3 días, para evitar fuga de etiquetas en el benchmark de ignición.
+The public version 11 is implemented without the correction for hotspots from the last
+3 days, to avoid label leakage in the ignition benchmark.
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ import polars as pl
 
 
 def pse_desde_lluvia_diaria(precip_mm: np.ndarray, ventana_max: int = 120) -> np.ndarray:
-    """Calcula los Días de Secura (PSE) para una serie diaria de lluvia."""
+    """Computes the Dry Days (PSE) for a daily rainfall series."""
     p = np.asarray(precip_mm, dtype=float)
     n = len(p)
     cs = np.concatenate([[0.0], np.nancumsum(p)])
@@ -40,7 +40,7 @@ def pse_desde_lluvia_diaria(precip_mm: np.ndarray, ventana_max: int = 120) -> np
 
 
 def riesgo_basico(pse: float, constante_a: float) -> float:
-    """Riesgo de Fogo Básico senoidal (0 a 0,8)."""
+    """Sinusoidal Basic Fire Risk (0 to 0.8)."""
     x = (float(constante_a) * float(pse) / 120.0) * (np.pi / 2.0) - (np.pi / 2.0)
     return float(0.8 * (1.0 + np.sin(x)) / 2.0)
 
@@ -52,7 +52,7 @@ def constante_a_desde_fracciones(
     pct_bosque_humedo: float,
     pct_palmar: float,
 ) -> float:
-    """Constante A de INPE ponderada por las fracciones de combustible."""
+    """INPE Constant A weighted by fuel fractions."""
     pesos = {
         "pastura": (float(pct_pastura), 6.0),
         "sabana": (float(pct_sabana), 3.0),
@@ -74,7 +74,7 @@ def riesgo_inpe(
     latitud: float,
     elevacion_m: float = 0.0,
 ) -> float:
-    """Riesgo de Fogo observado INPE, sin corrección por focos."""
+    """Observed INPE Fire Risk, without hotspot correction."""
     rb = riesgo_basico(pse, constante_a)
     fur = (-0.006 * float(rh_min_pct)) + 1.3
     ft = (0.02 * float(temp_max_c)) + 0.4

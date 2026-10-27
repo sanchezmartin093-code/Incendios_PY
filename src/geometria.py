@@ -1,18 +1,18 @@
 """
-Módulo geometria.py: Generación determinística de la grilla nacional de 1 km² y manipulación espacial O(1).
-Filosofía SOTA:
-- Indexación espacial entera O(1) basada en coordenadas métricas UTM 21S (EPSG:32721).
-- Representación columnar compatible con Apache Arrow / GeoParquet.
-- Zero-overhead: Evita la computación innecesaria de polígonos vectoriales para operaciones tabulares masivas.
+geometria.py module: Deterministic generation of the national 1 km² grid and O(1) spatial manipulation.
+SOTA philosophy:
+- Integer O(1) spatial indexing based on UTM 21S metric coordinates (EPSG:32721).
+- Columnar representation compatible with Apache Arrow / GeoParquet.
+- Zero-overhead: Avoids unnecessary computation of vector polygons for massive tabular operations.
 """
 
 import numpy as np
 
 def coordenadas_a_cell_id(x_utm: float | np.ndarray, y_utm: float | np.ndarray, res_m: int = 1000) -> int | np.ndarray:
     """
-    Transforma coordenadas proyectadas UTM en un identificador entero único y determinístico O(1).
+    Transforms projected UTM coordinates into a unique, deterministic integer identifier in O(1).
     cell_id = (x // res_m) * 10_000_000 + (y // res_m)
-    Permite joins y lookups espaciales instantáneos a nivel de CPU sin árboles R-Tree pesados.
+    Enables instant spatial joins and lookups at the CPU level without heavy R-Tree structures.
     """
     col = np.int64(np.floor(x_utm / res_m))
     row = np.int64(np.floor(y_utm / res_m))
@@ -20,7 +20,7 @@ def coordenadas_a_cell_id(x_utm: float | np.ndarray, y_utm: float | np.ndarray, 
 
 def cell_id_a_coordenadas_centro(cell_id: int | np.ndarray, res_m: int = 1000) -> tuple[float | np.ndarray, float | np.ndarray]:
     """
-    Decodifica el cell_id para obtener el centroide exacto (X, Y) de la celda en UTM 21S en O(1).
+    Decodes the cell_id to obtain the exact centroid (X, Y) of the cell in UTM 21S in O(1).
     """
     col = cell_id // 10_000_000
     row = cell_id % 10_000_000
@@ -30,8 +30,8 @@ def cell_id_a_coordenadas_centro(cell_id: int | np.ndarray, res_m: int = 1000) -
 
 def generar_vecindad_3x3(cell_id: int, res_m: int = 1000) -> list[int]:
     """
-    Calcula los 8 cell_ids vecinos inmediatos (ventana 3x3) de forma puramente aritmética en tiempo O(1).
-    No requiere consultas geométricas GIS.
+    Computes the 8 immediate neighboring cell_ids (3x3 window) purely arithmetically in O(1) time.
+    Does not require GIS geometric queries.
     """
     col = cell_id // 10_000_000
     row = cell_id % 10_000_000

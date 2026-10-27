@@ -1,5 +1,5 @@
 """
-Script 23: benchmark computacional de lookup O(1), spatial join y pipeline.
+Script 23: computational benchmark of O(1) lookup, spatial join and pipeline.
 """
 
 from pathlib import Path

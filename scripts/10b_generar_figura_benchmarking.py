@@ -1,5 +1,5 @@
 """
-Genera la figura 05 de benchmarking D2: curvas ROC y PR por target.
+Generates figure 05 of D2 benchmarking: ROC and PR curves per target.
 """
 
 from pathlib import Path

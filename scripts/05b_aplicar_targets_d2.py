@@ -1,7 +1,7 @@
 """
-Script 05b: aplica las etiquetas D2 (ignición primaria y propagación) a las
-particiones existentes. No remuestrea; sólo añade target_ignicion y
-target_propagacion. Guarda una copia previa en datos/processed/legacy_v1/.
+Script 05b: applies the D2 labels (primary ignition and propagation) to the
+existing partitions. Does not resample; only adds target_ignicion and
+target_propagacion. Saves a prior copy in datos/processed/legacy_v1/.
 """
 
 from pathlib import Path

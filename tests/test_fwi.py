@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para fórmulas físicas de VPD y componentes del Canadian FWI.
+Unit tests for VPD physical formulas and Canadian FWI components.
 """
 
 import unittest
@@ -14,11 +14,11 @@ from src.fwi import (
 
 class TestFWI(unittest.TestCase):
     def test_vpd_condiciones_extremas(self):
-        # Aire saturado (T = Td) -> VPD = 0
+        # Saturated air (T = Td) -> VPD = 0
         vpd_saturado = calcular_vpd(25.0, 25.0)
         self.assertAlmostEqual(float(vpd_saturado), 0.0, places=4)
 
-        # Chaco en ola de calor extrema (T = 42°C, Td = 12°C) -> VPD > 5 kPa
+        # Chaco during an extreme heat wave (T = 42°C, Td = 12°C) -> VPD > 5 kPa
         vpd_chaco = calcular_vpd(42.0, 12.0)
         self.assertGreater(float(vpd_chaco), 5.0)
 

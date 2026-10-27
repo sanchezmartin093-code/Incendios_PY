@@ -1,5 +1,5 @@
 """
-Script 22: análisis cost-loss/utilidad operativa D2.
+Script 22: D2 cost-loss/operational utility analysis.
 """
 
 from pathlib import Path

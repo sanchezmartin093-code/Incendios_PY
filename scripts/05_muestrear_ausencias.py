@@ -1,15 +1,15 @@
 """
-Script 05: Muestreo de Pseudo-Ausencias con Dead-Zone Buffer (20 km) y Partición Anti-Leakage.
-- Aplica el Dead-Zone Buffer de 20 km para anular la autocorrelación espacial entre presencias y ausencias.
-- Muestrea una relación controlada 1:10 estratificada por fecha y ecorregión (Chaco vs. Oriental).
-- Genera las particiones temporales estrictas out-of-time: Train, Val y Test.
-- Serializa: train_dataset.parquet, val_dataset.parquet y test_dataset.parquet.
+Script 05: Pseudo-Absence Sampling with a 20 km Dead-Zone Buffer and Anti-Leakage Partitioning.
+- Applies a 20 km Dead-Zone Buffer to cancel spatial autocorrelation between presences and absences.
+- Samples a controlled 1:10 ratio stratified by date and ecoregion (Chaco vs. Oriental).
+- Generates strict out-of-time temporal splits: Train, Val, and Test.
+- Serializes: train_dataset.parquet, val_dataset.parquet, and test_dataset.parquet.
 """
 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -35,7 +35,7 @@ def main():
     if not path_dataset.exists():
         raise FileNotFoundError(f"Dataset unificado no encontrado en {path_dataset}. Ejecuta scripts/04_construir_dataset.py primero.")
 
-    # 1. Ejecutar muestreo estratificado escalable mes a mes con Dead-Zone Buffer
+    # 1. Run scalable month-by-month stratified sampling with the Dead-Zone Buffer
     print(f"\nAplicando Dead-Zone Spatial Buffer de {BUFFER_ZONA_MUERTA_KM} km y ratio 1:{RATIO_AUSENCIAS_PRESENCIAS}...")
     df_balanceado = muestrear_dataset_unificado_por_meses(
         path_dataset,
@@ -51,15 +51,15 @@ def main():
     print(f" • Pseudo-ausencias seguras (Y=0): {n_neg:,}")
     print(f" • Tasa de prevalencia efectiva:   {100.0 * n_pos / len(df_balanceado):.2f}% (Ratio 1:{n_neg // max(1, n_pos)})")
 
-    # 2. Partición temporal out-of-time
+    # 2. Out-of-time temporal split
     print("\nGenerando partición temporal out-of-time (Anti-Data-Leakage)...")
     df_train, df_val, df_test = particionar_dataset_out_of_time(df_balanceado)
 
-    # 3. Enriquecimiento espaciotemporal causal:
-    #    - Contagio t-1 (sólo fuegos de ayer)
-    #    - Priors históricos con corte mensual: sólo fuegos anteriores al
-    #      primer día del mes de cada fila. Nunca se incluye el evento actual
-    #      ni fuegos futuros.
+    # 3. Causal spatiotemporal enrichment:
+    #    - t-1 contagion (only yesterday's fires)
+    #    - Historical priors with a monthly cutoff: only fires prior to the
+    #      first day of the month of each row. The current event is never
+    #      included, nor are future fires.
     print("\nAplicando ingeniería de características espaciotemporales (Ecotono, Contagio t-1 y Priors causales)...")
     path_focos = DIR_PROCESSED / "focos_viirs_diarios.parquet"
     if not path_focos.exists():

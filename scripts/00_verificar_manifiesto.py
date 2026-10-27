@@ -1,6 +1,6 @@
 """
-Script 00c: Verifica que los artefactos declarados en un manifiesto CSV existan
-y que su hash SHA-256 coincida. Falla si hay archivos ausentes o hashes alterados.
+Script 00c: Verifies that the artifacts declared in a CSV manifest exist
+and that their SHA-256 hash matches. Fails if there are missing files or altered hashes.
 """
 
 from pathlib import Path

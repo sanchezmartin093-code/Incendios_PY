@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para el remuestreo 1:N por target.
+Unit tests for 1:N resampling by target.
 """
 
 import unittest

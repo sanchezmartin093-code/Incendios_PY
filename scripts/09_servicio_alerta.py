@@ -1,12 +1,12 @@
 """
-Script 09: Servicio Operativo Diario de Alerta Temprana de Incendios Forestales.
-- Ejecuta la inferencia biofísica y discriminante sobre las 400.006 celdas de 1 km² de Paraguay.
-- Aplica el Two-Stage Bio-physical Gating y la calibración monótona de Platt.
-- Genera:
-  * Capa Parquet georreferenciada: datos/outputs/raster_riesgo_diario/alerta_nacional_{fecha}.parquet
-  * Boletín técnico de alerta (Markdown): datos/outputs/boletin_alerta_{fecha}.md
-  * Payload de despacho (JSON): datos/outputs/boletin_alerta_{fecha}.json
-- Imprime resumen ejecutivo en consola.
+Script 09: Daily Operational Early Warning Service for Forest Fires.
+- Runs the biophysical and discriminant inference over the 400 006 1 km² cells of Paraguay.
+- Applies the Two-Stage Bio-physical Gating and the monotonic Platt calibration.
+- Generates:
+  * Georeferenced Parquet layer: datos/outputs/raster_riesgo_diario/alerta_nacional_{fecha}.parquet
+  * Technical alert bulletin (Markdown): datos/outputs/boletin_alerta_{fecha}.md
+  * Dispatch payload (JSON): datos/outputs/boletin_alerta_{fecha}.json
+- Prints an executive summary to the console.
 """
 
 from pathlib import Path
@@ -15,7 +15,7 @@ import argparse
 import json
 import time
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -35,7 +35,7 @@ def ejecutar_servicio_alerta(fecha: str | None = None):
     print("SISTEMA DE ALERTA TEMPRANA DE INCENDIOS FORESTALES (SAT-INCENDIOS PY)")
     print("=" * 70)
 
-    # Determinar fecha objetivo
+    # Determine target date
     if fecha is None:
         p_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
         if not p_clima.exists():
@@ -64,14 +64,14 @@ def ejecutar_servicio_alerta(fecha: str | None = None):
     print("\n4. Generando boletín y analítica departamental...")
     resumen, boletin_md = generar_boletin_operativo(df_evaluado, fecha)
 
-    # 5. Exportar resultados
+    # 5. Export results
     dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
     dir_raster.mkdir(parents=True, exist_ok=True)
     p_parquet = dir_raster / f"alerta_nacional_{fecha}.parquet"
     p_md = DIR_OUTPUTS / f"boletin_alerta_{fecha}.md"
     p_json = DIR_OUTPUTS / f"boletin_alerta_{fecha}.json"
 
-    # Seleccionar columnas clave para la capa geoespacial de salida
+    # Select key columns for the output geospatial layer
     columnas_export = [
         "cell_id", "x_utm", "y_utm", "lon", "lat", "departamento", "region",
         "probabilidad_fuego", "probabilidad_cruda", "probabilidad_ignicion",

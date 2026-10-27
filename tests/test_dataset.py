@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para el ensamble del dataset unificado y el Gating de Etapa 1.
+Unit tests for unified dataset assembly and Stage 1 Gating.
 """
 
 import unittest
@@ -20,7 +20,7 @@ class TestDatasetUnificado(unittest.TestCase):
         if not (DIR_PROCESSED / "grilla_nacional_1km.parquet").exists():
             self.skipTest("Insumos de datos procesados no disponibles en entorno CI")
         con = duckdb.connect()
-        # Verificar que podamos hacer un join de 1 fila sin errores de tipos
+        # Verify that we can perform a 1-row join without type errors
         test_query = """
             SELECT 
                 g.cell_id, c.pct_pastura, cli.temp_max_c

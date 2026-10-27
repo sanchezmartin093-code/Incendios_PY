@@ -1,11 +1,11 @@
 """
-Módulo modelo.py: Entrenamiento, calibración monótona (Platt) y serialización C++ de modelos LightGBM.
-Filosofía SOTA:
-- Modelado regional estratificado: Modelo Chaco vs. Modelo Región Oriental.
-- Algoritmo Histogram-based Gradient Boosting con soporte nativo de valores faltantes y regularización L1/L2.
-- Manejo de desbalance mediante penalización de pesos positivos (scale_pos_weight).
-- Calibración monótona de Platt (sigmoide acotada, objetivo Brier) para probabilidades P(Fuego) ∈ [0.0, 1.0].
-- Serialización interoperable en formato nativo C++ Booster (.booster) y Joblib.
+Module modelo.py: Training, monotonic calibration (Platt) and C++ serialization of LightGBM models.
+SOTA philosophy:
+- Stratified regional modeling: Chaco Model vs. Oriental Region Model.
+- Histogram-based Gradient Boosting algorithm with native support for missing values and L1/L2 regularization.
+- Handling imbalance through positive weight penalization (scale_pos_weight).
+- Monotonic Platt calibration (bounded sigmoid, Brier objective) for probabilities P(Fire) ∈ [0.0, 1.0].
+- Interoperable serialization in native C++ Booster format (.booster) and Joblib.
 """
 
 from pathlib import Path
@@ -18,9 +18,9 @@ import joblib
 
 class CalibradorPlattMonotono:
     """
-    Calibrador de Platt Monótono No-Decreciente (Monotonic Platt Scaling).
-    Ajusta una transformación sigmoide P = 1 / (1 + exp(-(w*z + b))) sobre logits z,
-    garantizando que w >= 0.1 para que el ranking del ensamble (ROC-AUC) se preserve estrictamente.
+    Non-Decreasing Monotonic Platt Calibrator (Monotonic Platt Scaling).
+    Fits a sigmoid transformation P = 1 / (1 + exp(-(w*z + b))) over logits z,
+    guaranteeing that w >= 0.1 so that the ensemble ranking (ROC-AUC) is strictly preserved.
     """
     def __init__(self):
         self.w = 1.0
@@ -56,25 +56,30 @@ class CalibradorPlattMonotono:
         return self.predict(p_raw)
 
 # =====================================================================
-# LISTAS CANÓNICAS DE VARIABLES PREDICTORAS (ARQUITECTURA DUAL)
+# CANONICAL LISTS OF PREDICTOR VARIABLES (DUAL ARCHITECTURE)
 # =====================================================================
 
 
-# 0. Variables del modelo biofísico puro M1 (sin priors de fuego ni calendario humano)
+# 0. Variables of the pure biophysical model M1 (without fire priors or human calendar)
 FEATURES_M1_BIOFISICO_BASE = [
     "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
     "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
     "dias_secos_consecutivos", "viento_max_kmh", "potencial_viento_cuadratico",
-    "interaccion_viento_vpd", "ffmc", "isi", "pct_pastura",
+    "interaccion_viento_vpd", "ffmc", "isi",
+    "swvl1_m3m3", "fdd_heladas_60d", "deficit_hidro_60d",
+    "riesgo_estero_seco", "combustible_curado_helada",
+    "pct_pastura_ganadera", "pct_agricultura_anual", "pct_plantacion_forestal",
     "pct_sabana_pastizal", "pct_humedal_palmar",
 ]
 FEATURES_M1_CHACO = FEATURES_M1_BIOFISICO_BASE + ["pct_bosque_seco"]
 FEATURES_M1_ORIENTAL = FEATURES_M1_BIOFISICO_BASE + ["pct_bosque_humedo"]
 
-# 1. Variables de Peligro de Ignición Primaria (Física pura, clima, biomasa y ecotono)
-# Sin atajos espaciales de fuego previo t-1 ni memoria de corto plazo
+# 1. Primary Ignition Hazard Variables (physics, climate, biomass and ecotone)
+# `pct_pastura` is intentionally NOT a feature: it is exactly the sum of the
+# pasture/agriculture/plantation components. Keeping it would duplicate them and
+# would allow the model to bypass the monotonic constraints on the components.
 FEATURES_IGNICION_BASE = [
-    # Clima dinámico y desecación física (ERA5-Land)
+    # Dynamic climate and physical desiccation (ERA5-Land)
     "temp_max_c",
     "temp_min_c",
     "rango_termico_diario",
@@ -83,32 +88,45 @@ FEATURES_IGNICION_BASE = [
     "precipitacion_mm",
     "precipitacion_48h_mm",
     "dias_secos_consecutivos",
-    # Comportamiento de propagación y viento
+    # Propagation behavior and wind
     "viento_max_kmh",
     "potencial_viento_cuadratico",
     "interaccion_viento_vpd",
     "ffmc",
     "isi",
-    # Calendario antrópico
+    # Hydrological state and antecedent drought/frost
+    "swvl1_m3m3",
+    "fdd_heladas_60d",
+    "deficit_hidro_60d",
+    "riesgo_estero_seco",
+    "combustible_curado_helada",
+    # Anthropogenic calendar
     "dia_semana",
     "es_fin_de_semana",
     "mes",
     "dia_del_anio",
-    # Coberturas de biomasa (MapBiomas) y fragmentación de ecotono
-    "pct_pastura",
+    # Biomass covers (MapBiomas) and ecotone/fragmentation
+    "pct_pastura_ganadera",
+    "pct_agricultura_anual",
+    "pct_plantacion_forestal",
     "pct_sabana_pastizal",
     "pct_humedal_palmar",
     "indice_ecotono",
-    # Susceptibilidad geográfica histórica (prior libre de data leakage temporal)
+    "borde_bosque_agro_pct",
+    # Recent causal woody-cover loss
+    "pct_desmonte_t1",
+    "pct_desmonte_t2",
+    "presion_desmonte_vpd",
+    # Historical geographic susceptibility (prior free of temporal data leakage)
     "dist_foco_hist_km",
-    "densidad_hist_25km"
+    "densidad_hist_25km",
 ]
 
 FEATURES_IGNICION_CHACO = FEATURES_IGNICION_BASE + ["pct_bosque_seco"]
 FEATURES_IGNICION_ORIENTAL = FEATURES_IGNICION_BASE + ["pct_bosque_humedo"]
 
-# 2. Variables de Propagación / Continuidad Táctica (Monitoreo de avance de frentes activos)
-# Condicionales a la presencia de fuego satelital en t-1 dentro de radio de 25 km
+# 2. Propagation / Tactical Continuity Variables (monitoring of active front advancement)
+# Conditional on the presence of satellite fire at t-1 within a 25 km radius
 FEATURES_PROPAGACION_BASE = FEATURES_IGNICION_BASE + [
     "dist_foco_t1_km",
     "focos_25km_t1",
@@ -118,7 +136,7 @@ FEATURES_PROPAGACION_BASE = FEATURES_IGNICION_BASE + [
 FEATURES_PROPAGACION_CHACO = FEATURES_PROPAGACION_BASE + ["pct_bosque_seco"]
 FEATURES_PROPAGACION_ORIENTAL = FEATURES_PROPAGACION_BASE + ["pct_bosque_humedo"]
 
-# 3. Variables del Modelo Híbrido Socio-Ecológico Multiescala (M3)
+# 3. Variables of the Multiscale Socio-Ecological Hybrid Model (M3)
 FEATURES_ANTROPICO_MULTIESCALA = [
     "dist_corredor_antropico_km",
     "densidad_hist_5km",
@@ -134,7 +152,7 @@ FEATURES_ANTROPICO_MULTIESCALA = [
 FEATURES_HIBRIDO_CHACO = FEATURES_IGNICION_CHACO + FEATURES_ANTROPICO_MULTIESCALA
 FEATURES_HIBRIDO_ORIENTAL = FEATURES_IGNICION_ORIENTAL + FEATURES_ANTROPICO_MULTIESCALA + ["freq_hist_1km"]
 
-# Alias de compatibilidad hacia atrás
+# Backward compatibility alias
 FEATURES_BASE = FEATURES_IGNICION_BASE
 FEATURES_CHACO = FEATURES_IGNICION_CHACO
 FEATURES_ORIENTAL = FEATURES_IGNICION_ORIENTAL
@@ -145,9 +163,9 @@ def preparar_matrices_xy(
     modo: str = "ignicion"
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """
-    Filtra el dataset por región, extrae las features correspondientes según el modo
-    ('ignicion' para peligro primario base, 'hibrido' para socio-ecológico M3,
-    o 'propagacion' para avance táctico) y la etiqueta Y.
+    Filters the dataset by region, extracts the corresponding features according to the mode
+    ('ignicion' for base primary hazard, 'hibrido' for socio-ecological M3,
+    or 'propagacion' for tactical advancement) and the Y label.
     """
     df_reg = df.filter(pl.col("region") == region)
     
@@ -174,23 +192,26 @@ def preparar_matrices_xy(
 
 def obtener_restricciones_monotonas(nombres_features: list[str]) -> list[int]:
     """
-    Define restricciones de monotonicidad biofísica (Physics-Guided Machine Learning):
-    +1: la probabilidad es no-decreciente respecto a sequedad atmosférica o combustible fino
-    -1: la probabilidad es no-creciente respecto a lluvia o distancia al fuego previo
-     0: libre (sin restricción previa)
+    Defines biophysical monotonicity constraints (Physics-Guided Machine Learning):
+    +1: probability is non-decreasing with respect to atmospheric dryness or fine fuel
+    -1: probability is non-increasing with respect to rainfall or distance to previous fire
+     0: free (no prior constraint)
     """
     restricciones = []
+    # Only physically unambiguous monotonic effects are constrained. The new
+    # anthropogenic variables (desmonte, agriculture, frost curing, edge) are
+    # left free and must be evaluated with an ablation; forcing their sign can
+    # hurt the model and is not supported by the MapBiomas legend.
     positivas = {
-        "vpd_max_kpa", "ffmc", "isi", "dias_secos_consecutivos", 
+        "vpd_max_kpa", "ffmc", "isi", "dias_secos_consecutivos",
         "deficit_hidrico_acumulado", "potencial_viento_cuadratico", "densidad_hist_25km",
-        # Nuevas variables socio-ecológicas del Modelo Híbrido (M3)
         "densidad_hist_5km", "densidad_hist_10km", "freq_hist_1km",
-        "presion_quema_pastura", "interaccion_acceso_vpd", "temporada_quema_ganadera"
+        "presion_quema_pastura", "interaccion_acceso_vpd", "temporada_quema_ganadera",
+        "deficit_hidro_60d", "riesgo_estero_seco",
     }
     negativas = {
         "precipitacion_mm", "precipitacion_48h_mm", "dist_foco_t1_km", "dist_foco_hist_km",
-        # A mayor distancia del corredor antrópico consolidado, menor probabilidad de ignición
-        "dist_corredor_antropico_km"
+        "dist_corredor_antropico_km", "swvl1_m3m3",
     }
     for f in nombres_features:
         if f in positivas:
@@ -217,8 +238,8 @@ def entrenar_modelo_lightgbm(
     usar_restricciones_fisicas: bool = True
 ) -> lgb.Booster:
     """
-    Entrena un ensamble LightGBM para clasificación binaria optimizado para eventos raros
-    con soporte nativo de restricciones monótonas biofísicas.
+    Trains a LightGBM ensemble for binary classification optimized for rare events
+    with native support for biophysical monotonic constraints.
     """
     dtrain = lgb.Dataset(X_train, label=y_train, feature_name=nombres_features, free_raw_data=False)
     dval = lgb.Dataset(X_val, label=y_val, reference=dtrain, feature_name=nombres_features, free_raw_data=False)
@@ -269,9 +290,9 @@ def calibrar_probabilidades_isotonica(
     metodo: str = "platt_monotono"
 ):
     """
-    Calibra los scores del ensamble en probabilidades reales P(Y=1) ∈ [0.0, 1.0].
-    - 'platt_monotono': Calibración logística monotónica (preserva 100% el ROC-AUC sin colapsos).
-    - 'isotonica': Regresión isotónica no paramétrica.
+    Calibrates the ensemble scores into real probabilities P(Y=1) ∈ [0.0, 1.0].
+    - 'platt_monotono': Monotonic logistic calibration (preserves 100% of ROC-AUC without collapses).
+    - 'isotonica': Non-parametric isotonic regression.
     """
     y_pred_raw = booster.predict(X_val)
     if metodo == "platt_monotono":
@@ -288,7 +309,7 @@ def predecir_probabilidad(
     X: np.ndarray
 ) -> np.ndarray:
     """
-    Genera la inferencia probabilística: score del árbol + calibración.
+    Generates the probabilistic inference: tree score + calibration.
     """
     raw_scores = booster.predict(X)
     if calibrador is not None:
@@ -309,7 +330,7 @@ def guardar_modelo_y_calibrador(
     ruta_calibrador: Path
 ):
     """
-    Serializa el modelo en formato nativo C++ Booster y el calibrador en Joblib.
+    Serializes the model in native C++ Booster format and the calibrator in Joblib.
     """
     ruta_booster.parent.mkdir(parents=True, exist_ok=True)
     ruta_calibrador.parent.mkdir(parents=True, exist_ok=True)
@@ -322,7 +343,7 @@ def cargar_modelo_y_calibrador(
     ruta_calibrador: Path
 ) -> tuple[lgb.Booster, IsotonicRegression]:
     """
-    Carga el booster nativo C++ y el calibrador serializado.
+    Loads the native C++ booster and the serialized calibrator.
     """
     booster = lgb.Booster(model_file=str(ruta_booster))
     calibrador = joblib.load(str(ruta_calibrador))

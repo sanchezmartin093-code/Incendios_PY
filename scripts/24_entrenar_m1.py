@@ -1,5 +1,5 @@
 """
-Script 24: entrena y serializa el modelo biofísico puro M1 para el fallback de alerta.
+Script 24: trains and serializes the pure biophysical M1 model for the alert fallback.
 """
 
 from pathlib import Path

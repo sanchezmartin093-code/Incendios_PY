@@ -5,7 +5,7 @@ from src.constantes import ROOT_DIR, DIR_OUTPUTS
 
 class TestDashboardInteractivo(unittest.TestCase):
     def test_generacion_dashboard_html(self):
-        """Verifica que el dashboard interactivo se genere, no esté vacío y contenga los componentes clave."""
+        """Verifies that the interactive dashboard is generated, is not empty, and contains the key components."""
         dir_raster = DIR_OUTPUTS / "raster_riesgo_diario"
         if not dir_raster.exists() or not list(dir_raster.glob("alerta_nacional_*.parquet")):
             self.skipTest("Archivos de alerta diaria no disponibles en entorno CI")

@@ -14,26 +14,26 @@ from src.constantes import DIR_PROCESSED
 
 class TestServicioAlerta(unittest.TestCase):
     def test_categorizar_riesgo(self):
-        """Verifica la asignación estricta de niveles de alerta operativos."""
-        # Sin combustible -> NULO
+        """Verifies the strict assignment of operational alert levels."""
+        # No fuel -> NULO
         self.assertEqual(categorizar_riesgo(0.9, "Chaco", False), "NULO")
-        # Con motivo de gating (ej. lluvia) -> BAJO
+        # With gating reason (e.g. rain) -> BAJO
         self.assertEqual(categorizar_riesgo(0.8, "Chaco", True, "LLUVIA_EXTINTORA_48H"), "BAJO")
-        # Subcrítico Chaco (P < UMBRAL_CORTE_CHACO = 0.399)
+        # Subcritical Chaco (P < UMBRAL_CORTE_CHACO = 0.399)
         self.assertEqual(categorizar_riesgo(0.05, "Chaco", True), "BAJO")
         self.assertEqual(categorizar_riesgo(0.35, "Chaco", True), "BAJO")
-        # Moderado Chaco (0.399 <= P < 0.399 + 0.601*0.25 = 0.549)
+        # Moderate Chaco (0.399 <= P < 0.399 + 0.601*0.25 = 0.549)
         self.assertEqual(categorizar_riesgo(0.45, "Chaco", True), "MODERADO")
-        # Alto Chaco (0.549 <= P < 0.399 + 0.601*0.55 = 0.729)
+        # High Chaco (0.549 <= P < 0.399 + 0.601*0.55 = 0.729)
         self.assertEqual(categorizar_riesgo(0.60, "Chaco", True), "ALTO")
-        # Extremo Chaco (P >= 0.73)
+        # Extreme Chaco (P >= 0.73)
         self.assertEqual(categorizar_riesgo(0.85, "Chaco", True), "EXTREMO")
-        # Verificación con cutoff dinámico explícito de M3 (0.4045)
+        # Verification with explicit dynamic M3 cutoff (0.4045)
         self.assertEqual(categorizar_riesgo(0.40, "Chaco", True, cutoff=0.4045), "BAJO")
         self.assertEqual(categorizar_riesgo(0.42, "Chaco", True, cutoff=0.4045), "MODERADO")
 
     def test_carga_artefactos(self):
-        """Verifica que los modelos serializados y calibradores existan y carguen."""
+        """Verifies that the serialized models and calibrators exist and load."""
         from src.constantes import DIR_MODELOS
         if not (DIR_MODELOS / "lightgbm_chaco.booster").exists():
             self.skipTest("Modelos entrenados no disponibles en entorno CI")
@@ -44,7 +44,7 @@ class TestServicioAlerta(unittest.TestCase):
         self.assertIsNotNone(art["oriental"]["calibrador"])
 
     def test_preparacion_e_inferencia_fecha(self):
-        """Verifica el flujo completo de inferencia en una fecha de prueba."""
+        """Verifies the complete inference flow on a test date."""
         from src.constantes import DIR_MODELOS
         p_clima = DIR_PROCESSED / "clima_era5_diario.parquet"
         if not p_clima.exists():
@@ -61,7 +61,7 @@ class TestServicioAlerta(unittest.TestCase):
         self.assertIn("vpd_max_kpa", df_nac.columns)
 
         artefactos = cargar_artefactos_modelos()
-        # Probar evaluación sobre una muestra para velocidad
+        # Test evaluation on a sample for speed
         df_sub = df_nac.head(1000)
         df_eval = evaluar_alerta_nacional(df_sub, artefactos)
         self.assertEqual(df_eval.height, 1000)
