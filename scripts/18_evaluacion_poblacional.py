@@ -71,6 +71,7 @@ def main():
     dir_targets = DIR_PROCESSED / "targets_poblacionales"
     conteos = pl.read_parquet(DIR_PROCESSED / "conteos_poblacionales_d2.parquet")
     filas = []
+    filas_anio = []
 
     for region in ["Chaco", "Oriental"]:
         for nombre, modo, task, col_prob in MODELOS:
@@ -123,10 +124,41 @@ def main():
                 "n_pos_muestra_test": int(y_test.sum()),
             })
 
+            anios_eval = preds["fecha"].str.slice(0, 4).cast(pl.Int32).to_numpy()
+            for anio_eval in sorted(set(int(a) for a in anios_eval)):
+                mask = anios_eval == anio_eval
+                prev_yr, n_pop_yr, n_pos_yr = _prevalencia(conteos, region, task, anio_eval, anio_eval)
+                p_yr = corregir_prior_probabilidades(p_test[mask], pi_s_test, prev_yr)
+                met_yr = calcular_metricas_poblacionales(
+                    y_test[mask], p_yr, pesos[mask], cutoff=cutoff
+                )
+                filas_anio.append({
+                    "region": region,
+                    "task": task,
+                    "modelo": nombre,
+                    "anio_eval": anio_eval,
+                    "fuel_lag": 1 if anio_eval == 2024 else 2,
+                    "prevalencia_poblacion": prev_yr,
+                    "cutoff_f05_poblacional": round(float(cutoff), 6),
+                    "roc_auc_poblacional": round(met_yr["roc_auc_poblacional"], 4),
+                    "pr_auc_poblacional": round(met_yr["pr_auc_poblacional"], 4),
+                    "precision_poblacional_pct": round(100 * met_yr["precision_poblacional"], 3),
+                    "recall_poblacional_pct": round(100 * met_yr["recall_poblacional"], 3),
+                    "n_poblacion": n_pop_yr,
+                    "n_pos_poblacion": n_pos_yr,
+                    "n_muestra": int(mask.sum()),
+                })
+
     df_out = pd.DataFrame(filas)
+    df_anio = pd.DataFrame(filas_anio)
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     p_csv = DIR_TABLAS / "tabla07_evaluacion_poblacional.csv"
     df_out.to_csv(p_csv, index=False)
+    df_anio.to_csv(DIR_TABLAS / "tabla07_evaluacion_poblacional_por_anio.csv", index=False)
+    (DIR_TABLAS / "tabla07_evaluacion_poblacional_por_anio.md").write_text(
+        "# Tabla 7b. Evaluación poblacional por año\n\n" + df_anio.to_markdown(index=False) + "\n",
+        encoding="utf-8",
+    )
     (DIR_TABLAS / "tabla07_evaluacion_poblacional.md").write_text(
         "# Tabla 7. Evaluación poblacional D2\n\n" + df_out.to_markdown(index=False) + "\n",
         encoding="utf-8",

@@ -4,6 +4,6 @@ Esta tabla NO es un análisis de sensibilidad al buffer de muestreo. Para evalua
 
 |   distancia_min_t1_km | condicion                                     |   n_muestras_chaco |   auc_ign_chaco |   auc_prop_chaco |   n_muestras_oriental |   auc_ign_oriental |
 |----------------------:|:----------------------------------------------|-------------------:|----------------:|-----------------:|----------------------:|-------------------:|
-|                    10 | Incluye celdas a >=10 km del foco t-1         |             176616 |          0.802  |           0.7544 |                199936 |             0.7538 |
-|                    20 | Incluye celdas a >=20 km del foco t-1         |             176616 |          0.802  |           0.765  |                199936 |             0.7538 |
-|                    30 | Sólo celdas a >=30 km del foco t-1 (alejadas) |             157696 |          0.8029 |         nan      |                168654 |             0.7557 |
+|                    10 | Incluye celdas a >=10 km del foco t-1         |             176616 |          0.8021 |           0.7536 |                199936 |             0.7534 |
+|                    20 | Incluye celdas a >=20 km del foco t-1         |             176616 |          0.8021 |           0.7645 |                199936 |             0.7534 |
+|                    30 | Sólo celdas a >=30 km del foco t-1 (alejadas) |             157696 |          0.803  |         nan      |                168654 |             0.7553 |

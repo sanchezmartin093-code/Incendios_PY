@@ -1,0 +1,18 @@
+variable,fuente,producto,agregacion,unidad,cobertura,uso
+temp_max_c,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),3-hourly -> daily max,C,2018-01-01..2025-12-31,usado
+temp_min_c,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),3-hourly -> daily min,C,2018-01-01..2025-12-31,usado
+precipitacion_mm,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),3-hourly -> daily sum,mm/dia,2018-01-01..2025-12-31,usado
+viento_max_kmh,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),3-hourly -> daily max,km/h,2018-01-01..2025-12-31,usado
+rafaga_max_kmh,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),3-hourly -> daily max,km/h,2018-01-01..2025-12-31,usado
+vpd_max_kpa,Copernicus CDS ERA5-Land,lote_clima_*.parquet (02b),derivado de T/HR,kPa,2018-01-01..2025-12-31,usado
+et0_mm,Hargreaves-Samani sobre CDS ERA5-Land,02f_completar_clima_cds.py,Tmax/Tmin/latitud,mm/dia,2018-01-01..2025-12-31,usado
+swvl1_m3m3,Copernicus CDS ERA5-Land,cds_swvl1_pev/*.nc (02f),"volumetric_soil_water_layer_1, media diaria",m3/m3,2018-01-01..2025-12-31,usado
+potential_evaporation,Copernicus CDS ERA5-Land,cds_swvl1_pev/*.nc (02f),acumulado diario,m/dia convertido,2018-01-01..2025-12-31,diagnostico; no feature
+ffmc,Derivado de CDS ERA5-Land,src/clima.py,FWI FFMC,adimensional,2018-01-01..2025-12-31,usado
+isi,Derivado de CDS ERA5-Land,src/clima.py,FWI ISI,adimensional,2018-01-01..2025-12-31,usado
+precipitacion_48h_mm,Derivado de CDS ERA5-Land,src/clima.py,ventana 48 h,mm,2018-01-01..2025-12-31,usado
+dias_secos_consecutivos,Derivado de CDS ERA5-Land,src/clima.py,CDD,dias,2018-01-01..2025-12-31,usado
+interaccion_viento_vpd,Derivado de CDS ERA5-Land,src/clima.py,viento x VPD,adimensional,2018-01-01..2025-12-31,usado
+fdd_heladas_60d,Derivado de CDS ERA5-Land,src/clima.py,"ventana antecedente 60 d, excluye dia actual",grados-dia,2018-01-01..2025-12-31,usado; warm-up excluido del train
+deficit_hidro_60d,Derivado de CDS ERA5-Land,src/clima.py,"ET0 - precipitacion, ventana 60 d, excluye dia actual",mm,2018-01-01..2025-12-31,usado; warm-up excluido del train
+openmeteo_corregido,Open-Meteo Historical Archive,datos/raw/era5/openmeteo_corregido,no usado en el clima final,-,2018-01-01..2025-12-31,solo cache/diagnostico

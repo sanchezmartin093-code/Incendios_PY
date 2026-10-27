@@ -1,0 +1,66 @@
+{
+  "descripcion": "Dataset unificado particionado por año, ordenado por cell_id/fecha",
+  "patron": "dataset_*.parquet",
+  "anios": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "partes": [
+    {
+      "anio": 2018,
+      "archivo": "dataset_2018.parquet",
+      "filas": 104661594,
+      "sha256": "f6ef7b10b8cc770cf16f3f84009fae9cd114fbf6b4558817ae4ef5524dc1c23e"
+    },
+    {
+      "anio": 2019,
+      "archivo": "dataset_2019.parquet",
+      "filas": 110733128,
+      "sha256": "98917bfa1bd00d51dd23fcd27bd06c23bcdea16e37fe0740899b582f66d64324"
+    },
+    {
+      "anio": 2020,
+      "archivo": "dataset_2020.parquet",
+      "filas": 121684518,
+      "sha256": "78f04fbfbcdf661139418ad74ace0112130df46bb3bb0e7c69a7a5c6fd00f756"
+    },
+    {
+      "anio": 2021,
+      "archivo": "dataset_2021.parquet",
+      "filas": 116508847,
+      "sha256": "787fa1d45caf1457d2205215476f6e805dd14f31e15fb3d08cc59954cf0fd88c"
+    },
+    {
+      "anio": 2022,
+      "archivo": "dataset_2022.parquet",
+      "filas": 117341517,
+      "sha256": "7c174e89aa9bebb48235a67e22751b473b56c6bf039e28c8eaf3eddc4c182b93"
+    },
+    {
+      "anio": 2023,
+      "archivo": "dataset_2023.parquet",
+      "filas": 115685199,
+      "sha256": "297c534b9576a3f896ec61ef866878d4578af74df81aa19f1e7c5c222d98ec98"
+    },
+    {
+      "anio": 2024,
+      "archivo": "dataset_2024.parquet",
+      "filas": 117577639,
+      "sha256": "e02a318420dd417743a9b684156031ff735f488e221f89cf81eacdc76972ac07"
+    },
+    {
+      "anio": 2025,
+      "archivo": "dataset_2025.parquet",
+      "filas": 111368672,
+      "sha256": "aad1a667ed01bb08d0ce2bdb606ea835734ffa2782c6108a26a555b6c6b6419f"
+    }
+  ],
+  "total_filas": 915561114,
+  "tamano_mb": 7901.79
+}

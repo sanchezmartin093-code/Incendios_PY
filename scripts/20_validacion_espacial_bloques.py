@@ -191,6 +191,7 @@ def main():
     test_heldin = test_e.filter(~pl.col("cell_id").is_in(list(holdout_cells)))
 
     filas = []
+    filas_anio = []
     for region in ["Chaco", "Oriental"]:
         print(f"\n--- {region.upper()} ---")
         tr = train_esp.filter(pl.col("region") == region)
@@ -254,7 +255,26 @@ def main():
                 m["n_val"] = int(len(va))
                 filas.append(m)
 
+                fechas_eval = np.asarray(bloques_eval).astype(str)
+                for anio_eval in (2024, 2025):
+                    mask = np.array([f[:4] == str(anio_eval) for f in fechas_eval])
+                    if not mask.any():
+                        continue
+                    m_y = _metricas(
+                        y_eval[mask], p_eval[mask], cutoff,
+                        f"{nombre_eval}_{anio_eval}",
+                        block_ids=fechas_eval[mask],
+                    )
+                    m_y.update({
+                        "region": region,
+                        "modelo": nombre_modelo,
+                        "anio_eval": anio_eval,
+                        "fuel_lag": 1 if anio_eval == 2024 else 2,
+                    })
+                    filas_anio.append(m_y)
+
     df = pd.DataFrame(filas)
+    df_anio = pd.DataFrame(filas_anio)
     # Reorder columns
     cols = ["region", "modelo", "evaluacion", "n", "n_pos", "prevalencia", "roc_auc", "roc_ci_95",
             "pr_auc", "brier", "bss", "ece", "cutoff_f05", "precision", "recall",
@@ -264,6 +284,12 @@ def main():
     p_csv = DIR_TABLAS / "tabla08_validacion_espacial_bloques.csv"
     p_md = DIR_TABLAS / "tabla08_validacion_espacial_bloques.md"
     df.to_csv(p_csv, index=False)
+    p_anio = DIR_TABLAS / "tabla08_validacion_espacial_por_anio.csv"
+    df_anio.to_csv(p_anio, index=False)
+    (DIR_TABLAS / "tabla08_validacion_espacial_por_anio.md").write_text(
+        "# Tabla 8b. Validación espacial por año\n\n" + df_anio.to_markdown(index=False) + "\n",
+        encoding="utf-8",
+    )
     p_md.write_text(
         "# Tabla 8. Validación espacial por bloques de 50 km con buffer de 20 km\n\n"
         "El modelo M3 se entrena excluyendo los bloques holdout y un buffer de "
@@ -275,7 +301,7 @@ def main():
         + "\n",
         encoding="utf-8",
     )
-    print(f"\n✓ Guardado en {p_csv.name} y {p_md.name}")
+    print(f"\n✓ Guardado en {p_csv.name}, {p_md.name} y {p_anio.name}")
     print(df.to_string(index=False))
     print("=" * 72)
 

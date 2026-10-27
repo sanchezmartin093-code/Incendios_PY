@@ -31,8 +31,8 @@ def main():
     print("MUESTREO DE PSEUDO-AUSENCIAS & DEAD-ZONE BUFFER (20 km)")
     print("=" * 65)
 
-    path_dataset = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
-    if not path_dataset.exists():
+    path_dataset = DIR_PROCESSED / "dataset_unificado_candidatos" / "dataset_*.parquet"
+    if not list((DIR_PROCESSED / "dataset_unificado_candidatos").glob("dataset_*.parquet")):
         raise FileNotFoundError(f"Dataset unificado no encontrado en {path_dataset}. Ejecuta scripts/04_construir_dataset.py primero.")
 
     # 1. Run scalable month-by-month stratified sampling with the Dead-Zone Buffer
