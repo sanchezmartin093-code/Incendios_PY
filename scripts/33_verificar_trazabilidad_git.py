@@ -115,7 +115,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("\nOK: snapshot científico y tag r2 coinciden con los hashes registrados.")
+    print(f"\nOK: snapshot científico y {meta['tag_name']} coinciden con los hashes registrados.")
     return 0
 
 
