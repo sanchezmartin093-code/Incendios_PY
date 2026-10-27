@@ -9,10 +9,18 @@
 
 - Commit científico de Fase 2: `15f3022`
 - Commit de correcciones Fase 5: `e621f95`
-- Commit que recibirá el tag r2: el commit de este documento y los checksums.
-- Git tree del candidato: `2033ad28e452d10edc889d750627827c4fcb8f83`
-- Git archive SHA-256: `6988bdbff3e0b6533b83fa758dc3cd8e708036b5f65cd4bcf0610ed54b804de6`
+- **Snapshot científico:** `e621f95e5c2991ed312f3fc5d1333d1aa44f93fe`
+  - tree: `2033ad28e452d10edc889d750627827c4fcb8f83`
+  - archive SHA-256: `6988bdbff3e0b6533b83fa758dc3cd8e708036b5f65cd4bcf0610ed54b804de6`
+- **Tag r2:** `submission-candidate-2026-10-27-r2` → `7390cca885216e0357c3a8540bc49aa440fa5520`
+  - tree: `d781282c9072610bcaf366cd4ccd819ac46c205c`
+  - archive SHA-256: `a768253ec1616698436b79f289a4b3abd11e139a54e7170c885f3cf432d21a8e`
 - Corpus científico SHA-256: `a8dbd415c97ff8d3433b73af4243137b6033b4ac2676bbe18a5d6984143300c3`
+
+El archive del snapshot científico y el archive del tag **no son iguales**:
+los checksums se calcularon sobre `e621f95`; el tag agrega el CSV, el JSON,
+el archivo de archive y este documento. Ambos hashes están registrados en
+`FASE5_CANDIDATO_CHECKSUMS.json` y en `FASE5_CANDIDATO_GIT_ARCHIVE.sha256`.
 
 Este tag reemplaza a `submission-candidate-2026-10-27` para el trabajo de Fase 5.
 El tag anterior queda como histórico.
@@ -83,11 +91,15 @@ Verificación de solo lectura:
 
 ```bash
 python scripts/32_verificar_candidato.py
+python scripts/33_verificar_trazabilidad_git.py
 ```
 
 No reejecutar `scripts/31_congelar_candidato.py` para verificar: ese script
 regenera los checksums. El script 31 queda incluido en el corpus, por lo que
 cualquier cambio en él invalida este candidato.
+
+`scripts/33_verificar_trazabilidad_git.py` es un verificador externo al
+corpus r2: compara commit, tree y archive del snapshot científico y del tag.
 
 ## 7. Próximo paso
 
