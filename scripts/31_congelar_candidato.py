@@ -221,7 +221,9 @@ def main() -> None:
     OUT_JSON.write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     with OUT_CSV.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(
-            f, fieldnames=["categoria", "ruta", "bytes", "sha256", "nota"]
+            f,
+            fieldnames=["categoria", "ruta", "bytes", "sha256", "nota"],
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerows(rows)
