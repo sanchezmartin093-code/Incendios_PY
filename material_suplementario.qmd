@@ -1,7 +1,7 @@
 ---
 title: "Supplementary material for: A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025)"
 subtitle: "D2 target construction, calibration, evaluation protocol, extended tables and figures"
-date: "2026-10-26"
+date: "2026-10-27"
 lang: en
 bibliography: references.bib
 csl: apa.csl
@@ -24,8 +24,8 @@ format:
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
 > **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S15 and Figures S1–S3.  
-> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code DOI [10.5281/zenodo.23675105](https://doi.org/10.5281/zenodo.23675105)).  
-> **Data:** processed data and test predictions will be re-archived in Zenodo under CC BY 4.0 in Phase 3 (current data DOI [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279) is pre-audit).
+> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); v2.0.0).  
+> **Data:** processed data and test predictions are archived in Zenodo under CC BY 4.0 (data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278); v2.0.0).
 
 # Supplementary contents {.unnumbered}
 
@@ -497,7 +497,7 @@ $\alpha=C/L$ is the ratio of false-alarm cost to avoided loss; $V(\alpha)$ is th
 
 # Data availability {.unnumbered}
 
-Processed data, test predictions, trained models and derived tables will be archived/updated in Zenodo under CC BY 4.0 in Phase 3: [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v2.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
+Processed data, test predictions, trained models and derived tables are archived in Zenodo under CC BY 4.0 (concept DOI): [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
 
 # Computer code availability {.unnumbered}
 
@@ -510,8 +510,8 @@ Processed data, test predictions, trained models and derived tables will be arch
 **Dependencies:** pinned in `requirements-lock.txt`  
 **License:** MIT  
 **Repository:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**Code DOI:** [10.5281/zenodo.23675105](https://doi.org/10.5281/zenodo.23675105)  
-**Tests:** 71 tests pass with `python -m pytest -q tests`. The repository includes a README in English, installation and usage instructions, a user guide, and the scripts required to reproduce the main results.
+**Code concept DOI (v2.0.0):** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
+**Tests:** 76 tests pass with `python -m pytest -q tests`. The repository includes a README in English, installation and usage instructions, a user guide, and the scripts required to reproduce the main results.
 
 # References {.unnumbered}
 

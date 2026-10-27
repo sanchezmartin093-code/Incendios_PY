@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-10-25">
+<meta name="dcterms.date" content="2026-10-27">
 
 <title>Cover Letter to the Editor-in-Chief</title>
 <style>
@@ -2327,7 +2327,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 25, 2026</p>
+      <p class="date">October 27, 2026</p>
     </div>
   </div>
   
@@ -2339,14 +2339,14 @@ window.Quarto = {
 </header>
 
 
-<p><strong>Date:</strong> October 25, 2026</p>
+<p><strong>Date:</strong> October 27, 2026</p>
 <p><strong>To:</strong><br>
 The Editors-in-Chief<br>
 <em>Computers &amp; Geosciences</em><br>
 Elsevier Science</p>
 <p><strong>Subject:</strong> Submission of original research paper titled <em>“A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025)”</em></p>
 <p>Dear Editors-in-Chief,</p>
-<p>Please find enclosed our original research manuscript entitled <strong>“A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025): D2 Targets, Gated M3/M1 Inference and an Open Benchmark Against Canadian FWI and INPE”</strong>, which we submit for consideration as a <strong>Research Paper</strong> in <em>Computers &amp; Geosciences</em>.</p>
+<p>Please find enclosed our original research manuscript entitled <strong>“A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025): D2 Targets, M3/M2 Inference and an Open Benchmark Against Canadian FWI and INPE”</strong>, which we submit for consideration as a <strong>Research Paper</strong> in <em>Computers &amp; Geosciences</em>.</p>
 <section id="motivation-and-core-scientific-novelty" class="level3">
 <h3 class="anchored" data-anchor-id="motivation-and-core-scientific-novelty">Motivation and Core Scientific Novelty</h3>
 <p>Operational wildfire forecasting in geoscience machine learning frequently suffers from two pervasive methodological pathologies: 1. <strong>Spatial Shortcut Learning:</strong> When models include autoregressive spatial lags without isolating causal mechanisms, gradient-boosted ensembles learn trivial spatial persistence heuristics (<em>“fire will persist where thermal anomalies already exist”</em>), resulting in severe false confidence while remaining incapable of anticipating new, spontaneous, or anthropic primary ignitions. 2. <strong>Failure of Canonical Boreal Indices in the Subtropics:</strong> Widely deployed operational frameworks—such as the Canadian Forest Fire Weather Index (FWI) used by EFFIS/GWIS and the CPTEC/INPE Risco de Fogo—consistently fail or invert hazard rankings in water-limited subtropical biomes (e.g., the South American Gran Chaco), where vapor pressure deficit (<span class="math inline">\(VPD\)</span>) and non-linear fuel-curing dynamics govern fire risk.</p>
@@ -2354,20 +2354,20 @@ Elsevier Science</p>
 </section>
 <section id="why-this-manuscript-fits-computers-geosciences" class="level3">
 <h3 class="anchored" data-anchor-id="why-this-manuscript-fits-computers-geosciences">Why this Manuscript Fits <em>Computers &amp; Geosciences</em></h3>
-<p>Our work sits precisely at the convergence of <strong>Computer Science Applications</strong> and <strong>Earth and Planetary Sciences</strong>. The contribution is a reusable protocol and benchmark, not a new boosting algorithm: D2 target construction, gated M3/M1 inference, and a reproducible evaluation harness are the computational core.</p>
+<p>Our work sits precisely at the convergence of <strong>Computer Science Applications</strong> and <strong>Earth and Planetary Sciences</strong>. The contribution is a reusable protocol and benchmark, not a new boosting algorithm: D2 target construction, M3/M2 inference, and a reproducible evaluation harness are the computational core.</p>
 <ul>
 <li><strong>High-Performance Zero-Copy Computational Pipeline:</strong> By integrating Apache Arrow, DuckDB, and Polars, our computational engine processes the entire national territory (<span class="math inline">\(400,006\text{ km}^2\)</span>) in <strong>~<span class="math inline">\(1.57\)</span> seconds</strong> on a standard ARM64 machine (~<span class="math inline">\(2.18\text{ GB}\)</span> peak RAM), demonstrating that national early-warning systems do not require prohibitive cloud infrastructure.</li>
 <li><strong>Physics-Guided Machine Learning (PGML):</strong> We enforce structural monotonic constraints within LightGBM (<span class="math inline">\(+1\)</span> for atmospheric dryness and wind pressure, <span class="math inline">\(-1\)</span> for antecedent rainfall and distance), mathematically preventing counterintuitive artifacts.</li>
 <li><strong>Spatial and Temporal Control:</strong> We use the <strong>D2 target definition</strong> (no t-1 fire within 25 km; no same-cell fire in 10 days) and multi-year out-of-time test partitions (2024–2025). We also implement a <strong>50-km spatial block holdout with a 20-km buffer</strong>; a reproducible semivariogram remains pending. Priors are causal (monthly cutoff, rolling 3-year window).</li>
-<li><strong>Software Engineering and Reproducibility Standards:</strong> The framework is packaged with a complete automated test suite of <strong>62 unit tests</strong> (<code>tests/</code>) running in <span class="math inline">\(\approx 1.7\text{ seconds}\)</span>, verifying algebraic invariants, physical monotonicity, conformal coverage, and spatial KD-Tree queries. All code and workflows are versioned from raw ingestion (<code>scripts/00_...</code>) to publication-ready outputs (<code>scripts/24_...</code>) under the permissive MIT License.</li>
-<li><strong>Quantitative International Benchmarking:</strong> In retrospective temporal testing over <span class="math inline">\(1,813,966\)</span> D2 holdout cell-days during 2024–2025, our hybrid ignition layer <span class="math inline">\(\mathcal{M}_3\)</span> achieves a ROC-AUC of <strong><span class="math inline">\(0.7851\)</span></strong> in the Gran Chaco and <strong><span class="math inline">\(0.7485\)</span></strong> in the Oriental Region, versus <strong><span class="math inline">\(0.5185\)</span> / <span class="math inline">\(0.5569\)</span></strong> for the full Canadian FWI and <strong><span class="math inline">\(0.5386\)</span> / <span class="math inline">\(0.4994\)</span></strong> for the INPE. Case-control <span class="math inline">\(F_{0.5}\)</span> precision is <span class="math inline">\(27.54\text{ \%}\)</span> / <span class="math inline">\(29.67\text{ \%}\)</span>; after correction to population prevalence (~0.015 % / 0.041 %), operational precision is <span class="math inline">\(0.062\text{ \%}\)</span> / <span class="math inline">\(0.206\text{ \%}\)</span>. Tactical propagation achieves ROC-AUC <strong><span class="math inline">\(0.8989\)</span></strong> (Chaco) and population precision <span class="math inline">\(9.96\text{ \%}\)</span>. These corrected metrics are the honest operational benchmark.</li>
+<li><strong>Software Engineering and Reproducibility Standards:</strong> The framework is packaged with a complete automated test suite of <strong>76 unit tests</strong> (<code>tests/</code>) running in <span class="math inline">\(\approx 1\text{ minute}\)</span>, verifying algebraic invariants, physical monotonicity, conformal coverage, and spatial KD-Tree queries. All code and workflows are versioned from raw ingestion (<code>scripts/00_...</code>) to publication-ready outputs (<code>scripts/24_...</code>) under the permissive MIT License.</li>
+<li><strong>Quantitative International Benchmarking:</strong> In retrospective temporal testing over <span class="math inline">\(1,813,966\)</span> D2 cell-days during 2024–2025, our hybrid ignition layer <span class="math inline">\(\mathcal{M}_3\)</span> achieves a ROC-AUC of <strong><span class="math inline">\(0.8021\)</span></strong> in the Gran Chaco and <strong><span class="math inline">\(0.7534\)</span></strong> in the Oriental Region, versus <strong><span class="math inline">\(0.5173\)</span> / <span class="math inline">\(0.5564\)</span></strong> for the full Canadian FWI and <strong><span class="math inline">\(0.5389\)</span> / <span class="math inline">\(0.4990\)</span></strong> for the INPE. Case-control <span class="math inline">\(F_{0.5}\)</span> precision is <span class="math inline">\(32.82\text{ \%}\)</span> / <span class="math inline">\(30.13\text{ \%}\)</span>; after correction to population prevalence (~0.015 % / 0.041 %), operational precision is <span class="math inline">\(0.082\text{ \%}\)</span> / <span class="math inline">\(0.198\text{ \%}\)</span>. Tactical propagation achieves ROC-AUC <strong><span class="math inline">\(0.9039\)</span></strong> (Chaco) and population precision <span class="math inline">\(9.67\text{ \%}\)</span>. The 2023 validation selected M3 for temporal nowcasting and M2 as the operational fallback; M1 was rejected as a fallback. These corrected metrics are the honest operational benchmark.</li>
 </ul>
 </section>
 <section id="mandatory-declarations" class="level3">
 <h3 class="anchored" data-anchor-id="mandatory-declarations">Mandatory Declarations</h3>
 <ul>
 <li>This manuscript has not been published previously, is not under consideration for publication elsewhere, and its publication has been approved by the author.</li>
-<li>All source code and reproduction scripts are openly hosted on GitHub (<code>https://github.com/sanchezmartin093-code/Incendios_PY</code>). Processed data and trained models are documented with SHA-256 hashes in <code>fuentes/MANIFIESTO_DATOS_v2.csv</code> and archived on Zenodo (code DOI: 10.5281/zenodo.23675105; data DOI: 10.5281/zenodo.23675279).</li>
+<li>All source code and reproduction scripts are openly hosted on GitHub (<code>https://github.com/sanchezmartin093-code/Incendios_PY</code>). Processed data and trained models are documented with SHA-256 hashes in <code>fuentes/MANIFIESTO_DATOS_v3.csv</code> and archived on Zenodo (code concept DOI: 10.5281/zenodo.23675104; data concept DOI: 10.5281/zenodo.23675278; release v2.0.0).</li>
 <li>We declare no competing financial or non-financial conflicts of interest.</li>
 </ul>
 <p>Thank you very much for your time, consideration, and editorial guidance.</p>

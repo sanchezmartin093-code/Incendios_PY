@@ -1,7 +1,7 @@
 ---
 title: "Un marco computacional reproducible para el benchmarking desacoplado de ignición y propagación de incendios forestales en el Gran Chaco (2018–2025)"
 subtitle: "Objetivos D2, inferencia M3/M2 y benchmark abierto frente al FWI canadiense y al INPE"
-date: "2026-10-26"
+date: "2026-10-27"
 lang: es
 crossref:
   fig-title: "Figura"
@@ -98,7 +98,7 @@ La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diar
 
 El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB. Un spatial join de 50 000 puntos se muestra solo como referencia; la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo procesa 400 006 celdas en 1.569 s con 2 182.1 MB de RAM pico en ARM64; x86_64 no se midió. El dominio de estudio y la división regional se muestran en @fig-area; el perfil por etapa está en la Tabla S4 del suplemento.
 
-Las comprobaciones de calidad de datos son parte del pipeline: se colapsan sobrepasos VIIRS duplicados, se eliminan detecciones de confianza `low`, se reconstruye la precipitación diaria a partir de incrementos subdiarios y se rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land se mapean a celdas con un cKDTree precomputado. El archivo procesado contiene los objetivos de test, las probabilidades del modelo, las capas de benchmark, el plan de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin descargar el archivo crudo completo. El diccionario de datos y las comprobaciones están en la Nota complementaria S1 y la Tabla S15. El repositorio incluye 71 pruebas unitarias, un archivo de dependencias fijadas, un flujo de integración continua y un DOI de release. La suite de pruebas cubre definiciones de objetivos, filtrado VIIRS, agregación climática, calibración monótona, métricas y la capa de alerta; puede ejecutarse sin descargar el archivo crudo. Esta separación entre un paquete de evaluación reproducible y el pipeline completo de datos crudos es deliberada: los revisores pueden auditar las tablas sin una descarga de varios terabytes, mientras los scripts canónicos siguen disponibles para una reconstrucción completa.
+Las comprobaciones de calidad de datos son parte del pipeline: se colapsan sobrepasos VIIRS duplicados, se eliminan detecciones de confianza `low`, se reconstruye la precipitación diaria a partir de incrementos subdiarios y se rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land se mapean a celdas con un cKDTree precomputado. El archivo procesado contiene los objetivos de test, las probabilidades del modelo, las capas de benchmark, el plan de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin descargar el archivo crudo completo. El diccionario de datos y las comprobaciones están en la Nota complementaria S1 y la Tabla S15. El repositorio incluye 76 pruebas unitarias, un archivo de dependencias fijadas, un flujo de integración continua y un DOI de release. La suite de pruebas cubre definiciones de objetivos, filtrado VIIRS, agregación climática, calibración monótona, métricas y la capa de alerta; puede ejecutarse sin descargar el archivo crudo. Esta separación entre un paquete de evaluación reproducible y el pipeline completo de datos crudos es deliberada: los revisores pueden auditar las tablas sin una descarga de varios terabytes, mientras los scripts canónicos siguen disponibles para una reconstrucción completa.
 
 ![Dominio de estudio y división regional: Chaco Seco (oeste) y Región Oriental (este) sobre la grilla nacional de 1 km².](figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
 
@@ -199,9 +199,9 @@ La cobertura conformal es empírica: 89.85 %/90.19 % para un nivel nominal del 9
 
 ## 3.5 Comprobaciones de reproducibilidad
 
-Las releases de código y datos son parte del resultado. El repositorio contiene el operador de objetivos, los scripts de evaluación congelados, los boosters y calibradores entrenados, las tablas generadas y un entorno fijado. Una ejecución de las 71 pruebas unitarias en un entorno limpio cubre la construcción de objetivos, el filtrado VIIRS, la agregación climática, la calibración monótona, las métricas y el enrutamiento de alertas. El archivo de datos contiene los objetivos de test y las probabilidades del modelo, de modo que las tablas principales pueden regenerarse sin el archivo crudo de varios terabytes. El pipeline completo de datos crudos sigue disponible para una reconstrucción total.
+Las releases de código y datos son parte del resultado. El repositorio contiene el operador de objetivos, los scripts de evaluación congelados, los boosters y calibradores entrenados, las tablas generadas y un entorno fijado. Una ejecución de las 76 pruebas unitarias en un entorno limpio cubre la construcción de objetivos, el filtrado VIIRS, la agregación climática, la calibración monótona, las métricas y el enrutamiento de alertas. El archivo de datos contiene los objetivos de test y las probabilidades del modelo, de modo que las tablas principales pueden regenerarse sin el archivo crudo de varios terabytes. El pipeline completo de datos crudos sigue disponible para una reconstrucción total.
 
-Merece la pena reportar dos comprobaciones prácticas. Primera, la división de test está congelada y el cutoff se selecciona en validación; ninguna fila de test se usa para selección de modelo. Segunda, las capas de calibración y conformal se ajustan antes del test y nunca se actualizan. Estas comprobaciones no eliminan el cambio de distribución, pero eliminan las fuentes más comunes de sesgo optimista. Los DOI de código y datos deben actualizarse en la release de Fase 3; las tablas de este manuscrito se regeneran desde el repositorio y no deben citarse como archivadas en el DOI v1.0.0.
+Merece la pena reportar dos comprobaciones prácticas. Primera, la división de test está congelada y el cutoff se selecciona en validación; ninguna fila de test se usa para selección de modelo. Segunda, las capas de calibración y conformal se ajustan antes del test y nunca se actualizan. Estas comprobaciones no eliminan el cambio de distribución, pero eliminan las fuentes más comunes de sesgo optimista. Las tablas de este manuscrito se regeneran desde el repositorio y corresponden a la release v2.0.0; los DOI conceptuales de código y datos se reportan en las secciones de disponibilidad.
 
 # 4. Discusión
 
@@ -250,11 +250,11 @@ El marco también hace explícito el fallo. Un modelo excelente en celdas reteni
 
 # 5. Conclusiones
 
-Presentamos un marco computacional reproducible para el benchmarking desacoplado de ignición y propagación de incendios. D2 separa la ignición de la persistencia; la arquitectura M3/M2 proporciona un nowcast temporal con un fallback espacialmente más robusto; y el arnés abierto hace auditable el benchmark. La selección se hizo con validación 2023: M3 alcanzó ROC-AUC 0.7844/0.7628 y M2 fue el mejor en bloques espaciales (0.6773/0.7470). En el test retrospectivo 2024–2025, M3 alcanza 0.8021/0.7534 frente a 0.5173/0.5564 del FWI completo y 0.5389/0.4990 del INPE, pero la precisión poblacional es baja y la ventaja híbrida no se transfiere espacialmente. M1 no se sostiene como fallback; M2 lo reemplaza y M3 se presenta como un nowcast consciente de la recurrencia, no como un modelo universal de ignición. El resultado más útil no es un único mapa: es un protocolo que muestra dónde es válido un modelo, dónde falla y cómo reproducir el resultado. El trabajo futuro debería añadir un baseline acoplado t-1, una validación en otro país y una fuente de meteorología a un día. Los DOI de código y datos se actualizarán en la release de Fase 3, y el benchmark puede extenderse a otras regiones subtropicales sin cambiar la lógica de objetivos.
+Presentamos un marco computacional reproducible para el benchmarking desacoplado de ignición y propagación de incendios. D2 separa la ignición de la persistencia; la arquitectura M3/M2 proporciona un nowcast temporal con un fallback espacialmente más robusto; y el arnés abierto hace auditable el benchmark. La selección se hizo con validación 2023: M3 alcanzó ROC-AUC 0.7844/0.7628 y M2 fue el mejor en bloques espaciales (0.6773/0.7470). En el test retrospectivo 2024–2025, M3 alcanza 0.8021/0.7534 frente a 0.5173/0.5564 del FWI completo y 0.5389/0.4990 del INPE, pero la precisión poblacional es baja y la ventaja híbrida no se transfiere espacialmente. M1 no se sostiene como fallback; M2 lo reemplaza y M3 se presenta como un nowcast consciente de la recurrencia, no como un modelo universal de ignición. El resultado más útil no es un único mapa: es un protocolo que muestra dónde es válido un modelo, dónde falla y cómo reproducir el resultado. El trabajo futuro debería añadir un baseline acoplado t-1, una validación en otro país y una fuente de meteorología a un día. El código y los datos se archivan bajo los DOI conceptuales reportados abajo, y el benchmark puede extenderse a otras regiones subtropicales sin cambiar la lógica de objetivos.
 
 # 6. Disponibilidad de datos
 
-Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas se archivarán/actualizarán en Zenodo bajo CC BY 4.0 en la Fase 3: [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v2.csv`.
+Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas se archivan en Zenodo bajo CC BY 4.0 (DOI conceptual): [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`.
 
 # 7. Agradecimientos
 
@@ -287,9 +287,9 @@ Se utilizaron herramientas de IA generativa para edición de lenguaje y asistenc
 **Dependencias:** fijadas en `requirements-lock.txt`  
 **Licencia:** MIT  
 **Repositorio:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**DOI del código:** [10.5281/zenodo.23675105](https://doi.org/10.5281/zenodo.23675105)  
-**DOI de los datos:** [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279)  
-**Pruebas:** 71 pruebas pasan con `python -m pytest -q tests`.
+**DOI conceptual del código (v2.0.0):** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
+**DOI conceptual de los datos (v2.0.0):** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)  
+**Pruebas:** 76 pruebas pasan con `python -m pytest -q tests`.
 
 # Referencias {.unnumbered}
 ::: {#refs}

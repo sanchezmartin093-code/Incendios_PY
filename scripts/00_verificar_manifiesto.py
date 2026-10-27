@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--manifiesto",
         type=Path,
-        default=ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v2.csv",
+        default=ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v3.csv",
         help="Ruta al CSV de manifiesto.",
     )
     args = parser.parse_args()

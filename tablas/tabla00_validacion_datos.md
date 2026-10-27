@@ -75,4 +75,4 @@
 | modelos           | lightgbm_propagacion_chaco.booster          | presente   | OK       |                                                                                      |
 | modelos           | lightgbm_propagacion_oriental.booster       | presente   | OK       |                                                                                      |
 | manifiesto        | hashes_pendientes                           | 0          | OK       |                                                                                      |
-| manifiesto        | filas                                       | 44         | OK       |                                                                                      |
+| manifiesto        | filas                                       | 69         | OK       |                                                                                      |

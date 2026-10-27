@@ -1,6 +1,6 @@
 ---
 title: "Cover Letter to the Editor-in-Chief"
-date: "2026-10-25"
+date: "2026-10-27"
 format:
   html:
     theme: cosmo
@@ -9,7 +9,7 @@ format:
     toc: false
 ---
 
-**Date:** October 25, 2026  
+**Date:** October 27, 2026  
 
 **To:**  
 The Editors-in-Chief  
@@ -35,12 +35,12 @@ Our work sits precisely at the convergence of **Computer Science Applications** 
 * **High-Performance Zero-Copy Computational Pipeline:** By integrating Apache Arrow, DuckDB, and Polars, our computational engine processes the entire national territory ($400,006\text{ km}^2$) in **~$1.57$ seconds** on a standard ARM64 machine (~$2.18\text{ GB}$ peak RAM), demonstrating that national early-warning systems do not require prohibitive cloud infrastructure.
 * **Physics-Guided Machine Learning (PGML):** We enforce structural monotonic constraints within LightGBM ($+1$ for atmospheric dryness and wind pressure, $-1$ for antecedent rainfall and distance), mathematically preventing counterintuitive artifacts.
 * **Spatial and Temporal Control:** We use the **D2 target definition** (no t-1 fire within 25 km; no same-cell fire in 10 days) and multi-year out-of-time test partitions (2024–2025). We also implement a **50-km spatial block holdout with a 20-km buffer**; a reproducible semivariogram remains pending. Priors are causal (monthly cutoff, rolling 3-year window).
-* **Software Engineering and Reproducibility Standards:** The framework is packaged with a complete automated test suite of **71 unit tests** (`tests/`) running in $\approx 1.7\text{ seconds}$, verifying algebraic invariants, physical monotonicity, conformal coverage, and spatial KD-Tree queries. All code and workflows are versioned from raw ingestion (`scripts/00_...`) to publication-ready outputs (`scripts/24_...`) under the permissive MIT License.
+* **Software Engineering and Reproducibility Standards:** The framework is packaged with a complete automated test suite of **76 unit tests** (`tests/`) running in $\approx 1\text{ minute}$, verifying algebraic invariants, physical monotonicity, conformal coverage, and spatial KD-Tree queries. All code and workflows are versioned from raw ingestion (`scripts/00_...`) to publication-ready outputs (`scripts/24_...`) under the permissive MIT License.
 * **Quantitative International Benchmarking:** In retrospective temporal testing over $1,813,966$ D2 cell-days during 2024–2025, our hybrid ignition layer $\mathcal{M}_3$ achieves a ROC-AUC of **$0.8021$** in the Gran Chaco and **$0.7534$** in the Oriental Region, versus **$0.5173$ / $0.5564$** for the full Canadian FWI and **$0.5389$ / $0.4990$** for the INPE. Case-control $F_{0.5}$ precision is $32.82\text{ \%}$ / $30.13\text{ \%}$; after correction to population prevalence (~0.015 % / 0.041 %), operational precision is $0.082\text{ \%}$ / $0.198\text{ \%}$. Tactical propagation achieves ROC-AUC **$0.9039$** (Chaco) and population precision $9.67\text{ \%}$. The 2023 validation selected M3 for temporal nowcasting and M2 as the operational fallback; M1 was rejected as a fallback. These corrected metrics are the honest operational benchmark.
 
 ### Mandatory Declarations
 - This manuscript has not been published previously, is not under consideration for publication elsewhere, and its publication has been approved by the author.
-- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v2.csv` and archived on Zenodo (code DOI: 10.5281/zenodo.23675105; data DOI: 10.5281/zenodo.23675279).
+- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv` and archived on Zenodo (code concept DOI: 10.5281/zenodo.23675104; data concept DOI: 10.5281/zenodo.23675278; release v2.0.0).
 - We declare no competing financial or non-financial conflicts of interest.
 
 Thank you very much for your time, consideration, and editorial guidance.
