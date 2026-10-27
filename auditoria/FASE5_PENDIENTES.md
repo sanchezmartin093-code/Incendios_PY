@@ -1,17 +1,20 @@
 # Fase 5 - Pendientes después de la reauditoría
 
 **Fecha:** 2026-10-27
-**Candidato vigente:** `submission-candidate-2026-10-27-r3` → `e2aa676`
-**Estado:** r3 congelado y verificado; Fase 5 no ejecutada.
+**Candidato vigente:** `submission-candidate-2026-10-27-r4` → `c6322e1`
+**Estado:** r4 congelado y verificado; Fase 5 no ejecutada.
 
 ## 1. Bloqueantes antes de reentrenar
 
-1. **Integrar la verificación Git/tag en `scripts/32`.**
-   Ya existe `scripts/33_verificar_trazabilidad_git.py` como verificador externo;
-   conviene incorporar esa lógica a `scripts/32` en el próximo candidato.
+Sin bloqueos de código. `scripts/32` integra la verificación Git/tag.
 
 ## 2. Resuelto en estas correcciones
 
+- Candidato **r4**: source `14d6ad7`, tag `c6322e1`, corpus `d367ebb8...`,
+  100 archivos, 9.306.577.967 bytes.
+- `scripts/32` verifica checksums y luego ejecuta `scripts/33`.
+- `scripts/33` funciona también en el commit del tag, leyendo commit/tree/archive
+  del mensaje del tag cuando el JSON solo tiene los campos `source_*`.
 - Candidato **r3**: source `3a5edee`, tag `e2aa676`, corpus `6c9c8b7e...`,
   99 archivos, 9.306.572.469 bytes.
 - Se separaron `source_commit`, `source_tree`, `source_archive_sha256`,
@@ -60,4 +63,4 @@
 
 ## 6. Regla
 
-No se reentrena ni se toca el holdout hasta cerrar el punto 1. Cualquier cambio de código posterior a r3 requiere un candidato r4.
+La Fase 5 puede iniciar sobre r4. Cualquier cambio de código posterior a r4 requiere un candidato r5.
