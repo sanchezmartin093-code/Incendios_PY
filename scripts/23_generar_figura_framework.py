@@ -1,7 +1,7 @@
 """Generate the conceptual Figure 1 for the manuscript.
 
 The figure is intentionally metric-free: it shows the D2 target operator, the
-biophysical gate, the decoupled M3/M1 inference and the evaluation harness.
+biophysical gate, the decoupled M3/M2 inference and the evaluation harness.
 No performance KPI, legacy percentage or project branding is used.
 """
 
@@ -98,7 +98,7 @@ def main():
     )
     ax.text(
         2, 56.3,
-        "D2 targets  |  gated M3/M1 inference  |  open benchmark against Canadian FWI and INPE",
+        "D2 targets  |  M3/M2 inference  |  open benchmark against Canadian FWI and INPE",
         ha="left", va="top", fontsize=9.4, color=COLORS["muted"],
     )
 
@@ -169,7 +169,7 @@ def main():
         "weather + fuel + ecotone\n+ anthropogenic priors\nno t-1 fire input",
         fontsize=8.1, color=COLORS["ink"], linespacing=1.2,
     )
-    ax.text(x, 31.0, "M1  fallback", fontsize=9.4, fontweight="bold", color=COLORS["model"])
+    ax.text(x, 31.0, "M2  fallback", fontsize=9.4, fontweight="bold", color=COLORS["model"])
     ax.text(
         x, 27.3,
         "weather + fuel only\nused where fire history\nis absent",

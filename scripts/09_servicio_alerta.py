@@ -75,7 +75,8 @@ def ejecutar_servicio_alerta(fecha: str | None = None):
     columnas_export = [
         "cell_id", "x_utm", "y_utm", "lon", "lat", "departamento", "region",
         "probabilidad_fuego", "probabilidad_cruda", "probabilidad_ignicion",
-        "probabilidad_m3", "probabilidad_m1", "fallback_m1", "nivel_alerta", "estado_gating",
+        "probabilidad_m3", "probabilidad_m2", "probabilidad_m1",
+        "fallback_m2", "fallback_m1", "nivel_alerta", "estado_gating",
         "isi", "ffmc", "vpd_max_kpa", "viento_max_kmh", "rafaga_max_kmh", "temp_max_c"
     ]
     df_evaluado.select(columnas_export).write_parquet(p_parquet)

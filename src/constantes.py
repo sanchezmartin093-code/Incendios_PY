@@ -33,7 +33,7 @@ BBOX_PARAGUAY = {
 YEARS_TRAIN = list(range(2018, 2023))  # 2018 to 2022 (5 years of synoptic and interannual variability)
 YEAR_VAL = 2023                        # Hyperparameter tuning and Platt calibration
 YEARS_TEST = [2024, 2025]              # Blind out-of-time testing (historic Chaco crisis and recent season)
-YEAR_TEST = 2024                       # Primary blind test year (compatibility)
+YEAR_TEST = 2024                       # Primary retrospective test year (compatibility)
 
 # GeoAI Rigor: Spatial Dead-Zone Buffer
 BUFFER_ZONA_MUERTA_KM = 20             # Damping to cancel spatial autocorrelation between folds

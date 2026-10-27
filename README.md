@@ -16,14 +16,15 @@ The framework separates two prediction problems:
 - **Tactical propagation:** fire at day `t` within 25 km of a fire at `t-1`.
 
 The operational layer uses the hybrid ignition model **M3** for cells with observed
-fire history and the biophysical model **M1** as a fallback for cells without history.
+fire history and the base model **M2** as a fallback for cells without history. **M1**
+is a diagnostic biophysical baseline; the 2023 validation rejected it as the fallback.
 Propagation is evaluated only in the `t-1` fire domain.
 
 ## Status
 
-> **Documentation status.** Main-results tables below still reflect the Phase 1 run.
-> Phase 2 scientific reconciliation is pending; do not cite those numbers as final.
-> Technical reproducibility state is in `auditoria/FASE2_0_CIERRE.md`.
+> **Documentation status.** Main results below are the Phase 2 selection and
+> retrospective test. Model selection used 2023 validation only; 2024–2025 is
+> retrospective and was not used for selection. See `auditoria/FASE2_DECISION_MODELO.md`.
 
 - Data: `dataset_unificado_candidatos` annual-fuel build, 8 annual partitions,
   915,561,114 candidate cell-days, 867,430 fire cell-days, 397,448 cells.
@@ -41,11 +42,11 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Holdout: 31 confirmation blocks (50 km, 20 km buffer), 68,719 cells, reserved
   for Phase 5 and not used in this evaluation.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
-- Alerts: M3 with M1 fallback; propagation restricted to the `t-1` domain.
+- Alerts: M3 with M2 fallback; propagation restricted to the `t-1` domain.
 - Tests: **71 pass** (pytest; 2 warnings).
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
   exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
-- Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0).
+- Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0), pre-audit; the current release and DOI update are pending Phase 3.
 
 ## Installation
 
@@ -114,6 +115,10 @@ python scripts/21_evaluacion_lead_time.py
 python scripts/22_analisis_cost_loss.py
 python scripts/23_benchmark_computacional.py
 python scripts/24_entrenar_m1.py
+python scripts/26_validacion_2023.py
+python scripts/27_validacion_espacial_2023.py
+python scripts/29_lead_time_2023.py
+python scripts/30_validacion_propagacion_2023.py
 
 # 4. Operational products
 python scripts/09_servicio_alerta.py --fecha 2024-09-09
@@ -126,44 +131,63 @@ python scripts/15_generar_figura_arquitectura_impacto.py
 
 ## Main results
 
-### Held-out temporal test (2024–2025)
+### 2023 selection
+
+| Region | Model | ROC-AUC | PR-AUC | F0.5 |
+|---|---|---:|---:|---:|
+| Chaco | M1 biophysical | 0.6354 | 0.1480 | 0.1762 |
+| Chaco | M2 base | 0.7817 | 0.2452 | 0.2933 |
+| Chaco | M3 hybrid | 0.7844 | 0.2542 | 0.2979 |
+| Oriental | M1 biophysical | 0.7041 | 0.1818 | 0.2301 |
+| Oriental | M2 base | 0.7496 | 0.2221 | 0.2631 |
+| Oriental | M3 hybrid | 0.7628 | 0.2441 | 0.2875 |
+
+M3 was retained for temporal nowcasting in both regions (paired ΔROC-AUC > 0 and
+lower 95 % CI above −0.01). In 2023 spatial blocks, M2 was the most robust model
+(0.6773/0.7470 versus 0.6496/0.7277 for M3 and 0.6456/0.7176 for M1). On cells
+without history, M1 reached 0.6650/0.7018 versus 0.7677/0.7440 for M2 and
+0.7626/0.7421 for M3, so M1 was rejected as the operational fallback.
+
+### Retrospective test (2024–2025)
 
 | Region | Model | ROC-AUC | PR-AUC | Case-control F0.5 precision |
 |---|---|---:|---:|---:|
-| Chaco | M3 hybrid ignition | 0.8021 | 0.2843 | 33.97 % |
-| Chaco | M2 ignition baseline | 0.7945 | 0.2677 | 32.18 % |
-| Chaco | Tactical propagation | 0.9032 | 0.6910 | 85.11 % |
-| Oriental | M3 hybrid ignition | 0.7533 | 0.2338 | 29.15 % |
-| Oriental | M2 ignition baseline | 0.7369 | 0.2102 | 26.95 % |
-| Oriental | Tactical propagation | 0.7842 | 0.3710 | 63.25 % |
+| Chaco | M3 hybrid ignition | 0.8021 | 0.2842 | 32.82 % |
+| Chaco | M2 ignition baseline | 0.7991 | 0.2766 | 33.28 % |
+| Chaco | Tactical propagation | 0.9039 | 0.6935 | 83.69 % |
+| Oriental | M3 hybrid ignition | 0.7534 | 0.2340 | 30.13 % |
+| Oriental | M2 ignition baseline | 0.7406 | 0.2146 | 26.09 % |
+| Oriental | Tactical propagation | 0.7859 | 0.3752 | 65.03 % |
 
 The case-control test set has a 1:10 sampling ratio (approximately 9.09 % prevalence).
-These are **not** operational population-level precision values.
+These are **not** operational population-level precision values. The test was already
+observed during development and is reported as retrospective, not blind. 2024 uses
+the 2023 fuel map with lag 1; 2025 uses 2023 with lag 2.
 
 ### Population-level evaluation
 
 | Region | Model | Precision | Recall | ROC-AUC | PR-AUC |
 |---|---|---:|---:|---:|---:|
-| Chaco | M3 ignition | 0.086 % | 24.93 % | 0.8060 | 0.0011 |
-| Chaco | M2 ignition | 0.086 % | 25.70 % | 0.8021 | 0.0007 |
-| Chaco | Propagation | 10.24 % | 48.77 % | 0.9089 | 0.1218 |
-| Oriental | M3 ignition | 0.191 % | 23.15 % | 0.7632 | 0.0019 |
-| Oriental | M2 ignition | 0.167 % | 18.83 % | 0.7479 | 0.0014 |
-| Oriental | Propagation | 4.54 % | 19.22 % | 0.7938 | 0.0277 |
+| Chaco | M3 ignition | 0.082 % | 27.30 % | 0.8059 | 0.0009 |
+| Chaco | M2 ignition | 0.090 % | 24.59 % | 0.8078 | 0.0007 |
+| Chaco | Propagation | 9.67 % | 50.65 % | 0.9088 | 0.1270 |
+| Oriental | M3 ignition | 0.198 % | 20.73 % | 0.7627 | 0.0019 |
+| Oriental | M2 ignition | 0.166 % | 22.11 % | 0.7549 | 0.0015 |
+| Oriental | Propagation | 4.78 % | 18.77 % | 0.7963 | 0.0287 |
 
-The population prevalence is approximately 0.015–0.041 % for ignition and
-0.155–0.210 % for propagation. The population-level ignition precision is low; the
-system is a nowcast and prioritisation tool, not a stand-alone early-warning system.
+Population-level ignition precision is low; the system is a nowcast and
+prioritisation tool, not a stand-alone early-warning system.
 
 ### Benchmarking and robustness
 
-- Full Canadian FWI: ROC-AUC 0.5185/0.5569 for ignition in Chaco/Oriental.
-- INPE Risco de Fogo: 0.5386/0.4994.
+- Full Canadian FWI: ROC-AUC 0.5173/0.5564 for ignition in Chaco/Oriental.
+- INPE Risco de Fogo: 0.5389/0.4990.
 - Grouped-by-date paired bootstrap: all main comparisons against FWI/INPE have
   `p ≤ 0.001` (`B = 1,000`).
-- Spatial block holdout (50 km blocks, 20 km buffer): M1 0.6544/0.6875,
-  M3 0.6725/0.7010. M3 should not be presented as a spatial extrapolation model.
-- Weather at `t-1`: M3 0.8014/0.7516; M1 0.6358/0.6794.
+- Spatial block holdout 2023 (50 km blocks, 20 km buffer): M1 0.6456/0.7176,
+  M2 0.6773/0.7470, M3 0.6496/0.7277. M2 is the spatial comparator; M3 is not a
+  spatial extrapolator.
+- Weather at `t-1` (2023): M3 0.7831/0.7613; M2 0.7818/0.7463; M1 0.6342/0.6965.
 - Full pipeline: 1.569 s and 2,182.1 MB peak RAM on ARM64.
 - Conformal empirical coverage: 89.85 %/90.19 % for nominal 90 %; 95.02 %/94.56 %
   for nominal 95 %, without a formal guarantee under temporal shift.
@@ -202,8 +226,7 @@ Raw datasets are public but are not redistributed in this repository:
 5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models are archived in Zenodo with DOI
-[`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279).
+`fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models will be re-archived in Zenodo in Phase 3; the current v1.0.0 DOI is pre-audit.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
@@ -213,8 +236,8 @@ licenses and terms.
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
 - Release: <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0>
-- Code archive DOI: [`10.5281/zenodo.23675105`](https://doi.org/10.5281/zenodo.23675105) (concept DOI: `10.5281/zenodo.23675104`).
-- Data archive DOI: [`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279) (concept DOI: `10.5281/zenodo.23675278`).
+- Code archive DOI: [`10.5281/zenodo.23675105`](https://doi.org/10.5281/zenodo.23675105) (pre-audit; concept DOI `10.5281/zenodo.23675104`; Phase 3 update pending).
+- Data archive DOI: [`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279) (pre-audit; concept DOI `10.5281/zenodo.23675278`; Phase 3 update pending).
 - License: MIT.
 - Contact: Martín Sánchez Insfrán, `sanchez.martin093@gmail.com`.
 - ORCID: <https://orcid.org/0000-0003-4138-9668>
@@ -228,11 +251,12 @@ licenses and terms.
    ``et0_mm`` in the short CDS path is Hargreaves-Samani, not FAO-56 reference
    ET0; it is an explicit approximation.
 3. D2 is a task-specific target definition; it is not a universal ignition model.
-4. Spatial generalisation in unseen blocks is limited for all ignition models; M3
-   should not be presented as a spatial extrapolation model. The final M2/M3
-   ranking is pending Phase 2 reconciliation.
+4. Spatial generalisation in unseen blocks is limited for all ignition models; M2
+   is the most robust spatial comparator. M3 should not be presented as a spatial
+   extrapolation model, and M1 is not the operational fallback.
 5. The operational alert still requires institutional validation and a day-ahead
-   forecast layer.
+   forecast layer. The 2024–2025 test is retrospective, and about 90.65 % of test
+   cells overlap training cells through the temporal split.
 6. The model is a nowcast/hindcast: weather features are same-day.
 7. Ignition population precision is very low; operational use must be prioritised
    and evaluated prospectively.
@@ -249,7 +273,7 @@ calibration, metrics, bootstrap resampling and the alert layer.
 
 ## Citation
 
-See `CITATION.cff`. Cite the code archive as `10.5281/zenodo.23675105` and the data archive as `10.5281/zenodo.23675279`.
+See `CITATION.cff`. The v1.0.0 archives are pre-audit; cite the updated Phase 3 release once available.
 
 ## License
 

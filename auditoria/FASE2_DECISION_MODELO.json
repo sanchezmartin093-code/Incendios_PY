@@ -1,0 +1,41 @@
+{
+  "fase": "2.0-cientifica",
+  "fecha": "2026-10-27",
+  "protocolo": "auditoria/FASE2_PROTOCOLO_SELECCION.md",
+  "datos_seleccion": ["validacion_2023", "holdout_espacial_desarrollo_2023"],
+  "test_2024_2025_usado_para_seleccion": false,
+  "holdout_confirmacion_usado": false,
+  "decision": {
+    "ignicion_temporal": {
+      "Chaco": "M3",
+      "Oriental": "M3"
+    },
+    "fallback_operativo": "M2",
+    "M1": "baseline_biofisico_no_fallback",
+    "espacial": "M2_mejor_en_bloques_no_vistos",
+    "propagacion": "sin_cambios"
+  },
+  "criterios": {
+    "delta_no_inferioridad_roc_auc": 0.01,
+    "delta_no_inferioridad_pr_auc": 0.01,
+    "bootstrap_replicas": 1000,
+    "agrupacion_temporal": "fecha",
+    "agrupacion_espacial": "bloque_espacial"
+  },
+  "evidencia": {
+    "M3_minus_M2_2023": {
+      "Chaco": {"delta_roc_auc": 0.0028, "ci95": [0.0001, 0.0054], "delta_pr_auc": 0.0089, "ci95_pr": [0.0034, 0.0144]},
+      "Oriental": {"delta_roc_auc": 0.0132, "ci95": [0.0097, 0.0169], "delta_pr_auc": 0.0221, "ci95_pr": [0.0166, 0.0272]}
+    },
+    "M2_minus_M3_espacial_2023": {
+      "Chaco": {"delta_roc_auc": 0.0277, "ci95": [0.0076, 0.0510], "delta_pr_auc": 0.0130, "ci95_pr": [0.0046, 0.0227]},
+      "Oriental": {"delta_roc_auc": 0.0193, "ci95": [0.0130, 0.0272], "delta_pr_auc": 0.0212, "ci95_pr": [0.0136, 0.0290]}
+    },
+    "fallback_2023": {
+      "Chaco": {"M1_roc_auc": 0.6650, "M2_roc_auc": 0.7677, "M3_roc_auc": 0.7626},
+      "Oriental": {"M1_roc_auc": 0.7018, "M2_roc_auc": 0.7440, "M3_roc_auc": 0.7421}
+    }
+  },
+  "consecuencia": "Cambiar arquitectura operativa de M3/M1 a M3/M2; M1 queda como baseline.",
+  "prohibiciones": ["no usar test 2024-2025 para seleccion", "no usar holdout de confirmacion", "no recalcular cutoffs en test"]
+}

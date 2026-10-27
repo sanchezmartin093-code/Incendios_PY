@@ -1,6 +1,6 @@
 """
 Script 14: Supplementary Audit and Generation of Tables S3 and S4 (C&G Reproducibility).
-- Evaluates the departmental territorial breakdown on the blind test set.
+- Evaluates the departmental territorial breakdown on the retrospective test set.
 - Runs the empirical sensitivity analysis of spatial buffer radii (10 km, 20 km, 30 km).
 - Measures the latency and RAM profile on Apple Silicon ARM64 hardware.
 - Exports:

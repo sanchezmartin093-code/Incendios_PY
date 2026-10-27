@@ -57,6 +57,8 @@ class TestServicioAlerta(unittest.TestCase):
         self.assertIn("oriental", art)
         self.assertIsNotNone(art["chaco"]["booster"])
         self.assertIsNotNone(art["oriental"]["calibrador"])
+        self.assertIsNotNone(art["chaco"]["booster_m2"])
+        self.assertEqual(len(art["chaco"]["features_m2"]), 35)
 
     def test_preparacion_e_inferencia_fecha(self):
         """Verifies the complete inference flow on a test date."""
@@ -81,6 +83,7 @@ class TestServicioAlerta(unittest.TestCase):
         df_eval = evaluar_alerta_nacional(df_sub, artefactos)
         self.assertEqual(df_eval.height, 1000)
         self.assertIn("probabilidad_fuego", df_eval.columns)
+        self.assertIn("fallback_m2", df_eval.columns)
         self.assertIn("nivel_alerta", df_eval.columns)
 
         resumen, md = generar_boletin_operativo(df_eval, fecha_test)

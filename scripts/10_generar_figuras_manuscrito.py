@@ -119,7 +119,7 @@ def generar_todas_las_figuras():
         ax2.set_ylabel("Precision (PPV)", fontsize=10)
         ax2.legend(loc="upper right", fontsize=8.5)
 
-        plt.suptitle("Out-of-time performance on the blind test (2024–2025)",
+        plt.suptitle("Retrospective out-of-time performance (2024–2025)",
                      fontsize=13, fontweight="bold", y=0.98)
         plt.tight_layout()
 
