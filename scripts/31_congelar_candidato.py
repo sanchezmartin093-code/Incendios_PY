@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+import csv
 import hashlib
 import json
 import platform
@@ -96,6 +97,8 @@ def collect_paths() -> list[tuple[str, Path, str]]:
     add("decision", "auditoria/FASE2_REPRO_BUILD_CHECK.txt")
 
     # Code contract and environment
+    add("code", "scripts/31_congelar_candidato.py")
+    add("code", "scripts/32_verificar_candidato.py")
     add("code", "src/modelo.py")
     add("code", "src/alerta.py")
     add("code", "src/holdout.py")
@@ -148,6 +151,20 @@ def main() -> None:
             "nota": note,
         })
 
+    required = [
+        ROOT / "datos/processed/holdout_confirmacion/celdas_holdout.parquet",
+        ROOT / "datos/processed/holdout_confirmacion/celdas_buffer.parquet",
+        ROOT / "datos/processed/targets_poblacionales/train_ignicion.parquet",
+        ROOT / "datos/processed/targets_poblacionales/val_ignicion.parquet",
+        ROOT / "datos/processed/targets_poblacionales/test_ignicion.parquet",
+        ROOT / "modelos/lightgbm_hibrido_chaco.booster",
+        ROOT / "modelos/lightgbm_ignicion_chaco.booster",
+        ROOT / "requirements-lock.txt",
+    ]
+    missing = [p.relative_to(ROOT).as_posix() for p in required if not p.exists()]
+    if missing:
+        raise FileNotFoundError(f"Faltan artefactos críticos: {missing}")
+
     corpus = hashlib.sha256()
     for row in rows:
         corpus.update(f"{row['ruta']}\t{row['sha256']}\n".encode("utf-8"))
@@ -164,7 +181,7 @@ def main() -> None:
         "n_archivos": len(rows),
         "bytes_totales": sum(r["bytes"] for r in rows),
         "corpus_sha256": corpus_sha,
-        "tag_previsto": "submission-candidate-2026-10-27",
+        "tag_previsto": "submission-candidate-2026-10-27-r2",
         "alcance": (
             "Candidato científico: datos procesados, targets, modelos, "
             "calibradores, umbrales, prevalencias, tablas de selección, "
@@ -175,13 +192,12 @@ def main() -> None:
     }
 
     OUT_JSON.write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    with OUT_CSV.open("w", encoding="utf-8") as f:
-        f.write("categoria,ruta,bytes,sha256,nota\n")
-        for r in rows:
-            f.write(
-                f"{r['categoria']},{r['ruta']},{r['bytes']},{r['sha256']},"
-                f"\"{r['nota']}\"\n"
-            )
+    with OUT_CSV.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=["categoria", "ruta", "bytes", "sha256", "nota"]
+        )
+        writer.writeheader()
+        writer.writerows(rows)
 
     print(f"Commit: {commit}")
     print(f"Tree: {tree}")

@@ -7,6 +7,8 @@ import polars as pl
 from src.holdout import (
     design_confirmation_holdout,
     development_holdout_blocks,
+    etiquetar_particion_confirmacion,
+    filtrar_particion_confirmacion,
 )
 
 
@@ -33,6 +35,30 @@ class TestHoldoutConfirmacion(unittest.TestCase):
         self.assertTrue(dev.isdisjoint(conf))
         self.assertGreater(len(conf), 0)
         self.assertGreater(len(set(h1["cell_id"])), 0)
+
+    def test_particion_excluye_holdout_y_buffer(self):
+        df = pl.DataFrame({"cell_id": [1, 2, 3, 4], "valor": [10, 20, 30, 40]})
+        holdout = pl.DataFrame({"cell_id": [1]})
+        buffer = pl.DataFrame({"cell_id": [2]})
+        etiquetado = etiquetar_particion_confirmacion(df, holdout, buffer)
+        self.assertEqual(
+            dict(zip(etiquetado["cell_id"].to_list(), etiquetado["rol_confirmacion"].to_list())),
+            {1: "confirmacion", 2: "buffer_confirmacion", 3: "desarrollo", 4: "desarrollo"},
+        )
+        desarrollo = filtrar_particion_confirmacion(df, holdout, buffer, "desarrollo")
+        self.assertEqual(desarrollo["cell_id"].to_list(), [3, 4])
+        calibracion = filtrar_particion_confirmacion(df, holdout, buffer, "desarrollo")
+        self.assertNotIn(1, calibracion["cell_id"].to_list())
+        self.assertNotIn(2, calibracion["cell_id"].to_list())
+        evaluacion = filtrar_particion_confirmacion(df, holdout, buffer, "confirmacion")
+        self.assertEqual(evaluacion["cell_id"].to_list(), [1])
+
+    def test_particion_rechaza_solapamiento(self):
+        df = pl.DataFrame({"cell_id": [1, 2]})
+        holdout = pl.DataFrame({"cell_id": [1]})
+        buffer = pl.DataFrame({"cell_id": [1]})
+        with self.assertRaises(ValueError):
+            etiquetar_particion_confirmacion(df, holdout, buffer)
 
 
 if __name__ == "__main__":

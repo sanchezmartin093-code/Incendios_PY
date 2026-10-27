@@ -95,3 +95,52 @@ def design_confirmation_holdout(
         ])
     )
     return blocks_out, holdout, buffer
+
+
+ROLES_CONFIRMACION = ("desarrollo", "buffer_confirmacion", "confirmacion")
+
+
+def etiquetar_particion_confirmacion(
+    df: pl.DataFrame,
+    holdout: pl.DataFrame,
+    buffer: pl.DataFrame,
+) -> pl.DataFrame:
+    """Labels rows as development, confirmation buffer or confirmation holdout.
+
+    This is a read-only partition helper for Phase 5. It never uses labels or
+    model outputs. Buffer cells must be excluded from training and calibration
+    to avoid spatial leakage from the confirmation blocks.
+    """
+    if "cell_id" not in df.columns:
+        raise ValueError("df debe contener cell_id")
+
+    holdout_ids = holdout.select("cell_id").unique()
+    buffer_ids = buffer.select("cell_id").unique()
+    if holdout_ids.height == 0:
+        raise ValueError("holdout no puede estar vacío")
+    if buffer_ids.height == 0:
+        raise ValueError("buffer no puede estar vacío")
+    if holdout_ids.join(buffer_ids, on="cell_id", how="inner").height:
+        raise ValueError("holdout y buffer se solapan")
+
+    return df.with_columns(
+        pl.when(pl.col("cell_id").is_in(holdout_ids["cell_id"].to_list()))
+        .then(pl.lit("confirmacion"))
+        .when(pl.col("cell_id").is_in(buffer_ids["cell_id"].to_list()))
+        .then(pl.lit("buffer_confirmacion"))
+        .otherwise(pl.lit("desarrollo"))
+        .alias("rol_confirmacion")
+    )
+
+
+def filtrar_particion_confirmacion(
+    df: pl.DataFrame,
+    holdout: pl.DataFrame,
+    buffer: pl.DataFrame,
+    rol: str,
+) -> pl.DataFrame:
+    """Returns rows for a Phase 5 role: desarrollo, buffer_confirmacion or confirmacion."""
+    if rol not in ROLES_CONFIRMACION:
+        raise ValueError(f"rol inválido: {rol}. Opciones: {ROLES_CONFIRMACION}")
+    etiquetado = etiquetar_particion_confirmacion(df, holdout, buffer)
+    return etiquetado.filter(pl.col("rol_confirmacion") == rol).drop("rol_confirmacion")
