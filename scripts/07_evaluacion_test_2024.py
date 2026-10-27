@@ -72,6 +72,7 @@ def evaluar_modelo_en_test():
     ]
     
     filas_metricas = []
+    filas_anio = []
     preds_por_region = {}
 
     for region in regiones:
@@ -97,8 +98,10 @@ def evaluar_modelo_en_test():
             es_prop = modo_clave == "propagacion"
             df_fuente = df_test_prop if es_prop else df_test_ign
             preds_dict = preds_prop if es_prop else preds_ign
+            df_eval = df_fuente.filter(pl.col("region") == region)
             X_test, y_test, feats = preparar_matrices_xy(df_fuente, region, modo=modo_clave)
-            bloques = df_fuente.filter(pl.col("region") == region)["fecha"].to_numpy()
+            bloques = df_eval["fecha"].to_numpy()
+            anios_eval = df_eval["fecha"].str.slice(0, 4).cast(pl.Int32).to_numpy()
 
             n_pos = int(y_test.sum())
             n_neg = int(len(y_test) - n_pos)
@@ -181,6 +184,36 @@ def evaluar_modelo_en_test():
                     "falsos_negativos": fn
                 })
 
+            # Year-stratified diagnostics. 2024 uses fuel lag 1; 2025 uses
+            # fuel lag 2. The same validation cutoff is applied, never refitted.
+            for anio_eval in sorted(set(int(a) for a in anios_eval)):
+                mask = anios_eval == anio_eval
+                y_yr = y_test[mask]
+                p_yr = probs[mask]
+                if len(y_yr) == 0:
+                    continue
+                pred_yr = (p_yr >= c_f05).astype(int)
+                tn, fp, fn, tp = confusion_matrix(y_yr, pred_yr).ravel()
+                prec = float(tp / (tp + fp)) if (tp + fp) else 0.0
+                rec = float(tp / (tp + fn)) if (tp + fn) else 0.0
+                f05 = float(fbeta_score(y_yr, pred_yr, beta=0.5, zero_division=0))
+                filas_anio.append({
+                    "region": region,
+                    "capa_modelo": modo_nombre,
+                    "anio_eval": anio_eval,
+                    "fuel_lag": 1 if anio_eval == 2024 else 2,
+                    "n": int(len(y_yr)),
+                    "n_pos": int(y_yr.sum()),
+                    "prevalencia": round(float(y_yr.mean()), 6),
+                    "cutoff_f05": round(float(c_f05), 4),
+                    "roc_auc": round(float(roc_auc_score(y_yr, p_yr)), 4) if len(np.unique(y_yr)) > 1 else 0.5,
+                    "pr_auc": round(float(average_precision_score(y_yr, p_yr)), 4) if len(np.unique(y_yr)) > 1 else float(y_yr.mean()),
+                    "precision": round(prec, 4),
+                    "recall": round(rec, 4),
+                    "f05_score": round(f05, 4),
+                    "falsos_positivos": int(fp),
+                })
+
         for col_name, p_vals in preds_ign.items():
             df_reg_ign = df_reg_ign.with_columns(pl.Series(col_name, p_vals))
         for col_name, p_vals in preds_prop.items():
@@ -192,7 +225,18 @@ def evaluar_modelo_en_test():
 
     # 6. Consolidate results table
     df_tabla = pd.DataFrame(filas_metricas)
-    
+    df_anio = pd.DataFrame(filas_anio)
+
+    path_anio_csv = DIR_TABLAS / "tabla02_metricas_por_anio.csv"
+    path_anio_md = DIR_TABLAS / "tabla02_metricas_por_anio.md"
+    df_anio.to_csv(path_anio_csv, index=False)
+    path_anio_md.write_text(
+        "# Tabla 2b. Métricas por año en el test retrospectivo\n\n"
+        "2024 usa fuel MapBiomas 2023 (lag 1); 2025 usa fuel 2023 (lag 2).\n\n"
+        + df_anio.to_markdown(index=False) + "\n",
+        encoding="utf-8",
+    )
+
     path_csv = DIR_TABLAS / "tabla02_metricas_desempeno_modelos.csv"
     path_md = DIR_TABLAS / "tabla02_metricas_desempeno_modelos.md"
     df_tabla.to_csv(path_csv, index=False)
@@ -214,6 +258,7 @@ def evaluar_modelo_en_test():
 
     print(f"✓ Tabla CSV exportada: {path_csv.name}")
     print(f"✓ Tabla Markdown exportada: {path_md.name}")
+    print(f"✓ Tabla por año: {path_anio_csv.name}")
 
     print("\n" + "=" * 65)
     print("RESUMEN DE RENDIMIENTO OPERATIVO EN TEST (OUT-OF-TIME):")

@@ -46,12 +46,12 @@ dataset,fuegos,867430,OK,
 dataset,prevalencia,0.000947,OK,prevalencia real de celdas-día candidatas
 dataset,celdas,397448,OK,
 particiones,train_ignicion_features_v3_faltantes,0,OK,contrato v3 completo
-particiones,train_ignicion_filas,1018787,OK,
+particiones,train_ignicion_filas,1003981,OK,
 particiones,train_ignicion_prevalencia,0.090909,OK,case-control esperada ~9%
 particiones,train_ignicion_fuel_futuro,0,OK,
 particiones,train_ignicion_fuel_lag_min,1,OK,
-priors,train_ignicion_Chaco_pos_dist_hist_0_pct,47.46,OK,100% indicaría fuga del propio evento
-priors,train_ignicion_Oriental_pos_dist_hist_0_pct,62.01,OK,100% indicaría fuga del propio evento
+priors,train_ignicion_Chaco_pos_dist_hist_0_pct,48.17,OK,100% indicaría fuga del propio evento
+priors,train_ignicion_Oriental_pos_dist_hist_0_pct,62.79,OK,100% indicaría fuga del propio evento
 particiones,val_ignicion_features_v3_faltantes,0,OK,contrato v3 completo
 particiones,val_ignicion_filas,188507,OK,
 particiones,val_ignicion_prevalencia,0.090909,OK,case-control esperada ~9%
@@ -66,7 +66,7 @@ particiones,test_ignicion_fuel_futuro,0,OK,
 particiones,test_ignicion_fuel_lag_min,1,OK,
 priors,test_ignicion_Chaco_pos_dist_hist_0_pct,58.78,OK,100% indicaría fuga del propio evento
 priors,test_ignicion_Oriental_pos_dist_hist_0_pct,71.92,OK,100% indicaría fuga del propio evento
-fuga_espacial,pct_celdas_test_presentes_en_train,90.97,WARN,el test es temporal; un holdout espacial requiere bloques/regiones
+fuga_espacial,pct_celdas_test_presentes_en_train,90.65,WARN,el test es temporal; un holdout espacial requiere bloques/regiones
 modelos,lightgbm_hibrido_chaco.booster,presente,OK,
 modelos,lightgbm_hibrido_oriental.booster,presente,OK,
 modelos,lightgbm_propagacion_chaco.booster,presente,OK,

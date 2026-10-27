@@ -48,6 +48,8 @@ RATIO_AUSENCIAS_PRESENCIAS = 10        # 10 negatives for every positive in trai
 # D2 definition of targets
 DIAS_IGNICION_SIN_FUEGO = 10            # A primary ignition had no fire in the cell in the last N days
 RADIO_PROPAGACION_KM = 25               # Propagation domain: cells within R km of a fire at t-1
+WARMUP_DIAS = 60                         # Antecedent window requiring a complete 60-day history
+FECHA_INICIO_TRAIN_SIN_WARMUP = "2018-03-02"  # First date with a complete 60-day window
 
 # Biophysical Thresholds for Stage 1 Filtering (Two-Stage Gating)
 UMBRAL_VPD_MINIMO_KPA = 0.8            # Below 0.8 kPa the air is saturated; ignition risk is nearly zero

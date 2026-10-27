@@ -31,6 +31,7 @@ from src.constantes import (
     RATIO_AUSENCIAS_PRESENCIAS,
     UMBRAL_LLUVIA_48H_MM,
     UMBRAL_VPD_MINIMO_KPA,
+    FECHA_INICIO_TRAIN_SIN_WARMUP,
 )
 from src.espaciotemporal import (
     agregar_features_antropicas,
@@ -215,7 +216,7 @@ def main():
     con.execute(f"CREATE TEMP TABLE plan AS SELECT * FROM '{ruta_plan}'")
     dataset = con.sql(f"""
         SELECT d.*, p.task, p.target
-        FROM '{DIR_PROCESSED / "dataset_unificado_candidatos.parquet"}' d
+        FROM read_parquet('{DIR_PROCESSED / "dataset_unificado_candidatos" / "dataset_*.parquet"}') d
         INNER JOIN plan p
           ON d.cell_id = p.cell_id AND d.fecha = p.fecha
     """).pl()
@@ -245,7 +246,10 @@ def main():
     salida.mkdir(parents=True, exist_ok=True)
     anio = dataset["fecha"].str.slice(0, 4).cast(pl.Int32)
     particiones = {
-        "train": anio.is_in([2018, 2019, 2020, 2021, 2022]),
+        # The first 60 days of 2018 have truncated antecedent windows; they are
+        # excluded from training instead of being silently zero-filled.
+        "train": anio.is_in([2018, 2019, 2020, 2021, 2022])
+        & (pl.col("fecha") >= FECHA_INICIO_TRAIN_SIN_WARMUP),
         "val": anio == 2023,
         "test": anio.is_in([2024, 2025]),
     }

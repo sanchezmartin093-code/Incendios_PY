@@ -5,12 +5,15 @@ Script 04: Assembly and Construction of the Unified Tabular Dataset (DuckDB Zero
   filtering of cells with meteorological inhibition (VPD < 0.8 kPa or 48-h rainfall > 10 mm).
 - Generates anthropogenic calendar variables (day of the week, weekend).
 - Generates the multiscale label: binary fire (Y ∈ {0, 1}) and severe fire (FRP ≥ 10 MW).
-- Serializes to datos/processed/dataset_unificado_candidatos.parquet.
+- Serializes to datos/processed/dataset_unificado_candidatos/dataset_YYYY.parquet,
+  one deterministic, sorted partition per modelling year.
 """
 
 from pathlib import Path
 import sys
 import argparse
+import hashlib
+import json
 
 # Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +46,11 @@ def construir_dataset_unificado(
             raise FileNotFoundError(f"Archivo requerido no encontrado: {p}")
 
     if path_salida is None:
-        path_salida = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
+        path_salida = DIR_PROCESSED / "dataset_unificado_candidatos"
+    path_salida = Path(path_salida)
+    if path_salida.suffix == ".parquet":
+        path_salida = path_salida.with_suffix("")
+    path_salida.mkdir(parents=True, exist_ok=True)
 
     con = duckdb.connect()
     # The annual-fuel join produces a wider 915M-row table than the old static
@@ -61,7 +68,7 @@ def construir_dataset_unificado(
         # Pure biophysical gating: no leakage of fire labels.
         # Strictly conditions on kinematic viability (fuel present, atmospheric dryness, and absence of recent rainfall)
         filtro_gating = f"""
-            WHERE (
+            (
                 gcf.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA}
                 AND gcf.precipitacion_48h_mm < {UMBRAL_LLUVIA_48H_MM}
                 AND gcf.es_combustible = true
@@ -149,18 +156,48 @@ def construir_dataset_unificado(
         FROM grilla_fuel gcf
         LEFT JOIN '{path_focos}' f
             ON gcf.cell_id = f.cell_id AND gcf.fecha = f.acq_date
-        {filtro_gating}
+        __FILTRO_ANIO__
+        ORDER BY gcf.cell_id, gcf.fecha
     """
 
-    # 1. Export directly from the query to Parquet. This avoids materializing
-    # the 915M-row intermediate table in RAM.
-    print(f"Exportando matriz integrada a: {path_salida.name}...")
-    con.execute(
-        f"COPY ({query}) TO '{path_salida}' "
-        "(FORMAT PARQUET, COMPRESSION ZSTD)"
-    )
+    anios = [
+        int(r[0]) for r in con.execute(
+            f"SELECT DISTINCT YEAR(CAST(fecha AS DATE)) AS anio FROM '{path_clima}' ORDER BY 1"
+        ).fetchall()
+    ]
+    print(f"Particiones anuales: {anios}")
 
-    # 2. Metrics and descriptive statistics
+    partes = []
+    for anio in anios:
+        condicion = (
+            f"({filtro_gating}) AND YEAR(CAST(gcf.fecha AS DATE)) = {anio}"
+            if aplicar_gating else f"YEAR(CAST(gcf.fecha AS DATE)) = {anio}"
+        )
+        filtro_anio = f"WHERE {condicion}"
+        query_anio = query.replace("__FILTRO_ANIO__", filtro_anio)
+        ruta_parte = path_salida / f"dataset_{anio}.parquet"
+        print(f"Exportando {ruta_parte.name}...")
+        con.execute(
+            f"COPY ({query_anio}) TO '{ruta_parte}' "
+            "(FORMAT PARQUET, COMPRESSION ZSTD)"
+        )
+        filas = int(con.execute(
+            f"SELECT COUNT(*) FROM read_parquet('{ruta_parte}')"
+        ).fetchone()[0])
+        h = hashlib.sha256()
+        with ruta_parte.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(4 * 1024 * 1024), b""):
+                h.update(chunk)
+        partes.append({"anio": anio, "archivo": ruta_parte.name, "filas": filas, "sha256": h.hexdigest()})
+        print(f"  {ruta_parte.name}: {filas:,} filas")
+
+    # Remove the old monolithic file only after all partitions were written.
+    legacy = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
+    if legacy.exists():
+        legacy.unlink()
+        print(f"Eliminado el archivo monolítico obsoleto: {legacy.name}")
+
+    patron = path_salida / "dataset_*.parquet"
     stats = con.execute(f"""
         SELECT
             COUNT(*) as total_filas,
@@ -171,8 +208,20 @@ def construir_dataset_unificado(
             AVG(temp_max_c) as t_max_media,
             AVG(vpd_max_kpa) as vpd_medio,
             AVG(ffmc) as ffmc_medio
-        FROM read_parquet('{path_salida}')
+        FROM read_parquet('{patron}')
     """).df()
+    tamano_mb = sum(p.stat().st_size for p in path_salida.glob("dataset_*.parquet")) / (1024 * 1024)
+    manifest = {
+        "descripcion": "Dataset unificado particionado por año, ordenado por cell_id/fecha",
+        "patron": "dataset_*.parquet",
+        "anios": anios,
+        "partes": partes,
+        "total_filas": int(stats["total_filas"][0]),
+        "tamano_mb": round(tamano_mb, 2),
+    }
+    (path_salida / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
     print("\n✓ Ensamble completado con éxito:")
     print(f" • Total de observaciones celda-día candidatas: {stats['total_filas'][0]:,}")
@@ -183,12 +232,14 @@ def construir_dataset_unificado(
     print(f" • Temperatura máxima media:                    {stats['t_max_media'][0]:.1f} °C")
     print(f" • VPD medio:                                    {stats['vpd_medio'][0]:.2f} kPa")
     print(f" • FFMC medio:                                   {stats['ffmc_medio'][0]:.1f}")
-    print(f"\nTamaño de la matriz en disco: {path_salida.stat().st_size / (1024 * 1024):.2f} MB")
+    print(f"\nTamaño de las particiones: {tamano_mb:.2f} MB")
+    print(f"Manifiesto: {path_salida / 'manifest.json'}")
     print("=" * 65)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ensamble del dataset unificado en DuckDB")
     parser.add_argument("--no-gating", action="store_true", help="Desactivar filtrado de Etapa 1")
+    parser.add_argument("--salida", type=Path, default=None, help="Directorio de salida alternativo")
     args = parser.parse_args()
 
-    construir_dataset_unificado(aplicar_gating=not args.no_gating)
+    construir_dataset_unificado(path_salida=args.salida, aplicar_gating=not args.no_gating)

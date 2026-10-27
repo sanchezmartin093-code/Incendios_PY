@@ -163,12 +163,13 @@ def main():
         add("firms_raw", "archivo", "ausente", "WARN")
 
     # 4. Unified dataset: actual prevalence
-    p_ds = DIR_PROCESSED / "dataset_unificado_candidatos.parquet"
-    if p_ds.exists():
+    dir_ds = DIR_PROCESSED / "dataset_unificado_candidatos"
+    p_ds = dir_ds / "dataset_*.parquet"
+    if list(dir_ds.glob("dataset_*.parquet")):
         stats = con.sql(f"""
             SELECT COUNT(*) filas, SUM(fuego) fuegos, AVG(fuego) prevalencia,
                    COUNT(DISTINCT cell_id) celdas
-            FROM '{p_ds}'
+            FROM read_parquet('{p_ds}')
         """).df()
         add("dataset", "filas", int(stats["filas"][0]), "OK")
         add("dataset", "fuegos", int(stats["fuegos"][0]), "OK")

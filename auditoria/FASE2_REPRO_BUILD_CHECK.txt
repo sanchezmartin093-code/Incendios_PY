@@ -1,0 +1,15 @@
+FASE 2.0 - VERIFICACION DE REPRODUCIBILIDAD DEL DATASET
+
+filas_build_1: 915561114
+filas_build_2: 915561114
+
+dataset_2018.parquet: rows=104661594/104661594 sha256_equal=True
+dataset_2019.parquet: rows=110733128/110733128 sha256_equal=True
+dataset_2020.parquet: rows=121684518/121684518 sha256_equal=True
+dataset_2021.parquet: rows=116508847/116508847 sha256_equal=True
+dataset_2022.parquet: rows=117341517/117341517 sha256_equal=True
+dataset_2023.parquet: rows=115685199/115685199 sha256_equal=True
+dataset_2024.parquet: rows=117577639/117577639 sha256_equal=True
+dataset_2025.parquet: rows=111368672/111368672 sha256_equal=True
+
+resultado: TODAS LAS PARTICIONES IDENTICAS

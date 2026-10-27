@@ -58,9 +58,14 @@ def muestrear_dataset_unificado_por_meses(
     import duckdb
     rng = np.random.default_rng(semilla)
     con = duckdb.connect()
+    path_sql = (
+        f"read_parquet('{path_parquet}')"
+        if "*" in str(path_parquet) or Path(path_parquet).is_dir()
+        else f"'{path_parquet}'"
+    )
 
     print("Extrayendo todas las presencias de fuego (Y=1) con DuckDB...")
-    df_positivos = con.sql(f"SELECT * FROM '{path_parquet}' WHERE fuego = 1").pl()
+    df_positivos = con.sql(f"SELECT * FROM {path_sql} WHERE fuego = 1").pl()
     n_pos_total = len(df_positivos)
     print(f" ✓ Presencias cargadas: {n_pos_total:,}")
 
@@ -85,7 +90,7 @@ def muestrear_dataset_unificado_por_meses(
 
         # Load only the negative candidates for the corresponding month
         df_cand_mes = con.sql(f"""
-            SELECT * FROM '{path_parquet}'
+            SELECT * FROM {path_sql}
             WHERE fecha >= '{mes}-01' AND fecha <= '{mes}-31' AND fuego = 0
         """).pl()
 

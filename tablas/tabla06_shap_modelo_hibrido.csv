@@ -1,21 +1,21 @@
 region,feature,nombre_legible,shap_media,ranking
-Chaco,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.48657143648868767,1
-Chaco,pct_bosque_seco,Fracción de Bosque Seco Chaqueño (%),0.1413708613278134,2
-Chaco,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.07288048383315777,3
-Chaco,presion_desmonte_vpd,presion_desmonte_vpd,0.06539862361481835,4
-Chaco,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.06279495800734125,5
-Chaco,borde_bosque_agro_pct,borde_bosque_agro_pct,0.020990148858521202,6
-Chaco,pct_desmonte_t1,pct_desmonte_t1,0.020295024685495603,7
-Chaco,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.020127537169418414,8
-Chaco,doy_cos,Armónico Estacional Coseno (DOY),0.016921090213473298,9
-Chaco,precipitacion_mm,Precipitación Diaria (mm),0.01151383181196171,10
-Oriental,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.19876594962912741,1
-Oriental,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.1943187874809908,2
-Oriental,pct_agricultura_anual,pct_agricultura_anual,0.16953788828240196,3
-Oriental,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.09870800606623349,4
-Oriental,presion_desmonte_vpd,presion_desmonte_vpd,0.0986836754344019,5
-Oriental,pct_humedal_palmar,Fracción de Palmar/Humedal (%),0.07892208600814998,6
-Oriental,freq_hist_1km,Recurrencia Crónica en Celda (1 km²),0.07371286494847,7
-Oriental,pct_sabana_pastizal,pct_sabana_pastizal,0.047396729286380224,8
-Oriental,riesgo_estero_seco,riesgo_estero_seco,0.04444811485197086,9
-Oriental,pct_desmonte_t1,pct_desmonte_t1,0.035067805558579905,10
+Chaco,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.48854694633718526,1
+Chaco,pct_bosque_seco,Fracción de Bosque Seco Chaqueño (%),0.13844120292324713,2
+Chaco,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.07768253646985977,3
+Chaco,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.06276894061221117,4
+Chaco,presion_desmonte_vpd,presion_desmonte_vpd,0.062012527984941314,5
+Chaco,densidad_hist_5km,Densidad Local de Ignición Antrópica (5 km),0.021952257579813058,6
+Chaco,pct_desmonte_t1,pct_desmonte_t1,0.02177497741642007,7
+Chaco,doy_cos,Armónico Estacional Coseno (DOY),0.018402363369894276,8
+Chaco,borde_bosque_agro_pct,borde_bosque_agro_pct,0.014572541757002433,9
+Chaco,precipitacion_mm,Precipitación Diaria (mm),0.01160780945578765,10
+Oriental,dist_foco_hist_km,Distancia a Ignición Histórica (km),0.2229587981303801,1
+Oriental,focalizacion_antropica_local,Índice de Focalización Local (5km / 25km),0.20123857359548855,2
+Oriental,pct_agricultura_anual,pct_agricultura_anual,0.16678352259467288,3
+Oriental,dist_corredor_antropico_km,Distancia a Corredor Antrópico Activo (km),0.10160392471069528,4
+Oriental,presion_desmonte_vpd,presion_desmonte_vpd,0.09096032701002893,5
+Oriental,pct_humedal_palmar,Fracción de Palmar/Humedal (%),0.07012171702583694,6
+Oriental,freq_hist_1km,Recurrencia Crónica en Celda (1 km²),0.056753399853502674,7
+Oriental,riesgo_estero_seco,riesgo_estero_seco,0.04868376937363781,8
+Oriental,pct_sabana_pastizal,pct_sabana_pastizal,0.04382979709071854,9
+Oriental,pct_desmonte_t1,pct_desmonte_t1,0.033324293267523085,10

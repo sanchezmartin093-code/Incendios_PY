@@ -89,6 +89,7 @@ def main():
     dir_targets = DIR_PROCESSED / "targets_poblacionales"
     regiones = ["Oriental", "Chaco"]
     resultados = []
+    resultados_anio = []
     significancia = []
 
     for region in regiones:
@@ -99,6 +100,7 @@ def main():
             df_test = pl.read_parquet(dir_targets / f"test_{task}.parquet").filter(pl.col("region") == region)
             y = df_test[target_col].to_numpy().astype(int)
             bloques = df_test["fecha"].to_numpy()
+            anios_eval = df_test["fecha"].str.slice(0, 4).cast(pl.Int32).to_numpy()
             n_pos = int(y.sum())
             prevalencia = n_pos / len(y)
 
@@ -162,6 +164,35 @@ def main():
                     "falsos_positivos": int(fp),
                 })
 
+                for anio_eval in sorted(set(int(a) for a in anios_eval)):
+                    mask = anios_eval == anio_eval
+                    y_yr = y[mask]
+                    p_yr = p_mod[mask]
+                    if len(y_yr) == 0:
+                        continue
+                    auc_yr = float(roc_auc_score(y_yr, p_yr)) if len(np.unique(y_yr)) > 1 and len(np.unique(p_yr)) > 1 else 0.5
+                    pr_yr = float(average_precision_score(y_yr, p_yr)) if len(np.unique(y_yr)) > 1 and len(np.unique(p_yr)) > 1 else float(y_yr.mean())
+                    y_bin = (p_yr >= cutoff).astype(int)
+                    tn, fp_yr, fn_yr, tp_yr = confusion_matrix(y_yr, y_bin, labels=[0, 1]).ravel()
+                    prec_yr = float(tp_yr / (tp_yr + fp_yr)) if (tp_yr + fp_yr) else 0.0
+                    rec_yr = float(tp_yr / (tp_yr + fn_yr)) if (tp_yr + fn_yr) else 0.0
+                    f05_yr = float(fbeta_score(y_yr, y_bin, beta=0.5, zero_division=0))
+                    resultados_anio.append({
+                        "region": region,
+                        "task": task,
+                        "modelo": nombre,
+                        "anio_eval": anio_eval,
+                        "fuel_lag": 1 if anio_eval == 2024 else 2,
+                        "n": int(len(y_yr)),
+                        "n_pos": int(y_yr.sum()),
+                        "roc_auc": round(auc_yr, 4),
+                        "pr_auc": round(pr_yr, 4),
+                        "precision": round(prec_yr, 4),
+                        "recall": round(rec_yr, 4),
+                        "f05_score": round(f05_yr, 4),
+                        "falsos_positivos": int(fp_yr),
+                    })
+
             if task == "ignicion":
                 pares = [
                     ("Incendios_PY (Ignición Híbrida M3)", "Canadian FWI completo"),
@@ -183,7 +214,14 @@ def main():
 
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     df_res = pd.DataFrame(resultados)
+    df_res_anio = pd.DataFrame(resultados_anio)
     df_res.to_csv(DIR_TABLAS / "tabla04_benchmarking_internacional.csv", index=False)
+    df_res_anio.to_csv(DIR_TABLAS / "tabla04_benchmarking_por_anio.csv", index=False)
+    (DIR_TABLAS / "tabla04_benchmarking_por_anio.md").write_text(
+        "# Tabla 4b. Benchmarking por año (2024 lag 1; 2025 lag 2)\n\n"
+        + df_res_anio.to_markdown(index=False) + "\n",
+        encoding="utf-8",
+    )
     (DIR_TABLAS / "tabla04_benchmarking_internacional.md").write_text(
         "# Tabla 4. Benchmarking D2 por target\n\n" + df_res.to_markdown(index=False) + "\n",
         encoding="utf-8",

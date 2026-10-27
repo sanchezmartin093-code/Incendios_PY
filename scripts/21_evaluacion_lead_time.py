@@ -137,6 +137,7 @@ def main():
         test = test.drop_nulls(WEATHER_COLS)
 
     filas = []
+    filas_anio = []
     for region in ["Chaco", "Oriental"]:
         print(f"\n--- {region.upper()} ---")
         tr = train.filter(pl.col("region") == region)
@@ -171,13 +172,31 @@ def main():
             p_te = predecir_probabilidad(booster, cal, X_te)
             m = _metricas(y_te, p_te, cutoff, region, nombre)
             filas.append(m)
+
+            fechas_te = test.filter(pl.col("region") == region)["fecha"].to_numpy()
+            for anio_eval in (2024, 2025):
+                mask = np.array([str(f)[:4] == str(anio_eval) for f in fechas_te])
+                if not mask.any():
+                    continue
+                m_y = _metricas(y_te[mask], p_te[mask], cutoff, region, nombre)
+                m_y.update({
+                    "anio_eval": anio_eval,
+                    "fuel_lag": 1 if anio_eval == 2024 else 2,
+                })
+                filas_anio.append(m_y)
             print(f"  {nombre}: ROC={m['roc_auc']:.4f} PR={m['pr_auc']:.4f} Prec={100*m['precision']:.2f}%")
 
     df = pd.DataFrame(filas)
+    df_anio = pd.DataFrame(filas_anio)
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     p_csv = DIR_TABLAS / "tabla09_evaluacion_lead_time.csv"
     p_md = DIR_TABLAS / "tabla09_evaluacion_lead_time.md"
     df.to_csv(p_csv, index=False)
+    df_anio.to_csv(DIR_TABLAS / "tabla09_evaluacion_lead_time_por_anio.csv", index=False)
+    (DIR_TABLAS / "tabla09_evaluacion_lead_time_por_anio.md").write_text(
+        "# Tabla 9b. Lead time t-1 por año\n\n" + df_anio.to_markdown(index=False) + "\n",
+        encoding="utf-8",
+    )
     p_md.write_text(
         "# Tabla 9. Evaluación con clima de t-1 (persistencia, 24 h de anticipación)\n\n"
         "Las variables meteorológicas se sustituyen por las del día anterior. "

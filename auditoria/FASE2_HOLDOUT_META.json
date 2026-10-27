@@ -1,0 +1,26 @@
+{
+  "descripcion": "Holdout espacial de confirmacion, independiente de script 20",
+  "sal": "fase2-confirmacion-2026-10-27",
+  "fraccion_confirmacion": 0.2,
+  "buffer_m": 20000.0,
+  "bloques_totales": 201,
+  "bloques_desarrollo": 44,
+  "bloques_confirmacion": 31,
+  "celdas_holdout": 68719,
+  "celdas_buffer": 95031,
+  "archivos": {
+    "bloques": {
+      "name": "bloques.parquet",
+      "sha256": "babe5d38e817d70d8780e00afd2814fa86adba0c46973748e898417fbb5dd85b"
+    },
+    "celdas_holdout": {
+      "name": "celdas_holdout.parquet",
+      "sha256": "0947d7c21c4e38f98a7aa07ced5a4a9485946f3edc17b8bc8a4e1a489b24bdc7"
+    },
+    "celdas_buffer": {
+      "name": "celdas_buffer.parquet",
+      "sha256": "22ede473dd8266aa6355ce146c858f783f0f195e3cefd6d6f1d71a2f9356a8fc"
+    }
+  },
+  "uso": "Solo Fase 5; no usar para seleccion de modelo ni metricas de desarrollo."
+}
