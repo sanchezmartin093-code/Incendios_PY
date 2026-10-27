@@ -1,8 +1,8 @@
 """
-Script 17: Generador de Figura 06 Trimodal Multiespectral (C&G Elsevier Q1).
-Compone los 3 paneles de teledetección operativa con espaciado editorial limpio,
-garantizando que el título principal no colisione con los subtítulos de los paneles,
-y exportando tanto PNG (300 DPI) como PDF vectorial.
+Script 17: Figure 06 Trimodal Multispectral Generator (C&G Elsevier Q1).
+Composes the 3 operational remote sensing panels with clean editorial spacing,
+ensuring that the main title does not collide with the panel subtitles,
+and exporting both PNG (300 DPI) and vector PDF.
 """
 
 from pathlib import Path
@@ -35,11 +35,11 @@ def generar_figura_trimodal():
 
     fig = plt.figure(figsize=(18, 6.8), facecolor="#FFFFFF", dpi=300)
 
-    # Margen superior generoso para separar el título general de los paneles
+    # Generous top margin to separate the overall title from the panels
     gs = gridspec.GridSpec(1, 3, width_ratios=[1.0, 1.0, 1.0], wspace=0.12,
                            left=0.03, right=0.97, top=0.84, bottom=0.06)
 
-    # Cabecera global
+    # Global header
     fig.text(0.50, 0.95, "Verificación y Monitoreo Satelital Tri-Modal Multiespectral (Incendios_PY)",
              fontsize=14, fontweight="bold", color="#0F172A", ha="center")
     fig.text(0.50, 0.90, "Cadena Operativa de Detección Térmica: Desde la Alerta Regional Predictiva hasta la Confirmación Infrarroja",

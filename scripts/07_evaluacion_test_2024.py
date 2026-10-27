@@ -1,20 +1,20 @@
 """
-Script 07: Evaluación Ciega Out-of-Time y Generación de Métricas Científicas y Operativas.
-- Evalúa los modelos regionales sobre el conjunto de testeo no visto (test_dataset.parquet).
-- Genera curvas ROC-AUC, PR-AUC, Brier Skill Score y matrices de confusión en múltiples umbrales:
-  * Umbral estándar (0.50)
-  * Umbral óptimo de Youden J (balance teórico)
-  * Umbral óptimo F0.5 (prioridad a la Precisión para minimizar falsas alarmas)
-- Exporta tablas formales para el manuscrito científico:
+Script 07: Blind Out-of-Time Evaluation and Generation of Scientific and Operational Metrics.
+- Evaluates the regional models on the unseen test set (test_dataset.parquet).
+- Generates ROC-AUC, PR-AUC, Brier Skill Score curves and confusion matrices at multiple thresholds:
+  * Standard threshold (0.50)
+  * Optimal Youden J threshold (theoretical balance)
+  * Optimal F0.5 threshold (priority on Precision to minimize false alarms)
+- Exports formal tables for the scientific manuscript:
   * tablas/tabla02_metricas_desempeno_modelos.csv
   * tablas/tabla02_metricas_desempeno_modelos.md
-- Exporta predicciones individuales: datos/processed/evaluacion_test_predicciones.parquet.
+- Exports individual predictions: datos/processed/evaluacion_test_predicciones.parquet.
 """
 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -92,10 +92,10 @@ def evaluar_modelo_en_test():
                 print(f"Aviso: No se encontraron los archivos de modelo serializados para {region} ({modo_clave}).")
                 continue
 
-            # 1. Cargar modelo y calibrador
+            # 1. Load model and calibrator
             booster, calibrador = cargar_modelo_y_calibrador(ruta_b, ruta_c)
 
-            # 2. Extraer matriz X e y del conjunto de test
+            # 2. Extract the X and y matrices from the test set
             es_prop = modo_clave == "propagacion"
             df_fuente = df_test_prop if es_prop else df_test_ign
             preds_dict = preds_prop if es_prop else preds_ign
@@ -106,7 +106,7 @@ def evaluar_modelo_en_test():
             n_neg = int(len(y_test) - n_pos)
             print(f" • Muestras evaluadas: {len(y_test):,} (Positivos: {n_pos}, Negativos: {n_neg})")
 
-            # 3. Predicción probabilística calibrada
+            # 3. Calibrated probabilistic prediction
             probs = predecir_probabilidad(booster, calibrador, X_test)
             preds_dict[f"probabilidad_{modo_clave}"] = probs
             if modo_clave == "ignicion":
@@ -114,7 +114,7 @@ def evaluar_modelo_en_test():
             if modo_clave == "hibrido":
                 preds_dict["probabilidad_hibrido"] = probs
 
-            # 4. Métricas de discriminación y calibración global
+            # 4. Discrimination and global calibration metrics
             auc = float(roc_auc_score(y_test, probs))
             pr_auc = float(average_precision_score(y_test, probs))
             bs = float(calcular_brier_score(y_test, probs))
@@ -128,7 +128,7 @@ def evaluar_modelo_en_test():
             print(f" • Brier Score:        {bs:.4f}")
             print(f" • Brier Skill Score:  {bss:.4f} (Ganancia respecto a la climatología)")
 
-            # 5. Evaluación en 3 umbrales operativos derivados estrictamente en validación (Anti-Leakage)
+            # 5. Evaluation at 3 operational thresholds derived strictly on validation (Anti-Leakage)
             dir_cal = DIR_MODELOS / "calibradores"
             ruta_meta = dir_cal / f"umbrales_{modo_clave}_{nombre_lower}.json"
             if ruta_meta.exists():
@@ -187,19 +187,19 @@ def evaluar_modelo_en_test():
     dfs_ign = [v[0] for v in preds_por_region.values()]
     dfs_prop = [v[1] for v in preds_por_region.values()]
 
-    # 6. Consolidar tabla de resultados
+    # 6. Consolidate results table
     df_tabla = pd.DataFrame(filas_metricas)
     
     path_csv = DIR_TABLAS / "tabla02_metricas_desempeno_modelos.csv"
     path_md = DIR_TABLAS / "tabla02_metricas_desempeno_modelos.md"
     df_tabla.to_csv(path_csv, index=False)
 
-    # Formatear tabla Markdown con estilo académico
+    # Format Markdown table with academic style
     md_content = "# Tabla 2. Métricas de Rendimiento y Discriminación Operativa en Test Ciego\n\n"
     md_content += df_tabla.to_markdown(index=False) + "\n"
     path_md.write_text(md_content, encoding="utf-8")
 
-    # Guardar predicciones separadas por target
+    # Save predictions separated by target
     if dfs_ign:
         out_ign = DIR_PROCESSED / "evaluacion_test_ignicion.parquet"
         pl.concat(dfs_ign).write_parquet(out_ign, compression="zstd")

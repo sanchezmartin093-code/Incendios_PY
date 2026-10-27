@@ -38,6 +38,10 @@ format:
   Revisión de un solo anonimizado (*Single-Anonymized Peer Review*, política de C&G)
 - **Tipo de Artículo / Article Type:**  
   *Research Paper* (Metodología Computacional y Algorítmica en Geociencias)
+- **Manuscrito en HTML / Manuscript in HTML:**  
+  [Abrir el manuscrito en HTML](manuscrito.html)
+- **Material Suplementario en HTML / Supplementary Material in HTML:**  
+  [Abrir el material suplementario](material_suplementario.html)
 
 ---
 

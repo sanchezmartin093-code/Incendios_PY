@@ -4,7 +4,7 @@ from src.constantes import DIR_TABLAS, DIR_FIGURAS
 
 class TestBenchmarking(unittest.TestCase):
     def test_archivos_benchmarking(self):
-        """Verifica que el script de benchmarking genere tablas y figuras válidas."""
+        """Verifies that the benchmarking script generates valid tables and figures."""
         csv_p = DIR_TABLAS / "tabla04_benchmarking_internacional.csv"
         md_p = DIR_TABLAS / "tabla04_benchmarking_internacional.md"
         fig_p = DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png"

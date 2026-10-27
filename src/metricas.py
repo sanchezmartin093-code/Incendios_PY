@@ -1,22 +1,22 @@
 """
-Módulo metricas.py: Funciones vectorizadas de evaluación de modelos y optimización de umbrales.
-Implementación directa con NumPy puro (sin depender de scikit-learn).
-Incluye:
-- Búsqueda de umbral óptimo mediante Estadística J de Youden (TPR - FPR)
-- Búsqueda de umbral óptimo para F-beta (F0.5 para priorizar Precisión)
-- Brier Score y Brier Skill Score (BSS)
+metricas.py module: Vectorized model evaluation functions and threshold optimization.
+Direct implementation with pure NumPy (without depending on scikit-learn).
+Includes:
+- Optimal threshold search via Youden's J statistic (TPR - FPR)
+- Optimal threshold search for F-beta (F0.5 to prioritize Precision)
+- Brier Score and Brier Skill Score (BSS)
 """
 
 import numpy as np
 
 def _puntos_roc_agrupados(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calcula puntos ROC agrupando puntuaciones empatadas.
+    Computes ROC points by grouping tied scores.
 
-    Con empates, el orden interno del argsort es arbitrario. Si se acumulan
-    TP/FP registro a registro se generan puntos ROC inválidos y umbrales que
-    no reproducen la métrica al clasificar con ``>=``. Este helper acumula al
-    final de cada grupo de puntuaciones idénticas.
+    With ties, the internal order of argsort is arbitrary. If TP/FP are
+    accumulated record by record, invalid ROC points and thresholds are
+    generated that do not reproduce the metric when classifying with ``>=``.
+    This helper accumulates at the end of each group of identical scores.
     """
     y_true = np.asarray(y_true).astype(float).ravel()
     y_prob = np.asarray(y_prob).astype(float).ravel()
@@ -28,7 +28,7 @@ def _puntos_roc_agrupados(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.nd
     y_ord = y_true[orden]
     p_ord = y_prob[orden]
 
-    # Último índice de cada grupo de puntuaciones idénticas
+    # Last index of each group of identical scores
     cambios = np.where(np.diff(p_ord) != 0)[0]
     fines = np.r_[cambios, n - 1]
 
@@ -46,15 +46,15 @@ def _puntos_roc_agrupados(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.nd
 
 def calcular_curva_roc(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calcula FPR, TPR y umbrales agrupados por puntuación (tie-aware).
+    Computes FPR, TPR and thresholds grouped by score (tie-aware).
     """
     return _puntos_roc_agrupados(y_true, y_prob)
 
 def calcular_umbral_optimo_youden(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[float, float]:
     """
-    Calcula el umbral de corte que maximiza el estadístico J de Youden:
-    J = Sensibilidad + Especificidad - 1 = TPR - FPR
-    Retorna: (umbral_optimo, max_j)
+    Computes the cutoff threshold that maximizes Youden's J statistic:
+    J = Sensitivity + Specificity - 1 = TPR - FPR
+    Returns: (optimal_threshold, max_j)
     """
     fpr, tpr, thresholds = calcular_curva_roc(y_true, y_prob)
     j_scores = tpr - fpr
@@ -63,9 +63,9 @@ def calcular_umbral_optimo_youden(y_true: np.ndarray, y_prob: np.ndarray) -> tup
 
 def calcular_umbral_optimo_f_beta(y_true: np.ndarray, y_prob: np.ndarray, beta: float = 0.5) -> tuple[float, float]:
     """
-    Calcula el umbral que maximiza el F-beta score.
-    Con beta = 0.5, se le da el doble de peso a la Precisión (minimizar falsas alarmas) sobre el Recall.
-    Retorna: (umbral_optimo, max_f_beta)
+    Computes the threshold that maximizes the F-beta score.
+    With beta = 0.5, Precision (minimizing false alarms) is given twice the weight of Recall.
+    Returns: (optimal_threshold, max_f_beta)
     """
     y_true = np.asarray(y_true).astype(float).ravel()
     y_prob = np.asarray(y_prob).astype(float).ravel()
@@ -77,8 +77,8 @@ def calcular_umbral_optimo_f_beta(y_true: np.ndarray, y_prob: np.ndarray, beta: 
     y_ord = y_true[orden]
     p_ord = y_prob[orden]
 
-    # Agrupar empates: el umbral se aplica con >=, por lo que todos los
-    # registros con la misma puntuación entran juntos.
+    # Group ties: the threshold is applied with >=, so all records
+    # with the same score enter together.
     cambios = np.where(np.diff(p_ord) != 0)[0]
     fines = np.r_[cambios, n - 1]
 
@@ -104,16 +104,16 @@ def corregir_prior_probabilidades(
     prevalencia_poblacion: float,
 ) -> np.ndarray:
     """
-    Corrige probabilidades calibradas sobre una muestra case-control para
-    estimar la probabilidad poblacional.
+    Corrects probabilities calibrated on a case-control sample to
+    estimate the population probability.
 
-    Si el modelo fue calibrado con una prevalencia artificial ``pi_s`` y la
-    prevalencia real es ``pi_p``, el ajuste correcto es un desplazamiento del
+    If the model was calibrated with an artificial prevalence ``pi_s`` and the
+    real prevalence is ``pi_p``, the correct adjustment is a shift of the
     logit:
 
-        logit(p_pob) = logit(p_muestreo) + logit(pi_p) - logit(pi_s)
+        logit(p_pop) = logit(p_sample) + logit(pi_p) - logit(pi_s)
 
-    Es la corrección estándar de intercepto para muestreo caso-control.
+    This is the standard intercept correction for case-control sampling.
     """
     pi_s = float(prevalencia_muestreo)
     pi_p = float(prevalencia_poblacion)
@@ -136,11 +136,11 @@ def calcular_metricas_poblacionales(
     n_bins: int = 10,
 ) -> dict[str, float]:
     """
-    Métricas ponderadas por el inverso de la probabilidad de muestreo.
+    Metrics weighted by the inverse sampling probability.
 
-    ``weights`` debe ser 1 para las presencias y ``N_neg_poblacion /
-    N_neg_muestra`` para las ausencias. Así la muestra case-control se
-    reexpande a la población de celdas-día.
+    ``weights`` must be 1 for presences and ``N_neg_population /
+    N_neg_sample`` for absences. This re-expands the case-control sample
+    to the population of cell-days.
     """
     from sklearn.metrics import roc_auc_score, average_precision_score
 
@@ -176,7 +176,7 @@ def calcular_metricas_poblacionales(
     brier_base = float(np.sum(w_norm * (prev_pob - y) ** 2))
     bss = 1.0 - brier / brier_base if brier_base > 0 else 0.0
 
-    # ECE ponderado por peso poblacional
+    # ECE weighted by population weight
     edges = np.linspace(0.0, 1.0, n_bins + 1)
     ece = 0.0
     for i in range(n_bins):
@@ -221,12 +221,12 @@ def bootstrap_diferencia_roc(
     block_ids: np.ndarray | None = None,
 ) -> tuple[float, float]:
     """
-    Test pareado de diferencia de ROC-AUC mediante bootstrap.
+    Paired test for ROC-AUC difference via bootstrap.
 
-    Remuestrea filas (o bloques completos si ``block_ids`` se provee) con
-    reemplazo, calcula AUC(modelo) - AUC(referencia) y devuelve (delta
-    observado, p-valor bilateral). El p-valor es una aproximación bootstrap,
-    no un test exacto.
+    Resamples rows (or complete blocks if ``block_ids`` is provided) with
+    replacement, computes AUC(model) - AUC(reference) and returns (observed
+    delta, two-sided p-value). The p-value is a bootstrap approximation,
+    not an exact test.
     """
     from sklearn.metrics import roc_auc_score
 
@@ -256,7 +256,7 @@ def bootstrap_diferencia_roc(
     if not deltas:
         return delta, 1.0
     deltas = np.asarray(deltas)
-    # p bilateral: proporción de deltas al otro lado de cero
+    # two-sided p: proportion of deltas on the other side of zero
     p_inf = float(np.mean(deltas <= 0))
     p_sup = float(np.mean(deltas >= 0))
     p_val = 2.0 * min(p_inf, p_sup)
@@ -264,14 +264,14 @@ def bootstrap_diferencia_roc(
 
 
 def calcular_brier_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
-    """Calcula el Brier Score: promedio de (y_prob - y_true)^2"""
+    """Computes the Brier Score: mean of (y_prob - y_true)^2"""
     return float(np.mean((y_prob - y_true) ** 2))
 
 def calcular_brier_skill_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     """
-    Calcula el Brier Skill Score (BSS) respecto a la tasa climatológica media de fuego.
-    BSS = 1 - (BS_modelo / BS_climatologia)
-    BSS > 0 indica que el modelo predice significativamente mejor que la frecuencia media.
+    Computes the Brier Skill Score (BSS) relative to the mean climatological fire rate.
+    BSS = 1 - (BS_model / BS_climatology)
+    BSS > 0 indicates that the model predicts significantly better than the mean frequency.
     """
     bs_modelo = calcular_brier_score(y_true, y_prob)
     prob_base = np.mean(y_true)
@@ -288,9 +288,9 @@ def calcular_expected_calibration_error(
     n_bins: int = 10
 ) -> float:
     """
-    Calcula el Expected Calibration Error (ECE) ponderado por el tamaño de cada decil.
+    Computes the Expected Calibration Error (ECE) weighted by the size of each decile.
     ECE = sum_m (|B_m| / N) * |acc(B_m) - conf(B_m)|
-    Donde acc(B_m) es la prevalencia observada y conf(B_m) la probabilidad media predicha.
+    Where acc(B_m) is the observed prevalence and conf(B_m) the mean predicted probability.
     """
     bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
     ece = 0.0
@@ -322,9 +322,9 @@ def calcular_bootstrap_ci_roc(
     block_ids: np.ndarray | None = None,
 ) -> tuple[float, float]:
     """
-    Calcula el Intervalo de Confianza al (1 - alpha)% (por defecto 95%) para el ROC-AUC
-    mediante bootstrap no paramétrico. Si ``block_ids`` se provee, remuestrea
-    bloques completos (p. ej., fechas) en lugar de filas individuales.
+    Computes the (1 - alpha)% Confidence Interval (95% by default) for ROC-AUC
+    via non-parametric bootstrap. If ``block_ids`` is provided, it resamples
+    complete blocks (e.g., dates) instead of individual rows.
     """
     from sklearn.metrics import roc_auc_score
     rng = np.random.default_rng(semilla)
@@ -358,11 +358,11 @@ def calcular_cuantil_conforme(
     alpha: float = 0.10
 ) -> float:
     """
-    Calcula el cuantil de no-conformidad q_hat sobre el conjunto de calibración/validación
-    para Split Conformal Prediction con garantía de cobertura marginal 1 - alpha (ej. 90%).
+    Computes the non-conformity quantile q_hat over the calibration/validation set
+    for Split Conformal Prediction with marginal coverage guarantee 1 - alpha (e.g., 90%).
     
-    Score de no-conformidad: s_i = 1 - p_val[i] si y_val[i] == 1 else p_val[i].
-    q_hat = cuantil ceiling((n + 1)(1 - alpha)) / n de s_1, ..., s_n.
+    Non-conformity score: s_i = 1 - p_val[i] if y_val[i] == 1 else p_val[i].
+    q_hat = ceiling((n + 1)(1 - alpha)) / n quantile of s_1, ..., s_n.
     """
     y_val = np.asarray(y_val, dtype=int)
     p_val = np.asarray(p_val, dtype=float)
@@ -381,9 +381,9 @@ def predecir_conjuntos_conformes(
     q_hat: float
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Genera conjuntos de predicción conformalmente válidos para nuevas probabilidades p_test.
-    Retorna: (incluye_cero, incluye_uno) boolean arrays donde C(x) = {y: incluye_y[i]}.
-    Garantía marginal: P(Y_test in C(X_test)) >= 1 - alpha.
+    Generates conformally valid prediction sets for new probabilities p_test.
+    Returns: (includes_zero, includes_one) boolean arrays where C(x) = {y: includes_y[i]}.
+    Marginal guarantee: P(Y_test in C(X_test)) >= 1 - alpha.
     """
     p_test = np.asarray(p_test, dtype=float)
     incluye_cero = p_test <= q_hat
@@ -396,7 +396,7 @@ def evaluar_cobertura_conforme(
     q_hat: float
 ) -> float:
     """
-    Evalúa la proporción empírica de etiquetas verdaderas cubiertas por los conjuntos conformes.
+    Evaluates the empirical proportion of true labels covered by the conformal sets.
     """
     y_true = np.asarray(y_true, dtype=int)
     c0, c1 = predecir_conjuntos_conformes(p_test, q_hat)

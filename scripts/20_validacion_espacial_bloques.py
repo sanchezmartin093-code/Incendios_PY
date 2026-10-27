@@ -1,19 +1,19 @@
 """
-Script 20: Validación espacial por bloques con buffer de 20 km.
+Script 20: Spatial block validation with a 20 km buffer.
 
-Diseño:
-- Se dividen las celdas en bloques de 50 x 50 km.
-- ~20 % de los bloques se retienen (holdout) de forma determinística.
-- Se excluyen del entrenamiento las celdas de holdout y las celdas de train a
-  menos de 20 km de cualquier celda de holdout (buffer espacial).
-- Los priors históricos se recalculan excluyendo los fuegos de las celdas de
-  holdout, para que éstas no se informen a sí mismas.
-- El modelo M3 se entrena con 2018–2022 (bloques retenidos), se calibra en
-  2023 (bloques retenidos) y se evalúa en 2024–2025 sobre:
-    * bloques holdout (generalización espacial + temporal)
-    * bloques no holdout (referencia temporal)
+Design:
+- Cells are divided into 50 x 50 km blocks.
+- ~20% of the blocks are held out deterministically.
+- Holdout cells and training cells within less than 20 km of any holdout
+  cell are excluded from training (spatial buffer).
+- Historical priors are recomputed excluding fires from holdout cells,
+  so that those cells do not inform themselves.
+- The M3 model is trained on 2018–2022 (retained blocks), calibrated on
+  2023 (retained blocks), and evaluated on 2024–2025 over:
+    * holdout blocks (spatial + temporal generalization)
+    * non-holdout blocks (temporal reference)
 
-Exporta `tablas/tabla08_validacion_espacial_bloques.csv/.md`.
+Exports `tablas/tabla08_validacion_espacial_bloques.csv/.md`.
 """
 
 from pathlib import Path
@@ -46,6 +46,7 @@ from src.modelo import (
     FEATURES_HIBRIDO_ORIENTAL,
     FEATURES_IGNICION_CHACO,
     FEATURES_IGNICION_ORIENTAL,
+    FEATURES_M1_BIOFISICO_BASE,
     calibrar_probabilidades_isotonica,
     entrenar_modelo_lightgbm,
     predecir_probabilidad,
@@ -53,15 +54,9 @@ from src.modelo import (
 
 BLOQUE_M = 50000.0
 BUFFER_M = 20000.0
-PROPORCION_HOLDOUT = 5  # 1 de cada 5 bloques
+PROPORCION_HOLDOUT = 5  # 1 out of every 5 blocks
 
-FEATURES_M1_BASE = [
-    "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
-    "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
-    "dias_secos_consecutivos", "viento_max_kmh", "potencial_viento_cuadratico",
-    "interaccion_viento_vpd", "ffmc", "isi", "pct_pastura",
-    "pct_sabana_pastizal", "pct_humedal_palmar",
-]
+
 
 
 def _bloque_id(df: pl.DataFrame) -> pl.Series:
@@ -79,7 +74,7 @@ def _mascara_holdout_global(*dfs: pl.DataFrame) -> tuple[set[int], set[int], flo
     block = _bloque_id(celdas)
     celdas = celdas.with_columns(block.alias("block_id"))
 
-    # Hash determinístico por bloque (no por celda)
+    # Deterministic hash per block (not per cell)
     holdout_blocks = (
         celdas.select("block_id").unique()
         .with_columns(
@@ -99,7 +94,7 @@ def _mascara_holdout_global(*dfs: pl.DataFrame) -> tuple[set[int], set[int], flo
 
 
 def _celdas_buffer(holdout_cells: set[int], train_cells: pl.DataFrame) -> set[int]:
-    """Celdas de train a <20 km de una celda holdout."""
+    """Train cells within <20 km of a holdout cell."""
     ref = train_cells.filter(pl.col("cell_id").is_in(list(holdout_cells)))
     if ref.is_empty():
         return set()
@@ -168,7 +163,7 @@ def main():
     buffer_cells = _celdas_buffer(holdout_cells, train_cells)
     print(f"Celdas de train excluidas por buffer 20 km: {len(buffer_cells):,}")
 
-    # Recalcular priors excluyendo fuegos de celdas holdout.
+    # Recompute priors excluding fires from holdout cells.
     print("Recalculando priors causales excluyendo celdas holdout...")
     excluir = list(holdout_cells)
     train_e = agregar_features_antropicas(
@@ -187,7 +182,7 @@ def main():
         )
     )
 
-    # Particiones espaciales
+    # Spatial partitions
     train_esp = train_e.filter(
         ~pl.col("cell_id").is_in(list(holdout_cells | buffer_cells))
     )
@@ -210,7 +205,7 @@ def main():
             feats_m2 = FEATURES_IGNICION_ORIENTAL
             feats_m3 = FEATURES_HIBRIDO_ORIENTAL
         modelos = [
-            ("M1_biofisico", FEATURES_M1_BASE + [b_col]),
+            ("M1_biofisico", FEATURES_M1_BIOFISICO_BASE + [b_col]),
             ("M2_base", feats_m2),
             ("M3_hibrido", feats_m3),
         ]
@@ -260,7 +255,7 @@ def main():
                 filas.append(m)
 
     df = pd.DataFrame(filas)
-    # Reordenar columnas
+    # Reorder columns
     cols = ["region", "modelo", "evaluacion", "n", "n_pos", "prevalencia", "roc_auc", "roc_ci_95",
             "pr_auc", "brier", "bss", "ece", "cutoff_f05", "precision", "recall",
             "f05", "fp", "fn", "n_train", "n_val"]

@@ -1,6 +1,6 @@
 """
-Módulo muestreo.py: Muestreo estratificado de pseudo-ausencias con Dead-Zone Spatial Buffer (20 km)
-y partición temporal out-of-time anti-fuga de datos (Anti-Data-Leakage).
+muestreo.py module: Stratified sampling of pseudo-absences with Dead-Zone Spatial Buffer (20 km)
+and anti-data-leakage out-of-time temporal partitioning.
 """
 
 from pathlib import Path
@@ -23,9 +23,9 @@ def filtrar_candidatos_con_buffer_muerto(
     buffer_km: float = BUFFER_ZONA_MUERTA_KM
 ) -> pl.DataFrame:
     """
-    Aplica el Dead-Zone Spatial Buffer: Excluye cualquier celda candidata negativa que se encuentre
-    a menos de `buffer_km` de un fuego activo registrado en la misma fecha.
-    Anula matemáticamente la autocorrelación espacial entre presencias y ausencias de control.
+    Applies the Dead-Zone Spatial Buffer: Excludes any negative candidate cell located
+    less than `buffer_km` from an active fire recorded on the same date.
+    Mathematically cancels the spatial autocorrelation between presences and control absences.
     """
     if df_positivos_dia.is_empty() or df_candidatos_dia.is_empty():
         return df_candidatos_dia
@@ -33,7 +33,7 @@ def filtrar_candidatos_con_buffer_muerto(
     coords_positivos = df_positivos_dia.select(["x_utm", "y_utm"]).to_numpy()
     coords_candidatos = df_candidatos_dia.select(["x_utm", "y_utm"]).to_numpy()
 
-    # Árbol espacial en metros métricos UTM 21S con aceleración multihilo C++
+    # Spatial tree in UTM 21S metric meters with C++ multithreaded acceleration
     tree = cKDTree(coords_positivos)
     distancias, _ = tree.query(coords_candidatos, k=1, workers=-1)
 
@@ -49,11 +49,11 @@ def muestrear_dataset_unificado_por_meses(
     semilla: int = 42
 ) -> pl.DataFrame:
     """
-    Muestreo estratificado masivo escalable con memoria constante O(1):
-    - Extrae presencias (Y=1) mediante DuckDB sin cargar todo el archivo.
-    - Itera mes a mes cargando únicamente los candidatos del mes en memoria.
-    - Aplica Dead-Zone Spatial Buffer de 20 km para cada estrato (fecha, region).
-    - Muestrea ratio_neg_pos ausencias por presencia.
+    Scalable massive stratified sampling with constant O(1) memory:
+    - Extracts presences (Y=1) via DuckDB without loading the entire file.
+    - Iterates month by month loading only that month's candidates into memory.
+    - Applies a 20 km Dead-Zone Spatial Buffer for each stratum (date, region).
+    - Samples ratio_neg_pos absences per presence.
     """
     import duckdb
     rng = np.random.default_rng(semilla)
@@ -67,7 +67,7 @@ def muestrear_dataset_unificado_por_meses(
     if n_pos_total == 0:
         raise ValueError("No se encontraron eventos de fuego en el dataset.")
 
-    # Meses únicos con fuego
+    # Unique months with fire
     meses = sorted(
         df_positivos.select(pl.col("fecha").str.slice(0, 7).alias("mes"))["mes"]
         .unique()
@@ -83,7 +83,7 @@ def muestrear_dataset_unificado_por_meses(
         if pos_mes.is_empty():
             continue
 
-        # Cargar únicamente los candidatos negativos del mes correspondiente
+        # Load only the negative candidates for the corresponding month
         df_cand_mes = con.sql(f"""
             SELECT * FROM '{path_parquet}'
             WHERE fecha >= '{mes}-01' AND fecha <= '{mes}-31' AND fuego = 0
@@ -135,15 +135,15 @@ def muestrear_pseudo_ausencias_estratificadas(
     semilla: int = 42
 ) -> pl.DataFrame:
     """
-    Ejecuta el muestreo estratificado espaciotemporal de pseudo-ausencias:
-    - Para cada estrato (fecha, region):
-      1. Extrae todas las presencias de fuego (Y=1).
-      2. Filtra candidatos negativos (Y=0) fuera del Dead-Zone Buffer de 20 km.
-      3. Muestrea exactamente (ratio_neg_pos * N_positivos) pseudo-ausencias aleatorias.
+    Performs spatiotemporal stratified sampling of pseudo-absences:
+    - For each stratum (date, region):
+      1. Extracts all fire presences (Y=1).
+      2. Filters negative candidates (Y=0) outside the 20 km Dead-Zone Buffer.
+      3. Samples exactly (ratio_neg_pos * N_positives) random pseudo-absences.
     """
     rng = np.random.default_rng(semilla)
     
-    # Separar fuegos positivos
+    # Separate positive fires
     df_positivos = df_unificado.filter(pl.col("fuego") == 1)
     df_negativos = df_unificado.filter(pl.col("fuego") == 0)
 
@@ -168,7 +168,7 @@ def muestrear_pseudo_ausencias_estratificadas(
             (pl.col("fecha") == f_str) & (pl.col("region") == reg_str)
         )
 
-        # Aplicar Dead-Zone Buffer espacial de 20 km
+        # Apply the 20 km spatial Dead-Zone Buffer
         cand_seguros = filtrar_candidatos_con_buffer_muerto(
             pos_strato, cand_strato, buffer_km=buffer_km
         )
@@ -178,7 +178,7 @@ def muestrear_pseudo_ausencias_estratificadas(
             continue
 
         n_tomar = min(n_neg_deseados, n_disponibles)
-        # Muestreo sin reemplazo
+        # Sampling without replacement
         indices_elegidos = rng.choice(n_disponibles, size=n_tomar, replace=False)
         muestra_k = cand_seguros[indices_elegidos]
         muestras_negativas.append(muestra_k)
@@ -193,17 +193,17 @@ def muestrear_pseudo_ausencias_estratificadas(
 
 def particionar_dataset_out_of_time(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
-    Divide el dataset en Train, Validation y Test siguiendo estrictamente la dimensión temporal:
-    - Si contiene múltiples años:
-      * Train: 2018 a 2022
+    Splits the dataset into Train, Validation, and Test strictly following the temporal dimension:
+    - If it contains multiple years:
+      * Train: 2018 to 2022
       * Val: 2023
       * Test: 2024
-    - Si el dataset corresponde a un rango acotado:
-      * 70% cronológico inicial -> Train
-      * 15% cronológico medio   -> Val
-      * 15% cronológico final   -> Test
+    - If the dataset corresponds to a bounded range:
+      * Initial chronological 70% -> Train
+      * Middle chronological 15%   -> Val
+      * Final chronological 15%    -> Test
     """
-    # Extraer años presentes
+    # Extract years present
     anios_presentes = (
         df.select(pl.col("fecha").str.slice(0, 4).cast(pl.Int32).alias("anio"))
         ["anio"]
@@ -218,7 +218,7 @@ def particionar_dataset_out_of_time(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.
         df_val = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32) == YEAR_VAL)
         df_test = df.filter(pl.col("fecha").str.slice(0, 4).cast(pl.Int32).is_in(YEARS_TEST))
     else:
-        # Partición cronológica secuencial
+        # Sequential chronological partition
         fechas_unicas = sorted(df["fecha"].unique().to_list())
         n_fechas = len(fechas_unicas)
         
@@ -229,7 +229,7 @@ def particionar_dataset_out_of_time(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.
         fechas_val = set(fechas_unicas[idx_train:idx_val])
         fechas_test = set(fechas_unicas[idx_val:])
 
-        # Si hay muy pocas fechas, asegurar que test no quede vacío
+        # If there are very few dates, ensure test does not remain empty
         if not fechas_test:
             fechas_test = {fechas_unicas[-1]}
 

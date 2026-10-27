@@ -24,13 +24,6 @@ format:
     link-citations: true
     smooth-scroll: true
     keep-md: true
-  docx:
-    toc: true
-    toc-depth: 3
-    toc-title: "Contents"
-    number-sections: false
-    fig-cap-location: bottom
-    tbl-cap-location: top
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier) — **Article type:** Research Article  

@@ -1,10 +1,10 @@
 """
-Constantes geoespaciales, rutas canónicas y parámetros del sistema Incendios_PY.
+Geospatial constants, canonical paths, and parameters for the Incendios_PY system.
 """
 
 from pathlib import Path
 
-# Rutas raíz relativas
+# Relative root paths
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DIR_DATOS = ROOT_DIR / "datos"
 DIR_RAW = DIR_DATOS / "raw"
@@ -14,14 +14,14 @@ DIR_MODELOS = ROOT_DIR / "modelos"
 DIR_FIGURAS = ROOT_DIR / "figuras"
 DIR_TABLAS = ROOT_DIR / "tablas"
 
-# Sistemas de Referencia de Coordenadas (CRS)
-CRS_GEOGRAFICO = "EPSG:4326"       # WGS84 para ingesta satelital y APIs
-CRS_PROYECTADO = "EPSG:32721"      # UTM Zona 21 Sur (oficial para métricas métricas en Paraguay)
+# Coordinate Reference Systems (CRS)
+CRS_GEOGRAFICO = "EPSG:4326"       # WGS84 for satellite ingestion and APIs
+CRS_PROYECTADO = "EPSG:32721"      # UTM Zone 21 South (official for metric measurements in Paraguay)
 
-# Parámetros de la Grilla Nacional
+# National Grid Parameters
 RESOLUCION_GRILLA_METROS = 1000    # 1 km x 1 km
 
-# Bounding box aproximado de Paraguay continental
+# Approximate bounding box of continental Paraguay
 BBOX_PARAGUAY = {
     "min_lon": -62.64,
     "max_lon": -54.25,
@@ -29,27 +29,27 @@ BBOX_PARAGUAY = {
     "max_lat": -19.29
 }
 
-# Períodos de partición temporal (Anti-Data-Leakage)
-YEARS_TRAIN = list(range(2018, 2023))  # 2018 a 2022 (5 años de variabilidad sinóptica e interanual)
-YEAR_VAL = 2023                        # Ajuste de hiperparámetros y calibración de Platt
-YEARS_TEST = [2024, 2025]              # Testeo ciego out-of-time (Crisis histórica Chaco y temporada reciente)
-YEAR_TEST = 2024                       # Año primario de testeo ciego (compatibilidad)
+# Temporal partition periods (Anti-Data-Leakage)
+YEARS_TRAIN = list(range(2018, 2023))  # 2018 to 2022 (5 years of synoptic and interannual variability)
+YEAR_VAL = 2023                        # Hyperparameter tuning and Platt calibration
+YEARS_TEST = [2024, 2025]              # Blind out-of-time testing (historic Chaco crisis and recent season)
+YEAR_TEST = 2024                       # Primary blind test year (compatibility)
 
-# Rigor GeoAI: Buffer de Zona Muerta Espacial (Dead-Zone Buffer)
-BUFFER_ZONA_MUERTA_KM = 20             # Amortiguamiento para anular autocorrelación espacial entre folds
+# GeoAI Rigor: Spatial Dead-Zone Buffer
+BUFFER_ZONA_MUERTA_KM = 20             # Damping to cancel spatial autocorrelation between folds
 
-# Control de Calidad Satelital (Filtro Bow-Tie y Ángulo Cenital VIIRS)
-MAX_SCAN_ANGLE_DEG = 45.0              # Excluye deformaciones extremas en los bordes de la franja orbital
-MAX_COBERTURA_NUBOSA_PCT = 60.0        # Excluye celdas ciegas para evitar falsas ausencias (label noise)
+# Satellite Quality Control (Bow-Tie Filter and VIIRS Zenith Angle)
+MAX_SCAN_ANGLE_DEG = 45.0              # Excludes extreme distortions at the edges of the orbital swath
+MAX_COBERTURA_NUBOSA_PCT = 60.0        # Excludes blind cells to avoid false absences (label noise)
 
-# Proporción de muestreo para pseudo-ausencias
-RATIO_AUSENCIAS_PRESENCIAS = 10        # 10 negativas por cada positiva en entrenamiento
+# Sampling proportion for pseudo-absences
+RATIO_AUSENCIAS_PRESENCIAS = 10        # 10 negatives for every positive in training
 
-# Definición D2 de targets
-DIAS_IGNICION_SIN_FUEGO = 10            # Una ignición primaria no tuvo fuego en la celda en los últimos N días
-RADIO_PROPAGACION_KM = 25               # Dominio de propagación: celdas dentro de R km de un fuego t-1
+# D2 definition of targets
+DIAS_IGNICION_SIN_FUEGO = 10            # A primary ignition had no fire in the cell in the last N days
+RADIO_PROPAGACION_KM = 25               # Propagation domain: cells within R km of a fire at t-1
 
-# Umbrales Biofísicos para Filtrado de Etapa 1 (Two-Stage Gating)
-UMBRAL_VPD_MINIMO_KPA = 0.8            # Por debajo de 0.8 kPa el aire está saturado; riesgo de ignición casi nulo
-UMBRAL_LLUVIA_48H_MM = 10.0            # Lluvias acumuladas > 10 mm en 48h extinguen o inhiben la ignición
-DIAS_RESET_COMBUSTIBLE = 30            # Período de exclusión de biomasa tras un fuego severo en el píxel
+# Biophysical Thresholds for Stage 1 Filtering (Two-Stage Gating)
+UMBRAL_VPD_MINIMO_KPA = 0.8            # Below 0.8 kPa the air is saturated; ignition risk is nearly zero
+UMBRAL_LLUVIA_48H_MM = 10.0            # Accumulated rainfall > 10 mm in 48h extinguishes or inhibits ignition
+DIAS_RESET_COMBUSTIBLE = 30            # Biomass exclusion period after a severe fire in the pixel

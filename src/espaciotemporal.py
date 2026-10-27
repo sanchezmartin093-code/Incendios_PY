@@ -1,13 +1,13 @@
 """
-Módulo espaciotemporal.py: Ingeniería de características de contagio rezagado (t-1),
-prior espacial histórico de ignición e índice de fragmentación de ecotono.
-Fundamento Teórico (2024-2026):
-- Contagio espacial causal: La presencia y potencia radiativa (FRP) de incendios activos en t-1
-  dentro de un radio de 25 km gobierna la propagación sostenida y los clusters de quema.
-- Efecto Borde / Ecotono: Las igniciones antrópicas se concentran en la interfaz bosque-pastura
-  (desmontes y acordonamientos).
-- Prior de propensión antrópica: Densidad espacial histórica calculada sobre el set de entrenamiento
-  para modelar la recurrencia geográfica sin data leakage.
+Module espaciotemporal.py: Feature engineering for lagged contagion (t-1),
+historical spatial ignition prior and ecotone fragmentation index.
+Theoretical Basis (2024-2026):
+- Causal spatial contagion: The presence and radiative power (FRP) of active fires at t-1
+  within a 25 km radius governs sustained propagation and burn clusters.
+- Edge / Ecotone Effect: Anthropogenic ignitions concentrate at the forest-pasture interface
+  (clearings and windrows).
+- Anthropogenic propensity prior: Historical spatial density computed on the training set
+  to model geographic recurrence without data leakage.
 """
 
 from pathlib import Path
@@ -20,8 +20,8 @@ from src.geometria import cell_id_a_coordenadas_centro
 
 def calcular_indice_ecotono(df: pl.DataFrame) -> pl.Series:
     """
-    Calcula el índice normalizado de ecotono bosque-pastura [0.0, 1.0].
-    Alcanza su valor máximo de 1.0 cuando la celda tiene 50% bosque y 50% pastura (interfaz crítica).
+    Computes the normalized forest-pasture ecotone index [0.0, 1.0].
+    Reaches its maximum value of 1.0 when the cell has 50% forest and 50% pasture (critical interface).
     """
     regiones = df["region"].to_list()
     p_past = (df["pct_pastura"] / 100.0).to_numpy()
@@ -34,7 +34,7 @@ def calcular_indice_ecotono(df: pl.DataFrame) -> pl.Series:
     return pl.Series("indice_ecotono", ecotono)
 
 def asegurar_coordenadas_utm(df: pl.DataFrame) -> np.ndarray:
-    """Extrae o reconstruye coordenadas métricas UTM (X, Y) en O(1) desde cell_id."""
+    """Extracts or reconstructs UTM metric coordinates (X, Y) in O(1) from cell_id."""
     if "x_utm" in df.columns and "y_utm" in df.columns:
         return np.column_stack([df["x_utm"].to_numpy(), df["y_utm"].to_numpy()])
     else:
@@ -49,10 +49,10 @@ def calcular_variables_contagio_lag(
     dist_max_km: float = 100.0
 ) -> pl.DataFrame:
     """
-    Calcula variables de contagio espacial estrictamente causales en t-1:
-    - dist_foco_t1_km: Distancia al foco activo más cercano de ayer (km).
-    - focos_25km_t1: Conteo de focos activos en un radio de 25 km ayer.
-    - frp_25km_t1: Suma de potencia radiativa de fuego (MW) en 25 km ayer.
+    Computes strictly causal spatial contagion variables at t-1:
+    - dist_foco_t1_km: Distance to the nearest active hotspot from yesterday (km).
+    - focos_25km_t1: Count of active hotspots within a 25 km radius yesterday.
+    - frp_25km_t1: Sum of fire radiative power (MW) within 25 km yesterday.
     """
     if focos_df.is_empty():
         return df.with_columns([
@@ -66,13 +66,13 @@ def calcular_variables_contagio_lag(
     fechas_df = [str(f)[:10] for f in df["fecha"].to_list()]
     fechas_unicas = sorted(list(set(fechas_df)))
 
-    # Determinar exactamente qué fechas de focos se necesitan (fechas de ayer)
+    # Determine exactly which hotspot dates are needed (yesterday's dates)
     fechas_ayer_necesarias = set()
     for f_act in fechas_unicas:
         dt_act = datetime.strptime(f_act, "%Y-%m-%d").date()
         fechas_ayer_necesarias.add((dt_act - timedelta(days=1)).strftime("%Y-%m-%d"))
 
-    # Pre-filtrar focos exclusivamente a las fechas de ayer requeridas para O(1) hashing y evitar construir miles de árboles
+    # Pre-filter hotspots exclusively to the required yesterday dates for O(1) hashing and to avoid building thousands of trees
     focos_filtrados = focos_df.filter(pl.col("acq_date").cast(pl.String).str.slice(0, 10).is_in(list(fechas_ayer_necesarias)))
     if focos_filtrados.is_empty():
         return df.with_columns([
@@ -104,7 +104,7 @@ def calcular_variables_contagio_lag(
         fecha_ayer = (dt_actual - timedelta(days=1)).strftime("%Y-%m-%d")
 
         if fecha_ayer not in trees_por_fecha:
-            # No se registraron focos ayer (o es el inicio de la serie)
+            # No hotspots were recorded yesterday (or it is the start of the series)
             continue
 
         tree_ayer = trees_por_fecha[fecha_ayer]
@@ -113,11 +113,11 @@ def calcular_variables_contagio_lag(
         idx_df_fecha = np.where(fechas_df_arr == f_actual)[0]
         coords_consulta = coords_df[idx_df_fecha]
 
-        # 1. Distancia al foco más cercano (multiprocesamiento C++ vectorizado)
+        # 1. Distance to the nearest hotspot (vectorized C++ multiprocessing)
         dists, _ = tree_ayer.query(coords_consulta, k=1, workers=-1)
         dist_t1_km[idx_df_fecha] = np.clip(dists / 1000.0, 0.0, dist_max_km).astype(np.float32)
 
-        # 2. Conteo y suma de FRP en radio de 25 km
+        # 2. Count and FRP sum within a 25 km radius
         vecinos_por_punto = tree_ayer.query_ball_point(coords_consulta, r=radio_m, workers=-1)
         counts = np.array([len(v) for v in vecinos_por_punto], dtype=np.float32)
         frp_sums = np.array([np.sum(frp_ayer[v]) if len(v) > 0 else 0.0 for v in vecinos_por_punto], dtype=np.float32)
@@ -138,10 +138,10 @@ def calcular_prior_espacial_historico(
     dist_max_km: float = 100.0
 ) -> pl.DataFrame:
     """
-    [Deprecado] Prior estático calculado con todas las coordenadas de train.
+    [Deprecated] Static prior computed with all training coordinates.
 
-    Se conserva sólo para compatibilidad y tests. No usar en el pipeline:
-    incluye los fuegos del propio periodo de entrenamiento (fuga de etiqueta).
+    Kept only for compatibility and tests. Do not use in the pipeline:
+    it includes fires from the training period itself (label leakage).
     Use ``calcular_priors_causales``.
     """
     coords_df = asegurar_coordenadas_utm(df)
@@ -165,7 +165,7 @@ def calcular_prior_espacial_historico(
 
 
 def _asegurar_fecha_focos(focos_df: pl.DataFrame) -> pl.DataFrame:
-    """Normaliza acq_date a string ISO y valida columnas mínimas."""
+    """Normalizes acq_date to an ISO string and validates minimum columns."""
     if focos_df.is_empty():
         return focos_df
     cols = set(focos_df.columns)
@@ -184,7 +184,7 @@ def _priors_para_corte(
     dist_max_km: float,
     radio_m: float,
 ) -> pl.DataFrame:
-    """Calcula priors espaciales con los focos estrictamente anteriores al corte."""
+    """Computes spatial priors with hotspots strictly prior to the cutoff."""
     coords_df = asegurar_coordenadas_utm(sub)
     n = len(sub)
 
@@ -215,7 +215,7 @@ def _priors_para_corte(
         coords_df, r=5000.0, return_length=True, workers=-1
     ).astype(np.float32)
 
-    # Frecuencia histórica por celda (días-fuego, no años)
+    # Historical frequency per cell (fire-days, not years)
     freq = (
         focos_prev.group_by("cell_id")
         .len()
@@ -225,9 +225,9 @@ def _priors_para_corte(
         pl.col("freq_hist_1km").fill_null(0).cast(pl.Float32)
     )
 
-    # Corredores: celdas con recurrencia crónica (>= 3 días-fuego previos).
-    # Se usa el mismo criterio que la definición operativa original; el
-    # manuscrito debe describirlo como días-fuego, no como "temporadas".
+    # Corridors: cells with chronic recurrence (>= 3 previous fire-days).
+    # The same criterion as the original operational definition is used; the
+    # manuscript must describe it as fire-days, not as "seasons".
     corredores = freq.filter(pl.col("freq_hist_1km") >= 3)
     if corredores.is_empty():
         dist_corredor = np.full(n, dist_max_km, dtype=np.float32)
@@ -251,22 +251,64 @@ def _priors_para_corte(
 
 def agregar_features_antropicas(df: pl.DataFrame) -> pl.DataFrame:
     """
-    Añade variables derivadas de calendario y presión antrópica usadas por M3.
+    Adds calendar-, land-use- and climate-interaction variables.
 
-    Se centraliza aquí para que train, val, test y el servicio de alerta usen
-    exactamente la misma definición.
+    Defaults exist only for tests and legacy partitions. New production
+    datasets must provide them explicitly; ``scripts/05e`` validates that.
     """
+    defaults = {
+        "pct_desmonte_t1": 0.0,
+        "pct_desmonte_t2": 0.0,
+        "pct_desmonte_2a": 0.0,
+        "swvl1_m3m3": 0.25,
+        "fdd_heladas_60d": 0.0,
+        "deficit_hidro_60d": 0.0,
+        "pct_pastura_ganadera": None,
+        "pct_agricultura_anual": 0.0,
+        "pct_plantacion_forestal": 0.0,
+        "pct_sabana_pastizal": 0.0,
+        "pct_humedal_palmar": 0.0,
+        "borde_bosque_agro_pct": 0.0,
+    }
+    exprs_default = []
+    for col_name, val in defaults.items():
+        if col_name in df.columns:
+            continue
+        if col_name == "pct_pastura_ganadera":
+            exprs_default.append(
+                pl.col("pct_pastura").cast(pl.Float32).alias(col_name)
+            )
+        else:
+            exprs_default.append(
+                pl.lit(float(val)).cast(pl.Float32).alias(col_name)
+            )
+    if exprs_default:
+        df = df.with_columns(exprs_default)
+
     return df.with_columns([
         pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.0).otherwise(0.0).cast(pl.Float32).alias("temporada_quema_ganadera"),
         (np.sin(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_sin"),
         (np.cos(2.0 * np.pi * pl.col("dia_del_anio") / 365.25)).cast(pl.Float32).alias("doy_cos"),
         (
-            (pl.col("pct_pastura") / 100.0) * pl.col("vpd_max_kpa")
+            (pl.col("pct_pastura_ganadera") / 100.0) * pl.col("vpd_max_kpa")
             * pl.when(pl.col("mes").is_in([8, 9, 10])).then(1.5).otherwise(0.5)
         ).cast(pl.Float32).alias("presion_quema_pastura"),
         (
             np.exp(-pl.col("dist_foco_hist_km") / 5.0) * pl.col("vpd_max_kpa")
         ).cast(pl.Float32).alias("interaccion_acceso_vpd"),
+        (
+            (pl.col("pct_desmonte_2a") / 100.0) * pl.col("vpd_max_kpa")
+        ).cast(pl.Float32).alias("presion_desmonte_vpd"),
+        (
+            (pl.col("pct_humedal_palmar") / 100.0)
+            * pl.when(pl.col("deficit_hidro_60d") > 0.0)
+            .then(pl.col("deficit_hidro_60d"))
+            .otherwise(0.0)
+        ).cast(pl.Float32).alias("riesgo_estero_seco"),
+        (
+            ((pl.col("pct_pastura_ganadera") + pl.col("pct_sabana_pastizal")) / 100.0)
+            * pl.col("fdd_heladas_60d")
+        ).cast(pl.Float32).alias("combustible_curado_helada"),
     ])
 
 
@@ -280,19 +322,19 @@ def calcular_priors_causales(
     excluir_cell_ids: list[int] | None = None,
 ) -> pl.DataFrame:
     """
-    Calcula priors de susceptibilidad histórica estrictamente causales.
+    Computes strictly causal historical susceptibility priors.
 
-    Por defecto usa como corte el primer día de cada mes: para una fila del
-    mes M sólo se usan focos con ``acq_date`` anterior al día 1 de M. Así se
-    excluyen el evento actual, los eventos futuros y los del mismo mes. En
-    inferencia operativa se puede pasar ``fecha_corte`` (p. ej. el primer día
-    del mes de la alerta) para mantener exactamente la misma definición.
+    By default it uses the first day of each month as the cutoff: for a row of
+    month M only hotspots with ``acq_date`` prior to day 1 of M are used. This
+    excludes the current event, future events and those from the same month. In
+    operational inference, ``fecha_corte`` can be passed (e.g. the first day
+    of the alert's month) to keep exactly the same definition.
 
-    ``ventana_anios`` limita la historia a los últimos N años antes del corte
-    (por defecto 3). Esto evita que las filas de 2025 tengan una densidad
-    histórica mucho mayor que las de 2018 por pura acumulación de años.
+    ``ventana_anios`` limits the history to the last N years before the cutoff
+    (3 by default). This prevents rows from 2025 from having a much higher
+    historical density than those from 2018 purely due to the accumulation of years.
 
-    Columnas generadas:
+    Generated columns:
     - dist_foco_hist_km, densidad_hist_25km
     - freq_hist_1km, dist_corredor_antropico_km
     - densidad_hist_5km, densidad_hist_10km, focalizacion_antropica_local
@@ -361,7 +403,7 @@ def enriquecer_dataset_espaciotemporal(
     fecha_corte: str | None = None,
     excluir_cell_ids: list[int] | None = None,
 ) -> pl.DataFrame:
-    """Aplica ecotono, contagio causal t-1 y priors históricos causales."""
+    """Applies ecotone, causal t-1 contagion and causal historical priors."""
     df = df.with_columns(calcular_indice_ecotono(df))
     df = calcular_variables_contagio_lag(df, focos_df)
 

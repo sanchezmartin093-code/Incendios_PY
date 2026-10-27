@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para cálculo de umbrales óptimos de Youden, F0.5 y Brier Skill Score.
+Unit tests for calculation of optimal Youden thresholds, F0.5 and Brier Skill Score.
 """
 
 import unittest
@@ -22,7 +22,7 @@ class TestMetricas(unittest.TestCase):
         np.random.seed(42)
         n = 1000
         y_true = np.zeros(n)
-        y_true[:100] = 1.0  # 100 fuegos
+        y_true[:100] = 1.0  # 100 fires
         
         y_prob = np.random.uniform(0.0, 0.4, size=n)
         y_prob[:100] += np.random.uniform(0.3, 0.6, size=100)
@@ -33,7 +33,7 @@ class TestMetricas(unittest.TestCase):
         self.assertTrue(0.0 < umbral_youden < 1.0)
         self.assertGreater(max_j, 0.5)
         
-        # 2. Test F0.5 (Prioridad a precisión)
+        # 2. Test F0.5 (priority on precision)
         umbral_f05, max_f = calcular_umbral_optimo_f_beta(y_true, y_prob, beta=0.5)
         self.assertTrue(0.0 < umbral_f05 < 1.0)
         self.assertGreaterEqual(umbral_f05, umbral_youden * 0.8)
@@ -44,12 +44,12 @@ class TestMetricas(unittest.TestCase):
 
     def test_ece_y_bootstrap_ci(self):
         y_true = np.array([0, 0, 0, 0, 1, 1, 1, 1], dtype=np.float32)
-        # Probabilidades perfectamente calibradas (0.0 para negativos, 1.0 para positivos)
+        # Perfectly calibrated probabilities (0.0 for negatives, 1.0 for positives)
         p_perfect = np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32)
         ece_perfect = calcular_expected_calibration_error(y_true, p_perfect)
         self.assertAlmostEqual(ece_perfect, 0.0, places=4, msg="ECE para predicción perfecta debe ser 0.0")
 
-        # Probabilidades descalibradas (0.9 para todo)
+        # Miscalibrated probabilities (0.9 for everything)
         p_bad = np.full_like(y_true, 0.9)
         ece_bad = calcular_expected_calibration_error(y_true, p_bad)
         self.assertGreater(ece_bad, 0.3)
@@ -64,30 +64,30 @@ class TestMetricas(unittest.TestCase):
         n_val = 1000
         n_test = 500
         
-        # Simular probabilidades y etiquetas
+        # Simulate probabilities and labels
         p_val = rng.uniform(0.05, 0.95, size=n_val)
         y_val = (rng.uniform(0, 1, size=n_val) < p_val).astype(int)
         
         p_test = rng.uniform(0.05, 0.95, size=n_test)
         y_test = (rng.uniform(0, 1, size=n_test) < p_test).astype(int)
         
-        # Calcular cuantil para 90% de cobertura marginal (alpha = 0.10)
+        # Calculate quantile for 90% marginal coverage (alpha = 0.10)
         alpha = 0.10
         q_hat = calcular_cuantil_conforme(y_val, p_val, alpha=alpha)
         
         self.assertTrue(0.0 < q_hat <= 1.0)
         
-        # Predecir conjuntos conformes sobre test
+        # Predict conformal sets on test
         c0, c1 = predecir_conjuntos_conformes(p_test, q_hat)
         self.assertEqual(len(c0), n_test)
         self.assertEqual(len(c1), n_test)
         
-        # Verificar cobertura empírica marginal >= 1 - alpha - tolerancia de muestra finita
+        # Verify marginal empirical coverage >= 1 - alpha - finite-sample tolerance
         cobertura = evaluar_cobertura_conforme(y_test, p_test, q_hat)
         self.assertGreaterEqual(cobertura, (1.0 - alpha) - 0.05)
 
     def test_empates_en_threshold(self):
-        """El umbral debe reproducir la métrica al clasificar con >=."""
+        """The threshold must reproduce the metric when classifying with >=."""
         from sklearn.metrics import fbeta_score
         y = np.array([0, 1, 0, 1, 0, 1, 0, 0, 1, 0])
         p = np.array([0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1])
@@ -96,7 +96,7 @@ class TestMetricas(unittest.TestCase):
         self.assertAlmostEqual(f_reportado, f_real, places=6)
 
     def test_correccion_prevalencia(self):
-        """La corrección case-control debe bajar probabilidades al prevalecer menos."""
+        """The case-control correction must lower probabilities when prevalence is lower."""
         p = np.array([0.4, 0.2, 0.8])
         p_corr = corregir_prior_probabilidades(p, 0.0909, 0.0012)
         self.assertTrue(np.all(p_corr < p))

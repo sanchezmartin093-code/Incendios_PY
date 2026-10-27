@@ -1,6 +1,6 @@
 """
-Script 19: prevalencias poblacionales D2 por target, región y año.
-Usa los conteos del plan de muestreo poblacional D2.
+Script 19: D2 population prevalences by target, region and year.
+Uses the counts from the D2 population sampling plan.
 """
 
 from pathlib import Path

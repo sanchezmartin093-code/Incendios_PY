@@ -1,7 +1,7 @@
 """
-Script 13: benchmarking D2 por target (ignición y propagación).
+Script 13: D2 benchmarking per target (ignition and propagation).
 
-Compara M3/M2/propagación con ISI e INPE proxy en el dominio D2 correspondiente.
+Compares M3/M2/propagation with ISI and the INPE proxy in the corresponding D2 domain.
 """
 
 from pathlib import Path

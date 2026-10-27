@@ -1,17 +1,17 @@
 """
-Script 02: Ingesta meteorológica ERA5-Land y cálculo biofísico de FWI / VPD para Paraguay.
-- Genera la malla de nodos meteorológicos a 0.25° (~25 km, resolución nativa del reanálisis).
-- Asigna nodo_clima_id a las 400.006 celdas de la grilla nacional en O(1) con cKDTree.
-- Descarga variables meteorológicas diarias por lotes desde Open-Meteo Historical Archive API.
-- Calcula VPD máximo diario, lluvia 48h, días secos consecutivos (CDD), FWI FFMC e ISI.
-- Exporta en formato columnar ZSTD: datos/processed/clima_era5_diario.parquet.
+Script 02: ERA5-Land meteorological ingestion and biophysical computation of FWI / VPD for Paraguay.
+- Generates the grid of meteorological nodes at 0.25° (~25 km, native resolution of the reanalysis).
+- Assigns nodo_clima_id to the 400 006 cells of the national grid in O(1) with cKDTree.
+- Downloads daily meteorological variables in batches from the Open-Meteo Historical Archive API.
+- Computes daily maximum VPD, 48-h rainfall, consecutive dry days (CDD), FWI FFMC, and ISI.
+- Exports in columnar ZSTD format: datos/processed/clima_era5_diario.parquet.
 """
 
 from pathlib import Path
 import sys
 import argparse
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -37,16 +37,16 @@ def ejecutar_pipeline_clima(start_date: str = "2018-01-01", end_date: str = "202
     print(f"1. Cargando grilla nacional de 1 km² desde: {path_grilla.name}...")
     df_grilla = pl.read_parquet(path_grilla)
 
-    # 1. Generar malla de nodos meteorológicos
+    # 1. Generate the grid of meteorological nodes
     print("2. Generando malla de nodos meteorológicos a resolución nativa de 0.25° (~25 km)...")
     df_nodos = generar_malla_nodos_clima(resolucion_deg=0.25)
     
-    # Asignar nodo más cercano a cada celda de 1 km
+    # Assign the nearest node to each 1 km cell
     df_grilla_actualizada = asignar_nodos_a_grilla(df_grilla, df_nodos)
     df_grilla_actualizada.write_parquet(path_grilla, compression="zstd")
     print(f"   ✓ Asignados {df_grilla_actualizada['nodo_clima_id'].n_unique()} nodos representativos a 400.006 celdas.")
 
-    # Filtrar solo los nodos que efectivamente cubren celdas dentro de Paraguay
+    # Filter only the nodes that actually cover cells within Paraguay
     nodos_activos = df_grilla_actualizada["nodo_clima_id"].unique().to_list()
     df_nodos_filtrados = df_nodos.filter(pl.col("nodo_clima_id").is_in(nodos_activos))
     
@@ -74,21 +74,21 @@ def ejecutar_pipeline_clima(start_date: str = "2018-01-01", end_date: str = "202
     )
     print(f"   ✓ Registros climáticos diarios descargados: {len(df_clima_raw):,}")
 
-    # Guardar copia cruda inmutable
+    # Save an immutable raw copy
     raw_file = dir_era5_raw / f"era5_land_crudo_{start_date}_{end_date}.parquet"
     df_clima_raw.write_parquet(raw_file, compression="zstd")
 
-    # 4. Cálculo de variables biofísicas (FWI FFMC, ISI, CDD, VPD, lluvia 48h)
+    # 4. Computation of biophysical variables (FWI FFMC, ISI, CDD, VPD, 48-h rainfall)
     print("\n4. Calculando índices biofísicos de fuego (VPD, CDD, FWI FFMC, ISI e interacción viento)...")
     df_clima_procesado = calcular_indices_fwi_y_sequedad(df_clima_raw)
 
-    # 5. Guardar en datos/processed/clima_era5_diario.parquet
+    # 5. Save to datos/processed/clima_era5_diario.parquet
     out_parquet = DIR_PROCESSED / "clima_era5_diario.parquet"
     df_clima_procesado.write_parquet(out_parquet, compression="zstd")
     print(f"\n✓ Dataset meteorológico procesado guardado en: {out_parquet}")
     print(f"  Tamaño en disco: {out_parquet.stat().st_size / 1024:.2f} KB")
 
-    # Mostrar resumen estadístico de variables críticas
+    # Show summary statistics of critical variables
     print("\nResumen Estadístico de Variables Físicas de Peligro de Fuego:")
     print(df_clima_procesado.select([
         "temp_max_c", "vpd_max_kpa", "viento_max_kmh", 

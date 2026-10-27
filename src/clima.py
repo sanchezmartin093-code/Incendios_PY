@@ -1,11 +1,11 @@
 """
-Módulo clima.py: Malla meteorológica representativa, ingesta ERA5-Land y cálculo biofísico de FWI y VPD.
-Filosofía SOTA:
-- Malla meteorológica a 0.25° (~25 km, resolución nativa del reanálisis).
-- Asignación instantánea cKDTree a las 400.006 celdas de 1 km² sin overhead.
-- Ingesta por lotes (Batch requests) optimizada a la API abierta de Open-Meteo.
-- Cálculo de variables biofísicas de sequedad: VPD (Tetens), Días Secos Consecutivos (CDD),
-  Índice de Combustible Fino (FFMC) e Índice de Propagación Inicial (ISI).
+clima.py module: Representative meteorological mesh, ERA5-Land ingestion, and biophysical calculation of FWI and VPD.
+SOTA philosophy:
+- Meteorological mesh at 0.25° (~25 km, native reanalysis resolution).
+- Instantaneous cKDTree assignment to the 400 006 cells of 1 km² without overhead.
+- Batch requests optimized for the open Open-Meteo API.
+- Calculation of biophysical dryness variables: VPD (Tetens), Consecutive Dry Days (CDD),
+  Fine Fuel Moisture Code (FFMC), and Initial Spread Index (ISI).
 """
 
 from pathlib import Path
@@ -33,6 +33,21 @@ from src.fwi import (
 
 URL_OPENMETEO_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 
+# Increment this whenever the downloaded variable set or its parser changes.
+# Otherwise an old parquet cache with a different variable set could be reused.
+CACHE_VERSION = "v1_openmeteo_core"
+
+
+def _ruta_cache(cache_dir: Path, batch_idx: int, start_date: str, end_date: str) -> Path:
+    versionado = cache_dir / f"lote_{batch_idx:04d}_{start_date}_{end_date}_{CACHE_VERSION}.parquet"
+    legado = cache_dir / f"lote_{batch_idx:04d}_{start_date}_{end_date}.parquet"
+    if versionado.exists() or not legado.exists():
+        return versionado
+    # Reuse the pre-v3 Open-Meteo cache: its variable set (temperature, rain,
+    # wind, gusts and ET0) is exactly the one requested again after moving
+    # soil moisture to CDS.
+    return legado
+
 
 class OpenMeteoRateLimitError(RuntimeError):
     pass
@@ -40,8 +55,8 @@ class OpenMeteoRateLimitError(RuntimeError):
 
 def generar_malla_nodos_clima(resolucion_deg: float = 0.25) -> pl.DataFrame:
     """
-    Genera la malla discreta de nodos meteorológicos representativos sobre Paraguay.
-    A 0.25°, se obtienen aproximadamente 568 nodos que cubren el territorio sin redundancia.
+    Generates the discrete mesh of representative meteorological nodes over Paraguay.
+    At 0.25°, approximately 568 nodes are obtained that cover the territory without redundancy.
     """
     min_lon = BBOX_PARAGUAY["min_lon"]
     max_lon = BBOX_PARAGUAY["max_lon"]
@@ -55,7 +70,7 @@ def generar_malla_nodos_clima(resolucion_deg: float = 0.25) -> pl.DataFrame:
     flat_lons = xx.ravel().astype(np.float32)
     flat_lats = yy.ravel().astype(np.float32)
 
-    # Identificador de nodo meteorológico determinista
+    # Deterministic meteorological node identifier
     nodo_ids = [int(i + 1) for i in range(len(flat_lons))]
 
     transformer = Transformer.from_crs(CRS_GEOGRAFICO, CRS_PROYECTADO, always_xy=True)
@@ -71,8 +86,8 @@ def generar_malla_nodos_clima(resolucion_deg: float = 0.25) -> pl.DataFrame:
 
 def asignar_nodos_a_grilla(df_grilla: pl.DataFrame, df_nodos: pl.DataFrame) -> pl.DataFrame:
     """
-    Asigna a cada celda de 1 km² el nodo meteorológico más cercano mediante cKDTree en espacio métrico UTM.
-    Ejecución en ~0.05 segundos para 400.000 celdas.
+    Assigns the nearest meteorological node to each 1 km² cell using cKDTree in UTM metric space.
+    Runs in ~0.05 seconds for 400 000 cells.
     """
     tree = cKDTree(df_nodos.select(["x_utm", "y_utm"]).to_numpy())
     puntos_grilla = df_grilla.select(["x_utm", "y_utm"]).to_numpy()
@@ -96,9 +111,9 @@ def _descargar_un_lote_con_reintentos(
     timeout_seg: int = 90
 ) -> pl.DataFrame:
     """
-    Descarga y procesa un sub-lote de nodos meteorológicos con checkpointing individual en disco.
+    Downloads and processes a sub-batch of meteorological nodes with individual disk checkpointing.
     """
-    archivo_cache = cache_dir / f"lote_{batch_idx:04d}_{start_date}_{end_date}.parquet"
+    archivo_cache = _ruta_cache(cache_dir, batch_idx, start_date, end_date)
     if archivo_cache.exists():
         try:
             return pl.read_parquet(archivo_cache)
@@ -117,10 +132,10 @@ def _descargar_un_lote_con_reintentos(
             "wind_speed_10m_max",
             "wind_gusts_10m_max",
             "et0_fao_evapotranspiration",
-            "vapour_pressure_deficit_max"
+            "vapour_pressure_deficit_max",
         ],
-        # FIRMS reporta acq_date en UTC. Usar UTC evita desplazar un día
-        # los eventos nocturnos al unir clima y focos.
+        # FIRMS reports acq_date in UTC. Using UTC avoids shifting nighttime
+        # events by one day when joining weather and fire detections.
         "timezone": "UTC"
     }
 
@@ -205,7 +220,7 @@ def _descargar_un_lote_con_reintentos(
                 "viento_max_kmh": float(wind_max[day_idx]) if wind_max[day_idx] is not None else 0.0,
                 "rafaga_max_kmh": float(gust_max[day_idx]) if gust_max[day_idx] is not None else 0.0,
                 "et0_mm": float(et0[day_idx]) if et0[day_idx] is not None else 0.0,
-                "vpd_max_kpa": vpd_val
+                "vpd_max_kpa": vpd_val,
             })
 
     if registros:
@@ -227,8 +242,8 @@ def descargar_clima_openmeteo_batch(
     cache_dir: Path | None = None
 ) -> pl.DataFrame:
     """
-    Descarga variables climáticas diarias desde Open-Meteo para una lista de coordenadas
-    mediante lotes concurrentes con tolerancia a fallos y checkpointing en disco.
+    Downloads daily climate variables from Open-Meteo for a list of coordinates
+    via concurrent batches with fault tolerance and disk checkpointing.
     """
     if cache_dir is None:
         cache_dir = DIR_RAW / "era5" / "batches"
@@ -255,10 +270,10 @@ def descargar_clima_openmeteo_batch(
 
     dfs = [None] * total_batches
 
-    # 1. Comprobar cuáles ya existen en cache
+    # 1. Check which ones already exist in cache
     pendientes = []
     for b_idx, b_nodos, b_lats, b_lons in batches:
-        f_cache = cache_dir / f"lote_{b_idx:04d}_{start_date}_{end_date}.parquet"
+        f_cache = _ruta_cache(cache_dir, b_idx, start_date, end_date)
         if f_cache.exists():
             try:
                 dfs[b_idx] = pl.read_parquet(f_cache)
@@ -336,20 +351,22 @@ def calcular_indices_fwi_y_sequedad(
     validar_continuidad: bool = True,
 ) -> pl.DataFrame:
     """
-    Calcula de forma secuencial y ordenada por nodo meteorológico:
-    - Precipitacion acumulada 48 horas.
-    - Días Secos Consecutivos (CDD, lluvia < 1.0 mm).
+    Calculates sequentially and sorted by meteorological node:
+    - Accumulated 48-hour precipitation.
+    - Consecutive Dry Days (CDD, rainfall < 1.0 mm).
     - Fine Fuel Moisture Code (FFMC).
     - Initial Spread Index (ISI).
-    - Severidad Convectiva (Viento * VPD).
+    - Convective Severity (Wind * VPD).
+    - Topsoil moisture (0-7 cm), antecedent frost severity and 60-day water deficit.
+      The soil-moisture fallback is a transparent bucket and is not ERA5 data.
     """
     if df_clima.is_empty():
         return df_clima
 
-    # Ordenar estrictamente por nodo y fecha
+    # Strictly sort by node and date
     df_sorted = df_clima.sort(["nodo_clima_id", "fecha"])
     
-    # Procesar por nodo para mantener el estado recursivo del FFMC
+    # Process by node to maintain the recursive FFMC state
     nodos = df_sorted["nodo_clima_id"].unique().to_list()
     resultados_nodos = []
 
@@ -368,32 +385,64 @@ def calcular_indices_fwi_y_sequedad(
                         f"{anterior.date()} -> {actual.date()}"
                     )
 
-        precs = sub["precipitacion_mm"].to_numpy()
-        temps = sub["temp_max_c"].to_numpy()
-        vientos = sub["viento_max_kmh"].to_numpy()
-        vpds = sub["vpd_max_kpa"].to_numpy()
+        n = len(sub)
+        precs = np.nan_to_num(sub["precipitacion_mm"].to_numpy().astype(float), nan=0.0)
+        temps = np.nan_to_num(sub["temp_max_c"].to_numpy().astype(float), nan=25.0)
+        vientos = np.nan_to_num(sub["viento_max_kmh"].to_numpy().astype(float), nan=0.0)
+        vpds = np.nan_to_num(sub["vpd_max_kpa"].to_numpy().astype(float), nan=0.0)
+        if "temp_min_c" in sub.columns:
+            tmins = np.nan_to_num(sub["temp_min_c"].to_numpy().astype(float), nan=15.0)
+        else:
+            tmins = np.full(n, 15.0, dtype=float)
+        if "et0_mm" in sub.columns:
+            et0s = np.nan_to_num(sub["et0_mm"].to_numpy().astype(float), nan=3.5)
+        else:
+            et0s = np.full(n, 3.5, dtype=float)
 
-        n = len(precs)
+        if "swvl1_m3m3" in sub.columns:
+            swvl1_input = sub["swvl1_m3m3"].to_numpy().astype(float)
+            tiene_swvl1 = bool(np.isfinite(swvl1_input).any())
+        else:
+            swvl1_input = np.full(n, np.nan, dtype=float)
+            tiene_swvl1 = False
+
         prec_48h = np.zeros(n, dtype=np.float32)
         cdd = np.zeros(n, dtype=np.int32)
         ffmc = np.zeros(n, dtype=np.float32)
         isi = np.zeros(n, dtype=np.float32)
         interaccion = np.zeros(n, dtype=np.float32)
+        swvl1 = np.full(n, np.nan, dtype=np.float32)
+        fdd_60d = np.zeros(n, dtype=np.float32)
+        deficit_60d = np.zeros(n, dtype=np.float32)
+
+        if tiene_swvl1:
+            swvl1[:] = swvl1_input.astype(np.float32)
+
+        # Frost severity (agronomic threshold: Tmin < 2 °C) and daily water
+        # balance. Antecedent 60-day windows exclude the current day; the
+        # current-day weather is already represented by VPD/rain/wind.
+        helada_diaria = np.maximum(0.0, 2.0 - tmins)
+        balance_diario = et0s - precs
+        cum_fdd = np.concatenate([[0.0], np.cumsum(helada_diaria)])
+        cum_balance = np.concatenate([[0.0], np.cumsum(balance_diario)])
+
+        # Initialise the simple bucket from the first available measurement.
+        primeros = swvl1[: min(7, n)]
+        validos_iniciales = primeros[np.isfinite(primeros)]
+        sw_actual = float(validos_iniciales.mean()) if validos_iniciales.size else 0.28
 
         dias_secos = 0
-        ffmc_prev = 85.0  # Valor inicial estándar de referencia internacional
+        ffmc_prev = 85.0  # Standard international reference initial value
 
         for k in range(n):
             p = float(precs[k])
-            t = float(temps[k]) if not np.isnan(temps[k]) else 25.0
+            t = float(temps[k])
             w = float(vientos[k])
             vpd = float(vpds[k])
+            et = float(et0s[k])
 
-            # 48h lluvia
-            if k == 0:
-                prec_48h[k] = p
-            else:
-                prec_48h[k] = p + float(precs[k - 1])
+            # 48h rainfall
+            prec_48h[k] = p + (float(precs[k - 1]) if k > 0 else 0.0)
 
             # CDD
             if p < 1.0:
@@ -402,7 +451,23 @@ def calcular_indices_fwi_y_sequedad(
                 dias_secos = 0
             cdd[k] = dias_secos
 
-            # Estimación de HR relativa para FFMC a partir de VPD
+            # Soil moisture: use ERA5/Open-Meteo when available; otherwise
+            # integrate a transparent 0-7 cm bucket (provenance is documented
+            # in the data metadata, not silently presented as ERA5).
+            if np.isfinite(swvl1[k]):
+                sw_actual = float(swvl1[k])
+            else:
+                infiltracion = min(max(p, 0.0), 25.0) / 70.0
+                evaporacion = (et * max(sw_actual, 0.0) / 0.42) / 70.0
+                sw_actual = float(np.clip(sw_actual + infiltracion - evaporacion, 0.04, 0.45))
+                swvl1[k] = sw_actual
+
+            # Antecedent 60-day windows (days k-60 .. k-1).
+            ini_60 = max(0, k - 60)
+            fdd_60d[k] = float(cum_fdd[k] - cum_fdd[ini_60])
+            deficit_60d[k] = float(cum_balance[k] - cum_balance[ini_60])
+
+            # Relative humidity estimation for FFMC from VPD
             # rh ~ 100 * ea / es = 100 * (es - vpd) / es
             es = 0.61078 * np.exp((17.27 * t) / (t + 237.3))
             rh_est = float(np.clip(100.0 * (es - vpd) / es, 5.0, 100.0))
@@ -420,7 +485,10 @@ def calcular_indices_fwi_y_sequedad(
             pl.Series("dias_secos_consecutivos", cdd),
             pl.Series("ffmc", ffmc),
             pl.Series("isi", isi),
-            pl.Series("interaccion_viento_vpd", interaccion)
+            pl.Series("interaccion_viento_vpd", interaccion),
+            pl.Series("swvl1_m3m3", swvl1),
+            pl.Series("fdd_heladas_60d", fdd_60d),
+            pl.Series("deficit_hidro_60d", deficit_60d),
         ])
         resultados_nodos.append(sub_calc)
 

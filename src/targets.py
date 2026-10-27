@@ -1,9 +1,9 @@
 """
-Módulo targets.py: definición D2 de ignición primaria y propagación táctica.
+targets.py module: D2 definition of primary ignition and tactical propagation.
 
-- Ignición primaria: fuego en t, sin fuego en la misma celda en los últimos
-  N días y sin fuego t-1 dentro de R km.
-- Propagación: fuego en t dentro de R km de un fuego t-1.
+- Primary ignition: fire at t, no fire in the same cell in the last
+  N days and no fire at t-1 within R km.
+- Propagation: fire at t within R km of a fire at t-1.
 """
 
 import polars as pl
@@ -15,7 +15,7 @@ def agregar_dias_desde_fuego_celda(
     df: pl.DataFrame,
     focos: pl.DataFrame,
 ) -> pl.DataFrame:
-    """Añade los días desde el último fuego previo en la misma celda."""
+    """Adds the days since the last previous fire in the same cell."""
     if df.is_empty():
         return df
 
@@ -67,10 +67,10 @@ def definir_targets_d2(
     dias_ignicion: int = DIAS_IGNICION_SIN_FUEGO,
     radio_km: float = RADIO_PROPAGACION_KM,
 ) -> pl.DataFrame:
-    """Añade ``target_ignicion`` y ``target_propagacion`` con dominios disjuntos.
+    """Adds ``target_ignicion`` and ``target_propagacion`` with disjoint domains.
 
-    ``target_ignicion`` es nulo para fuegos que no son primarios (continuaciones
-    o fuegos cerca de t-1). ``target_propagacion`` es nulo fuera del dominio de
+    ``target_ignicion`` is null for fires that are not primary (continuations
+    or fires near t-1). ``target_propagacion`` is null outside the domain of
     t-1.
     """
     if "focos_25km_t1" not in df.columns:

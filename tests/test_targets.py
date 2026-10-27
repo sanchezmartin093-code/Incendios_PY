@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para la definición D2 de targets.
+Unit tests for the D2 target definition.
 """
 
 import unittest

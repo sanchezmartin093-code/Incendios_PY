@@ -1,9 +1,9 @@
 """
-Módulo clima_cds.py: Ingesta directa y procesamiento de ERA5-Land desde Copernicus CDS.
-- Descarga cuadrículas NetCDF acotadas a Paraguay (bounding box oficial).
-- Extrae y procesa variables meteorológicas para los nodos representativos nacionales.
-- Calcula índices biofísicos de fuego: VPD diario (Tetens), CDD, lluvia 48h, FFMC, ISI.
-- Exporta en formato columnar comprimido ZSTD: datos/processed/clima_era5_diario.parquet.
+clima_cds.py module: Direct ingestion and processing of ERA5-Land from Copernicus CDS.
+- Downloads NetCDF grids bounded to Paraguay (official bounding box).
+- Extracts and processes meteorological variables for the national representative nodes.
+- Calculates biophysical fire indices: daily VPD (Tetens), CDD, 48h rainfall, FFMC, ISI.
+- Exports in compressed ZSTD columnar format: datos/processed/clima_era5_diario.parquet.
 """
 
 from pathlib import Path
@@ -23,10 +23,10 @@ VARIABLES_CDS = [
     "2m_dewpoint_temperature",
     "total_precipitation",
     "10m_u_component_of_wind",
-    "10m_v_component_of_wind"
+    "10m_v_component_of_wind",
 ]
 
-# Bounding box formato CDS: [North, West, South, East]
+# CDS format bounding box: [North, West, South, East]
 AREA_PARAGUAY_CDS = [
     BBOX_PARAGUAY["max_lat"],
     BBOX_PARAGUAY["min_lon"],
@@ -43,11 +43,11 @@ TRIMESTRES_MESES = {
 
 def agregar_precipitacion_diaria(tp_mm: np.ndarray) -> np.ndarray:
     """
-    Agrega una serie subdiaria de precipitación a totales diarios.
+    Aggregates a subdaily precipitation series into daily totals.
 
-    El primer paso temporal se descarta porque en ERA5-Land puede contener el
-    acumulado del día anterior. La cola se interpreta como acumulada si es
-    monótona y, si no, como incrementos subdiarios. El resultado tiene forma
+    The first time step is discarded because in ERA5-Land it may contain the
+    previous day's accumulation. The tail is interpreted as accumulated if it is
+    monotonic and, if not, as subdaily increments. The result has shape
     ``(nodos,)``.
     """
     valores = np.asarray(tp_mm, dtype=float)
@@ -83,14 +83,19 @@ def descargar_trimestre_cds(
     client: cdsapi.Client,
     anio: int,
     trimestre: int,
-    dir_salida: Path
+    dir_salida: Path,
+    forzar: bool = False,
 ) -> Path:
     """
-    Solicita y descarga un trimestre de ERA5-Land (3 meses, resolución 3-hourly) desde Copernicus CDS.
+    Requests and downloads a quarter of ERA5-Land (3 months, 3-hourly resolution) from Copernicus CDS.
     """
     dir_salida.mkdir(parents=True, exist_ok=True)
     archivo_nc = dir_salida / f"era5_land_py_{anio}_Q{trimestre}.nc"
     archivo_zip = dir_salida / f"era5_land_py_{anio}_Q{trimestre}.zip"
+
+    if forzar:
+        archivo_nc.unlink(missing_ok=True)
+        archivo_zip.unlink(missing_ok=True)
 
     if archivo_nc.exists():
         print(f" ✓ Archivo NetCDF encontrado en disco: {archivo_nc.name}")
@@ -106,8 +111,8 @@ def descargar_trimestre_cds(
 
     meses = TRIMESTRES_MESES[trimestre]
     dias = [f"{d:02d}" for d in range(1, 32)]
-    # Se solicita resolución 3-hourly por límites de costo de CDS; la lluvia
-    # diaria se reconstruye sumando los incrementos subdiarios.
+    # 3-hourly resolution is requested due to CDS cost limits; daily rain
+    # is reconstructed by summing the subdaily increments.
     horas = [f"{h:02d}:00" for h in range(0, 24, 3)]
 
     peticion = {
@@ -150,13 +155,14 @@ def procesar_nc_a_nodos_diarios(
     df_nodos: pl.DataFrame
 ) -> pl.DataFrame:
     """
-    Abre el NetCDF de ERA5-Land con xarray, interpola/extrae para los nodos climáticos
-    y agrega a métricas diarias (T max, T min, lluvia diaria, viento max, VPD max).
+    Opens the ERA5-Land NetCDF with xarray, interpolates/extracts for the climate nodes
+    and aggregates to daily metrics (T max, T min, daily rain, max wind, max VPD,
+    daily mean 0-7 cm soil moisture).
     """
     print(f"Procesando NetCDF: {ruta_nc.name} con xarray...")
     ds = xr.open_dataset(ruta_nc)
 
-    # Identificar nombres de variables (en ERA5-Land suelen ser t2m, d2m, tp, u10, v10)
+    # Identify variable names (in ERA5-Land they are usually t2m, d2m, tp, u10, v10)
     var_map = {}
     for v in ds.data_vars:
         v_low = v.lower()
@@ -170,36 +176,39 @@ def procesar_nc_a_nodos_diarios(
             var_map["u10"] = v
         elif "v10" in v_low or "v_wind" in v_low:
             var_map["v10"] = v
+        elif "swvl1" in v_low or "volumetric_soil_water" in v_low:
+            var_map["swvl1"] = v
 
-    # Coordenadas de los nodos meteorológicos
+    # Meteorological node coordinates
     nodo_lats = xr.DataArray(df_nodos["lat"].to_numpy(), dims="nodo")
     nodo_lons = xr.DataArray(df_nodos["lon"].to_numpy(), dims="nodo")
     nodo_ids = df_nodos["nodo_clima_id"].to_numpy()
 
-    # Selección espacial nearest de todos los nodos en un solo paso matricial
-    # Determinar nombres de dimensiones espaciales (latitude/longitude o lat/lon)
+    # Nearest spatial selection of all nodes in a single matrix operation
+    # Determine spatial dimension names (latitude/longitude or lat/lon)
     lat_dim = "latitude" if "latitude" in ds.coords else "lat"
     lon_dim = "longitude" if "longitude" in ds.coords else "lon"
     time_dim = "valid_time" if "valid_time" in ds.coords else ("time" if "time" in ds.coords else None)
 
     sub_ds = ds.sel({lat_dim: nodo_lats, lon_dim: nodo_lons}, method="nearest")
 
-    # Extraer arrays numpy: dimensiones (tiempo, nodo)
+    # Extract numpy arrays: dimensions (time, node)
     t2m_k = sub_ds[var_map["t2m"]].values
     d2m_k = sub_ds[var_map["d2m"]].values
     tp_m = sub_ds[var_map["tp"]].values
     u10 = sub_ds[var_map["u10"]].values
     v10 = sub_ds[var_map["v10"]].values
+    swvl1 = sub_ds[var_map["swvl1"]].values if "swvl1" in var_map else None
     tiempos = sub_ds[time_dim].values
 
-    # Conversión física
+    # Physical conversion
     t2m_c = t2m_k - 273.15
     d2m_c = d2m_k - 273.15
     tp_mm = np.maximum(tp_m * 1000.0, 0.0)
     viento_kmh = np.sqrt(u10**2 + v10**2) * 3.6
     vpd_kpa = calcular_vpd(t2m_c, d2m_c)
 
-    # Identificar fechas únicas
+    # Identify unique dates
     fechas_dt = np.array([str(t)[:10] for t in tiempos])
     fechas_unicas, indices_dias = np.unique(fechas_dt, return_inverse=True)
 
@@ -214,6 +223,10 @@ def procesar_nc_a_nodos_diarios(
         prec_dia = agregar_precipitacion_diaria(tp_mm[mascara_h, :])
         viento_max_dia = np.nanmax(viento_kmh[mascara_h, :], axis=0)
         vpd_max_dia = np.nanmax(vpd_kpa[mascara_h, :], axis=0)
+        if swvl1 is not None:
+            swvl1_dia = np.nanmean(swvl1[mascara_h, :], axis=0)
+        else:
+            swvl1_dia = np.full(num_nodos, np.nan, dtype=float)
 
         for n_i in range(num_nodos):
             registros.append({
@@ -223,12 +236,13 @@ def procesar_nc_a_nodos_diarios(
                 "temp_min_c": float(t_min_dia[n_i]),
                 "precipitacion_mm": float(prec_dia[n_i]),
                 "viento_max_kmh": float(viento_max_dia[n_i]),
-                # ERA5-Land no publica ráfagas. Se deja un proxy lineal
-                # documentado y se excluye del conjunto de features.
+                # ERA5-Land does not publish gusts. A documented linear proxy
+                # is left and excluded from the feature set.
                 "rafaga_max_kmh": float(viento_max_dia[n_i] * 1.3),
-                # ET0 no se solicita en esta descarga; se deja explícito.
+                # ET0 is not requested in this download; it is left explicit.
                 "et0_mm": 0.0,
-                "vpd_max_kpa": float(vpd_max_dia[n_i])
+                "vpd_max_kpa": float(vpd_max_dia[n_i]),
+                "swvl1_m3m3": float(swvl1_dia[n_i]),
             })
 
     ds.close()

@@ -1,5 +1,5 @@
 """
-Paquete central Incendios_PY: Módulos de teledetección, modelado predictivo y alerta temprana.
+Incendios_PY core package: Remote sensing, predictive modeling and early warning modules.
 """
 
 __version__ = "0.1.0"

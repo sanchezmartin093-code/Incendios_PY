@@ -1,12 +1,12 @@
 """
-Script 08: Análisis de Interpretabilidad Global y Local con TreeSHAP (Lundberg et al., 2020).
-- Calcula valores SHAP exactos mediante el algoritmo TreeSHAP de LightGBM (C++).
-- Determina la importancia física media de las variables para el Chaco vs. Región Oriental.
-- Genera figuras vectoriales de calidad editorial (PDF y PNG a 300 DPI) en figuras/:
+Script 08: Global and Local Interpretability Analysis with TreeSHAP (Lundberg et al., 2020).
+- Computes exact SHAP values using LightGBM's TreeSHAP algorithm (C++).
+- Determines the mean physical importance of variables for Chaco vs. Oriental Region.
+- Generates editorial-quality vector figures (PDF and PNG at 300 DPI) in figuras/:
   * fig04_shap_importancia_chaco.png / .pdf
   * fig04_shap_importancia_oriental.png / .pdf
   * fig04_shap_comparativa_chaco_vs_oriental.png / .pdf
-- Exporta tablas formales de contribución:
+- Exports formal contribution tables:
   * tablas/tabla03_shap_ranking_variables.csv
   * tablas/tabla03_shap_ranking_variables.md
 """
@@ -14,7 +14,7 @@ Script 08: Análisis de Interpretabilidad Global y Local con TreeSHAP (Lundberg 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -28,7 +28,7 @@ import lightgbm as lgb
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_FIGURAS, DIR_TABLAS
 from src.modelo import preparar_matrices_xy
 
-# Diccionario de nombres legibles para publicación científica
+# Dictionary of readable names for scientific publication
 NOMBRES_LEGIBLES = {
     "vpd_max_kpa": "Vapor pressure deficit (VPD, kPa)",
     "interaccion_viento_vpd": "Wind × VPD interaction",
@@ -44,11 +44,24 @@ NOMBRES_LEGIBLES = {
     "dias_secos_consecutivos": "Consecutive dry days (CDD)",
     "precipitacion_mm": "Daily rainfall (mm)",
     "precipitacion_48h_mm": "48-h accumulated rainfall (mm)",
-    "pct_pastura": "Pasture cover (%)",
+    "pct_pastura": "Pasture/agriculture total (%)",
+    "pct_pastura_ganadera": "Pasture cover (%)",
+    "pct_agricultura_anual": "Annual agriculture cover (%)",
+    "pct_plantacion_forestal": "Forest plantation cover (%)",
     "pct_sabana_pastizal": "Savanna / natural grassland cover (%)",
     "pct_bosque_seco": "Dry Chaco forest (%)",
     "pct_bosque_humedo": "Atlantic forest BAAPA (%)",
-    "pct_humedal_palmar": "Palm / wetland cover (%)",
+    "pct_humedal_palmar": "Flooded grassland / estero cover (%)",
+    "borde_bosque_agro_pct": "Forest–agriculture edge fraction (%)",
+    "swvl1_m3m3": "Topsoil moisture 0–7 cm (m³/m³)",
+    "fdd_heladas_60d": "Antecedent frost severity, 60 days (°C-days)",
+    "deficit_hidro_60d": "Antecedent water deficit, 60 days (mm)",
+    "riesgo_estero_seco": "Dry estero risk (wetland × deficit)",
+    "combustible_curado_helada": "Frost-cured pasture/grass fuel",
+    "pct_desmonte_t1": "Tree-cover loss, Y-1 (%)",
+    "pct_desmonte_t2": "Tree-cover loss, Y-2 (%)",
+    "pct_desmonte_2a": "Tree-cover loss, Y-1 + Y-2 (%)",
+    "presion_desmonte_vpd": "Deforestation × VPD pressure",
     "es_fin_de_semana": "Weekend effect (anthropogenic)",
     "dia_semana": "Day of week",
     "mes": "Month",
@@ -104,12 +117,12 @@ def ejecutar_analisis_shap():
             print(f"Sin muestras de validación para {region}")
             continue
 
-        # 1. Calcular valores TreeSHAP nativos en C++
-        # booster.predict(..., pred_contrib=True) retorna array de (N, P + 1)
+        # 1. Compute native TreeSHAP values in C++
+        # booster.predict(..., pred_contrib=True) returns an array of (N, P + 1)
         contribuciones = booster.predict(X_val, pred_contrib=True)
-        shap_valores = contribuciones[:, :-1]  # Excluir el término independiente (bias)
+        shap_valores = contribuciones[:, :-1]  # Exclude the intercept term (bias)
 
-        # 2. Importancia global media: promedio del valor absoluto |SHAP|
+        # 2. Mean global importance: mean of the absolute value |SHAP|
         importancia_media = np.mean(np.abs(shap_valores), axis=0)
 
         df_rank = pd.DataFrame({
@@ -127,7 +140,7 @@ def ejecutar_analisis_shap():
         for idx, row in df_rank.head(5).iterrows():
             print(f" {row['ranking']}. {row['nombre_legible']}: {row['shap_importancia_media']:.4f}")
 
-        # 3. Generar gráfico de barras horizontal individual
+        # 3. Generate individual horizontal bar chart
         plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
         fig, ax = plt.subplots(figsize=(10, 6), dpi=300)
         
@@ -138,7 +151,7 @@ def ejecutar_analisis_shap():
         ax.set_xlabel("Mean absolute SHAP impact", fontsize=11, fontweight="bold")
         ax.set_title(f"Feature importance (TreeSHAP) — {region}", fontsize=13, fontweight="bold", pad=12)
         
-        # Añadir etiquetas de valor al final de cada barra
+        # Add value labels at the end of each bar
         for bar in bars:
             w = bar.get_width()
             ax.annotate(f"{w:.3f}",
@@ -154,7 +167,7 @@ def ejecutar_analisis_shap():
         plt.close(fig)
         print(f" ✓ Gráfico exportado: {p_png.name} y {p_pdf.name}")
 
-    # 4. Generar figura comparativa combinada Chaco vs. Oriental
+    # 4. Generate combined comparative Chaco vs. Oriental figure
     if len(datos_plot) == 2:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7), dpi=300, sharex=False)
         
@@ -179,7 +192,7 @@ def ejecutar_analisis_shap():
         plt.close(fig)
         print(f"\n✓ Figura comparativa regional exportada: {p_comp_png.name} y {p_comp_pdf.name}")
 
-    # 5. Exportar tabla consolidada
+    # 5. Export consolidated table
     if rankings_totales:
         df_ranking_final = pd.concat(rankings_totales, ignore_index=True)
         p_csv = DIR_TABLAS / "tabla03_shap_ranking_variables.csv"

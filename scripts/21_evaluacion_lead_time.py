@@ -1,13 +1,13 @@
 """
-Script 21: Evaluación con clima de t-1 (persistencia) para estimar el costo
-de pasar de un nowcast con clima del mismo día a un pronóstico con 24 h de
-anticipación.
+Script 21: Evaluation with t-1 weather (persistence) to estimate the cost
+of moving from a nowcast with same-day weather to a forecast with 24 h of
+lead time.
 
-No es un pronóstico numérico real: usa el clima observado de ayer como proxy
-de persistencia. Sirve como cota inferior/orden de magnitud del desempeño si
-se elimina el clima del mismo día.
+It is not a real numerical forecast: it uses yesterday's observed weather as a
+persistence proxy. It serves as a lower bound/order of magnitude of performance
+if same-day weather is removed.
 
-Exporta `tablas/tabla09_evaluacion_lead_time.csv/.md`.
+Exports `tablas/tabla09_evaluacion_lead_time.csv/.md`.
 """
 
 from pathlib import Path
@@ -34,23 +34,16 @@ from src.metricas import (
 from src.modelo import (
     FEATURES_HIBRIDO_CHACO,
     FEATURES_HIBRIDO_ORIENTAL,
+    FEATURES_M1_BIOFISICO_BASE,
     calibrar_probabilidades_isotonica,
     entrenar_modelo_lightgbm,
     predecir_probabilidad,
 )
 
-FEATURES_M1_BASE = [
-    "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
-    "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
-    "dias_secos_consecutivos", "viento_max_kmh", "potencial_viento_cuadratico",
-    "interaccion_viento_vpd", "ffmc", "isi", "pct_pastura",
-    "pct_sabana_pastizal", "pct_humedal_palmar",
-]
-
 WEATHER_COLS = [
     "temp_max_c", "temp_min_c", "precipitacion_mm", "precipitacion_48h_mm",
     "viento_max_kmh", "vpd_max_kpa", "dias_secos_consecutivos",
-    "ffmc", "isi", "interaccion_viento_vpd",
+    "ffmc", "isi", "interaccion_viento_vpd", "swvl1_m3m3",
 ]
 
 
@@ -63,7 +56,7 @@ def _con_nodo(df: pl.DataFrame, grilla: pl.DataFrame) -> pl.DataFrame:
 
 
 def _reemplazar_por_t1(df: pl.DataFrame, clima: pl.DataFrame) -> pl.DataFrame:
-    """Sustituye las variables meteorológicas por las del día anterior."""
+    """Replaces the weather variables with those from the previous day."""
     df = df.with_columns(
         (
             pl.col("fecha").str.to_date("%Y-%m-%d")
@@ -150,7 +143,7 @@ def main():
         b_col = "pct_bosque_seco" if region == "Chaco" else "pct_bosque_humedo"
         feats_m3 = FEATURES_HIBRIDO_CHACO if region == "Chaco" else FEATURES_HIBRIDO_ORIENTAL
         modelos = [
-            ("M1_biofisico_t1", FEATURES_M1_BASE + [b_col]),
+            ("M1_biofisico_t1", FEATURES_M1_BIOFISICO_BASE + [b_col]),
             ("M3_hibrido_t1", feats_m3),
         ]
         y_tr = tr["target_ignicion"].to_numpy().astype(np.float32)

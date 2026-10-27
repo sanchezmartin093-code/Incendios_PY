@@ -1,5 +1,5 @@
 """
-Módulo remuestreo.py: remuestreo estratificado 1:N por target D2.
+remuestreo.py module: stratified 1:N resampling by D2 target.
 """
 
 import polars as pl
@@ -13,10 +13,10 @@ def remuestrear_por_target(
     ratio: int = RATIO_AUSENCIAS_PRESENCIAS,
     seed: int = 42,
 ) -> pl.DataFrame:
-    """Remuestrea por (fecha, region) para obtener hasta ``ratio`` negativos por positivo.
+    """Resamples by (fecha, region) to obtain up to ``ratio`` negatives per positive.
 
-    Si un estrato no tiene suficientes negativos, se conservan todos los
-    negativos y se submuestrean los positivos para mantener el ratio.
+    If a stratum does not have enough negatives, all negatives are kept and
+    the positives are subsampled to maintain the ratio.
     """
     if target_col not in df.columns:
         raise ValueError(f"Falta la columna {target_col}")

@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para el módulo biomasa.py (categorización de combustible y máscaras no combustibles).
+Unit tests for the biomasa.py module (fuel categorization and non-fuel masks).
 """
 
 import unittest
@@ -18,27 +18,42 @@ from src.biomasa import (
 
 class TestBiomasa(unittest.TestCase):
     def test_categorizacion_por_region(self):
-        # Código 3 (bosque) debe ser seco en Chaco y húmedo en Oriental
+        # Code 3 (forest) must be dry in Chaco and humid in Oriental
         self.assertEqual(categorizar_combustible(3, "Chaco"), "bosque_seco")
         self.assertEqual(categorizar_combustible(3, "Oriental"), "bosque_humedo")
 
-        # Códigos de pasturas (15, 18, 21) deben ser pastura
-        self.assertEqual(categorizar_combustible(15, "Chaco"), "pastura")
-        self.assertEqual(categorizar_combustible(18, "Oriental"), "pastura")
+        # MapBiomas Paraguay C2/C3: 15 pasture, 18 annual agriculture,
+        # 9 forest plantation. There is no class 21 in the Paraguayan legend.
+        self.assertEqual(categorizar_combustible(15, "Chaco"), "pastura_ganadera")
+        self.assertEqual(categorizar_combustible(18, "Oriental"), "agricultura_anual")
+        self.assertEqual(categorizar_combustible(9, "Oriental"), "plantacion_forestal")
 
-        # Código de agua (33) o urbano (24) debe ser no_combustible
+        # Water code (33) or urban/bare (24/25) must be no_combustible
         self.assertEqual(categorizar_combustible(33, "Chaco"), "no_combustible")
         self.assertEqual(categorizar_combustible(24, "Oriental"), "no_combustible")
+        self.assertEqual(categorizar_combustible(25, "Oriental"), "no_combustible")
 
     def test_calculo_metricas_y_mascara_exclusion(self):
-        # Celda 1: 90 píxeles de pastura, 10 de bosque seco en Chaco
+        # Cell 1: 90 pasture pixels, 10 dry forest in Chaco
         conteo_rural = {15: 90, 3: 10}
         res_rural = calcular_metricas_combustible_desde_conteo(conteo_rural, "Chaco")
         self.assertEqual(res_rural["pct_pastura"], 90.0)
+        self.assertEqual(res_rural["pct_pastura_ganadera"], 90.0)
+        self.assertEqual(res_rural["pct_agricultura_anual"], 0.0)
         self.assertEqual(res_rural["pct_bosque_seco"], 10.0)
         self.assertTrue(res_rural["es_combustible"])
 
-        # Celda 2: 95 píxeles de agua (cuerpo de agua mayor) -> NO combustible
+        # Split pasture vs annual agriculture, and check the compatibility sum.
+        conteo_mixto = {15: 60, 18: 30, 3: 10}
+        res_mixto = calcular_metricas_combustible_desde_conteo(conteo_mixto, "Chaco")
+        self.assertEqual(res_mixto["pct_pastura_ganadera"], 60.0)
+        self.assertEqual(res_mixto["pct_agricultura_anual"], 30.0)
+        self.assertAlmostEqual(
+            res_mixto["pct_pastura"],
+            res_mixto["pct_pastura_ganadera"] + res_mixto["pct_agricultura_anual"],
+        )
+
+        # Cell 2: 95 water pixels (major water body) -> NOT fuel
         conteo_agua = {33: 95, 15: 5}
         res_agua = calcular_metricas_combustible_desde_conteo(conteo_agua, "Oriental")
         self.assertEqual(res_agua["pct_no_combustible"], 95.0)
@@ -54,19 +69,19 @@ class TestBiomasa(unittest.TestCase):
         })
         perfil = generar_perfil_combustible_base(df_grilla_dummy)
         self.assertEqual(len(perfil), 2)
-        # Asunción debe estar marcada como no combustible por casco urbano
+        # Asunción must be marked as non-fuel due to urban core
         self.assertFalse(perfil.filter(pl.col("cell_id") == 2000)["es_combustible"][0])
-        # Alto Paraguay debe tener alto bosque seco
+        # Alto Paraguay must have high dry forest
         self.assertGreater(perfil.filter(pl.col("cell_id") == 1000)["pct_bosque_seco"][0], 50.0)
 
     def test_ingesta_mapbiomas_geotiff(self):
-        """La extracción real debe devolver fracciones por celda, no aleatorios."""
+        """The real extraction must return per-cell fractions, not random values."""
         with tempfile.TemporaryDirectory() as tmp:
             ruta = Path(tmp) / "mapbiomas_test.tif"
             ancho = alto = 100
             data = np.zeros((alto, ancho), dtype=np.uint8)
-            data[:, :33] = 15   # pastura
-            data[:, 33:] = 3    # bosque
+            data[:, :33] = 15   # pasture
+            data[:, 33:] = 3    # forest
             with rasterio.open(
                 ruta, "w", driver="GTiff", height=alto, width=ancho,
                 count=1, dtype="uint8", crs="EPSG:32721",
@@ -85,7 +100,10 @@ class TestBiomasa(unittest.TestCase):
             izq = perfil.filter(pl.col("cell_id") == 1)
             der = perfil.filter(pl.col("cell_id") == 2)
             self.assertGreater(float(izq["pct_pastura"][0]), 80.0)
+            self.assertGreater(float(izq["pct_pastura_ganadera"][0]), 80.0)
+            self.assertEqual(float(izq["pct_agricultura_anual"][0]), 0.0)
             self.assertGreater(float(der["pct_bosque_seco"][0]), 80.0)
+            self.assertGreaterEqual(float(izq["borde_bosque_agro_pct"][0]), 0.0)
 
 if __name__ == "__main__":
     unittest.main()

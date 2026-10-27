@@ -1,25 +1,25 @@
 """
-Módulo fwi.py: Formulación del Canadian Fire Weather Index (FWI) y variables microclimáticas avanzadas.
-Incluye el cálculo de:
-- Déficit de Presión de Vapor (VPD)
-- Índices de combustible FWI (FFMC, DMC, DC, ISI, BUI, FWI)
-- Días secos consecutivos (CDD)
-- Interacción convectiva viento-sequedad
+fwi.py module: Canadian Fire Weather Index (FWI) formulation and advanced microclimatic variables.
+Includes the calculation of:
+- Vapor Pressure Deficit (VPD)
+- FWI fuel indices (FFMC, DMC, DC, ISI, BUI, FWI)
+- Consecutive dry days (CDD)
+- Convective wind-dryness interaction
 """
 
 import numpy as np
 
 def calcular_presion_vapor_saturacion(temperatura_c: float | np.ndarray) -> float | np.ndarray:
     """
-    Calcula la presión de vapor de saturación (es) en kPa mediante la ecuación de Tetens.
+    Calculates the saturation vapor pressure (es) in kPa using the Tetens equation.
     """
     return 0.61078 * np.exp((17.27 * temperatura_c) / (temperatura_c + 237.3))
 
 def calcular_vpd(temperatura_c: float | np.ndarray, temperatura_rocio_c: float | np.ndarray) -> float | np.ndarray:
     """
-    Calcula el Déficit de Presión de Vapor (VPD) en kilopascales (kPa).
+    Calculates the Vapor Pressure Deficit (VPD) in kilopascals (kPa).
     VPD = es(T) - ea(Td)
-    Valores > 2.5 kPa indican desecación atmosférica extrema y alta inflamabilidad.
+    Values > 2.5 kPa indicate extreme atmospheric desiccation and high flammability.
     """
     es = calcular_presion_vapor_saturacion(temperatura_c)
     ea = calcular_presion_vapor_saturacion(temperatura_rocio_c)
@@ -28,11 +28,11 @@ def calcular_vpd(temperatura_c: float | np.ndarray, temperatura_rocio_c: float |
 
 def calcular_ffmc(temp: float, rh: float, wind: float, prec: float, ffmc_prev: float = 85.0) -> float:
     """
-    Calcula el Fine Fuel Moisture Code (FFMC) del sistema canadiense.
-    Mide el contenido hídrico de la hojarasca y combustibles finos muertos (capa de 1-2 cm).
-    Escala: 0 a 101. Valores > 89 indican inflamabilidad extrema.
+    Calculates the Fine Fuel Moisture Code (FFMC) of the Canadian system.
+    Measures the moisture content of leaf litter and dead fine fuels (1-2 cm layer).
+    Scale: 0 to 101. Values > 89 indicate extreme flammability.
     """
-    # 1. Ajuste por precipitación
+    # 1. Precipitation adjustment
     if prec > 0.5:
         rf = prec - 0.5
         mo = 147.2 * (101.0 - ffmc_prev) / (59.5 + ffmc_prev)
@@ -51,17 +51,17 @@ def calcular_ffmc(temp: float, rh: float, wind: float, prec: float, ffmc_prev: f
     else:
         mo = 147.2 * (101.0 - ffmc_prev) / (59.5 + ffmc_prev)
 
-    # 2. Equilibrio higroscópico y secado por temperatura y viento
+    # 2. Hygroscopic equilibrium and drying driven by temperature and wind
     ed = 0.942 * (rh ** 0.679) + 11.0 * np.exp((rh - 100.0) / 10.0) + 0.18 * (21.1 - temp) * (1.0 - np.exp(-0.115 * rh))
     ew = 0.614 * (rh ** 0.753) + 10.0 * np.exp((rh - 100.0) / 10.0) + 0.18 * (21.1 - temp) * (1.0 - np.exp(-0.115 * rh))
 
     if mo < ed:
-        # Humidificación (wetting)
+        # Humidification (wetting)
         ko = 0.424 * (1.0 - ((100.0 - rh) / 100.0) ** 1.7) + 0.0694 * np.sqrt(wind) * (1.0 - ((100.0 - rh) / 100.0) ** 8)
         kd = ko * 0.581 * np.exp(0.0365 * temp)
         m = ed + (mo - ed) * (10.0 ** (-kd))
     elif mo > ew:
-        # Desecación (drying)
+        # Desiccation (drying)
         kw = (0.424 * (1.0 - (rh / 100.0) ** 1.7) + 0.0694 * np.sqrt(wind) * (1.0 - (rh / 100.0) ** 8)) * 0.581 * np.exp(0.0365 * temp)
         m = ew + (mo - ew) * (10.0 ** (-kw))
     else:
@@ -72,8 +72,8 @@ def calcular_ffmc(temp: float, rh: float, wind: float, prec: float, ffmc_prev: f
 
 def calcular_isi(wind_kmh: float, ffmc: float) -> float:
     """
-    Initial Spread Index (ISI): Potencial de propagación inicial del fuego.
-    Combina la fuerza del viento con el contenido hídrico de la hojarasca fina (FFMC).
+    Initial Spread Index (ISI): Initial fire propagation potential.
+    Combines wind strength with the moisture content of fine leaf litter (FFMC).
     """
     m = 147.2 * (101.0 - ffmc) / (59.5 + ffmc)
     fu = np.exp(0.05039 * wind_kmh)
@@ -83,8 +83,8 @@ def calcular_isi(wind_kmh: float, ffmc: float) -> float:
 
 def calcular_interaccion_viento_vpd(wind_kmh: float, vpd_kpa: float) -> float:
     """
-    Índice de severidad convectiva: Interacción no lineal entre la fuerza del viento
-    y la demanda evaporativa de la atmósfera (VPD).
+    Convective severity index: Nonlinear interaction between wind strength
+    and the evaporative demand of the atmosphere (VPD).
     """
     return float(wind_kmh * vpd_kpa)
 
@@ -96,7 +96,7 @@ def calcular_dmc(
     precip_mm: float,
     dmc_prev: float = 6.0,
 ) -> float:
-    """Duff Moisture Code (DMC) con secado y recarga por lluvia."""
+    """Duff Moisture Code (DMC) with drying and rain recharge."""
     dmc = float(dmc_prev)
     if precip_mm > 1.5:
         re = 0.92 * precip_mm - 1.5
@@ -123,7 +123,7 @@ def calcular_dc(
     precip_mm: float,
     dc_prev: float = 15.0,
 ) -> float:
-    """Drought Code (DC) con recarga y secado."""
+    """Drought Code (DC) with recharge and drying."""
     dc = float(dc_prev)
     if precip_mm > 2.8:
         rd = 0.83 * precip_mm - 2.8

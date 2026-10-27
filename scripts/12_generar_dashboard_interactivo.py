@@ -1,12 +1,12 @@
 """
-Script 12: Generador del Dashboard Web Interactivo de Alerta Temprana (Leaflet + Chart.js).
-- Construye un portal web interactivo autónomo (standalone HTML): _output/dashboard_alerta_interactivo.html
-- Integra:
-  * Mapa Leaflet con límites departamentales oficiales y visualización de focos críticos.
-  * Marcadores circulares interactivos coloreados por nivel de riesgo con popups biofísicos.
-  * Panel lateral con KPIs nacionales y desglose por departamento.
-  * Gráficos interactivos Chart.js con la distribución de áreas en alerta.
-- No requiere servidor ni backend: ejecutable directamente en el navegador del usuario o publicable en GitHub Pages.
+Script 12: Interactive Early Warning Web Dashboard Generator (Leaflet + Chart.js).
+- Builds a standalone interactive web portal (standalone HTML): _output/dashboard_alerta_interactivo.html
+- Integrates:
+  * Leaflet map with official departmental boundaries and visualization of critical hotspots.
+  * Interactive circular markers colored by risk level with biophysical popups.
+  * Side panel with national KPIs and a breakdown by department.
+  * Interactive Chart.js charts with the distribution of areas under alert.
+- Requires no server or backend: runs directly in the user's browser or can be published on GitHub Pages.
 """
 
 from pathlib import Path
@@ -16,7 +16,7 @@ import argparse
 import polars as pl
 import geopandas as gpd
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -46,18 +46,18 @@ def generar_dashboard_interactivo(fecha: str | None = None) -> Path:
     with open(p_json, "r", encoding="utf-8") as f:
         resumen = json.load(f)
 
-    # Cargar límites departamentales GeoJSON y simplificar para rendimiento web
+    # Load departmental GeoJSON boundaries and simplify for web performance
     path_adm1 = DIR_RAW / "vector" / "paraguay_adm1_departamentos.geojson"
     gdf_deptos = gpd.read_file(path_adm1)
     gdf_deptos_simple = gdf_deptos.copy()
     gdf_deptos_simple["geometry"] = gdf_deptos.geometry.simplify(0.005, preserve_topology=True)
     deptos_geojson = json.loads(gdf_deptos_simple.to_json())
 
-    # Cargar celdas de mayor riesgo (Moderado, Alto y Extremo) para visualización en mapa
+    # Load highest-risk cells (Moderate, High, and Extreme) for map visualization
     df_alerta = pl.read_parquet(p_parquet)
     df_criticos = df_alerta.filter(pl.col("nivel_alerta").is_in(["MODERADO", "ALTO", "EXTREMO"]))
 
-    # Muestrear si hay demasiadas celdas para mantener el HTML liviano (< 2000 marcadores)
+    # Subsample if there are too many cells to keep the HTML lightweight (< 2000 markers)
     if df_criticos.height > 1500:
         step = max(1, df_criticos.height // 1500)
         df_plot = df_criticos.gather_every(step)
@@ -69,7 +69,7 @@ def generar_dashboard_interactivo(fecha: str | None = None) -> Path:
         "nivel_alerta", "isi", "vpd_max_kpa", "viento_max_kmh", "rafaga_max_kmh", "temp_max_c"
     ]).to_dicts()
 
-    # Formatear datos para Chart.js
+    # Format data for Chart.js
     dist_riesgo = resumen["distribucion_riesgo"]
     labels_chart = ["Extremo", "Alto", "Moderado", "Bajo", "Nulo"]
     data_chart = [

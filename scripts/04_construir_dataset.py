@@ -1,18 +1,18 @@
 """
-Script 04: Ensamble y Construcción del Dataset Tabular Unificado (DuckDB Zero-Copy).
-- Integra en memoria: Grilla 1 km² + Combustible MapBiomas + Clima ERA5 + Focos VIIRS.
-- Aplica el Gating Biofísico de Etapa 1: Exclusión de no combustibles (agua/urbano) y
-  filtrado de celdas con inhibición meteorológica (VPD < 0.8 kPa o Lluvia 48h > 10 mm).
-- Genera variables de calendario antrópico (día de la semana, fin de semana).
-- Genera la etiqueta multiescala: fuego binario (Y ∈ {0, 1}) y fuego severo (FRP ≥ 10 MW).
-- Serializa a datos/processed/dataset_unificado_candidatos.parquet.
+Script 04: Assembly and Construction of the Unified Tabular Dataset (DuckDB Zero-Copy).
+- Integrates in memory: 1 km² Grid + MapBiomas Fuel + ERA5 Climate + VIIRS Hotspots.
+- Applies Stage 1 Biophysical Gating: Exclusion of non-fuel (water/urban) and
+  filtering of cells with meteorological inhibition (VPD < 0.8 kPa or 48-h rainfall > 10 mm).
+- Generates anthropogenic calendar variables (day of the week, weekend).
+- Generates the multiscale label: binary fire (Y ∈ {0, 1}) and severe fire (FRP ≥ 10 MW).
+- Serializes to datos/processed/dataset_unificado_candidatos.parquet.
 """
 
 from pathlib import Path
 import sys
 import argparse
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -49,8 +49,8 @@ def construir_dataset_unificado(
 
     filtro_gating = ""
     if aplicar_gating:
-        # Gating biofísico puro: sin leakage de etiquetas de fuego.
-        # Condiciona estrictamente a viabilidad cinemática (combustible presente, sequedad atmosférica y ausencia de lluvia reciente)
+        # Pure biophysical gating: no leakage of fire labels.
+        # Strictly conditions on kinematic viability (fuel present, atmospheric dryness, and absence of recent rainfall)
         filtro_gating = f"""
             WHERE (
                 cli.vpd_max_kpa >= {UMBRAL_VPD_MINIMO_KPA} 
@@ -142,11 +142,11 @@ def construir_dataset_unificado(
 
     con.execute(query)
 
-    # 1. Exportar a Parquet ZSTD
+    # 1. Export to Parquet ZSTD
     print(f"Exportando matriz integrada a: {path_salida.name}...")
     con.execute(f"COPY dataset_unificado TO '{path_salida}' (FORMAT PARQUET, COMPRESSION ZSTD)")
 
-    # 2. Métricas y estadísticas descriptivas
+    # 2. Metrics and descriptive statistics
     stats = con.execute("""
         SELECT 
             COUNT(*) as total_filas,

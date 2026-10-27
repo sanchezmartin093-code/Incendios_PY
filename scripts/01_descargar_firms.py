@@ -1,15 +1,15 @@
 """
-Script 01: Ingesta, filtrado de calidad y armonización espacial de focos NASA FIRMS (VIIRS 375m).
-- Ingesta de fuentes NRT abiertas (Suomi-NPP y NOAA-20) y archivos anuales históricos.
-- Filtrado por distorsión óptica / Bow-Tie (scan <= 1.5 km) y calidad.
-- Spatial Join O(1) con la grilla nacional de 1 km² (datos/processed/grilla_nacional_1km.parquet).
-- Exportación en formato columnar comprimido ZSTD: datos/processed/focos_viirs_diarios.parquet.
+Script 01: Ingestion, quality filtering and spatial harmonization of NASA FIRMS hotspots (VIIRS 375m).
+- Ingestion of open NRT sources (Suomi-NPP and NOAA-20) and annual historical files.
+- Filtering by optical distortion / Bow-Tie (scan <= 1.5 km) and quality.
+- O(1) Spatial Join with the national 1 km² grid (datos/processed/grilla_nacional_1km.parquet).
+- Export in ZSTD-compressed columnar format: datos/processed/focos_viirs_diarios.parquet.
 """
 
 from pathlib import Path
 import sys
 
-# Asegurar que la raíz del proyecto esté en el PYTHONPATH
+# Ensure the project root is on the PYTHONPATH
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -21,7 +21,7 @@ import polars as pl
 from src.constantes import DIR_RAW, DIR_PROCESSED
 from src.firms import procesar_focos_firms_a_grilla, agregar_focos_diarios
 
-# URLs abiertas de NASA FIRMS para pases de Sudamérica (Ventana NRT 7 días como fallback operativo)
+# Open NASA FIRMS URLs for South America passes (7-day NRT window as operational fallback)
 URL_VIIRS_SNPP_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_South_America_7d.csv"
 URL_VIIRS_NOAA20_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_South_America_7d.csv"
 URL_VIIRS_NOAA21_7D = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_South_America_7d.csv"
@@ -50,7 +50,7 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
     dir_firms_raw = DIR_RAW / "firms"
     dir_firms_raw.mkdir(parents=True, exist_ok=True)
 
-    # 1. Descomprimir automáticamente cualquier paquete ZIP histórico presente
+    # 1. Automatically extract any historical ZIP package present
     archivos_zip = list(dir_firms_raw.glob("*.zip"))
     if archivos_zip:
         print(f"\nDetectados {len(archivos_zip)} paquete(s) ZIP en {dir_firms_raw.name}:")
@@ -59,9 +59,9 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
             with zipfile.ZipFile(p_zip, "r") as zf:
                 zf.extractall(dir_firms_raw)
 
-    # 2. Preferir el parquet histórico canónico si existe. Así se evita que
-    #    una ejecución de este script reemplace 8 años de focos por la ventana
-    #    NRT de 7 días.
+    # 2. Prefer the canonical historical parquet if it exists. This prevents
+    #    a run of this script from replacing 8 years of hotspots with the
+    #    7-day NRT window.
     parquets_historicos = sorted(dir_firms_raw.glob("viirs_historico_*.parquet"))
     if parquets_historicos and not usar_nrt:
         ruta_hist = parquets_historicos[-1]
@@ -70,11 +70,11 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
         df_total_raw = pd.read_parquet(ruta_hist)
         dfs_crudos = []
     else:
-        # 3. Buscar archivos CSV históricos o NRT en el directorio
+        # 3. Look for historical or NRT CSV files in the directory
         archivos_csv = list(dir_firms_raw.glob("*.csv"))
         dfs_crudos = []
 
-        # Priorizar archivos históricos si existen
+        # Prioritize historical files if they exist
         csvs_historicos = [c for c in archivos_csv if "nrt" not in c.name.lower()]
         csvs_a_cargar = csvs_historicos if csvs_historicos else archivos_csv
 
@@ -83,14 +83,14 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
             for ruta_csv in csvs_a_cargar:
                 print(f" - Leyendo: {ruta_csv.name} ({ruta_csv.stat().st_size / (1024*1024):.2f} MB)...")
                 try:
-                    # Lectura flexible
+                    # Flexible reading
                     df_sub = pd.read_csv(ruta_csv, low_memory=False)
                     dfs_crudos.append(df_sub)
                     print(f"   ✓ {len(df_sub):,} registros cargados.")
                 except Exception as e:
                     print(f"   ✗ Error leyendo {ruta_csv.name}: {e}")
         else:
-            # Fallback a descarga NRT si no hay ningún CSV
+            # Fallback to NRT download if there are no CSV files
             print("\nNo se encontraron archivos CSV históricos locales. Descargando feed operativo NRT...")
             for nombre_sensor, url, archivo_nom in SENSORES_FALLBACK_NRT:
                 ruta_archivo = dir_firms_raw / archivo_nom
@@ -106,7 +106,7 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
             print("No se pudieron cargar datos de focos térmicos.")
             return
 
-        # 4. Concatenar y deduplicar registros crudos
+        # 4. Concatenate and deduplicate raw records
         df_total_raw = pd.concat(dfs_crudos, ignore_index=True)
     cols_dedup = [c for c in ["latitude", "longitude", "acq_date", "acq_time"] if c in df_total_raw.columns]
     if cols_dedup:
@@ -119,7 +119,7 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
     if "acq_date" in df_total_raw.columns:
         print(f"Ventana temporal cubierta: {df_total_raw['acq_date'].min()} a {df_total_raw['acq_date'].max()}")
 
-    # 4. Procesar, filtrar Bow-Tie y mapear a cell_id O(1)
+    # 4. Process, filter Bow-Tie and map to O(1) cell_id
     print("\nAplicando filtros de teledetección (Bow-Tie scan<=1.5km, confianza!=low) y spatial join O(1)...")
     pl_focos_filtrados = procesar_focos_firms_a_grilla(
         df_raw=df_total_raw,
@@ -129,18 +129,18 @@ def descargar_e_ingestar_firms(usar_nrt: bool = False):
     )
     print(f"Focos validados y espacializados dentro de Paraguay: {len(pl_focos_filtrados):,}")
 
-    # 5. Agregación diaria por celda
+    # 5. Daily aggregation per cell
     print("Agregando focos diarios por celda de 1 km²...")
     df_diario = agregar_focos_diarios(pl_focos_filtrados)
     print(f"Total de registros celda-día con evento de fuego: {len(df_diario):,}")
 
-    # 6. Guardar en Parquet comprimido ZSTD
+    # 6. Save in ZSTD-compressed Parquet
     out_parquet = DIR_PROCESSED / "focos_viirs_diarios.parquet"
     df_diario.write_parquet(out_parquet, compression="zstd")
     print(f"\nDataset consolidado guardado en: {out_parquet}")
     print(f"Tamaño en disco: {out_parquet.stat().st_size / 1024:.2f} KB")
 
-    # Resumen regional
+    # Regional summary
     resumen_fuego = df_diario.group_by("region").agg([
         pl.len().alias("celda_dias_quemados"),
         pl.col("max_frp_dia").max().alias("frp_maximo_mw"),

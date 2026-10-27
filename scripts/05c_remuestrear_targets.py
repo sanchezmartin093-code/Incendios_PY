@@ -1,6 +1,6 @@
 """
-Script 05c: remuestreo 1:10 por target D2 sobre las particiones etiquetadas.
-Genera archivos separados para ignición y propagación.
+Script 05c: 1:10 resampling per D2 target over the labeled partitions.
+Generates separate files for ignition and propagation.
 """
 
 from pathlib import Path

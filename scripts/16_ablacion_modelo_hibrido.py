@@ -1,17 +1,17 @@
 """
-Script 16: Estudio de Ablación y Entrenamiento del Modelo Híbrido Socio-Ecológico Multiescala.
-- Compara rigurosamente sobre el conjunto de prueba ciego out-of-time (2024–2025, N = 1.841.147):
-  1. M1 — Modelo Biofísico Puro (18 variables: meteorología ERA5-Land, FWI y biomasa MapBiomas, sin antrópico).
-  2. M2 — Modelo Base de Ignición con Ancla Macro (25 variables: M1 + calendario básico y prior 25 km).
-  3. M3 — Modelo Híbrido Socio-Ecológico Multiescala (35 variables: M2 + presión de quema agroganadera,
-          codificación armónica estacional, corredores de acceso humano a 1/5/10 km e interacción Acceso × VPD).
-  4. Sistemas Canónicos de Benchmarking Internacional (Canadian FWI Puro, Proxy INPE Risco de Fogo, Climatología).
-- Exporta:
-  * modelos/lightgbm_hibrido_chaco.booster y lightgbm_hibrido_oriental.booster
+Script 16: Ablation Study and Training of the Multiscale Socio-Ecological Hybrid Model.
+- Rigorously compares on the blind out-of-time test set (2024–2025, N = 1 841 147):
+  1. M1 — Pure Biophysical Model (18 variables: ERA5-Land meteorology, FWI and MapBiomas biomass, no anthropic).
+  2. M2 — Base Ignition Model with Macro Anchor (25 variables: M1 + basic calendar and 25 km prior).
+  3. M3 — Multiscale Socio-Ecological Hybrid Model (35 variables: M2 + agropastoral burning pressure,
+          seasonal harmonic encoding, human access corridors at 1/5/10 km and Access × VPD interaction).
+  4. Canonical International Benchmarking Systems (Pure Canadian FWI, INPE Fire Risk Proxy, Climatology).
+- Exports:
+  * modelos/lightgbm_hibrido_chaco.booster and lightgbm_hibrido_oriental.booster
   * modelos/calibradores/calibrador_hibrido_*.joblib
-  * tablas/tabla05_ablacion_hibrido_socioecologico.csv y .md
-  * tablas/tabla06_shap_modelo_hibrido.csv y .md
-  * figuras/fig07_ablacion_biofisico_vs_hibrido.png y .pdf (300 DPI)
+  * tablas/tabla05_ablacion_hibrido_socioecologico.csv and .md
+  * tablas/tabla06_shap_modelo_hibrido.csv and .md
+  * figuras/fig07_ablacion_biofisico_vs_hibrido.png and .pdf (300 DPI)
 """
 
 from pathlib import Path
@@ -44,8 +44,9 @@ from src.modelo import (
     calibrar_probabilidades_isotonica,
     predecir_probabilidad,
     guardar_modelo_y_calibrador,
+    FEATURES_M1_BIOFISICO_BASE,
     FEATURES_IGNICION_CHACO,
-    FEATURES_IGNICION_ORIENTAL
+    FEATURES_IGNICION_ORIENTAL,
 )
 from src.metricas import (
     calcular_umbral_optimo_youden,
@@ -54,15 +55,8 @@ from src.metricas import (
     calcular_bootstrap_ci_roc
 )
 
-# 1. Definición de Conjuntos de Variables para el Estudio de Ablación
-FEATURES_M1_BIOFISICO_BASE = [
-    "temp_max_c", "temp_min_c", "rango_termico_diario", "vpd_max_kpa",
-    "deficit_hidrico_acumulado", "precipitacion_mm", "precipitacion_48h_mm",
-    "dias_secos_consecutivos", "viento_max_kmh",
-    "potencial_viento_cuadratico", "interaccion_viento_vpd", "ffmc", "isi",
-    "pct_pastura", "pct_sabana_pastizal", "pct_humedal_palmar"
-]
-
+# 1. M1 is imported from src.modelo so the ablation cannot drift from the
+# production feature contract.
 FEATURES_ANTROPICO_MULTIESCALA = [
     "dist_corredor_antropico_km",
     "densidad_hist_5km",
@@ -114,11 +108,11 @@ def construir_features_socioecologicas(
     df_grilla: pl.DataFrame | None = None
 ) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
-    Añade variables derivadas socio-ecológicas a partir de los priors causales
-    ya calculados en ``scripts/05_muestrear_ausencias.py``.
+    Adds socio-ecological derived variables from the causal priors
+    already computed in ``scripts/05_muestrear_ausencias.py``.
 
-    No se recalculan priors aquí: hacerlo con los fuegos de train introducía
-    el propio evento y fuegos futuros en las features de entrenamiento.
+    The priors are not recomputed here: doing so with the training fires would
+    introduce the event itself and future fires into the training features.
     """
     return (
         agregar_features_antropicas(df_train),
@@ -164,15 +158,15 @@ def ejecutar_estudio_ablacion():
 
         b_col = "pct_bosque_seco" if region == "Chaco" else "pct_bosque_humedo"
 
-        # Capacidad idéntica para M1, M2 y M3: la única diferencia entre
-        # arquitecturas es el conjunto de features. Así la ablación no está
-        # confundida por más árboles/hojas en M3.
+        # Identical capacity for M1, M2 and M3: the only difference between
+        # architectures is the feature set. This way the ablation is not
+        # confounded by more trees/leaves in M3.
         spw = 1.0 if region == "Chaco" else 2.0
         n_r_ctrl = 45 if region == "Chaco" else 60
         leaves_ctrl = 23 if region == "Chaco" else 31
         min_s = 20 if region == "Chaco" else 10
 
-        # --- MODELO M1: BIOFÍSICO PURO ---
+        # --- MODEL M1: PURE BIOPHYSICAL ---
         feats_m1 = FEATURES_M1_BIOFISICO_BASE + [b_col]
         X_tr_m1, X_va_m1, X_te_m1 = tr_r.select(feats_m1).to_numpy(), va_r.select(feats_m1).to_numpy(), te_r.select(feats_m1).to_numpy()
         b_m1 = entrenar_modelo_lightgbm(
@@ -186,7 +180,7 @@ def ejecutar_estudio_ablacion():
         p_te_m1 = predecir_probabilidad(b_m1, c_m1, X_te_m1)
         c_opt_m1, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m1, beta=0.5)
 
-        # --- MODELO M2: IGNICIÓN CON ANCLA MACRO (reentrenado con la misma capacidad) ---
+        # --- MODEL M2: IGNITION WITH MACRO ANCHOR (retrained with the same capacity) ---
         feats_m2 = FEATURES_IGNICION_CHACO if region == "Chaco" else FEATURES_IGNICION_ORIENTAL
         X_tr_m2, X_va_m2, X_te_m2 = tr_r.select(feats_m2).to_numpy(), va_r.select(feats_m2).to_numpy(), te_r.select(feats_m2).to_numpy()
         b_m2 = entrenar_modelo_lightgbm(
@@ -200,7 +194,7 @@ def ejecutar_estudio_ablacion():
         p_te_m2 = predecir_probabilidad(b_m2, c_m2, X_te_m2)
         c_opt_m2, _ = calcular_umbral_optimo_f_beta(y_va, p_va_m2, beta=0.5)
 
-        # --- MODELO M3: HÍBRIDO SOCIO-ECOLÓGICO MULTIESCALA ---
+        # --- MODEL M3: MULTISCALE SOCIO-ECOLOGICAL HYBRID ---
         feats_m3 = feats_m2 + FEATURES_ANTROPICO_MULTIESCALA + (["freq_hist_1km"] if region == "Oriental" else [])
         X_tr_m3, X_va_m3, X_te_m3 = tr_r.select(feats_m3).to_numpy(), va_r.select(feats_m3).to_numpy(), te_r.select(feats_m3).to_numpy()
 
@@ -216,7 +210,7 @@ def ejecutar_estudio_ablacion():
         c_opt_m3, max_f05_m3 = calcular_umbral_optimo_f_beta(y_va, p_va_m3, beta=0.5)
         c_youden_m3, max_j_m3 = calcular_umbral_optimo_youden(y_va, p_va_m3)
 
-        # Guardar Modelo Híbrido Serializado y Metadatos de Umbral Óptimo de Validación (Anti-Leakage)
+        # Save Serialized Hybrid Model and Validation Optimal Threshold Metadata (Anti-Leakage)
         guardar_modelo_y_calibrador(
             b_m3, c_m3,
             DIR_MODELOS / f"lightgbm_hibrido_{region.lower()}.booster",
@@ -235,7 +229,7 @@ def ejecutar_estudio_ablacion():
             json.dumps(meta_hibrido, indent=2), encoding="utf-8"
         )
 
-        # Calcular SHAP del Modelo Híbrido M3
+        # Compute SHAP for Hybrid Model M3
         contrib_m3 = b_m3.predict(X_va_m3, pred_contrib=True)[:, :-1]
         imp_m3 = np.mean(np.abs(contrib_m3), axis=0)
         df_shap_reg = pd.DataFrame({
@@ -247,7 +241,7 @@ def ejecutar_estudio_ablacion():
         df_shap_reg["ranking"] = df_shap_reg.index + 1
         rankings_shap.append(df_shap_reg.head(10))
 
-        # --- BENCHMARKS INTERNACIONALES COMPLETOS ---
+        # --- FULL INTERNATIONAL BENCHMARKS ---
         grilla = pl.read_parquet(
             DIR_PROCESSED / "grilla_nacional_1km.parquet",
             columns=["cell_id", "nodo_clima_id"],
@@ -344,7 +338,7 @@ def ejecutar_estudio_ablacion():
         encoding="utf-8"
     )
 
-    # Generar Figura de Ablación
+    # Generate Ablation Figure
     plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
     fig, axes = plt.subplots(2, 2, figsize=(14, 11), dpi=300)
     for i, reg in enumerate(["Oriental", "Chaco"]):

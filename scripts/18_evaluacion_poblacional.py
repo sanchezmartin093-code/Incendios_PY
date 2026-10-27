@@ -1,8 +1,8 @@
 """
-Script 18: evaluación poblacional D2 con reponderación por muestreo.
+Script 18: D2 population evaluation with sampling reweighting.
 
-Usa conteos poblacionales por fecha/región/target (plan D2) y las predicciones
-de los test target-específicos.
+Uses population counts by date/region/target (D2 plan) and the predictions
+from the target-specific tests.
 """
 
 from pathlib import Path

@@ -1,5 +1,5 @@
 """
-Pruebas de consistencia para el módulo geometria.py e indexación espacial O(1).
+Consistency tests for the geometria.py module and O(1) spatial indexing.
 """
 
 import unittest

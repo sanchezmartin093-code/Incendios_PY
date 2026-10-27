@@ -24,12 +24,15 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Data: `dataset_unificado` v2, 915,562,849 candidate cell-days, 867,354 fire
   cell-days, 397,336 cells.
 - VIIRS: 892,533 fire cell-days after the corrected `low`/`l` confidence filter.
-- Climate: ERA5-Land CDS 3-hourly; daily precipitation reconstructed from increments.
-- Fuel: MapBiomas Collection 2, 2023.
+- Climate: ERA5-Land CDS 3-hourly; 0-7 cm soil moisture from CDS and a
+  potential-evaporation ET0 proxy; antecedent frost/water-deficit features.
+- Fuel: MapBiomas Collection 2 (2023), split into pasture, annual agriculture,
+  forest plantation, savanna, woodlands and flooded grassland; forest-agriculture edge.
+- Loss: Hansen GFC-2025-v1.13 annual tree-cover loss at `t-1` and `t-2`.
 - Targets: population-based D2 sampling at 1:10 per task and region.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M1 fallback; propagation restricted to the `t-1` domain.
-- Tests: **62 tests pass**.
+- Tests: **65 pass + 1 conditional skip** (v3 contract).
 - Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0).
 
 ## Installation
@@ -71,13 +74,18 @@ python scripts/00_generar_grilla_nacional.py
 python scripts/01b_descargar_firms_api.py
 python scripts/01_descargar_firms.py
 python scripts/02b_descargar_era5_cds.py --workers 2
+python scripts/02f_completar_clima_cds.py        # short CDS path: swvl1 + potential evaporation
+# if annual CDS jobs are too heavy: python scripts/02f_completar_clima_cds.py --trimestre
+# 02c is optional and requires Open-Meteo quota; not needed for the short CDS path
 python scripts/02d_calcular_fwi_completo.py
 python scripts/02e_calcular_inpe.py
 python scripts/03_procesar_combustible.py
+python scripts/03b_descargar_desmonte_hansen.py   # Hansen GFC 2025 v1.13
 python scripts/04_construir_dataset.py
 
-# 2. D2 targets and population weights
+# 2. D2 targets, population weights and v3 feature injection
 python scripts/05d_muestrear_poblacional_d2.py
+python scripts/05e_inyectar_features_v3.py
 python scripts/19_estimar_prevalencias.py
 
 # 3. Models and evaluation
@@ -175,7 +183,9 @@ Raw datasets are public but are not redistributed in this repository:
 2. **Copernicus Climate Data Store** ERA5-Land reanalysis:
    <https://cds.climate.copernicus.eu/>
 3. **MapBiomas** Collection 2, 2023 land cover for Paraguay.
-4. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
+4. **Hansen Global Forest Change** GFC-2025-v1.13 annual tree-cover loss:
+   <https://storage.googleapis.com/earthenginepartners-hansen/GFC-2025-v1.13/>
+5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
 `fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models are archived in Zenodo with DOI
@@ -200,6 +210,12 @@ licenses and terms.
 1. ERA5-Land is used on a 0.25° node grid; 3-hourly data may miss intra-day VPD and
    wind peaks.
 2. MapBiomas fuel is a static 2023 layer; no annual land-cover series is used.
+   The v3 feature contract (pasture/agriculture/plantation split, edge fraction,
+   soil moisture, frost/deficit and Hansen loss) is implemented, but the annual
+   prior-year MapBiomas rebuild remains the next methodological step to remove
+   future fuel information from the 2018-2022 training rows.
+   ``et0_mm`` in the short CDS path is ``potential_evaporation``, not FAO-56
+   reference ET0; it is an explicit proxy and models must be retrained.
 3. D2 is a task-specific target definition; it is not a universal ignition model.
 4. M3 loses spatial generalisation in unseen blocks; M1 is more robust but also limited.
 5. The operational alert still requires institutional validation and a day-ahead

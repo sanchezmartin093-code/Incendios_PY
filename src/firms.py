@@ -1,10 +1,10 @@
 """
-Módulo firms.py: Ingesta, filtrado de calidad y agregación espacial de focos NASA FIRMS (VIIRS 375m).
-Aplica los principios de rigor de la teledetección:
-- Transformación y asignación a cell_id O(1) en UTM 21S.
-- Filtro de distorsión óptica / efecto Bow-Tie (scan footprint <= 1.5 km).
-- Filtrado por nivel de confianza y potencia radiativa (FRP).
-- Agregación diaria por celda de 1 km².
+Module firms.py: Ingestion, quality filtering and spatial aggregation of NASA FIRMS hotspots (VIIRS 375m).
+Applies remote sensing rigor principles:
+- Transformation and O(1) cell_id assignment in UTM 21S.
+- Optical distortion / Bow-Tie effect filter (scan footprint <= 1.5 km).
+- Filtering by confidence level and radiative power (FRP).
+- Daily aggregation per 1 km² cell.
 """
 
 import pandas as pd
@@ -28,11 +28,11 @@ def procesar_focos_firms_a_grilla(
     excluir_baja_confianza: bool = True
 ) -> pl.DataFrame:
     """
-    Procesa un DataFrame crudo de FIRMS, aplica filtros de teledetección y realiza
-    el spatial join O(1) con la grilla nacional.
-    Retorna un DataFrame de Polars con los focos georreferenciados a nivel de celda.
+    Processes a raw FIRMS DataFrame, applies remote sensing filters and performs
+    the O(1) spatial join with the national grid.
+    Returns a Polars DataFrame with the hotspots georeferenced at cell level.
     """
-    # 1. Filtro rápido de Bounding Box continental
+    # 1. Fast continental Bounding Box filter
     df_bbox = df_raw[
         (df_raw["latitude"] >= BBOX_PARAGUAY["min_lat"]) &
         (df_raw["latitude"] <= BBOX_PARAGUAY["max_lat"]) &
@@ -43,24 +43,24 @@ def procesar_focos_firms_a_grilla(
     if len(df_bbox) == 0:
         return pl.DataFrame()
 
-    # 2. Filtro Bow-Tie: descartar píxeles hiper-deformados en el extremo orbital
+    # 2. Bow-Tie filter: discard hyper-deformed pixels at the orbital edge
     if "scan" in df_bbox.columns:
         df_bbox = df_bbox[df_bbox["scan"] <= max_scan_km]
 
-    # 3. Filtro de confianza
+    # 3. Confidence filter
     if excluir_baja_confianza and "confidence" in df_bbox.columns:
         confianza = df_bbox["confidence"].astype(str).str.strip().str.lower()
         df_bbox = df_bbox[~confianza.isin({"l", "low"})]
 
-    # 4. Sólo fuegos de vegetación (type=0). Excluye fuentes industriales,
-    #    volcanes y detecciones offshore (type=2/3 en FIRMS).
+    # 4. Vegetation fires only (type=0). Excludes industrial sources,
+    #    volcanoes and offshore detections (type=2/3 in FIRMS).
     if "type" in df_bbox.columns:
         df_bbox = df_bbox[df_bbox["type"] == 0]
 
     if len(df_bbox) == 0:
         return pl.DataFrame()
 
-    # 4. Proyección a UTM 21S y cálculo de cell_id determinístico O(1)
+    # 4. Projection to UTM 21S and deterministic O(1) cell_id computation
     transformer = Transformer.from_crs(CRS_GEOGRAFICO, CRS_PROYECTADO, always_xy=True)
     x_utm, y_utm = transformer.transform(df_bbox["longitude"].values, df_bbox["latitude"].values)
     
@@ -68,13 +68,13 @@ def procesar_focos_firms_a_grilla(
     df_bbox["y_utm"] = y_utm
     df_bbox["cell_id"] = coordenadas_a_cell_id(x_utm, y_utm, res_m=RESOLUCION_GRILLA_METROS)
 
-    # Convertir a Polars para inner join de alta velocidad
+    # Convert to Polars for high-speed inner join
     pl_focos = pl.from_pandas(df_bbox[[
         "cell_id", "latitude", "longitude", "acq_date", "acq_time", 
         "frp", "confidence", "daynight", "scan", "track"
     ]])
 
-    # 5. Inner Join con la grilla nacional (descarta puntos en países limítrofes)
+    # 5. Inner Join with the national grid (discards points in neighboring countries)
     pl_grilla_sub = df_grilla.select(["cell_id", "departamento", "region"])
     pl_resultado = pl_focos.join(pl_grilla_sub, on="cell_id", how="inner")
 
@@ -82,8 +82,8 @@ def procesar_focos_firms_a_grilla(
 
 def agregar_focos_diarios(pl_focos_grilla: pl.DataFrame) -> pl.DataFrame:
     """
-    Agrega los focos térmicos por celda y por fecha (acq_date):
-    Calcula: total_focos, max_frp, suma_frp y clasifica fuego = 1.
+    Aggregates thermal hotspots by cell and by date (acq_date):
+    Computes: total_focos, max_frp, suma_frp and classifies fuego = 1.
     """
     if pl_focos_grilla.is_empty():
         return pl.DataFrame()

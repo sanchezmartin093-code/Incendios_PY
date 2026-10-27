@@ -1,5 +1,5 @@
 """
-Script 02e: calcula PSE y variables de entrada del Risco de Fogo do INPE.
+Script 02e: calculates PSE and input variables for the INPE Fire Risk.
 """
 
 from pathlib import Path

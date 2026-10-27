@@ -1,5 +1,5 @@
 """
-Pruebas unitarias para el script de evaluación en test y cálculo de métricas operativas.
+Unit tests for the test-set evaluation script and operational metric computation.
 """
 
 import unittest
