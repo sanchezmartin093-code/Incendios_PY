@@ -23,11 +23,11 @@ format:
 - **Título Principal (Español):**  
   *Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco (2018–2025)*
 - **Subtítulo (Español):**  
-  *Targets D2, inferencia con gating y fallback M1/M3, y benchmark abierto frente a Canadian FWI e INPE Risco de Fogo*
+  *Targets D2, inferencia con gating y fallback M2/M3, y benchmark abierto frente a Canadian FWI e INPE Risco de Fogo*
 - **Title (English):**  
   *A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025)*
 - **Subtitle (English):**  
-  *D2 Targets, Gated M3/M1 Inference and an Open Benchmark Against Canadian FWI and INPE*
+  *D2 Targets, M3/M2 Inference and an Open Benchmark Against Canadian FWI and INPE*
 - **Título Corto / Running Head:**  
   *Reproducible Decoupled Wildfire Benchmarking in the Gran Chaco*
 - **Revista Objetivo / Target Journal:**  
@@ -64,7 +64,7 @@ format:
 1. **Biophysical gating removes 21.7% of cell-days and retains 97.17% of detections.** (79 chars)
 2. **Decoupled models isolate physical ignition risk from tactical t-1 fire spread.** (78 chars)
 3. **Monotonic Platt-calibrated LightGBM beats full Canadian FWI and INPE Risco de Fogo.** (83 chars)
-4. **50-km spatial block holdout completed; M1 fallback for cells without fire history.** (82 chars)
+4. **50-km spatial block holdout completed; M2 fallback for cells without fire history.** (82 chars)
 5. **DuckDB and Polars score 400,006 cells in 1.57 s and 2.18 GB peak RAM.** (69 chars)
 
 ---
@@ -73,21 +73,21 @@ format:
 
 ![](figuras/graphical_abstract.png){width=100%}
 
-**Graphical abstract.** Decoupled D2 targets, gated M3/M1 inference, causal t-1 propagation and a blind benchmark against FWI and INPE. The visual uses only current, traceable results.
+**Graphical abstract.** Decoupled D2 targets, M3/M2 inference, causal t-1 propagation and a retrospective benchmark against FWI and INPE. The visual uses only current, traceable results.
 
 ---
 
 # 5. Resumen / Abstract & Keywords
 
 ### Resumen (Español)
-La predicción operativa de incendios con aprendizaje automático sufre fugas espaciales y una limitada transferibilidad de los índices boreales a biomas subtropicales. Presentamos un marco computacional reproducible que separa ignición primaria y propagación táctica y hace explícitos la construcción de targets, la inferencia con gating y el protocolo de evaluación. La definición D2 exige que la ignición no tenga fuego $t-1$ en 25 km ni fuego en la misma celda en 10 días; la propagación se evalúa dentro de 25 km de un fuego $t-1$. Un gating biofísico elimina celdas no combustibles o húmedas; un modelo híbrido LightGBM ($\mathcal{M}_3$) predice ignición sin variables de fuego $t-1$, con $\mathcal{M}_1$ como fallback para celdas sin historia; la propagación usa un kernel causal $t-1$. Un pipeline *zero-copy* en Polars/DuckDB evalúa 400.006 celdas de 1 km², y un harness reproducible combina bootstrap agrupado por fecha, bloques espaciales de 50 km, lead-time y cost-loss. En test ciego 2024–2025 (1.813.966 celdas-día-tarea), $\mathcal{M}_3$ alcanza ROC-AUC 0,7851/0,7485 (Chaco/Oriental), frente a 0,5185/0,5569 del FWI completo y 0,5386/0,4994 del INPE; la propagación alcanza 0,8989/0,7799. La precisión poblacional de ignición es solo 0,062 %/0,206 %, por lo que el sistema es un nowcast y herramienta de priorización, no una alerta autónoma. $\mathcal{M}_3$ pierde transferibilidad espacial (0,6243/0,5754), mientras $\mathcal{M}_1$ es más robusto (0,6338/0,6176), lo que motiva el fallback. Código y datos están archivados con DOI. La contribución es un protocolo computacional y un benchmark reproducible, no un nuevo algoritmo de *boosting*.
+La predicción operativa de incendios con aprendizaje automático sufre a menudo fugas espaciales y una transferibilidad limitada de los índices boreales a biomas subtropicales. Presentamos un marco computacional reproducible que separa la ignición primaria de la propagación táctica y hace explícitos la construcción de objetivos, la inferencia con gating y la evaluación. D2 define la ignición como fuego en el día t sin fuego t-1 a menos de 25 km y sin fuego en la misma celda en los 10 días previos; la propagación se evalúa a menos de 25 km de un fuego t-1. Un gate biofísico elimina celdas-día no combustibles y húmedas. Un modelo híbrido LightGBM (M3) predice ignición sin insumos de fuego t-1, con M2 como fallback para celdas sin historia y M1 como baseline biofísico. En validación 2023, M3 alcanza ROC-AUC 0.7844/0.7628 (Chaco/Oriental), frente a 0.7817/0.7496 de M2 y 0.6354/0.7041 de M1. En bloques espaciales de desarrollo 2023, M2 es el más robusto (0.6773/0.7470) y M1 no supera a M2 en celdas sin historia, por lo que M1 se rechaza como fallback operativo. En el test retrospectivo 2024–2025, M3 alcanza 0.8021/0.7534 frente a 0.5173/0.5564 del FWI canadiense y 0.5389/0.4990 del INPE; la propagación alcanza 0.9039/0.7859. La precisión poblacional de ignición es solo 0.082 %/0.198 %, por lo que el sistema es una herramienta de nowcast y priorización, no un sistema de alerta autónomo. El test 2024–2025 ya fue observado y se reporta como retrospectivo, no como ciego. La contribución es un protocolo computacional y un benchmark reproducibles, no un nuevo algoritmo de boosting.
 
 **Palabras clave:** Incendios forestales; GeoAI; reproducibilidad; validación espacial; LightGBM; Gran Chaco.
 
 ---
 
 ### Abstract (English)
-Wildfire machine learning often suffers from spatial leakage and from the limited transferability of boreal fire-weather indices to subtropical biomes. We present a reproducible computational framework that separates primary ignition from tactical propagation and makes target construction, gated inference and evaluation explicit. D2 defines ignition as fire at day t with no t-1 fire within 25 km and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a t-1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without t-1 fire inputs, with M1 as a fallback for cells without fire history; propagation uses a causal t-1 kernel. A zero-copy Polars/DuckDB pipeline scores 400,006 1-km² cells, and a reproducible harness combines grouped-by-date bootstrap, 50-km spatial blocks, lead-time and cost-loss analyses. In the 2024–2025 held-out test (1,813,966 task cell-days), M3 reaches ROC-AUC 0.7851/0.7485 (Chaco/Oriental), versus 0.5185/0.5569 for full Canadian FWI and 0.5386/0.4994 for INPE; propagation reaches 0.8989/0.7799. Population-level ignition precision is only 0.062 %/0.206 %, so the system is a nowcast and prioritisation tool, not a stand-alone warning system. M3 loses spatial transferability (0.6243/0.5754), whereas M1 is more robust (0.6338/0.6176), motivating the fallback. Code and data are archived with DOIs. The contribution is a reproducible computational protocol and benchmark, not a new boosting algorithm.
+Wildfire machine learning often suffers from spatial leakage and from the limited transferability of boreal fire-weather indices to subtropical biomes. We present a reproducible computational framework that separates primary ignition from tactical propagation and makes target construction, gated inference and evaluation explicit. D2 defines ignition as fire at day t with no t-1 fire within 25 km and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a t-1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without t-1 fire inputs, with M2 as the fallback for cells without history and M1 as a biophysical baseline. In 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental), versus 0.7817/0.7496 for M2 and 0.6354/0.7041 for M1. In 2023 development spatial blocks, M2 is the most robust model (0.6773/0.7470), and M1 does not outperform M2 on cells without history, so M1 is rejected as an operational fallback. On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5173/0.5564 for full Canadian FWI and 0.5389/0.4990 for INPE; propagation reaches 0.9039/0.7859. Population-level ignition precision is only 0.082 %/0.198 %, so the system is a nowcast and prioritisation tool, not a stand-alone warning system. The 2024–2025 test was already observed and is reported as retrospective, not blind. The contribution is a reproducible computational protocol and benchmark, not a new boosting algorithm.
 
 **Keywords:** Wildfire nowcasting; GeoAI; reproducibility; spatial cross-validation; LightGBM; Gran Chaco.
 

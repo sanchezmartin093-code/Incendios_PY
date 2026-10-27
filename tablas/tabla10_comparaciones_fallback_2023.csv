@@ -1,0 +1,7 @@
+region,subset,comparacion,delta_roc_auc,delta_roc_ci95_low,delta_roc_ci95_high,delta_pr_auc,delta_pr_ci95_low,delta_pr_ci95_high,n_bootstrap,agrupacion
+Chaco,sin_historia,M2_base_minus_M3_hibrido,0.0051,0.0013,0.0093,-0.0023,-0.0071,0.0027,1000,fecha
+Chaco,sin_historia,M3_hibrido_minus_M1_biofisico,0.0976,0.0812,0.114,0.0619,0.0488,0.0748,1000,fecha
+Chaco,sin_historia,M2_base_minus_M1_biofisico,0.1027,0.0879,0.1175,0.0596,0.0473,0.0706,1000,fecha
+Oriental,sin_historia,M2_base_minus_M3_hibrido,0.0019,-0.0047,0.0082,-0.0058,-0.0104,-0.0017,1000,fecha
+Oriental,sin_historia,M3_hibrido_minus_M1_biofisico,0.0403,0.0258,0.0532,0.021,0.0126,0.031,1000,fecha
+Oriental,sin_historia,M2_base_minus_M1_biofisico,0.0422,0.0311,0.0533,0.0152,0.0075,0.0244,1000,fecha

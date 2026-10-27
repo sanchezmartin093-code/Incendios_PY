@@ -1,6 +1,6 @@
 {
   "title": "Incendios_PY: a reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco",
-  "description": "<p>Open-source pipeline for daily 1-km wildfire ignition and propagation modelling in Paraguay. The release includes code for D2 target construction, biophysical gating, M3/M1 fallback inference, monotonic Platt calibration, spatial block validation, grouped bootstrap, and benchmarking against the full Canadian FWI and INPE Risco de Fogo. Raw third-party datasets are documented but not redistributed; processed data and trained models are deposited separately.</p>",
+  "description": "<p>Open-source pipeline for daily 1-km wildfire ignition and propagation modelling in Paraguay. The release includes code for D2 target construction, biophysical gating, M3/M2 fallback inference, monotonic Platt calibration, spatial block validation, grouped bootstrap, and benchmarking against the full Canadian FWI and INPE Risco de Fogo. Raw third-party datasets are documented but not redistributed; processed data and trained models are deposited separately.</p>",
   "upload_type": "software",
   "publication_date": "2026-10-26",
   "version": "1.0.0",

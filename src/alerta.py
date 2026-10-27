@@ -6,8 +6,10 @@ Production Philosophy:
     extinguishing rainfall (P_48h >= 10 mm) or saturated atmospheres (VPD < 0.8 kPa).
   * Stage 2: Regional discriminant ensemble inference (LightGBM Booster C++) monotonically
     calibrated (Platt) P(Fire|X) ∈ [0.0, 1.0].
-  * M1 fallback: in cells with no fire history (`freq_hist_1km = 0`) the biophysical
-    model M1 is used; M3 is reserved for cells with observed recurrence.
+  * M2 fallback: in cells with no fire history (`freq_hist_1km = 0`) the base
+    ignition model M2 is used; M3 is reserved for cells with observed recurrence.
+    M1 is retained only as a diagnostic biophysical baseline after the 2023
+    validation showed it is not a defensible operational fallback.
 - Operational risk classification based on maximum-precision thresholds (F0.5):
   * NULL: No vegetal fuel material (water or consolidated urban area).
   * LOW: Subcritical conditions (P < c*).
@@ -109,23 +111,27 @@ def cargar_artefactos_modelos() -> dict:
     artefactos = {}
     prevalencias = _cargar_prevalencias_poblacionales()
     for region in ["chaco", "oriental"]:
-        # 1. Primary Ignition Layer (Prioritizes Hybrid Model M3 if present, with fallback to M2)
+        # 1. Primary ignition layer: M3 where history exists, M2 fallback.
         ruta_b_hibrido = DIR_MODELOS / f"lightgbm_hibrido_{region}.booster"
         ruta_c_hibrido = DIR_MODELOS / "calibradores" / f"calibrador_hibrido_{region}.joblib"
-        
+
         ruta_b_ign = DIR_MODELOS / f"lightgbm_ignicion_{region}.booster"
         ruta_c_ign = DIR_MODELOS / "calibradores" / f"calibrador_ignicion_{region}.joblib"
-        
+
+        # M2 is required: the 2023 validation rejected M1 as the operational
+        # fallback. Fail closed instead of silently using an unsupported model.
+        if not (ruta_b_ign.exists() and ruta_c_ign.exists()):
+            raise FileNotFoundError(
+                f"Falta el modelo M2 de ignición para {region}: {ruta_b_ign}"
+            )
+
         es_hibrido = ruta_b_hibrido.exists() and ruta_c_hibrido.exists()
         if es_hibrido:
             ruta_booster_final = ruta_b_hibrido
             ruta_cal_final = ruta_c_hibrido
-        elif ruta_b_ign.exists() and ruta_c_ign.exists():
+        else:
             ruta_booster_final = ruta_b_ign
             ruta_cal_final = ruta_c_ign
-        else:
-            ruta_booster_final = DIR_MODELOS / f"lightgbm_{region}.booster"
-            ruta_cal_final = DIR_MODELOS / "calibradores" / f"calibrador_{region}.joblib"
 
         # 2. Tactical Propagation Layer
         ruta_b_prop = DIR_MODELOS / f"lightgbm_propagacion_{region}.booster"
@@ -133,6 +139,8 @@ def cargar_artefactos_modelos() -> dict:
 
         booster_ign = lgb.Booster(model_file=str(ruta_booster_final))
         calibrador_ign = joblib.load(ruta_cal_final)
+        booster_m2 = lgb.Booster(model_file=str(ruta_b_ign))
+        calibrador_m2 = joblib.load(ruta_c_ign)
 
         booster_prop = lgb.Booster(model_file=str(ruta_b_prop)) if ruta_b_prop.exists() else None
         calibrador_prop = joblib.load(ruta_c_prop) if ruta_c_prop.exists() else None
@@ -168,6 +176,11 @@ def cargar_artefactos_modelos() -> dict:
         cutoff_ign = _corregir_cutoff(cutoff_ign, prev_ign)
         cutoff_prop = _corregir_cutoff(cutoff_prop, prev_prop)
 
+        cutoff_m2 = _leer_umbral_validacion(
+            DIR_MODELOS / "calibradores" / f"umbrales_ignicion_{region}.json"
+        )
+        cutoff_m2 = _corregir_cutoff(cutoff_m2, prev_ign)
+
         cutoff_m1 = cutoff_ign
         if booster_m1 is not None:
             cutoff_m1 = _leer_umbral_validacion(
@@ -184,6 +197,10 @@ def cargar_artefactos_modelos() -> dict:
             "cutoff_ign": cutoff_ign,
             "booster_prop": booster_prop,
             "calibrador_prop": calibrador_prop,
+            "booster_m2": booster_m2,
+            "calibrador_m2": calibrador_m2,
+            "features_m2": booster_m2.feature_name(),
+            "cutoff_m2": cutoff_m2,
             "booster_m1": booster_m1,
             "calibrador_m1": calibrador_m1,
             "features_m1": booster_m1.feature_name() if booster_m1 is not None else None,
@@ -422,17 +439,22 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         if df_reg.height == 0:
             continue
 
-        # Primary Ignition inference (M3) and M1 fallback
+        # Primary ignition inference: M3 regardless of history; M2 is the
+        # validated fallback for cells without observed fire history.
         X_ign = df_reg.select(art["features_ign"]).to_numpy()
         p_m3 = predecir_probabilidad(art["booster_ign"], art["calibrador_ign"], X_ign)
+        X_m2 = df_reg.select(art["features_m2"]).to_numpy()
+        p_m2 = predecir_probabilidad(art["booster_m2"], art["calibrador_m2"], X_m2)
+        fallback_m2 = (df_reg["freq_hist_1km"].to_numpy() <= 0)
+        p_ign = np.where(fallback_m2, p_m2, p_m3)
+
+        # M1 is kept only as a diagnostic baseline; it is not used operationally.
         if art.get("booster_m1") is not None:
             X_m1 = df_reg.select(art["features_m1"]).to_numpy()
             p_m1 = predecir_probabilidad(art["booster_m1"], art["calibrador_m1"], X_m1)
-            fallback_m1 = (df_reg["freq_hist_1km"].to_numpy() <= 0)
         else:
             p_m1 = p_m3
-            fallback_m1 = np.zeros(df_reg.height, dtype=bool)
-        p_ign = np.where(fallback_m1, p_m1, p_m3)
+        fallback_m1 = np.zeros(df_reg.height, dtype=bool)
 
         # Tactical Propagation inference
         if art["booster_prop"] is not None and art["calibrador_prop"] is not None:
@@ -444,6 +466,7 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         # Save the case-control probability for diagnostics and correct it to
         # population prevalence before classifying/alerting.
         p_m3_muestreo = p_m3.copy()
+        p_m2_muestreo = p_m2.copy()
         p_m1_muestreo = p_m1.copy()
         p_ign_muestreo = p_ign.copy()
         p_prop_muestreo = p_prop.copy()
@@ -451,6 +474,7 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         prev_prop = art.get("prevalencia_propagacion")
         if prev_ign:
             p_m3 = corregir_prior_probabilidades(p_m3, PREVALENCIA_MUESTREO, prev_ign)
+            p_m2 = corregir_prior_probabilidades(p_m2, PREVALENCIA_MUESTREO, prev_ign)
             p_m1 = corregir_prior_probabilidades(p_m1, PREVALENCIA_MUESTREO, prev_ign)
             p_ign = corregir_prior_probabilidades(p_ign, PREVALENCIA_MUESTREO, prev_ign)
         if prev_prop:
@@ -463,19 +487,22 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         cutoff_prop = art["cutoff_prop"]
 
         niveles_m3 = categorizar_riesgo_vectorizado(p_m3, cutoff=cutoff_ign, modo="ignicion")
+        niveles_m2 = categorizar_riesgo_vectorizado(p_m2, cutoff=art["cutoff_m2"], modo="ignicion")
         niveles_m1 = categorizar_riesgo_vectorizado(p_m1, cutoff=art["cutoff_m1"], modo="ignicion")
-        niveles_ign = np.where(fallback_m1, niveles_m1, niveles_m3)
+        niveles_ign = np.where(fallback_m2, niveles_m2, niveles_m3)
         niveles_prop = categorizar_riesgo_vectorizado(p_prop, cutoff=cutoff_prop, modo="propagacion")
         niveles_tot = np.where(en_propagacion, niveles_prop, niveles_ign)
 
         df_reg = df_reg.with_columns([
             pl.Series("probabilidad_ignicion", p_ign.astype(np.float32)),
             pl.Series("probabilidad_m3", p_m3.astype(np.float32)),
+            pl.Series("probabilidad_m2", p_m2.astype(np.float32)),
             pl.Series("probabilidad_m1", p_m1.astype(np.float32)),
+            pl.Series("fallback_m2", fallback_m2),
             pl.Series("fallback_m1", fallback_m1),
             pl.Series("probabilidad_propagacion", p_prop.astype(np.float32)),
             pl.Series("probabilidad_fuego", p_fuego.astype(np.float32)),
-            pl.Series("probabilidad_cruda", (np.where(fallback_m1, p_m1_muestreo, p_m3_muestreo)).astype(np.float32)),
+            pl.Series("probabilidad_cruda", (np.where(fallback_m2, p_m2_muestreo, p_m3_muestreo)).astype(np.float32)),
             pl.Series("probabilidad_ignicion_muestreo", p_ign_muestreo.astype(np.float32)),
             pl.Series("probabilidad_propagacion_muestreo", p_prop_muestreo.astype(np.float32)),
             pl.Series("nivel_alerta_ignicion", niveles_ign),
@@ -493,7 +520,9 @@ def evaluar_alerta_nacional(df_nacional: pl.DataFrame, artefactos: dict) -> pl.D
         df_descartados = df_descartados.with_columns([
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_ignicion"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_m3"),
+            pl.lit(0.0).cast(pl.Float32).alias("probabilidad_m2"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_m1"),
+            pl.lit(False).alias("fallback_m2"),
             pl.lit(False).alias("fallback_m1"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_propagacion"),
             pl.lit(0.0).cast(pl.Float32).alias("probabilidad_fuego"),

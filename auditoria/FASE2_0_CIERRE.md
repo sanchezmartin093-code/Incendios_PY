@@ -167,3 +167,7 @@ M2 sigue siendo el mejor en holdout espacial. La narrativa del manuscrito debe c
 ## 9. Decisión
 
 La deuda técnica previa queda cerrada. La única limitación es explícita y aceptada: el lock tiene versiones exactas pero no hashes de ruedas; ver `auditoria/FASE2_0_LOCK_EXCEPTION.md`. Fase 2 científica puede comenzar.
+
+## 10. Actualización posterior
+
+La Fase 2 científica se ejecutó y cerró después de este documento. Ver `auditoria/FASE2_CIERRE.md` y `auditoria/FASE2_DECISION_MODELO.md`.

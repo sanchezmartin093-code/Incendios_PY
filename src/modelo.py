@@ -169,7 +169,9 @@ def preparar_matrices_xy(
     """
     df_reg = df.filter(pl.col("region") == region)
     
-    if modo == "propagacion":
+    if modo == "m1":
+        features = FEATURES_M1_CHACO if region == "Chaco" else FEATURES_M1_ORIENTAL
+    elif modo == "propagacion":
         features = FEATURES_PROPAGACION_CHACO if region == "Chaco" else FEATURES_PROPAGACION_ORIENTAL
     elif modo == "hibrido":
         features = FEATURES_HIBRIDO_CHACO if region == "Chaco" else FEATURES_HIBRIDO_ORIENTAL

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, methodology, or dataset, please cite it using the metadata below."
 title: "Incendios_PY: a reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco"
-abstract: "Open-source pipeline for daily 1-km wildfire ignition and propagation modelling, including D2 target construction, monotonic Platt calibration, M1 fallback, spatial block validation, and FWI/INPE benchmarking."
+abstract: "Open-source pipeline for daily 1-km wildfire ignition and propagation modelling, including D2 target construction, monotonic Platt calibration, M2 fallback, spatial block validation, and FWI/INPE benchmarking."
 type: software
 authors:
   - family-names: "Sánchez Insfrán"

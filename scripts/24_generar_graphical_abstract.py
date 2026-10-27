@@ -1,7 +1,7 @@
 """Generate the graphical abstract from a clean, metric-aware brief.
 
 The layout is deliberately simple: separate the targets, show the gated
-decoupled pipeline, and report only the current blind-test benchmark. It does
+decoupled pipeline, and report only the current retrospective test benchmark. It does
 not reuse the legacy architecture graphic or its obsolete percentages.
 """
 
@@ -103,7 +103,7 @@ def main():
     box(ax, 34.0, 11.7, 14.0, 3.1, "#f0ecf7", PURPLE, 0.8, 0.4)
     label(ax, 34.7, 13.25, "M3 hybrid\n(no t-1 fire)", size=5.9, color=INK)
     box(ax, 49.5, 11.7, 14.0, 3.1, "#f0ecf7", PURPLE, 0.8, 0.4)
-    label(ax, 50.2, 13.25, "M1 fallback\n(no history)", size=5.9, color=INK)
+    label(ax, 50.2, 13.25, "M2 fallback\n(no history)", size=5.9, color=INK)
     arrow(ax, 48.7, 11.4, 48.7, 9.2, PURPLE)
     label(ax, 34.0, 8.0,
           "Causal t-1 propagation\n+ frozen evaluation harness",
@@ -129,13 +129,13 @@ def main():
         y -= 5.1
     ax.plot([x0, x0], [13.0, 25.1], color="#d6dee6", lw=0.8, zorder=2)
     label(ax, 68.5, 11.3,
-          "M3 is stronger on the blind test;\nM1 is the fallback for unseen cells.",
+          "M3 is stronger on the 2023 validation;\nM2 is the fallback for unseen cells.",
           size=6.1, color=MUTED, linespacing=1.2)
 
     # Footer
     box(ax, 1.0, 0.8, 98.0, 2.4, INK, INK, 0.0, 0.4)
     label(ax, 50, 2.0,
-          "D2 targets  ·  gated M3/M1  ·  causal propagation  ·  open benchmark",
+          "D2 targets  ·  M3/M2  ·  causal propagation  ·  open benchmark",
           size=6.6, color=WHITE, weight="bold", ha="center")
 
     plt.tight_layout()

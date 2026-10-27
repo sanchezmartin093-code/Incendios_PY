@@ -361,7 +361,7 @@ def ejecutar_estudio_ablacion():
         ax_p.set_ylabel("Operational precision (PPV)")
         ax_p.legend(loc="upper right", fontsize=8)
 
-    plt.suptitle("Controlled ablation: biophysical M1 vs socio-ecological M3 vs benchmarks (blind test 2024–2025)", fontweight="bold", y=0.99)
+    plt.suptitle("Controlled ablation: biophysical M1 vs socio-ecological M3 vs benchmarks (retrospective test 2024–2025)", fontweight="bold", y=0.99)
     plt.tight_layout()
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.png", dpi=300)
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.pdf")

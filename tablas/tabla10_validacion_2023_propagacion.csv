@@ -1,0 +1,3 @@
+region,task,anio,n,n_pos,prevalencia,cutoff_f05,roc_auc,pr_auc,brier,bss,ece,precision,recall,f05,fp,fn
+Chaco,propagacion,2023,369490,33590,0.090909,0.5467,0.8942,0.6418,0.0495,0.4012,0.0102,0.7924,0.4577,0.6913,4027,18215
+Oriental,propagacion,2023,463276,42116,0.090909,0.432,0.8022,0.4173,0.0666,0.1938,0.0038,0.6662,0.2357,0.4879,4972,32191
