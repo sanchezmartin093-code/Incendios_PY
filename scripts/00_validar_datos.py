@@ -246,7 +246,7 @@ def main():
             "OK" if ruta.exists() else "WARN")
 
     # 8. Manifest
-    p_man = ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v2.csv"
+    p_man = ROOT_DIR / "fuentes" / "MANIFIESTO_DATOS_v3.csv"
     if p_man.exists():
         man = pd.read_csv(p_man)
         if "sha256_hash" in man.columns:

@@ -1,7 +1,7 @@
 ---
 title: "A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025)"
 subtitle: "D2 targets, M3/M2 inference, and an open benchmark against Canadian FWI and INPE"
-date: "2026-10-26"
+date: "2026-10-27"
 date-modified: today
 lang: en
 crossref:
@@ -99,7 +99,7 @@ The grid contains 400,006 cells of 1 km² in UTM zone 21S. Daily inputs are VIIR
 
 The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB. A spatial join of 50,000 points is shown only as a reference; the operational lookup avoids point-in-polygon at inference. The full pipeline processes 400,006 cells in 1.569 s with 2,182.1 MB peak RAM on ARM64; x86_64 was not measured. The study domain and regional split are shown in @fig-area; the per-stage profile is in Supplementary Table S4.
 
-Data quality checks are part of the pipeline: duplicate VIIRS overpasses are collapsed, `low` confidence detections are removed, daily precipitation is reconstructed from sub-daily increments and impossible values above 300 mm/day are rejected. ERA5-Land nodes are mapped to cells with a precomputed cKDTree. The processed archive contains the test targets, model probabilities, benchmark layers, sampling plan and trained artifacts, so the result tables can be regenerated without downloading the full raw archive. The complete data dictionary and checks are in Supplementary Note S1 and Table S15. The repository includes 71 unit tests, a pinned dependency file, a continuous-integration workflow and a release DOI. The test suite covers target definitions, VIIRS filtering, climate aggregation, monotonic calibration, metrics and the alert layer; it can run without downloading the raw archive. This separation between a reproducible evaluation package and the full raw-data pipeline is deliberate: reviewers can audit the tables without a multi-terabyte download, while the canonical scripts remain available for a full rebuild.
+Data quality checks are part of the pipeline: duplicate VIIRS overpasses are collapsed, `low` confidence detections are removed, daily precipitation is reconstructed from sub-daily increments and impossible values above 300 mm/day are rejected. ERA5-Land nodes are mapped to cells with a precomputed cKDTree. The processed archive contains the test targets, model probabilities, benchmark layers, sampling plan and trained artifacts, so the result tables can be regenerated without downloading the full raw archive. The complete data dictionary and checks are in Supplementary Note S1 and Table S15. The repository includes 76 unit tests, a pinned dependency file, a continuous-integration workflow and a release DOI. The test suite covers target definitions, VIIRS filtering, climate aggregation, monotonic calibration, metrics and the alert layer; it can run without downloading the raw archive. This separation between a reproducible evaluation package and the full raw-data pipeline is deliberate: reviewers can audit the tables without a multi-terabyte download, while the canonical scripts remain available for a full rebuild.
 
 ![Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid.](figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
 
@@ -200,9 +200,9 @@ Conformal coverage is empirical: 89.85 %/90.19 % for a nominal 90 % level and 95
 
 ## 3.5 Reproducibility checks
 
-The code and data releases are part of the result. The repository contains the target operator, the frozen evaluation scripts, the trained boosters and calibrators, the generated tables and a pinned environment. A clean-environment run of the 71 unit tests covers target construction, VIIRS filtering, climate aggregation, monotonic calibration, metrics and alert routing. The data archive contains the test targets and model probabilities, so the main tables can be regenerated without the raw multi-terabyte archive. The full raw-data pipeline remains available for a complete rebuild.
+The code and data releases are part of the result. The repository contains the target operator, the frozen evaluation scripts, the trained boosters and calibrators, the generated tables and a pinned environment. A clean-environment run of the 76 unit tests covers target construction, VIIRS filtering, climate aggregation, monotonic calibration, metrics and alert routing. The data archive contains the test targets and model probabilities, so the main tables can be regenerated without the raw multi-terabyte archive. The full raw-data pipeline remains available for a complete rebuild.
 
-Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The code and data DOIs must be updated in the Phase 3 release; the tables in this manuscript are regenerated from the repository and should not be cited as archived under the v1.0.0 DOI.
+Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.0.0; the code and data concept DOIs are reported in the Code and Data Availability sections.
 
 # 4. Discussion
 
@@ -251,11 +251,11 @@ The framework also makes failure explicit. A model that is excellent on held-in 
 
 # 5. Conclusions
 
-We presented a reproducible computational framework for decoupled wildfire ignition and propagation benchmarking. D2 separates ignition from persistence; the M3/M2 architecture provides a temporal nowcast with a more robust spatial fallback; and the open harness makes the benchmark auditable. Selection used 2023 validation: M3 reached ROC-AUC 0.7844/0.7628 and M2 was best in spatial blocks (0.6773/0.7470). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 against 0.5173/0.5564 for full FWI and 0.5389/0.4990 for INPE, but population precision is low and the hybrid advantage does not transfer spatially. M1 is not defensible as the fallback; M2 replaces it and M3 is presented as a recurrence-aware nowcast rather than a universal ignition model. The most useful output is not a single map: it is a protocol that shows where a model is valid, where it fails and how to reproduce the result. Future work should add a coupled t-1 baseline, an external-country validation and a day-ahead weather source. Code and data DOIs will be updated in the Phase 3 release, and the benchmark can be extended to other subtropical regions without changing the target logic.
+We presented a reproducible computational framework for decoupled wildfire ignition and propagation benchmarking. D2 separates ignition from persistence; the M3/M2 architecture provides a temporal nowcast with a more robust spatial fallback; and the open harness makes the benchmark auditable. Selection used 2023 validation: M3 reached ROC-AUC 0.7844/0.7628 and M2 was best in spatial blocks (0.6773/0.7470). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 against 0.5173/0.5564 for full FWI and 0.5389/0.4990 for INPE, but population precision is low and the hybrid advantage does not transfer spatially. M1 is not defensible as the fallback; M2 replaces it and M3 is presented as a recurrence-aware nowcast rather than a universal ignition model. The most useful output is not a single map: it is a protocol that shows where a model is valid, where it fails and how to reproduce the result. Future work should add a coupled t-1 baseline, an external-country validation and a day-ahead weather source. Code and data are archived under the concept DOIs reported below, and the benchmark can be extended to other subtropical regions without changing the target logic.
 
 # 6. Data availability
 
-Processed data, test predictions, trained models and derived tables will be archived/updated in Zenodo under CC BY 4.0 in Phase 3: [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v2.csv`.
+Processed data, test predictions, trained models and derived tables are archived in Zenodo under CC BY 4.0 (concept DOI): [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`.
 
 # 7. Acknowledgements
 
@@ -288,9 +288,9 @@ Generative AI tools were used for language editing and code assistance. The auth
 **Dependencies:** pinned in `requirements-lock.txt`  
 **License:** MIT  
 **Repository:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**Code DOI:** [10.5281/zenodo.23675105](https://doi.org/10.5281/zenodo.23675105)  
-**Data DOI:** [10.5281/zenodo.23675279](https://doi.org/10.5281/zenodo.23675279)  
-**Tests:** 71 tests pass with `python -m pytest -q tests`.
+**Code concept DOI (v2.0.0):** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
+**Data concept DOI (v2.0.0):** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)  
+**Tests:** 76 tests pass with `python -m pytest -q tests`.
 
 # References {.unnumbered}
 ::: {#refs}

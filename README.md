@@ -40,13 +40,13 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Loss: Hansen GFC-2025-v1.13 annual tree-cover loss at `t-1` and `t-2`.
 - Targets: population-based D2 sampling at 1:10 per task and region.
 - Holdout: 31 confirmation blocks (50 km, 20 km buffer), 68,719 cells, reserved
-  for Phase 5 and not used in this evaluation.
+  and not used in this evaluation.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M2 fallback; propagation restricted to the `t-1` domain.
-- Tests: **71 pass** (pytest; 2 warnings).
+- Tests: **76 pass** (pytest; 2 warnings).
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
   exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
-- Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0), pre-audit; the current release and DOI update are pending Phase 3.
+- Public release: **v2.0.0** (2026-10-27); release page: <https://github.com/sanchezmartin093-code/Incendios_PY/releases>.
 
 ## Installation
 
@@ -77,7 +77,7 @@ python -m pytest -q tests
 ```
 
 The full data pipeline requires the raw NASA FIRMS, ERA5-Land, MapBiomas and
-administrative boundary inputs documented in `fuentes/MANIFIESTO_DATOS_v2.csv`.
+administrative boundary inputs documented in `fuentes/MANIFIESTO_DATOS_v3.csv`.
 Raw data and trained binaries are not versioned in Git.
 
 Canonical pipeline:
@@ -198,7 +198,7 @@ prioritisation tool, not a stand-alone early-warning system.
 Incendios_PY/
 ├── scripts/                 # pipeline 00–24, including 05b/05c/05d and 10b
 ├── src/                     # ingestion, features, targets, models, metrics, alerts
-├── tests/                   # 71 unit tests
+├── tests/                   # 76 unit tests
 ├── datos/
 │   ├── raw/                 # FIRMS, ERA5, MapBiomas, vectors (not versioned)
 │   ├── processed/           # grid, climate, hotspots, dataset, targets
@@ -207,7 +207,7 @@ Incendios_PY/
 ├── tablas/                  # generated tables 00–12 and S3–S5
 ├── figuras/                 # manuscript figures
 ├── docs/                    # audit notes, benchmarking protocol and ADR
-├── fuentes/MANIFIESTO_DATOS_v2.csv
+├── fuentes/MANIFIESTO_DATOS_v3.csv
 ├── manuscrito.qmd
 └── material_suplementario.qmd
 ```
@@ -226,7 +226,7 @@ Raw datasets are public but are not redistributed in this repository:
 5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v2.csv`. Processed data and trained models will be re-archived in Zenodo in Phase 3; the current v1.0.0 DOI is pre-audit.
+`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest and archived under the data concept DOI.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
@@ -235,9 +235,9 @@ licenses and terms.
 ## Code and data availability
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
-- Release: <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0>
-- Code archive DOI: [`10.5281/zenodo.23675105`](https://doi.org/10.5281/zenodo.23675105) (pre-audit; concept DOI `10.5281/zenodo.23675104`; Phase 3 update pending).
-- Data archive DOI: [`10.5281/zenodo.23675279`](https://doi.org/10.5281/zenodo.23675279) (pre-audit; concept DOI `10.5281/zenodo.23675278`; Phase 3 update pending).
+- Release: **v2.0.0** (2026-10-27) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases>
+- Code concept DOI: [`10.5281/zenodo.23675104`](https://doi.org/10.5281/zenodo.23675104) (v2.0.0).
+- Data concept DOI: [`10.5281/zenodo.23675278`](https://doi.org/10.5281/zenodo.23675278) (v2.0.0).
 - License: MIT.
 - Contact: Martín Sánchez Insfrán, `sanchez.martin093@gmail.com`.
 - ORCID: <https://orcid.org/0000-0003-4138-9668>
@@ -273,7 +273,7 @@ calibration, metrics, bootstrap resampling and the alert layer.
 
 ## Citation
 
-See `CITATION.cff`. The v1.0.0 archives are pre-audit; cite the updated Phase 3 release once available.
+See `CITATION.cff`. Cite the v2.0.0 release (2026-10-27) and the concept DOIs.
 
 ## License
 
