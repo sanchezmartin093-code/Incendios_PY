@@ -1,3 +1,5 @@
+> **Nota histórica:** este informe corresponde al candidato r1. La reauditoría vigente está en `auditoria/FASE5_REAUDITORIA_CODIGO.md` (candidato r2).
+
 # Fase 5 - Verificación de código previa al reentrenamiento
 
 **Fecha:** 2026-10-27  
