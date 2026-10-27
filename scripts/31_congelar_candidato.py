@@ -103,6 +103,7 @@ def collect_paths() -> list[tuple[str, Path, str]]:
     # Code contract and environment
     add("code", "scripts/31_congelar_candidato.py")
     add("code", "scripts/32_verificar_candidato.py")
+    add("code", "scripts/33_verificar_trazabilidad_git.py")
     add("code", "src/modelo.py")
     add("code", "src/alerta.py")
     add("code", "src/holdout.py")
@@ -136,6 +137,7 @@ def required_artifacts() -> list[Path]:
         ROOT / "datos/processed/targets_poblacionales/val_ignicion.parquet",
         ROOT / "datos/processed/targets_poblacionales/test_ignicion.parquet",
         ROOT / "modelos/calibradores/prevalencias_poblacionales_d2.json",
+        ROOT / "scripts/33_verificar_trazabilidad_git.py",
         ROOT / "requirements-lock.txt",
     ]
     for region in REGIONES_MODELO:
