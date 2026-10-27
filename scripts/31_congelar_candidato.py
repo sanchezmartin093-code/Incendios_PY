@@ -24,6 +24,9 @@ OUT_CSV = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.csv"
 OUT_JSON = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.json"
 OUT_ARCHIVE = ROOT / "auditoria" / "FASE5_CANDIDATO_GIT_ARCHIVE.sha256"
 
+REGIONES_MODELO = ("chaco", "oriental")
+MODOS_MODELO = ("hibrido", "ignicion", "propagacion", "m1")
+
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -124,6 +127,26 @@ def collect_paths() -> list[tuple[str, Path, str]]:
     return out
 
 
+def required_artifacts() -> list[Path]:
+    paths = [
+        ROOT / "datos/processed/holdout_confirmacion/celdas_holdout.parquet",
+        ROOT / "datos/processed/holdout_confirmacion/celdas_buffer.parquet",
+        ROOT / "datos/processed/targets_poblacionales/train_ignicion.parquet",
+        ROOT / "datos/processed/targets_poblacionales/val_ignicion.parquet",
+        ROOT / "datos/processed/targets_poblacionales/test_ignicion.parquet",
+        ROOT / "modelos/calibradores/prevalencias_poblacionales_d2.json",
+        ROOT / "requirements-lock.txt",
+    ]
+    for region in REGIONES_MODELO:
+        for modo in MODOS_MODELO:
+            paths.extend([
+                ROOT / f"modelos/lightgbm_{modo}_{region}.booster",
+                ROOT / f"modelos/calibradores/calibrador_{modo}_{region}.joblib",
+                ROOT / f"modelos/calibradores/umbrales_{modo}_{region}.json",
+            ])
+    return paths
+
+
 def main() -> None:
     if git("status", "--porcelain"):
         raise RuntimeError(
@@ -151,17 +174,9 @@ def main() -> None:
             "nota": note,
         })
 
-    required = [
-        ROOT / "datos/processed/holdout_confirmacion/celdas_holdout.parquet",
-        ROOT / "datos/processed/holdout_confirmacion/celdas_buffer.parquet",
-        ROOT / "datos/processed/targets_poblacionales/train_ignicion.parquet",
-        ROOT / "datos/processed/targets_poblacionales/val_ignicion.parquet",
-        ROOT / "datos/processed/targets_poblacionales/test_ignicion.parquet",
-        ROOT / "modelos/lightgbm_hibrido_chaco.booster",
-        ROOT / "modelos/lightgbm_ignicion_chaco.booster",
-        ROOT / "requirements-lock.txt",
+    missing = [
+        p.relative_to(ROOT).as_posix() for p in required_artifacts() if not p.exists()
     ]
-    missing = [p.relative_to(ROOT).as_posix() for p in required if not p.exists()]
     if missing:
         raise FileNotFoundError(f"Faltan artefactos críticos: {missing}")
 
