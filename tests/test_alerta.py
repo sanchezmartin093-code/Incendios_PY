@@ -1,9 +1,13 @@
 import unittest
 from datetime import datetime
+from pathlib import Path
+import json
+import tempfile
 import polars as pl
 import numpy as np
 
 from src.alerta import (
+    _leer_umbral_validacion,
     cargar_artefactos_modelos,
     categorizar_riesgo,
     preparar_datos_diarios,
@@ -13,6 +17,17 @@ from src.alerta import (
 from src.constantes import DIR_PROCESSED
 
 class TestServicioAlerta(unittest.TestCase):
+    def test_umbral_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = Path(tmp) / "umbral.json"
+            with self.assertRaises(FileNotFoundError):
+                _leer_umbral_validacion(ruta)
+            ruta.write_text(json.dumps({"c_youden": 0.1}), encoding="utf-8")
+            with self.assertRaises(KeyError):
+                _leer_umbral_validacion(ruta)
+            ruta.write_text(json.dumps({"c_f05": 0.23}), encoding="utf-8")
+            self.assertAlmostEqual(_leer_umbral_validacion(ruta), 0.23)
+
     def test_categorizar_riesgo(self):
         """Verifies the strict assignment of operational alert levels."""
         # No fuel -> NULO

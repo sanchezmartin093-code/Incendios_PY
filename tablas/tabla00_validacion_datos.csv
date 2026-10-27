@@ -26,6 +26,11 @@ combustible,pct_plantacion_forestal_presente,1,OK,
 combustible,borde_bosque_agro_pct_presente,1,OK,
 combustible,suma_componentes_max_error,0.0,OK,
 combustible,borde_max,84.888,OK,
+combustible_anual,filas,3600054,OK,
+combustible_anual,anios,2018-2026,OK,
+combustible_anual,fuel_lag_min,1,OK,
+combustible_anual,filas_mapa_no_previo,0,OK,
+combustible_anual,suma_componentes_max_error,0.0,OK,
 desmonte,filas,3600054,OK,
 desmonte,anios,2018-2026,OK,
 desmonte,pct_t1_max,100.0,OK,
@@ -43,16 +48,22 @@ dataset,celdas,397448,OK,
 particiones,train_ignicion_features_v3_faltantes,0,OK,contrato v3 completo
 particiones,train_ignicion_filas,1018787,OK,
 particiones,train_ignicion_prevalencia,0.090909,OK,case-control esperada ~9%
+particiones,train_ignicion_fuel_futuro,0,OK,
+particiones,train_ignicion_fuel_lag_min,1,OK,
 priors,train_ignicion_Chaco_pos_dist_hist_0_pct,47.46,OK,100% indicaría fuga del propio evento
 priors,train_ignicion_Oriental_pos_dist_hist_0_pct,62.01,OK,100% indicaría fuga del propio evento
 particiones,val_ignicion_features_v3_faltantes,0,OK,contrato v3 completo
 particiones,val_ignicion_filas,188507,OK,
 particiones,val_ignicion_prevalencia,0.090909,OK,case-control esperada ~9%
+particiones,val_ignicion_fuel_futuro,0,OK,
+particiones,val_ignicion_fuel_lag_min,1,OK,
 priors,val_ignicion_Chaco_pos_dist_hist_0_pct,59.75,OK,100% indicaría fuga del propio evento
 priors,val_ignicion_Oriental_pos_dist_hist_0_pct,78.85,OK,100% indicaría fuga del propio evento
 particiones,test_ignicion_features_v3_faltantes,0,OK,contrato v3 completo
 particiones,test_ignicion_filas,376552,OK,
 particiones,test_ignicion_prevalencia,0.090909,OK,case-control esperada ~9%
+particiones,test_ignicion_fuel_futuro,0,OK,
+particiones,test_ignicion_fuel_lag_min,1,OK,
 priors,test_ignicion_Chaco_pos_dist_hist_0_pct,58.78,OK,100% indicaría fuga del propio evento
 priors,test_ignicion_Oriental_pos_dist_hist_0_pct,71.92,OK,100% indicaría fuga del propio evento
 fuga_espacial,pct_celdas_test_presentes_en_train,90.97,WARN,el test es temporal; un holdout espacial requiere bloques/regiones

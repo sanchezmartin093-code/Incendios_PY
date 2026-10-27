@@ -35,7 +35,7 @@ def crear_figura_impacto(
     dir_vector = ROOT_DIR / "datos" / "raw" / "vector"
     path_adm0 = dir_vector / "paraguay_adm0.geojson"
     path_adm1 = dir_vector / "paraguay_adm1_departamentos.geojson"
-    path_preds = ROOT_DIR / "datos" / "processed" / "evaluacion_test_predicciones.parquet"
+    path_preds = ROOT_DIR / "datos" / "processed" / "evaluacion_test_ignicion.parquet"
 
     print("Cargando capas vectoriales soberanas...")
     adm0 = gpd.read_file(path_adm0)
@@ -163,7 +163,7 @@ def crear_figura_impacto(
     fuentes_info = [
         ("NASA FIRMS (VIIRS 375m)", "Suomi-NPP, NOAA-20, NOAA-21\nBow-Tie filtered (scan ≤ 1.5 km)", "#DC2626", "#FEF2F2"),
         ("ERA5-Land Reanalysis", "0.25° grid (640 national nodes)\nVPD, Wind, CDD, FFMC, ISI", "#2563EB", "#EFF6FF"),
-        ("Fuel Cover (MapBiomas)", "Real collection2_2023\n400.006 cells", "#16A34A", "#F0FDF4"),
+        ("Fuel Cover (MapBiomas)", "Annual C2, prior year\n400.006 cells", "#16A34A", "#F0FDF4"),
     ]
     
     # 3 cards with height 0.27 and spacing of 0.05 (from y=0.04 to y=0.95 -> 0% bottom clipping)
@@ -281,8 +281,8 @@ def crear_figura_impacto(
 
     if df_test is not None:
         pts = df_test.to_pandas()
-        prob_ign_col = "probabilidad_hibrido" if "probabilidad_hibrido" in pts.columns else "probabilidad_ignicion"
-        p_comb = pts["probabilidad_propagacion"].fillna(pts[prob_ign_col])
+        prob_ign_col = "probabilidad_hibrido" if "probabilidad_hibrido" in pts.columns else "probabilidad_calibrada"
+        p_comb = pts[prob_ign_col]
         ax3_map.scatter(pts["lon"], pts["lat"], c=p_comb, cmap="inferno", s=8, alpha=0.85, zorder=4)
 
     ax3_map.set_title("Operational Alert Map\n(1 km² Resolution)", fontsize=8.0, fontweight="bold", color="#0F172A", pad=2)

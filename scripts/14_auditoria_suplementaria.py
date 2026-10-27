@@ -73,8 +73,10 @@ def auditar_tablas_suplementarias():
     import json
     meta_prop_c = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_chaco.json").read_text())
     meta_prop_o = json.loads((DIR_MODELOS / "calibradores" / "umbrales_propagacion_oriental.json").read_text())
-    c_f05_chaco = float(meta_prop_c.get("c_f05", 0.642))
-    c_f05_oriental = float(meta_prop_o.get("c_f05", 0.544))
+    if "c_f05" not in meta_prop_c or "c_f05" not in meta_prop_o:
+        raise KeyError("Faltan c_f05 en los metadatos de propagación; regenerá los umbrales.")
+    c_f05_chaco = float(meta_prop_c["c_f05"])
+    c_f05_oriental = float(meta_prop_o["c_f05"])
 
     for row in censo_deptos.iter_rows():
         dep_nom, reg, celdas_tot = row[0], row[1], row[2]

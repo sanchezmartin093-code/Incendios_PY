@@ -14,6 +14,7 @@ from src.biomasa import (
     calcular_metricas_combustible_desde_conteo,
     generar_perfil_combustible_base,
     procesar_geotiff_mapbiomas_a_grilla,
+    seleccionar_tif_estatico,
 )
 
 class TestBiomasa(unittest.TestCase):
@@ -73,6 +74,17 @@ class TestBiomasa(unittest.TestCase):
         self.assertFalse(perfil.filter(pl.col("cell_id") == 2000)["es_combustible"][0])
         # Alto Paraguay must have high dry forest
         self.assertGreater(perfil.filter(pl.col("cell_id") == 1000)["pct_bosque_seco"][0], 50.0)
+
+    def test_seleccion_tif_estatico_unico(self):
+        """El perfil estático no debe procesar los mapas anuales superpuestos."""
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            for anio in (2017, 2022, 2023):
+                (d / f"mapbiomas_paraguay_collection2_{anio}.tif").write_bytes(b"x")
+            elegido = seleccionar_tif_estatico(d, 2023)
+            self.assertEqual(elegido.name, "mapbiomas_paraguay_collection2_2023.tif")
+            with self.assertRaises(FileNotFoundError):
+                seleccionar_tif_estatico(d, 2024)
 
     def test_ingesta_mapbiomas_geotiff(self):
         """The real extraction must return per-cell fractions, not random values."""

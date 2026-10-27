@@ -112,6 +112,25 @@ def main():
     else:
         add("combustible", "archivo", "ausente", "FAIL")
 
+    p_comb_anual = DIR_PROCESSED / "combustible_mapbiomas_1km_anual.parquet"
+    if p_comb_anual.exists():
+        ca = pl.read_parquet(p_comb_anual)
+        add("combustible_anual", "filas", ca.height, "OK")
+        add("combustible_anual", "anios", f"{ca['anio_fila'].min()}-{ca['anio_fila'].max()}", "OK")
+        add("combustible_anual", "fuel_lag_min", int(ca["fuel_lag"].min()),
+            "OK" if int(ca["fuel_lag"].min()) >= 1 else "FAIL")
+        futuros = ca.filter(pl.col("anio_mapa") >= pl.col("anio_fila"))
+        add("combustible_anual", "filas_mapa_no_previo", futuros.height,
+            "FAIL" if futuros.height else "OK")
+        err = float((ca["pct_pastura"] - (
+            ca["pct_pastura_ganadera"] + ca["pct_agricultura_anual"]
+            + ca["pct_plantacion_forestal"]
+        )).abs().max())
+        add("combustible_anual", "suma_componentes_max_error", round(err, 6),
+            "OK" if err < 1e-3 else "FAIL")
+    else:
+        add("combustible_anual", "archivo", "ausente", "FAIL")
+
     p_desm = DIR_PROCESSED / "desmonte_hansen_1km.parquet"
     if p_desm.exists():
         desm = pl.read_parquet(p_desm)
@@ -169,6 +188,7 @@ def main():
         cols = [
             "region", "target_ignicion", "fecha", "cell_id",
             "dist_foco_hist_km", "freq_hist_1km", "dist_corredor_antropico_km",
+            "anio_mapa", "fuel_lag",
         ]
         schema = pl.scan_parquet(p).collect_schema().names()
         requeridas_v3 = [
@@ -187,6 +207,15 @@ def main():
         add("particiones", f"{nombre}_prevalencia", round(prev, 6),
             "OK" if 0.05 < prev < 0.15 else "WARN",
             "case-control esperada ~9%")
+        if "anio_mapa" in df.columns:
+            anio = df["fecha"].str.slice(0, 4).cast(pl.Int32)
+            futuros = int((df["anio_mapa"] >= anio).sum())
+            add("particiones", f"{nombre}_fuel_futuro", futuros,
+                "FAIL" if futuros else "OK")
+        if "fuel_lag" in df.columns:
+            lag_min = int(df["fuel_lag"].min())
+            add("particiones", f"{nombre}_fuel_lag_min", lag_min,
+                "OK" if lag_min >= 1 else "FAIL")
         for reg in ["Chaco", "Oriental"]:
             pos = df.filter((pl.col("region") == reg) & (pl.col("target_ignicion") == 1))
             if pos.height:
