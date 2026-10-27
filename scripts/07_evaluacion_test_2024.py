@@ -39,8 +39,6 @@ from src.modelo import (
 from src.metricas import (
     calcular_brier_score,
     calcular_brier_skill_score,
-    calcular_umbral_optimo_youden,
-    calcular_umbral_optimo_f_beta,
     calcular_expected_calibration_error,
     calcular_bootstrap_ci_roc
 )
@@ -131,14 +129,19 @@ def evaluar_modelo_en_test():
             # 5. Evaluation at 3 operational thresholds derived strictly on validation (Anti-Leakage)
             dir_cal = DIR_MODELOS / "calibradores"
             ruta_meta = dir_cal / f"umbrales_{modo_clave}_{nombre_lower}.json"
-            if ruta_meta.exists():
-                import json
-                meta_val = json.loads(ruta_meta.read_text(encoding="utf-8"))
-                c_youden = meta_val.get("c_youden", meta_val.get("c_f05", 0.5))
-                c_f05 = meta_val.get("c_f05", 0.5)
-            else:
-                c_youden, _ = calcular_umbral_optimo_youden(y_test, probs)
-                c_f05, _ = calcular_umbral_optimo_f_beta(y_test, probs, beta=0.5)
+            if not ruta_meta.exists():
+                raise FileNotFoundError(
+                    f"Falta el umbral de validación {ruta_meta}. "
+                    "Ejecutá scripts/06_entrenar_modelos.py o "
+                    "scripts/16_ablacion_modelo_hibrido.py antes de evaluar. "
+                    "No se recalculan umbrales sobre test."
+                )
+            import json
+            meta_val = json.loads(ruta_meta.read_text(encoding="utf-8"))
+            if "c_f05" not in meta_val:
+                raise KeyError(f"{ruta_meta} no contiene c_f05")
+            c_youden = float(meta_val.get("c_youden", meta_val["c_f05"]))
+            c_f05 = float(meta_val["c_f05"])
 
             umbrales = [
                 ("Estándar (0.50)", 0.50),

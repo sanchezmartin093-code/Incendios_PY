@@ -44,6 +44,8 @@ WEATHER_COLS = [
     "temp_max_c", "temp_min_c", "precipitacion_mm", "precipitacion_48h_mm",
     "viento_max_kmh", "vpd_max_kpa", "dias_secos_consecutivos",
     "ffmc", "isi", "interaccion_viento_vpd", "swvl1_m3m3",
+    # Antecedent windows must also end at t-1 for a true 24 h lead time.
+    "fdd_heladas_60d", "deficit_hidro_60d",
 ]
 
 

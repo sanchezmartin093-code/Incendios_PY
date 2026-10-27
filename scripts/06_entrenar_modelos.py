@@ -93,10 +93,12 @@ def entrenar_pipeline():
 
             # 2. Train LightGBM with hyperparameters optimized per ecoregion
             print(" • Ajustando árboles de gradiente...")
+            # Same capacity as scripts/16 and scripts/24 for the final M1/M2/M3
+            # comparison. Do not lower this without changing the ablation too.
             lr = 0.03
-            leaves = 15
+            leaves = 23 if region == "Chaco" else 31
             spw = 1.0 if region == "Chaco" else 2.0
-            n_rounds = 20 if region == "Chaco" else 40
+            n_rounds = 45 if region == "Chaco" else 60
             min_samples = 20 if region == "Chaco" else 10
 
             booster = entrenar_modelo_lightgbm(

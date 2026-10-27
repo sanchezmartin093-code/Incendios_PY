@@ -18,6 +18,24 @@ from rasterio.windows import Window
 # Official mapping of MapBiomas Cono Sur coverage codes
 ORIGEN_PERFIL_SINTETICO = "sintetico_referencia"
 
+
+def seleccionar_tif_estatico(dir_mapbiomas: Path, anio_mapa: int = 2023) -> Path:
+    """Returns the single MapBiomas GeoTIFF used by the static fuel fallback.
+
+    The static profile must never be built from the annual collection: doing so
+    would sum/normalise overlapping maps. The annual prior-year product is
+    handled separately by ``scripts/03a_procesar_combustible_anual.py``.
+    """
+    ruta = Path(dir_mapbiomas) / f"mapbiomas_paraguay_collection2_{int(anio_mapa)}.tif"
+    if not ruta.exists():
+        raise FileNotFoundError(
+            f"No existe el mapa MapBiomas estático esperado: {ruta}. "
+            "Para el perfil estático usá un único año (por defecto 2023); "
+            "para la serie anual usá scripts/03a_procesar_combustible_anual.py."
+        )
+    return ruta
+
+
 # MapBiomas Paraguay Collection 2/3 legend (10 classes).
 # 3/4/6: natural woodlands (closed, open, flooded); 9: forest plantation;
 # 11: flooded grassland/estero; 12: grassland; 15: pasture;

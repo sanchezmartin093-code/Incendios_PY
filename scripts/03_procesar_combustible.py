@@ -25,10 +25,11 @@ from src.biomasa import (
     ORIGEN_PERFIL_SINTETICO,
     generar_perfil_combustible_base,
     procesar_geotiff_mapbiomas_a_grilla,
+    seleccionar_tif_estatico,
 )
 
 
-def main(permitir_sintetico: bool = False):
+def main(permitir_sintetico: bool = False, anio_mapa: int = 2023):
     print("=" * 65)
     print("PROCESAMIENTO DE COMBUSTIBLE Y BIOMASA MAPBIOMAS - PARAGUAY")
     print("=" * 65)
@@ -47,10 +48,18 @@ def main(permitir_sintetico: bool = False):
 
     dir_mapbiomas_raw = DIR_RAW / "mapbiomas"
     dir_mapbiomas_raw.mkdir(parents=True, exist_ok=True)
-    tifs_locales = sorted(dir_mapbiomas_raw.glob("*.tif"))
+
+    try:
+        ruta_estatica = seleccionar_tif_estatico(dir_mapbiomas_raw, anio_mapa)
+        tifs_locales = [ruta_estatica]
+    except FileNotFoundError:
+        tifs_locales = []
 
     if tifs_locales:
-        print(f"\nExtrayendo fracciones reales de MapBiomas desde {len(tifs_locales)} GeoTIFF...")
+        print(
+            f"\nExtrayendo fracciones reales de MapBiomas desde el mapa estático "
+            f"{anio_mapa}: {ruta_estatica.name}"
+        )
         df_combustible = procesar_geotiff_mapbiomas_a_grilla(df_grilla, tifs_locales)
     else:
         if not permitir_sintetico:
@@ -121,5 +130,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Generar perfil sintético de referencia si no hay GeoTIFF reales",
     )
+    parser.add_argument(
+        "--anio-mapa",
+        type=int,
+        default=2023,
+        help="Año único del mapa MapBiomas para el perfil estático (por defecto 2023)",
+    )
     args = parser.parse_args()
-    main(permitir_sintetico=args.permitir_sintetico)
+    main(permitir_sintetico=args.permitir_sintetico, anio_mapa=args.anio_mapa)

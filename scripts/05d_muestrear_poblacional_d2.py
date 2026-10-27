@@ -220,6 +220,8 @@ def main():
           ON d.cell_id = p.cell_id AND d.fecha = p.fecha
     """).pl()
     con.close()
+    # Deterministic row order: LightGBM bagging/feature_fraction depend on it.
+    dataset = dataset.sort(["fecha", "cell_id", "task"])
     print(f"Dataset recuperado: {dataset.height:,} filas")
 
     print("Enriqueciendo features espaciotemporales...")

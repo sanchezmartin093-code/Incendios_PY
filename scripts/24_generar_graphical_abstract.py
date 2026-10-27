@@ -110,11 +110,11 @@ def main():
           size=6.1, color=MUTED, linespacing=1.2)
 
     # Panel 3: benchmark bars
-    label(ax, 68.5, 27.2, "ROC-AUC | Chaco | blind 2024–2025",
+    label(ax, 68.5, 27.2, "ROC-AUC | Chaco | retrospective 2024–2025",
           size=6.2, color=MUTED)
     bars = [
-        ("M3 hybrid", 0.785, PURPLE),
-        ("Full FWI", 0.519, BLUE),
+        ("M3 hybrid", 0.802, PURPLE),
+        ("Full FWI", 0.517, BLUE),
         ("INPE", 0.539, ORANGE),
     ]
     y = 23.0
