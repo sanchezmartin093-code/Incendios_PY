@@ -38,6 +38,7 @@ Congelar el estado del proyecto después de la reconstrucción con fuel anual Ma
 - `auditoria/FASE0_HOLDOUT_DECISION.md`: decisión y diseño del holdout nuevo.
 - `auditoria/FASE0_PROTOCOLO_EVALUACION.md`: protocolo congelado.
 - `auditoria/FASE0_REGISTRO_HALLAZGOS.csv`: hallazgos C1-C8 y H1-H10.
+- `auditoria/FASE0_TESTS.txt`: salida de la suite (66 passed, 2 warnings) y vacios conocidos.
 - `auditoria/FASE0_RELEASE_INVENTARIO.md`: brecha entre release actual y estado real.
 - `auditoria/FASE0_ESTADO_COMUNICACION.md`: afirmaciones prohibidas hasta Fase 2.
 
