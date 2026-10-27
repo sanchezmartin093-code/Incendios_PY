@@ -1,0 +1,15 @@
+{
+  "fecha_utc": "2026-10-27T23:13:36.389764+00:00",
+  "host": "MacBook-Air-de-Martin.local",
+  "python": "3.12.16",
+  "git_commit": "b789b5e815118fd23c38204e8170f311ddd2f822",
+  "git_tree": "1a417b1443a5445a32d0d0eb24f9651dea64c3e5",
+  "git_archive_sha256": "10874f3cc47c4d0c1ddd20a2322718e122a423a85554d4bd3525d8340b45ce6a",
+  "git_status": "clean",
+  "n_archivos": 97,
+  "bytes_totales": 9306557815,
+  "corpus_sha256": "a6adff5a60ab19d88168825cf4b2f0455a9e3dffdb1bc6f8ce6136a865df5b7b",
+  "tag_previsto": "submission-candidate-2026-10-27",
+  "alcance": "Candidato científico: datos procesados, targets, modelos, calibradores, umbrales, prevalencias, tablas de selección, holdout de confirmación, código y lock. El manuscrito y los metadatos de release no están congelados.",
+  "regla": "No reentrenar, reajustar umbrales ni tocar el holdout después de este tag."
+}
