@@ -6,11 +6,13 @@ from pathlib import Path
 import csv
 import hashlib
 import json
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.csv"
 JSON_PATH = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.json"
+TRACE_PATH = ROOT / "scripts" / "33_verificar_trazabilidad_git.py"
 
 
 def sha256(path: Path) -> str:
@@ -19,6 +21,15 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: f.read(8 * 1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def verificar_trazabilidad() -> int:
+    if not TRACE_PATH.exists():
+        print(f"Falta {TRACE_PATH}", file=sys.stderr)
+        return 2
+    print("\nVerificando trazabilidad Git...")
+    result = subprocess.run([sys.executable, str(TRACE_PATH)], cwd=ROOT)
+    return result.returncode
 
 
 def main() -> int:
@@ -68,7 +79,7 @@ def main() -> int:
             print(e, file=sys.stderr)
         return 1
     print("OK: checksums, tamaños y corpus coinciden.")
-    return 0
+    return verificar_trazabilidad()
 
 
 if __name__ == "__main__":

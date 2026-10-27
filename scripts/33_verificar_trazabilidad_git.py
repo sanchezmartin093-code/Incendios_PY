@@ -1,8 +1,8 @@
 """Script 33: verifica la trazabilidad Git del candidato congelado.
 
-Comprueba que el snapshot científico y el tag r2 apunten a los commits, trees
-y archives registrados en FASE5_CANDIDATO_CHECKSUMS.json. Es un verificador
-externo al corpus r2: no modifica archivos.
+Comprueba que el snapshot científico y el tag apunten a los commits, trees y
+archives registrados en FASE5_CANDIDATO_CHECKSUMS.json o en el mensaje del tag.
+Es un verificador de solo lectura: no modifica archivos.
 """
 
 from __future__ import annotations
@@ -33,34 +33,87 @@ def archive_sha(ref: str) -> str:
     return hashlib.sha256(git_bytes("archive", "--format=tar", ref)).hexdigest()
 
 
-def verify_ref(
-    label: str,
-    ref: str,
-    expected_commit: str,
-    expected_tree: str,
-    expected_archive: str,
-    errors: list[str],
-) -> None:
+def tag_field(message: str, key: str) -> str | None:
+    prefix = f"{key}:"
+    for line in message.splitlines():
+        if line.startswith(prefix):
+            return line[len(prefix):].strip()
+    return None
+
+
+def verify_source(meta: dict, errors: list[str]) -> None:
+    ref = meta["source_commit"]
     try:
         commit = git("rev-parse", f"{ref}^{{commit}}")
         tree = git("rev-parse", f"{ref}^{{tree}}")
     except subprocess.CalledProcessError:
-        errors.append(f"{label}: no existe la referencia {ref}")
+        errors.append(f"Snapshot científico: no existe {ref}")
         return
 
-    if commit != expected_commit:
-        errors.append(f"{label}: commit {commit} != {expected_commit}")
-    if tree != expected_tree:
-        errors.append(f"{label}: tree {tree} != {expected_tree}")
+    if commit != meta["source_commit"]:
+        errors.append(f"Snapshot científico: commit {commit} != {meta['source_commit']}")
+    if tree != meta["source_tree"]:
+        errors.append(f"Snapshot científico: tree {tree} != {meta['source_tree']}")
 
     digest = archive_sha(ref)
-    if digest != expected_archive:
-        errors.append(f"{label}: archive {digest} != {expected_archive}")
+    if digest != meta["source_archive_sha256"]:
+        errors.append(
+            f"Snapshot científico: archive {digest} != {meta['source_archive_sha256']}"
+        )
 
-    print(f"{label}:")
+    print("Snapshot científico:")
     print(f"  commit:  {commit}")
     print(f"  tree:    {tree}")
     print(f"  archive: {digest}")
+
+
+def verify_tag(meta: dict, errors: list[str]) -> str:
+    tag_name = meta.get("tag_name") or meta["tag_previsto"]
+    if meta.get("tag_name") and meta["tag_name"] != meta["tag_previsto"]:
+        errors.append(
+            f"Tag: tag_name {meta['tag_name']} != tag_previsto {meta['tag_previsto']}"
+        )
+
+    try:
+        commit = git("rev-parse", f"{tag_name}^{{commit}}")
+        tree = git("rev-parse", f"{tag_name}^{{tree}}")
+        message = git("tag", "-l", "--format=%(contents)", tag_name)
+    except subprocess.CalledProcessError:
+        errors.append(f"Tag {tag_name}: no existe")
+        return tag_name
+
+    digest = archive_sha(tag_name)
+    expected_commit = meta.get("tag_commit") or tag_field(message, "tag_commit")
+    expected_tree = meta.get("tag_tree") or tag_field(message, "tag_tree")
+    expected_archive = meta.get("tag_archive_sha256") or tag_field(
+        message, "tag_archive_sha256"
+    )
+
+    for key, expected in [
+        ("tag_commit", expected_commit),
+        ("tag_tree", expected_tree),
+        ("tag_archive_sha256", expected_archive),
+    ]:
+        if not expected:
+            errors.append(f"Tag {tag_name}: falta {key} en JSON y en el mensaje")
+
+    if expected_commit and commit != expected_commit:
+        errors.append(f"Tag {tag_name}: commit {commit} != {expected_commit}")
+    if expected_tree and tree != expected_tree:
+        errors.append(f"Tag {tag_name}: tree {tree} != {expected_tree}")
+    if expected_archive and digest != expected_archive:
+        errors.append(f"Tag {tag_name}: archive {digest} != {expected_archive}")
+
+    for key in ("source_archive_sha256", "tag_archive_sha256"):
+        expected = meta.get(key) or tag_field(message, key)
+        if expected and expected not in message:
+            errors.append(f"Tag {tag_name}: mensaje sin {key}")
+
+    print(f"Tag {tag_name}:")
+    print(f"  commit:  {commit}")
+    print(f"  tree:    {tree}")
+    print(f"  archive: {digest}")
+    return tag_name
 
 
 def main() -> int:
@@ -73,10 +126,7 @@ def main() -> int:
         "source_commit",
         "source_tree",
         "source_archive_sha256",
-        "tag_name",
-        "tag_commit",
-        "tag_tree",
-        "tag_archive_sha256",
+        "tag_previsto",
     ]
     missing = [key for key in required if key not in meta]
     if missing:
@@ -84,30 +134,8 @@ def main() -> int:
         return 2
 
     errors: list[str] = []
-    verify_ref(
-        "Snapshot científico",
-        meta["source_commit"],
-        meta["source_commit"],
-        meta["source_tree"],
-        meta["source_archive_sha256"],
-        errors,
-    )
-    verify_ref(
-        f"Tag {meta['tag_name']}",
-        meta["tag_name"],
-        meta["tag_commit"],
-        meta["tag_tree"],
-        meta["tag_archive_sha256"],
-        errors,
-    )
-
-    try:
-        message = git("tag", "-l", "--format=%(contents)", meta["tag_name"])
-    except subprocess.CalledProcessError:
-        message = ""
-    for key in ("source_archive_sha256", "tag_archive_sha256"):
-        if meta[key] not in message:
-            errors.append(f"El mensaje del tag no registra {key}")
+    verify_source(meta, errors)
+    tag_name = verify_tag(meta, errors)
 
     if errors:
         print(f"\nERRORES DE TRAZABILIDAD: {len(errors)}", file=sys.stderr)
@@ -115,7 +143,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print(f"\nOK: snapshot científico y {meta['tag_name']} coinciden con los hashes registrados.")
+    print(f"\nOK: snapshot científico y {tag_name} coinciden con los hashes registrados.")
     return 0
 
 
