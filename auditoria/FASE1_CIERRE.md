@@ -5,6 +5,24 @@
 **Base congelada:** `fase0-freeze-2026-10-27`  
 **Estado:** correcciones P0 ejecutadas; resultados todavía retrospectivos.
 
+> **Documento histórico.** Las métricas de este archivo fueron reemplazadas por el rerun de Fase 2.0. Ver `auditoria/FASE2_0_CIERRE.md`.
+
+## Actualización Fase 2.0
+
+Resueltos desde este cierre:
+
+- C1: holdout de confirmación implementado y reservado para Fase 5.
+- H2: dataset particionado por año y reproducible (8/8 hashes idénticos).
+- H3: procedencia climática por variable y warm-up de 60 días.
+- H5: CI con lock exacto; hashes de ruedas en excepción formal.
+- H8: métricas separadas 2024/2025.
+
+Siguen para Fase 2/release:
+
+- C4/C8: manuscrito, suplemento y narrativa espacial.
+- C5/H1: release, DOI y manifiesto.
+- H9/H10: conteos y figuras/texto final.
+
 ## 1. Correcciones implementadas
 
 | ID | Corrección | Evidencia |

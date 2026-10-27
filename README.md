@@ -21,21 +21,30 @@ Propagation is evaluated only in the `t-1` fire domain.
 
 ## Status
 
-- Data: `dataset_unificado` annual-fuel build, 915,561,114 candidate cell-days,
-  867,430 fire cell-days, 397,448 cells.
+> **Documentation status.** Main-results tables below still reflect the Phase 1 run.
+> Phase 2 scientific reconciliation is pending; do not cite those numbers as final.
+> Technical reproducibility state is in `auditoria/FASE2_0_CIERRE.md`.
+
+- Data: `dataset_unificado_candidatos` annual-fuel build, 8 annual partitions,
+  915,561,114 candidate cell-days, 867,430 fire cell-days, 397,448 cells.
+  Two independent builds produced identical SHA-256 for all 8 partitions.
 - VIIRS: 892,533 fire cell-days after the corrected `low`/`l` confidence filter.
 - Climate: ERA5-Land CDS 3-hourly; 0-7 cm soil moisture from CDS and a
   Hargreaves-Samani reference-ET0 approximation; antecedent frost/water-deficit
-  features.
+  features. Training starts on `2018-03-02` after a 60-day warm-up.
 - Fuel: MapBiomas Collection 2 annual maps 2017-2023, joined to each row with
-  the prior-year map (`Y-1`); 2025 reuses 2023 (`fuel_lag=2`). Pasture, annual
-  agriculture, forest plantation, savanna, woodlands, flooded grassland and
-  forest-agriculture edge are separated.
+  the prior-year map (`Y-1`); 2024 uses 2023 (`fuel_lag=1`) and 2025 reuses 2023
+  (`fuel_lag=2`). Pasture, annual agriculture, forest plantation, savanna,
+  woodlands, flooded grassland and forest-agriculture edge are separated.
 - Loss: Hansen GFC-2025-v1.13 annual tree-cover loss at `t-1` and `t-2`.
 - Targets: population-based D2 sampling at 1:10 per task and region.
+- Holdout: 31 confirmation blocks (50 km, 20 km buffer), 68,719 cells, reserved
+  for Phase 5 and not used in this evaluation.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M1 fallback; propagation restricted to the `t-1` domain.
-- Tests: **66 pass** (v3 contract).
+- Tests: **71 pass** (pytest; 2 warnings).
+- CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
+  exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
 - Public release: [`v1.0.0`](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v1.0.0).
 
 ## Installation
@@ -52,6 +61,7 @@ pip install -r requirements.txt
 ```
 
 For an exact environment, use the pinned versions in `requirements-lock.txt`.
+The lock does not include wheel hashes; see `auditoria/FASE2_0_LOCK_EXCEPTION.md`.
 
 Core dependencies include Python 3.12+, Polars, DuckDB, PyArrow, GeoPandas,
 Rasterio, Xarray, LightGBM, scikit-learn, SHAP, Matplotlib and CDS API. GDAL/GEOS
@@ -62,7 +72,7 @@ system libraries are required by GeoPandas and Rasterio.
 Run the test suite:
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py"
+python -m pytest -q tests
 ```
 
 The full data pipeline requires the raw NASA FIRMS, ERA5-Land, MapBiomas and
@@ -164,7 +174,7 @@ system is a nowcast and prioritisation tool, not a stand-alone early-warning sys
 Incendios_PY/
 ├── scripts/                 # pipeline 00–24, including 05b/05c/05d and 10b
 ├── src/                     # ingestion, features, targets, models, metrics, alerts
-├── tests/                   # 62 unit tests
+├── tests/                   # 71 unit tests
 ├── datos/
 │   ├── raw/                 # FIRMS, ERA5, MapBiomas, vectors (not versioned)
 │   ├── processed/           # grid, climate, hotspots, dataset, targets
@@ -218,7 +228,9 @@ licenses and terms.
    ``et0_mm`` in the short CDS path is Hargreaves-Samani, not FAO-56 reference
    ET0; it is an explicit approximation.
 3. D2 is a task-specific target definition; it is not a universal ignition model.
-4. M3 loses spatial generalisation in unseen blocks; M1 is more robust but also limited.
+4. Spatial generalisation in unseen blocks is limited for all ignition models; M3
+   should not be presented as a spatial extrapolation model. The final M2/M3
+   ranking is pending Phase 2 reconciliation.
 5. The operational alert still requires institutional validation and a day-ahead
    forecast layer.
 6. The model is a nowcast/hindcast: weather features are same-day.
@@ -229,7 +241,7 @@ licenses and terms.
 ## Tests
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py"
+python -m pytest -q tests
 ```
 
 The suite covers target definitions, climate aggregation, VIIRS filtering, monotonic

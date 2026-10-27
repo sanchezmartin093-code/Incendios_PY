@@ -1,4 +1,5 @@
-# Exact environment lock for CI and local rebuilds (Python 3.12; hashes pending)
+# Exact versions for CI/local rebuilds (Python 3.12). Wheel hashes not included;
+# formal exception in auditoria/FASE2_0_LOCK_EXCEPTION.md.
 Pygments==2.21.0
 affine==3.0.1
 attrs==26.1.0

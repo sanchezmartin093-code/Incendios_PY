@@ -2,6 +2,8 @@
 
 **Fecha:** 2026-10-27  
 **Estado:** deuda técnica cerrada; Fase 2 científica todavía no iniciada.  
+**Excepción aceptada:** lock con versiones exactas, sin hashes de ruedas.
+
 **No se actualizó DOI, manuscrito ni release.**
 
 ## 1. Holdout de confirmación
@@ -89,7 +91,8 @@ Sin fuel futuro en train, val ni test (`anio_mapa < anio_fila`).
 - `requirements-lock.txt` regenerado con pins exactos del entorno.
 - CI ahora instala `requirements-lock.txt`, ejecuta `pip check` y `pytest`.
 - Workflow actualizado en `.github/workflows/ci.yml`.
-- **Pendiente:** hashes de ruedas. `pip-compile --generate-hashes` agotó el tiempo de red; no se inventaron hashes. El lock es exacto en versiones, pero no está en modo `--require-hashes`.
+- **Excepción aceptada:** hashes de ruedas no disponibles. Dos intentos de `pip-compile --generate-hashes` agotaron 600 s y 1.200 s sin generar archivo. No se inventaron hashes. El lock es exacto en versiones, pero no está en modo `--require-hashes`.
+- Justificación y alcance: `auditoria/FASE2_0_LOCK_EXCEPTION.md`.
 
 ## 6. Métricas separadas 2024/2025
 
@@ -155,12 +158,12 @@ M2 sigue siendo el mejor en holdout espacial. La narrativa del manuscrito debe c
 
 ## 8. Pendientes legítimos
 
-- Hashes de ruedas en el lock.
 - Manuscrito, suplemento, README y DOI.
 - Uso del holdout nuevo, solo en Fase 5.
 - C3, FWI components, población/carreteras, SPI/SPEI, LFMC y NWP.
 - Fase 2 científica: reconciliar M2/M3/fallback y actualizar narrativa.
+- Revisar la excepción del lock antes de un release público o Fase 3.
 
 ## 9. Decisión
 
-La deuda técnica previa queda cerrada con una excepción explícita: los hashes del lock no se generaron por timeout de red. No se avanza a Fase 2 hasta aceptar esa excepción o completar los hashes.
+La deuda técnica previa queda cerrada. La única limitación es explícita y aceptada: el lock tiene versiones exactas pero no hashes de ruedas; ver `auditoria/FASE2_0_LOCK_EXCEPTION.md`. Fase 2 científica puede comenzar.
