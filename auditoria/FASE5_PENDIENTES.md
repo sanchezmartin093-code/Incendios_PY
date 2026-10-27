@@ -6,14 +6,16 @@
 
 ## 1. Bloqueantes antes de reentrenar
 
-1. **Completar validación de artefactos críticos en `scripts/31`.**
-   Hoy exige solo M3/M2 Chaco. Debe exigir M3/M2 Oriental, propagación Chaco/Oriental, calibradores y umbrales de ambas regiones.
+1. **Re-congelar el candidato como r3.**
+   `scripts/31` cambió, por lo que su hash ya no coincide con el CSV de r2.
+   Los artefactos científicos y el tag r2 siguen válidos, pero HEAD requiere
+   regenerar checksums y crear el tag `submission-candidate-2026-10-27-r3`.
 
 2. **Integrar la verificación Git/tag en `scripts/32`.**
    Ya existe `scripts/33_verificar_trazabilidad_git.py` como verificador externo;
    conviene incorporar esa lógica a `scripts/32` en el próximo candidato.
 
-## 2. Resuelto en esta corrección
+## 2. Resuelto en estas correcciones
 
 - Se separaron `source_commit`, `source_tree`, `source_archive_sha256`,
   `tag_commit`, `tag_tree` y `tag_archive_sha256`.
@@ -21,6 +23,8 @@
 - El snapshot científico sigue siendo `e621f95`, archive `6988...`.
 - Se quitó `host` del JSON público.
 - Se agregó el verificador de trazabilidad `scripts/33_verificar_trazabilidad_git.py`.
+- `scripts/31` ahora exige M3/M2/propagación/M1 en Chaco y Oriental,
+  con sus calibradores, umbrales, prevalencias d2, holdout y targets.
 
 ## 3. Bloqueantes científicos
 
