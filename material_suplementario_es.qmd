@@ -480,7 +480,7 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 | Climate | Last date | 2025-12-31 | OK | May exceed the climate window. |
 | Climate | Precipitation >300 mm | 0 | OK | Plausible but unlikely; review de-accumulation. |
 | Climate | Maximum precipitation (mm) | 237.383 | OK | External Open-Meteo correction is still pending. |
-| Climate | Nonzero ET0 | 0 | WARN | ET0 is zero in the source data. |
+| Climate | Nonzero ET0 | 1 870 080 | OK | Hargreaves-Samani from CDS Tmax/Tmin; not FAO-56. |
 | Climate | Gust proxy 1.3× | 4e-06 | WARN | Gust is a 1.3× wind proxy. |
 | FIRMS | Positive cell-days | 892 533 | OK |  |
 | FIRMS | First date | 2018-01-01 | OK |  |

@@ -41,8 +41,8 @@ from src.espaciotemporal import (
 def _cargar_bases():
     grilla = pl.read_parquet(DIR_PROCESSED / "grilla_nacional_1km.parquet")
     combustible = pl.read_parquet(
-        DIR_PROCESSED / "combustible_mapbiomas_1km.parquet",
-        columns=["cell_id", "es_combustible"],
+        DIR_PROCESSED / "combustible_mapbiomas_1km_anual.parquet",
+        columns=["cell_id", "anio_fila", "es_combustible"],
     )
     clima = pl.read_parquet(
         DIR_PROCESSED / "clima_era5_diario.parquet",
@@ -55,15 +55,19 @@ def _cargar_bases():
     return grilla, combustible, clima, focos
 
 
-def _mapa_bool(grilla: pl.DataFrame, combustible: pl.DataFrame) -> np.ndarray:
-    mapa = dict(zip(
-        combustible["cell_id"].to_list(),
-        combustible["es_combustible"].to_list(),
-    ))
-    return np.array(
-        [bool(mapa.get(c, False)) for c in grilla["cell_id"].to_list()],
-        dtype=bool,
-    )
+def _mapas_bool_anuales(
+    grilla: pl.DataFrame, combustible: pl.DataFrame
+) -> dict[int, np.ndarray]:
+    """Returns one boolean fuel mask per modelling year (anio_fila)."""
+    celdas = grilla["cell_id"].to_list()
+    mapas: dict[int, np.ndarray] = {}
+    for anio in sorted(combustible["anio_fila"].unique().to_list()):
+        sub = combustible.filter(pl.col("anio_fila") == anio)
+        mapa = dict(zip(sub["cell_id"].to_list(), sub["es_combustible"].to_list()))
+        mapas[int(anio)] = np.array(
+            [bool(mapa.get(c, False)) for c in celdas], dtype=bool
+        )
+    return mapas
 
 
 def _planificar(grilla, combustible, clima, focos):
@@ -73,7 +77,7 @@ def _planificar(grilla, combustible, clima, focos):
     regiones = np.array(grilla["region"].to_list())
     nodos = grilla["nodo_clima_id"].to_numpy()
     idx_cell = {int(c): i for i, c in enumerate(cell_ids)}
-    fuel = _mapa_bool(grilla, combustible)
+    fuel_por_anio = _mapas_bool_anuales(grilla, combustible)
     tree = cKDTree(np.column_stack([x, y]))
     radio_m = RADIO_PROPAGACION_KM * 1000.0
     max_nodo = int(max(nodos.max(), clima["nodo_clima_id"].max()))
@@ -93,6 +97,10 @@ def _planificar(grilla, combustible, clima, focos):
     conteos = {"fecha": [], "region": [], "task": [], "n_pos": [], "n_neg": []}
 
     for fecha in fechas:
+        anio_fila = int(fecha[:4])
+        if anio_fila not in fuel_por_anio:
+            raise ValueError(f"No hay máscara de combustible para el año {anio_fila}")
+        fuel = fuel_por_anio[anio_fila]
         sub_clima = clima_por_fecha[fecha]
         vpd_nodo = np.full(max_nodo + 1, np.nan, dtype=float)
         lluvia_nodo = np.full(max_nodo + 1, np.nan, dtype=float)

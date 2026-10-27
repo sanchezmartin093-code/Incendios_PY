@@ -1,23 +1,21 @@
 """
-Script 02f: short CDS path for soil moisture + potential evaporation.
+Script 02f: short CDS path for soil moisture + reference ET0.
 
 Why this script exists
 ----------------------
 The full CDS rebuild (02b) re-downloads five meteorological variables and the
-Open-Meteo correction (02c) is subject to hourly quotas. This script only adds
-the two fields needed by the v3 contract:
+Open-Meteo correction (02c) is subject to hourly quotas. This script adds the
+v3 hydrological variables without re-downloading temperature/VPD/rain:
 
 - ``volumetric_soil_water_layer_1`` -> ``swvl1_m3m3`` (0-7 cm daily mean)
-- ``potential_evaporation``        -> ``et0_mm`` (daily total, CDS proxy)
+- ET0 -> Hargreaves-Samani from Tmax/Tmin/latitude (default, recommended)
+- ``potential_evaporation`` -> optional diagnostic (``--et0 pev``); it is NOT
+  used by default because its ERA5-Land outliers are not credible as ET0.
 
-It merges them into the existing ``clima_era5_diario.parquet`` and recomputes
-the antecedent frost/water-deficit features. It does NOT change temperature,
-VPD, wind or precipitation.
-
-Important: CDS ``potential_evaporation`` is a potential-evaporation field, not
-the FAO-56 reference evapotranspiration from Open-Meteo. It is an explicit
-proxy; the metadata records the source. All models using ``deficit_hidro_60d``
-must be retrained and evaluated again.
+It merges into the existing ``clima_era5_diario.parquet`` and recomputes the
+antecedent frost/water-deficit features. It does NOT change temperature, VPD,
+wind or precipitation. Hargreaves is a reference-ET approximation, not FAO-56;
+all models using ``deficit_hidro_60d`` must be retrained.
 """
 
 from pathlib import Path
@@ -160,11 +158,46 @@ def _agregar_evaporacion_diaria(pev_m: np.ndarray) -> np.ndarray:
             totales[j] = float(s[0])
             continue
         diffs = np.diff(cola)
-        if diffs.size > 0 and np.all(diffs >= -1e-3):
+        if diffs.size > 0 and np.all(diffs >= -0.5):
             totales[j] = max(float(cola[-1]), 0.0)
         else:
             totales[j] = float(np.nansum(np.clip(cola, 0.0, None)))
     return totales
+
+
+def _et0_hargreaves(
+    temp_max_c: np.ndarray,
+    temp_min_c: np.ndarray,
+    lat_deg: np.ndarray,
+    doy: np.ndarray,
+) -> np.ndarray:
+    """
+    Hargreaves-Samani reference evapotranspiration (mm/day).
+
+    Uses only Tmax, Tmin, latitude and day of year, which are already in the
+    CDS climate base. It is an explicit reference-ET approximation, much more
+    stable than ERA5-Land ``potential_evaporation`` for this use case.
+    """
+    tmax = np.asarray(temp_max_c, dtype=float)
+    tmin = np.asarray(temp_min_c, dtype=float)
+    lat = np.radians(np.asarray(lat_deg, dtype=float))
+    j = np.asarray(doy, dtype=float)
+
+    dr = 1.0 + 0.033 * np.cos(2.0 * np.pi * j / 365.0)
+    dec = 0.409 * np.sin(2.0 * np.pi * j / 365.0 - 1.39)
+    ws = np.arccos(np.clip(-np.tan(lat) * np.tan(dec), -1.0, 1.0))
+    ra = (24.0 * 60.0 / np.pi) * 0.0820 * dr * (
+        ws * np.sin(lat) * np.sin(dec)
+        + np.cos(lat) * np.cos(dec) * np.sin(ws)
+    )
+    et0 = (
+        0.0023
+        * ((tmax + tmin) / 2.0 + 17.8)
+        * np.sqrt(np.maximum(tmax - tmin, 0.0))
+        * ra
+        / 2.45
+    )
+    return np.clip(et0, 0.0, None)
 
 
 def _detectar_variable(ds: xr.Dataset, claves: tuple[str, ...]) -> str | None:
@@ -221,6 +254,12 @@ def main() -> None:
     parser.add_argument("--trimestre", action="store_true", help="Descargar por trimestres (más trabajos, archivos más chicos)")
     parser.add_argument("--forzar", action="store_true", help="Volver a descargar todos los bloques")
     parser.add_argument("--workers", type=int, default=1, help="Descargas CDS concurrentes; CDS puede rechazar >2")
+    parser.add_argument(
+        "--et0",
+        choices=["hargreaves", "pev"],
+        default="hargreaves",
+        help="Fuente de ET0: Hargreaves (recomendado) o potential_evaporation (diagnóstico)",
+    )
     args = parser.parse_args()
 
     p_grilla = DIR_PROCESSED / "grilla_nacional_1km.parquet"
@@ -270,13 +309,40 @@ def main() -> None:
     if not base.select(["nodo_clima_id", "fecha"]).is_unique().all():
         raise ValueError("clima_era5_diario.parquet tiene claves nodo/fecha duplicadas")
 
+    base = base.join(
+        nodos.select(["nodo_clima_id", "lat"]), on="nodo_clima_id", how="left"
+    )
+    if base["lat"].null_count():
+        raise ValueError("Faltan latitudes de nodos al calcular Hargreaves")
+
+    if args.et0 == "hargreaves":
+        doy = (
+            base["fecha"].str.to_date("%Y-%m-%d").dt.ordinal_day().to_numpy().astype(float)
+        )
+        et0_h = _et0_hargreaves(
+            base["temp_max_c"].to_numpy(),
+            base["temp_min_c"].to_numpy(),
+            base["lat"].to_numpy(),
+            doy,
+        )
+        base = base.with_columns(pl.Series("_et0_hargreaves", et0_h))
+
     columnas_reemplazadas = [
         "swvl1_m3m3", "et0_mm", "fdd_heladas_60d", "deficit_hidro_60d",
         "precipitacion_48h_mm", "dias_secos_consecutivos",
-        "ffmc", "isi", "interaccion_viento_vpd",
+        "ffmc", "isi", "interaccion_viento_vpd", "lat",
     ]
     base = base.drop([c for c in columnas_reemplazadas if c in base.columns])
-    merged = base.join(aux, on=["nodo_clima_id", "fecha"], how="left")
+
+    aux_join = aux.select(["nodo_clima_id", "fecha", "swvl1_m3m3"])
+    if args.et0 == "pev":
+        aux_join = aux.select(["nodo_clima_id", "fecha", "swvl1_m3m3", "et0_mm"])
+
+    merged = base.join(aux_join, on=["nodo_clima_id", "fecha"], how="left")
+    if args.et0 == "hargreaves":
+        merged = merged.with_columns(
+            pl.col("_et0_hargreaves").cast(pl.Float64).alias("et0_mm")
+        ).drop("_et0_hargreaves")
 
     nulos = int(merged["swvl1_m3m3"].null_count() + merged["et0_mm"].null_count())
     if merged.height != base.height or nulos:
@@ -299,7 +365,11 @@ def main() -> None:
         "fuente": "Copernicus CDS ERA5-Land",
         "variables": VARIABLES,
         "swvl1_fuente": "volumetric_soil_water_layer_1 (0-7 cm, media diaria)",
-        "et0_fuente": "potential_evaporation (suma diaria; proxy, no FAO-56)",
+        "et0_fuente": (
+            "Hargreaves-Samani (Tmax/Tmin/latitud)"
+            if args.et0 == "hargreaves"
+            else "potential_evaporation (suma diaria; proxy, no FAO-56)"
+        ),
         "anios": args.anios,
         "filas": procesado.height,
         "swvl1_min": float(procesado["swvl1_m3m3"].min()),
@@ -312,7 +382,7 @@ def main() -> None:
     (DIR_PROCESSED / "clima_era5_diario.meta.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    print(f"✓ Clima actualizado con swvl1 + ET0 CDS: {p_clima}")
+    print(f"✓ Clima actualizado con swvl1 + ET0 {args.et0}: {p_clima}")
     print(f"  swvl1: {meta['swvl1_min']:.3f} a {meta['swvl1_max']:.3f} m3/m3")
     print(f"  ET0:   {meta['et0_min_mm']:.2f} a {meta['et0_max_mm']:.2f} mm/día")
 
