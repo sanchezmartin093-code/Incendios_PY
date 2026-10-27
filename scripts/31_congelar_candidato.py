@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+import argparse
 import csv
 import hashlib
 import json
@@ -147,7 +148,18 @@ def required_artifacts() -> list[Path]:
     return paths
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--tag",
+        required=True,
+        help="Tag previsto para el candidato, por ejemplo submission-candidate-2026-10-27-r3",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    tag_previsto = parse_args().tag
     if git("status", "--porcelain"):
         raise RuntimeError(
             "El repositorio no está limpio. Congelá el candidato desde un commit limpio."
@@ -160,7 +172,8 @@ def main() -> None:
     )
     archive_sha = hashlib.sha256(archive).hexdigest()
     OUT_ARCHIVE.write_text(
-        f"{archive_sha}  git-archive-HEAD.tar\n", encoding="utf-8"
+        f"{archive_sha}  git-archive-source-{commit[:7]}.tar\n",
+        encoding="utf-8",
     )
 
     rows = []
@@ -187,16 +200,15 @@ def main() -> None:
 
     metadata = {
         "fecha_utc": datetime.now(timezone.utc).isoformat(),
-        "host": platform.node(),
         "python": platform.python_version(),
-        "git_commit": commit,
-        "git_tree": tree,
-        "git_archive_sha256": archive_sha,
-        "git_status": "clean",
+        "source_commit": commit,
+        "source_tree": tree,
+        "source_archive_sha256": archive_sha,
+        "source_status": "clean",
         "n_archivos": len(rows),
         "bytes_totales": sum(r["bytes"] for r in rows),
         "corpus_sha256": corpus_sha,
-        "tag_previsto": "submission-candidate-2026-10-27-r2",
+        "tag_previsto": tag_previsto,
         "alcance": (
             "Candidato científico: datos procesados, targets, modelos, "
             "calibradores, umbrales, prevalencias, tablas de selección, "
