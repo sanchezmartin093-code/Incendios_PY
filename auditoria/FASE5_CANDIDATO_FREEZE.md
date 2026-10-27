@@ -1,35 +1,34 @@
 # Fase 5 - Congelamiento del candidato científico
 
 **Fecha:** 2026-10-27
-**Estado:** candidato r3 congelado y verificado.
-**Tag:** `submission-candidate-2026-10-27-r3`
+**Estado:** candidato r4 congelado y verificado.
+**Tag:** `submission-candidate-2026-10-27-r4`
 **Rama:** `audit/fase0-freeze`
 
 ## 1. Identificadores
 
 - Commit científico de Fase 2: `15f3022`
-- **Snapshot científico:** `3a5edeee5beb8e31bff8ef69ac15cfd98ea7c3a7`
-  - tree: `40b9e64df05a982e509b2d0c16ac3bc38450598a`
-  - archive SHA-256: `3e259b2b68ea1a2fd18a0d2ef51fc54c6d98d17e986ecdafe6e974e61c02c891`
-- **Tag r3:** `submission-candidate-2026-10-27-r3` → `e2aa676c4c873827a6df35547b10c4d733bf0244`
-  - tree: `ed790cdabc8e4ac1530add9c8a385082aad74e45`
-  - archive SHA-256: `3af1bb318fae74ed7a8e0da4caeca6712e28097ed38f3db15edf486bb0f6f98c`
-- Corpus científico SHA-256: `6c9c8b7ee86ee92b07c498a01d15a33830078144152ace9d56c1ab8adb4c7c6c`
-- Archivos congelados: **99**
-- Bytes congelados: **9.306.572.469**
+- **Snapshot científico:** `14d6ad7e05d331d3e8f5d28246f414bea9ea472a`
+  - tree: `d6d9e9a16efb4c6797a48082ce6e5326cc7e1ec9`
+  - archive SHA-256: `53ea437fcfcc420e475514b1f4c7bad7e491315264e44b8b3690fdfec7ea6f1e`
+- **Tag r4:** `submission-candidate-2026-10-27-r4` → `c6322e11d17a78e0ca743c34ab238d1c13d3d272`
+  - tree: `51b78243dbf370e5ab5a2b22ee05931562fd7e3e`
+  - archive SHA-256: `bd5d676d6c202db7e8cb2d841be6633043a62d87afb0f249740d70c5e0b2ad96`
+- Corpus científico SHA-256: `d367ebb8b95b6d97529463e713186c97d22b955812dbbef8c6f65893d6fddbc5`
+- Archivos congelados: **100**
+- Bytes congelados: **9.306.577.967**
 
 El archive del snapshot científico y el archive del tag **no son iguales**:
-los checksums se calcularon sobre `3a5edee`; el tag agrega el CSV, el JSON,
+los checksums se calcularon sobre `14d6ad7`; el tag agrega el CSV, el JSON,
 el archivo de archive y este documento. Ambos hashes están registrados en
 `FASE5_CANDIDATO_CHECKSUMS.json` y en `FASE5_CANDIDATO_GIT_ARCHIVE.sha256`.
 
-Este tag reemplaza a `submission-candidate-2026-10-27-r2` para el trabajo de
-Fase 5. El tag r2 (`7390cca`, archive `a768...`) y el tag inicial quedan como
-históricos.
+Este tag reemplaza a `submission-candidate-2026-10-27-r3` para el trabajo de
+Fase 5. Los tags r3, r2 y el inicial quedan como históricos.
 
 ## 2. Universo congelado
 
-Se congelaron **99 archivos**, **9.306.572.469 bytes**:
+Se congelaron **100 archivos**, **9.306.577.967 bytes**:
 
 - dataset anual particionado 2018–2025 y su manifiesto;
 - targets `train/val/test` de ignición y propagación;
@@ -61,7 +60,7 @@ Esos archivos cambiarán después de la confirmación y de la actualización de 
 
 ## 4. Regla de congelamiento
 
-Después del tag r3:
+Después del tag r4:
 
 1. No se reentrena M1/M2/M3 ni propagación.
 2. No se recalculan umbrales ni prevalencias.
@@ -89,16 +88,15 @@ Por tanto, la Fase 5 exige:
 
 ## 6. Verificación
 
-Verificación de solo lectura:
+Verificación integrada de solo lectura:
 
 ```bash
 python scripts/32_verificar_candidato.py
-python scripts/33_verificar_trazabilidad_git.py
 ```
+
+El script 32 verifica archivos, tamaños, corpus y, al final, invoca la
+verificación Git/tag de `scripts/33_verificar_trazabilidad_git.py`.
 
 No reejecutar `scripts/31_congelar_candidato.py` para verificar: ese script
 regenera los checksums. El script 31 queda incluido en el corpus, por lo que
 cualquier cambio en él invalida este candidato.
-
-`scripts/33_verificar_trazabilidad_git.py` es un verificador externo al
-corpus r3: compara commit, tree y archive del snapshot científico y del tag.
