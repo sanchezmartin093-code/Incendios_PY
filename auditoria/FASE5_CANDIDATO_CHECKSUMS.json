@@ -5,10 +5,15 @@
   "source_tree": "40b9e64df05a982e509b2d0c16ac3bc38450598a",
   "source_archive_sha256": "3e259b2b68ea1a2fd18a0d2ef51fc54c6d98d17e986ecdafe6e974e61c02c891",
   "source_status": "clean",
+  "tag_name": "submission-candidate-2026-10-27-r3",
+  "tag_commit": "e2aa676c4c873827a6df35547b10c4d733bf0244",
+  "tag_tree": "ed790cdabc8e4ac1530add9c8a385082aad74e45",
+  "tag_archive_sha256": "3af1bb318fae74ed7a8e0da4caeca6712e28097ed38f3db15edf486bb0f6f98c",
   "n_archivos": 99,
   "bytes_totales": 9306572469,
   "corpus_sha256": "6c9c8b7ee86ee92b07c498a01d15a33830078144152ace9d56c1ab8adb4c7c6c",
   "tag_previsto": "submission-candidate-2026-10-27-r3",
   "alcance": "Candidato científico: datos procesados, targets, modelos, calibradores, umbrales, prevalencias, tablas de selección, holdout de confirmación, código y lock. El manuscrito y los metadatos de release no están congelados.",
-  "regla": "No reentrenar, reajustar umbrales ni tocar el holdout después de este tag."
+  "regla": "No reentrenar, reajustar umbrales ni tocar el holdout después de este tag.",
+  "trazabilidad": "Los checksums científicos se calcularon sobre source_commit. El tag r3 apunta a tag_commit, que agrega los archivos de checksums y documentación; por eso su archive SHA-256 es distinto. Ambos archives quedan registrados."
 }

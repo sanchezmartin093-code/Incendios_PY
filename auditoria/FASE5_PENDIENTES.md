@@ -1,30 +1,27 @@
 # Fase 5 - Pendientes después de la reauditoría
 
 **Fecha:** 2026-10-27
-**Candidato vigente:** `submission-candidate-2026-10-27-r2` → `7390cca`
-**Estado:** trazabilidad Git/tag corregida; código verificado; Fase 5 no ejecutada.
+**Candidato vigente:** `submission-candidate-2026-10-27-r3` → `e2aa676`
+**Estado:** r3 congelado y verificado; Fase 5 no ejecutada.
 
 ## 1. Bloqueantes antes de reentrenar
 
-1. **Re-congelar el candidato como r3.**
-   `scripts/31` cambió, por lo que su hash ya no coincide con el CSV de r2.
-   Los artefactos científicos y el tag r2 siguen válidos, pero HEAD requiere
-   regenerar checksums y crear el tag `submission-candidate-2026-10-27-r3`.
-
-2. **Integrar la verificación Git/tag en `scripts/32`.**
+1. **Integrar la verificación Git/tag en `scripts/32`.**
    Ya existe `scripts/33_verificar_trazabilidad_git.py` como verificador externo;
    conviene incorporar esa lógica a `scripts/32` en el próximo candidato.
 
 ## 2. Resuelto en estas correcciones
 
+- Candidato **r3**: source `3a5edee`, tag `e2aa676`, corpus `6c9c8b7e...`,
+  99 archivos, 9.306.572.469 bytes.
 - Se separaron `source_commit`, `source_tree`, `source_archive_sha256`,
   `tag_commit`, `tag_tree` y `tag_archive_sha256`.
 - El tag r2 conserva el commit `7390cca` y su archive `a768...`.
-- El snapshot científico sigue siendo `e621f95`, archive `6988...`.
 - Se quitó `host` del JSON público.
 - Se agregó el verificador de trazabilidad `scripts/33_verificar_trazabilidad_git.py`.
 - `scripts/31` ahora exige M3/M2/propagación/M1 en Chaco y Oriental,
   con sus calibradores, umbrales, prevalencias d2, holdout y targets.
+- `scripts/31` recibe el tag por `--tag` y escribe el CSV con LF.
 
 ## 3. Bloqueantes científicos
 
@@ -63,4 +60,4 @@
 
 ## 6. Regla
 
-No se reentrena ni se toca el holdout hasta cerrar los puntos 1–2 y congelar un candidato r3 si hay cambios de código.
+No se reentrena ni se toca el holdout hasta cerrar el punto 1. Cualquier cambio de código posterior a r3 requiere un candidato r4.
