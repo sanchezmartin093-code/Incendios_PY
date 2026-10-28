@@ -8,6 +8,9 @@ SOTA philosophy:
 - Interoperable serialization in native C++ Booster format (.booster) and Joblib.
 """
 
+from __future__ import annotations
+
+
 from pathlib import Path
 import lightgbm as lgb
 import numpy as np

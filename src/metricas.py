@@ -7,6 +7,9 @@ Includes:
 - Brier Score and Brier Skill Score (BSS)
 """
 
+from __future__ import annotations
+
+
 import numpy as np
 
 def _puntos_roc_agrupados(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
