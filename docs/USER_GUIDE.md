@@ -54,12 +54,14 @@ Main generated locations:
 
 | Output | Location |
 |---|---|
-| Main tables | `tablas/` |
-| Figures | `figuras/` |
+| Main tables | `entregables/tablas/` |
+| Figures | `entregables/figuras/` |
 | Alert layers and bulletins | `datos/outputs/` |
 | Frozen candidate checks | `auditoria/FASE5_CANDIDATO_*` |
-| Manuscript PDF/DOCX/HTML | repository root |
-| Supplementary PDF/DOCX/HTML | repository root |
+| Manuscript DOCX/HTML | `entregables/` |
+| Supplementary DOCX/HTML | `entregables/` |
+| Compiled figure PDF | `entregables/figuras_maestro.pdf` |
+| Compiled table workbook | `entregables/tablas_maestro.xlsx` |
 | Operational artifact bundle | `dist/operativo_v2.0.1/` |
 
 ## 5. Typical use cases
@@ -135,7 +137,7 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
 - `FileNotFoundError` for a model or threshold: run the corresponding training
   script or restore the v2.0.1 data archive.
 - `ValueError` for D2 partitions: run `scripts/00_validar_datos.py` and inspect
-  `tablas/tabla00_validacion_datos.csv`.
+  `entregables/tablas/tabla00_validacion_datos.csv`.
 - CDS/FIRMS access errors: raw acquisition is outside the frozen evaluation
   package; use the archived test targets and probabilities for table-level
   reproduction.

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DIR_FIG = ROOT_DIR / "figuras"
+DIR_FIG = ROOT_DIR / "entregables" / "figuras"
 
 def generar_figura_trimodal():
     print("=" * 65)

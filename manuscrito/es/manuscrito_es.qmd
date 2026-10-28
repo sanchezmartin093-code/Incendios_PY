@@ -7,16 +7,10 @@ crossref:
   fig-title: "Figura"
   tbl-title: "Tabla"
   sec-prefix: "Sección"
-bibliography: references.bib
-csl: apa.csl
+bibliography: ../assets/references.bib
+csl: ../assets/apa.csl
 format:
-  pdf:
-    include-in-header:
-      text: |
-        \usepackage{lineno}
-        \usepackage{setspace}
-        \doublespacing
-        \AtBeginDocument{\linenumbers}
+  docx: default
   html:
     toc: true
     toc-depth: 3
@@ -31,9 +25,9 @@ format:
     smooth-scroll: true
 ---
 
-> **Versión de lectura en español.** Este documento traduce el manuscrito de investigación. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`manuscrito.pdf`, `manuscrito.docx`). La versión oficial para *Computers & Geosciences* es la inglesa.
+> **Versión de lectura en español.** Este documento traduce el manuscrito de investigación. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`manuscrito.docx`, `manuscrito.html`). La versión oficial para *Computers & Geosciences* es la inglesa.
 >
-> **Revista objetivo:** *Computers & Geosciences* (Elsevier) — **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada. Los datos de autor, afiliación y repositorio están en la portada (`title_page.qmd`).
+> **Revista objetivo:** *Computers & Geosciences* (Elsevier) — **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada. Los datos de autor, afiliación y repositorio están en la portada.
 
 # Resumen {.unnumbered}
 
@@ -83,7 +77,7 @@ Dos modelos comparten el espacio con gating. M3 es un modelo híbrido LightGBM c
 
 M1 usa 24 variables meteorológicas y de combustible, M2 añade el ecotono y un ancla histórica de 25 km (35 variables), y M3 añade densidad local, ciclo anual y términos de accesibilidad (44 variables en el Chaco y 45 en Oriental). Las familias de variables están deliberadamente separadas: M3 no recibe ninguna variable de fuego t-1, mientras que la propagación recibe solo información causal de fuego t-1. Esta separación hace interpretable la ablación y evita que el fallback se convierta en un modelo de persistencia oculto. M3 agrupa meteorología (temperatura máxima y mínima, rango térmico, VPD, viento, lluvia de 48 h, días secos consecutivos, FFMC e ISI), fracciones de combustible (pastura, sabana, bosque seco, bosque húmedo y humedal/palmar), ecotono, calendario civil y temporada de quema, corredores de accesibilidad, densidad local a 5 y 10 km y recurrencia causal. M1 contiene solo los subconjuntos meteorológicos y de combustible. Las listas de variables están congeladas en la release del código. La regla de fallback se evalúa en celdas con `freq_hist_1km = 0`; M2 es el fallback validado y M1 se conserva solo como baseline diagnóstico.
 
-![Marco computacional: insumos multivariados, operador de objetivos D2, gate biofísico, ignición desacoplada M3/M2 y propagación t-1, evaluación reproducible y salidas abiertas.](figuras/fig01_framework_conceptual.png){#fig-framework width="100%"}
+![Marco computacional: insumos multivariados, operador de objetivos D2, gate biofísico, ignición desacoplada M3/M2 y propagación t-1, evaluación reproducible y salidas abiertas.](../../entregables/figuras/fig01_framework_conceptual.png){#fig-framework width="100%"}
 
 Las probabilidades se calibran con una transformación de Platt monótona y acotada. La restricción monótona preserva el ranking del ensamble de árboles y evita la inversión de pendiente que puede ocurrir bajo desbalance severo de clases [@platt1999; @niculescu2005]. La calibración se ajusta en 2023 y se congela para el test 2024–2025. Los detalles de calibración, incluida la prueba de monotonicidad y la tabla completa de hiperparámetros, están en la Nota complementaria S2 y la Tabla S2.
 
@@ -109,7 +103,7 @@ El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y 
 
 Las comprobaciones de calidad de datos son parte del pipeline: se colapsan sobrepasos VIIRS duplicados, se eliminan detecciones de confianza `low`, se reconstruye la precipitación diaria a partir de incrementos subdiarios y se rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land se mapean a celdas con un cKDTree precomputado. El archivo procesado contiene los objetivos de test, las probabilidades del modelo, las capas de benchmark, el plan de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin descargar el archivo crudo completo. El diccionario de datos y las comprobaciones están en la Nota complementaria S1 y la Tabla S15. El repositorio incluye 76 pruebas unitarias, un archivo de dependencias fijadas, un flujo de integración continua y un release público en GitHub. La suite de pruebas cubre definiciones de objetivos, filtrado VIIRS, agregación climática, calibración monótona, métricas y la capa de alerta; puede ejecutarse sin descargar el archivo crudo. Esta separación entre un paquete de evaluación reproducible y el pipeline completo de datos crudos es deliberada: los revisores pueden auditar las tablas sin una descarga de varios terabytes, mientras los scripts canónicos siguen disponibles para una reconstrucción completa.
 
-![Dominio de estudio y división regional: Chaco Seco (oeste) y Región Oriental (este) sobre la grilla nacional de 1 km².](figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
+![Dominio de estudio y división regional: Chaco Seco (oeste) y Región Oriental (este) sobre la grilla nacional de 1 km².](../../entregables/figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
 
 # 3. Resultados
 
@@ -149,31 +143,31 @@ La precisión poblacional de ignición es 0.082 % en el Chaco y 0.198 % en la Re
 
 En el test retrospectivo, M3 no domina uniformemente a M2. En el Chaco, M3 mejora ROC-AUC y PR-AUC, pero M2 tiene una precisión ligeramente mayor y menos falsos positivos; en Oriental, M3 mejora precisión y reduce falsos positivos, con menor recall. La ganancia es un trade-off, no una superioridad universal. Por año, M3 mantiene ROC-AUC 0.8030/0.8011 en el Chaco y 0.7532/0.7539 en Oriental para 2024/2025; la propagación cae de 0.9069 a 0.8982 en el Chaco y de 0.7911 a 0.7785 en Oriental. 2024 usa fuel 2023 con lag 1 y 2025 usa fuel 2023 con lag 2; por eso las métricas se reportan por separado y no como un promedio único.
 
-![Curvas ROC y precisión–recall para el test retrospectivo D2 (2024–2025), por región y tarea. Las curvas de ignición corresponden a M3; la propagación usa la capa causal t-1.](figuras/fig02_curvas_roc_pr_test.png){#fig-test width="100%"}
+![Curvas ROC y precisión–recall para el test retrospectivo D2 (2024–2025), por región y tarea. Las curvas de ignición corresponden a M3; la propagación usa la capa causal t-1.](../../entregables/figuras/fig02_curvas_roc_pr_test.png){#fig-test width="100%"}
 
 
 ## 3.2 Benchmark frente a FWI e INPE
 
-@tbl-benchmark compara M3 con el FWI completo y el INPE en el mismo test retrospectivo. M3 supera al FWI por ΔROC = +0.2848 en el Chaco y +0.1970 en la Región Oriental, y al INPE por +0.2633 y +0.2544. Todas las comparaciones pareadas tienen p ≤ 0.001 con B = 1 000. El benchmark completo, incluidas las filas de M2 y propagación, está en la Tabla S11 del suplemento; la tabla completa de significancia está en la Tabla S7.
+@tbl-benchmark compara M3 con el FWI completo y el INPE en el mismo test retrospectivo. M3 supera al FWI por ΔROC = +0.2848 en el Chaco y +0.1970 en la Región Oriental, y al INPE por +0.2633 y +0.2544. Todas las comparaciones pareadas tienen p ≤ 0.001 con B = 1 000. Para que la comparación sea simétrica, los puntos operativos de FWI e INPE se seleccionaron en la misma partición de validación de 2023 con la regla F0.5 idéntica a la de los modelos y luego se congelaron para el test retrospectivo (@tbl-benchmark); los cortes resultantes son 0.3029 y 0.8963 en el Chaco y 2.1509 y 0.0750 en Oriental para FWI e INPE, respectivamente. El benchmark completo, incluidas las filas de M2 y propagación, está en la Tabla S11 del suplemento; la tabla completa de significancia está en la Tabla S7.
 
-| Región | Modelo | ROC-AUC | PR-AUC | ΔROC frente a M3 | p |
-|:---|:---|---:|---:|---:|---:|
-| Chaco | M3 ignición | 0.8021 | 0.2842 | — | — |
-| Chaco | FWI canadiense completo | 0.5173 | 0.0957 | +0.2848 | ≤0.001 |
-| Chaco | INPE Risco de Fogo | 0.5389 | 0.1031 | +0.2633 | ≤0.001 |
-| Oriental | M3 ignición | 0.7534 | 0.2340 | — | — |
-| Oriental | FWI canadiense completo | 0.5564 | 0.1061 | +0.1970 | ≤0.001 |
-| Oriental | INPE Risco de Fogo | 0.4990 | 0.0908 | +0.2544 | ≤0.001 |
-| Chaco | Línea base climatológica | 0.5000 | 0.0909 | +0.3021 | — |
-| Oriental | Línea base climatológica | 0.5000 | 0.0909 | +0.2534 | — |
+| Región | Modelo | ROC-AUC | PR-AUC | ΔROC frente a M3 | p | Corte | Prec. (%) | Rec. (%) | F0.5 |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | M3 ignición | 0.8021 | 0.2842 | — | — | 0.2218 | 32.82 | 30.30 | 0.3228 |
+| Chaco | FWI canadiense completo | 0.5173 | 0.0957 | +0.2848 | ≤0.001 | 0.3029 | 9.28 | 96.08 | 0.1133 |
+| Chaco | INPE Risco de Fogo | 0.5389 | 0.1031 | +0.2633 | ≤0.001 | 0.8963 | 11.72 | 12.57 | 0.1188 |
+| Oriental | M3 ignición | 0.7534 | 0.2340 | — | — | 0.2186 | 30.13 | 18.59 | 0.2680 |
+| Oriental | FWI canadiense completo | 0.5564 | 0.1061 | +0.1970 | ≤0.001 | 2.1509 | 10.76 | 38.99 | 0.1258 |
+| Oriental | INPE Risco de Fogo | 0.4990 | 0.0908 | +0.2544 | ≤0.001 | 0.0750 | 9.24 | 79.47 | 0.1123 |
+| Chaco | Línea base climatológica | 0.5000 | 0.0909 | +0.3021 | — | — | — | — | — |
+| Oriental | Línea base climatológica | 0.5000 | 0.0909 | +0.2534 | — | — | — | — | — |
 
-: Benchmark en el test retrospectivo 2024–2025. ΔROC es M3 menos la referencia. FWI e INPE son índices normalizados, no probabilidades calibradas. Los guiones (—) indican modelos de referencia o comparaciones no evaluadas por construcción. La tabla completa está en la Tabla S11 del suplemento. {#tbl-benchmark}
+: Benchmark en el test retrospectivo 2024–2025. ΔROC es M3 menos la referencia. Los cortes de todas las filas, incluidos FWI e INPE, se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para 2024–2025; la precisión y el recall son caso-control en ese corte. El FWI está en la escala del índice canadiense y el INPE en una escala de riesgo 0–1, por lo que los cortes no son comparables entre índices. Los guiones (—) indican modelos de referencia o comparaciones no evaluadas por construcción. La tabla completa está en la Tabla S11 del suplemento. {#tbl-benchmark}
 
 @fig-benchmark muestra las curvas ROC y de precisión–recall correspondientes. Los índices canónicos están cerca de la diagonal en el Chaco; en la Región Oriental también son débiles y no mejoran materialmente respecto a una línea base climatológica. El FWI completo tiene un ROC-AUC de 0.5173/0.5564 y el INPE de 0.5389/0.4990; ninguno es competitivo con M3 en las mismas fechas retrospectivas. El resultado no afirma que los índices sean universalmente inválidos, sino que su transferencia a este sistema subtropical no está respaldada. FWI e INPE son índices de peligro normalizados, por lo que su punto operativo aparente depende fuertemente del cutoff elegido en validación. En el Chaco, el FWI completo alcanza un recall alto solo con una precisión muy baja, mientras que el INPE es conservador en ambas regiones; ninguno de los dos comportamientos se traduce en un ranking competitivo. Los valores de PR-AUC están cerca de la línea base caso-control de 0.09, lo que significa que los índices añaden poca discriminación más allá del azar en estas fechas retrospectivas.
 
 La ablación controlada confirma que las variables socioecológicas mejoran el ranking, sobre todo en Oriental. Con la misma capacidad (45/60 rondas y 23/31 hojas), M2 alcanza 0.7991/0.7406 y M3 0.8021/0.7534; M1 es el más bajo en ambas regiones. La ganancia M3 − M2 es +0.0030/+0.0128 ROC-AUC y +0.0076/+0.0194 PR-AUC. En Chaco la precisión de M3 es 32.82 % frente a 33.28 % de M2; en Oriental es 30.13 % frente a 26.09 %. La ventaja no es uniforme y no se presenta como una mejora de precisión en ambas regiones. La tabla completa de ablación está en la Tabla S12 del suplemento. TreeSHAP [@lundberg2020treeshap] ordena la distancia histórica, la fracción de bosque seco, la accesibilidad, la presión de desmonte×VPD y la estacionalidad como los impulsores dominantes en el Chaco; en Oriental dominan la distancia histórica, la focalización local, la agricultura anual y la presión de desmonte. La tabla y figura completas de SHAP están en la Tabla S13 y la Figura S1 del suplemento. Esto no establece causalidad, pero muestra que el modelo no depende de una sola variable meteorológica.
 
-![Curvas ROC y precisión–recall de M3 frente al FWI canadiense completo y al INPE bajo D2.](figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width="100%"}
+![Curvas ROC y precisión–recall de M3 frente al FWI canadiense completo y al INPE bajo D2.](../../entregables/figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width="100%"}
 
 ## 3.3 Generalización temporal y espacial
 
@@ -202,7 +196,7 @@ La cobertura conformal es empírica: 90.17 %/90.31 % para un nivel nominal del 9
 
 @fig-map muestra un ejemplo de mapa nacional de alerta. Las celdas se clasifican como bajas, moderadas o altas; el producto se genera con el mismo pipeline de test congelado. El mapa es ilustrativo del formato de salida, no un pronóstico institucional. Es una capa de comunicación construida a partir de las mismas probabilidades y cutoffs congelados; hereda los supuestos de calibración y prevalencia del modelo subyacente. Por tanto, el mapa debe leerse junto con la precisión poblacional de @tbl-test y la limitación espacial de @tbl-spatial, no como un producto de alerta autónomo.
 
-![Mapa nacional de alerta de 1 km² para el 2024-09-09, con la distribución espacial de celdas de alerta baja, moderada y alta.](figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-map width="80%"}
+![Mapa nacional de alerta de 1 km² para el 2024-09-09, con la distribución espacial de celdas de alerta baja, moderada y alta.](../../entregables/figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-map width="80%"}
 
 ## 3.5 Comprobaciones de reproducibilidad
 
