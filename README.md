@@ -39,8 +39,8 @@ Propagation is evaluated only in the `t-1` fire domain.
   woodlands, flooded grassland and forest-agriculture edge are separated.
 - Loss: Hansen GFC-2025-v1.13 annual tree-cover loss at `t-1` and `t-2`.
 - Targets: population-based D2 sampling at 1:10 per task and region.
-- Holdout: 31 confirmation blocks (50 km, 20 km buffer), 68,719 cells, reserved
-  and not used in this evaluation.
+- Holdout: 31 confirmation blocks (50 km, 20 km buffer), 68,719 cells; evaluated
+  independently in 2023 after retraining without the confirmation blocks.
 - Models: M1, M2, M3 and propagation boosters with monotonic Platt calibration.
 - Alerts: M3 with M2 fallback; propagation restricted to the `t-1` domain.
 - Tests: **76 pass** (pytest; 2 warnings).
@@ -134,6 +134,8 @@ python scripts/27_validacion_espacial_2023.py
 python scripts/29_lead_time_2023.py
 python scripts/30_validacion_propagacion_2023.py
 python scripts/35_evaluar_politica_gated.py
+python scripts/37_validacion_confirmacion_2023.py
+python scripts/38_coupled_baseline.py
 
 # 4. Operational products
 python scripts/09_servicio_alerta.py --fecha 2024-09-09
@@ -278,7 +280,7 @@ licenses and terms.
 6. The model is a nowcast/hindcast: weather features are same-day.
 7. Ignition population precision is very low; operational use must be prioritised
    and evaluated prospectively.
-8. No coupled `t-1` baseline or external-country validation is included yet.
+8. A coupled t-1 comparator is reported in Table S19; external-country validation is not included yet.
 
 ## Tests
 

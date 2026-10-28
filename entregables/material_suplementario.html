@@ -2363,7 +2363,7 @@ window.Quarto = {
 
 <blockquote class="blockquote">
 <p><strong>Target journal:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Article type:</strong> research article. <strong>Peer review:</strong> single-anonymized.<br>
-<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S17 and Figures S1–S3.<br>
+<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S19 and Figures S1–S3.<br>
 <strong>Code:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (MIT License; code concept DOI <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; GitHub release v2.0.0).<br>
 <strong>Data:</strong> processed data and test predictions are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>.</p>
 </blockquote>
@@ -2372,7 +2372,7 @@ window.Quarto = {
 <p>• <strong>Note S1:</strong> Data, D2 target construction, quality control and sampling.</p>
 <p>• <strong>Note S2:</strong> Bounded monotonic Platt calibration and hyperparameters.</p>
 <p>• <strong>Note S3:</strong> Evaluation protocol and extended analyses.</p>
-<p>• <strong>Tables S1–S17:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, SHAP, cost-loss and data audit.</p>
+<p>• <strong>Tables S1–S19:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, SHAP, cost-loss and data audit.</p>
 <p>• <strong>Figures S1–S3:</strong> SHAP, ablation and cost-loss.</p>
 <hr>
 </section>
@@ -3657,7 +3657,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid. Holdout = 50-km spatial block; Held-in = reference cells not excluded from training. The confirmation holdout is not used here.</p>
+<p>M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid. Holdout = 50-km spatial block; Held-in = reference cells not excluded from training. The confirmation holdout is evaluated separately in Table S18.</p>
 <p><strong>Table S9.</strong> Evaluation with t-1 weather (24-h anticipation) on 2023 validation.</p>
 <table class="caption-top table">
 <colgroup>
@@ -5929,6 +5929,208 @@ window.Quarto = {
 </tbody>
 </table>
 <p>Population-level metrics after prior correction: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precision 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precision 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 sample / 0.000436 population; Oriental 0.2186 sample / 0.001158 population.</p>
+<p><strong>Table S18.</strong> Independent spatial confirmation holdout on 2023. Models were retrained excluding the 31 confirmation blocks and their 20-km buffer; the cutoff was selected on held-in 2023 cells and applied once to the confirmation cells.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Region</th>
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Evaluation</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Positives</th>
+<th style="text-align: right;">ROC-AUC</th>
+<th style="text-align: right;">PR-AUC</th>
+<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Recall</th>
+<th style="text-align: right;">F0.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">M1</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">16,579</td>
+<td style="text-align: right;">1,404</td>
+<td style="text-align: right;">0.6435</td>
+<td style="text-align: right;">0.1263</td>
+<td style="text-align: right;">14.57 %</td>
+<td style="text-align: right;">9.26 %</td>
+<td style="text-align: right;">0.1307</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">M2</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">16,579</td>
+<td style="text-align: right;">1,404</td>
+<td style="text-align: right;">0.6871</td>
+<td style="text-align: right;">0.1759</td>
+<td style="text-align: right;">44.44 %</td>
+<td style="text-align: right;">0.57 %</td>
+<td style="text-align: right;">0.0271</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">M3</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">16,579</td>
+<td style="text-align: right;">1,404</td>
+<td style="text-align: right;">0.6757</td>
+<td style="text-align: right;">0.1663</td>
+<td style="text-align: right;">60.00 %</td>
+<td style="text-align: right;">0.43 %</td>
+<td style="text-align: right;">0.0208</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">M3/M2 gated</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">16,579</td>
+<td style="text-align: right;">1,404</td>
+<td style="text-align: right;">0.6871</td>
+<td style="text-align: right;">0.1759</td>
+<td style="text-align: right;">54.55 %</td>
+<td style="text-align: right;">0.43 %</td>
+<td style="text-align: right;">0.0207</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">M1</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">14,551</td>
+<td style="text-align: right;">1,615</td>
+<td style="text-align: right;">0.6388</td>
+<td style="text-align: right;">0.1735</td>
+<td style="text-align: right;">20.48 %</td>
+<td style="text-align: right;">25.57 %</td>
+<td style="text-align: right;">0.2133</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">M2</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">14,551</td>
+<td style="text-align: right;">1,615</td>
+<td style="text-align: right;">0.6621</td>
+<td style="text-align: right;">0.1842</td>
+<td style="text-align: right;">25.00 %</td>
+<td style="text-align: right;">0.12 %</td>
+<td style="text-align: right;">0.0061</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">M3</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">14,551</td>
+<td style="text-align: right;">1,615</td>
+<td style="text-align: right;">0.6344</td>
+<td style="text-align: right;">0.1700</td>
+<td style="text-align: right;">50.00 %</td>
+<td style="text-align: right;">0.06 %</td>
+<td style="text-align: right;">0.0031</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">M3/M2 gated</td>
+<td style="text-align: left;">Confirmation</td>
+<td style="text-align: right;">14,551</td>
+<td style="text-align: right;">1,615</td>
+<td style="text-align: right;">0.6621</td>
+<td style="text-align: right;">0.1842</td>
+<td style="text-align: right;">14.29 %</td>
+<td style="text-align: right;">0.06 %</td>
+<td style="text-align: right;">0.0030</td>
+</tr>
+</tbody>
+</table>
+<p>The held-in 2023 reference rows and full precision/recall/FP/FN counts are in <code>tablas/tablaS18_confirmacion_espacial_2023.csv</code>. The low recall at the frozen cutoff reflects the calibration shift between held-in and confirmation blocks; discrimination (ROC-AUC/PR-AUC) is the primary comparison.</p>
+<p><strong>Table S19.</strong> Coupled t-1 baseline versus the decoupled task architecture on the combined fire sample. The coupled baseline is a single binary fire-at-<code>t</code> model with the three causal t-1 fire features; the decoupled comparator uses M3 for ignition rows and the propagation model for propagation rows. Both use the same combined case-control test rows.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Region</th>
+<th style="text-align: left;">Comparator</th>
+<th style="text-align: right;">ROC-AUC</th>
+<th style="text-align: right;">PR-AUC</th>
+<th style="text-align: right;">Brier</th>
+<th style="text-align: right;">BSS</th>
+<th style="text-align: right;">ECE</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Positives</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Coupled t-1</td>
+<td style="text-align: right;">0.8862</td>
+<td style="text-align: right;">0.6223</td>
+<td style="text-align: right;">0.0513</td>
+<td style="text-align: right;">0.3788</td>
+<td style="text-align: right;">0.0091</td>
+<td style="text-align: right;">753,071</td>
+<td style="text-align: right;">68,461</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Decoupled task models</td>
+<td style="text-align: right;">0.8868</td>
+<td style="text-align: right;">0.6262</td>
+<td style="text-align: right;">0.0510</td>
+<td style="text-align: right;">0.3829</td>
+<td style="text-align: right;">0.0084</td>
+<td style="text-align: right;">753,071</td>
+<td style="text-align: right;">68,461</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Coupled t-1</td>
+<td style="text-align: right;">0.7871</td>
+<td style="text-align: right;">0.3598</td>
+<td style="text-align: right;">0.0701</td>
+<td style="text-align: right;">0.1512</td>
+<td style="text-align: right;">0.0089</td>
+<td style="text-align: right;">1,060,895</td>
+<td style="text-align: right;">96,445</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Decoupled task models</td>
+<td style="text-align: right;">0.7806</td>
+<td style="text-align: right;">0.3532</td>
+<td style="text-align: right;">0.0705</td>
+<td style="text-align: right;">0.1467</td>
+<td style="text-align: right;">0.0090</td>
+<td style="text-align: right;">1,060,895</td>
+<td style="text-align: right;">96,445</td>
+</tr>
+</tbody>
+</table>
+<p>This is a comparator for the leakage discussion, not an operational model. Because both sides use the same gated case-control sample, it does not test the effect of removing the gate.</p>
 </section>
 <section id="data-availability" class="level1 unnumbered">
 <h1 class="unnumbered">Data availability</h1>

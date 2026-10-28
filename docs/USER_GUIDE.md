@@ -75,6 +75,8 @@ Main generated locations:
 python scripts/07_evaluacion_test_2024.py
 python scripts/26_validacion_2023.py
 python scripts/35_evaluar_politica_gated.py
+python scripts/37_validacion_confirmacion_2023.py
+python scripts/38_coupled_baseline.py
 ```
 
 The scripts fail closed if required validation metadata are missing; they do not
@@ -124,7 +126,7 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
 - The annual fuel join uses the prior-year map; 2024 uses 2023 (`lag 1`) and 2025
   reuses 2023 (`lag 2`).
 - The spatial holdout is 50-km blocks with a 20-km buffer.
-- The confirmation holdout is reserved and is not used by the current scripts.
+- The confirmation holdout is evaluated by `scripts/37_validacion_confirmacion_2023.py` after retraining without the confirmation blocks and buffer.
 
 ## 7. Troubleshooting
 

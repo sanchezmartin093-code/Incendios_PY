@@ -25,12 +25,13 @@
 - PDFs con numeración de líneas y doble espacio; highlights en archivo separado (`highlights.docx`).
 - Lock sin hashes: excepción aceptada y documentada en `auditoria/FASE2_0_LOCK_EXCEPTION.md`.
 - Release verificado: concept DOIs resuelven a v2.0.0 (`23717175`/`23717176`).
+- Holdout de confirmación espacial 2023 evaluado con reentrenamiento (Tabla S18).
+- Baseline acoplado t-1 implementado como comparador (Tabla S19).
 
 ## Pendiente científico
 
-1. Baseline acoplado `t-1` con el mismo target y capacidad; requiere un nuevo candidato.
-2. Sensibilidad D2 a radio/ventana con reentrenamiento; el análisis de conteos no se incluyó para no publicar un resultado no validado.
-3. Validación externa o uso independiente del holdout de confirmación; requiere datos/reentrenamiento.
+1. Sensibilidad D2 a radio/ventana con reentrenamiento completo; no se incluyó un análisis parcial para no publicar un resultado no validado.
+2. Validación externa en otro país; el holdout de confirmación espacial 2023 ya se evaluó de forma independiente (Tabla S18).
 
 ## Nota
 
