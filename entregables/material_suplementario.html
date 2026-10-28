@@ -2363,7 +2363,7 @@ window.Quarto = {
 
 <blockquote class="blockquote">
 <p><strong>Target journal:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Article type:</strong> research article. <strong>Peer review:</strong> single-anonymized.<br>
-<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S19 and Figures S1–S3.<br>
+<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S20 and Figures S1–S3.<br>
 <strong>Code:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (MIT License; code concept DOI <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; GitHub release v2.0.0).<br>
 <strong>Data:</strong> processed data and test predictions are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>.</p>
 </blockquote>
@@ -2372,7 +2372,7 @@ window.Quarto = {
 <p>• <strong>Note S1:</strong> Data, D2 target construction, quality control and sampling.</p>
 <p>• <strong>Note S2:</strong> Bounded monotonic Platt calibration and hyperparameters.</p>
 <p>• <strong>Note S3:</strong> Evaluation protocol and extended analyses.</p>
-<p>• <strong>Tables S1–S19:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, SHAP, cost-loss and data audit.</p>
+<p>• <strong>Tables S1–S20:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss and data audit.</p>
 <p>• <strong>Figures S1–S3:</strong> SHAP, ablation and cost-loss.</p>
 <hr>
 </section>
@@ -6131,6 +6131,274 @@ window.Quarto = {
 </tbody>
 </table>
 <p>This is a comparator for the leakage discussion, not an operational model. Because both sides use the same gated case-control sample, it does not test the effect of removing the gate.</p>
+<p><strong>Table S20.</strong> D2 sensitivity with full retraining. Each row is an independent run: the 1:10 ignition sample was regenerated, M1/M2/M3 were retrained, the cutoff was selected on 2023 and applied to 2024–2025. Priors and predictors were held fixed; only the D2 radius and same-cell window changed. The 25 km/10 d row is the reference under this harness.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">R (km)</th>
+<th style="text-align: right;">W (d)</th>
+<th style="text-align: left;">Region</th>
+<th style="text-align: right;">n 2023</th>
+<th style="text-align: right;">Pos 2023</th>
+<th style="text-align: right;">ROC 2023</th>
+<th style="text-align: right;">PR 2023</th>
+<th style="text-align: right;">n 2024–25</th>
+<th style="text-align: right;">Pos 2024–25</th>
+<th style="text-align: right;">ROC 2024–25</th>
+<th style="text-align: right;">PR 2024–25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">139,139</td>
+<td style="text-align: right;">12,649</td>
+<td style="text-align: right;">0.7824</td>
+<td style="text-align: right;">0.2499</td>
+<td style="text-align: right;">250,470</td>
+<td style="text-align: right;">22,770</td>
+<td style="text-align: right;">0.7893</td>
+<td style="text-align: right;">0.2667</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">168,630</td>
+<td style="text-align: right;">15,330</td>
+<td style="text-align: right;">0.7630</td>
+<td style="text-align: right;">0.2491</td>
+<td style="text-align: right;">358,952</td>
+<td style="text-align: right;">32,632</td>
+<td style="text-align: right;">0.7525</td>
+<td style="text-align: right;">0.2384</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">135,300</td>
+<td style="text-align: right;">12,300</td>
+<td style="text-align: right;">0.7803</td>
+<td style="text-align: right;">0.2458</td>
+<td style="text-align: right;">243,518</td>
+<td style="text-align: right;">22,138</td>
+<td style="text-align: right;">0.7877</td>
+<td style="text-align: right;">0.2638</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">165,891</td>
+<td style="text-align: right;">15,081</td>
+<td style="text-align: right;">0.7613</td>
+<td style="text-align: right;">0.2464</td>
+<td style="text-align: right;">353,650</td>
+<td style="text-align: right;">32,150</td>
+<td style="text-align: right;">0.7515</td>
+<td style="text-align: right;">0.2341</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">131,549</td>
+<td style="text-align: right;">11,959</td>
+<td style="text-align: right;">0.7774</td>
+<td style="text-align: right;">0.2406</td>
+<td style="text-align: right;">236,368</td>
+<td style="text-align: right;">21,488</td>
+<td style="text-align: right;">0.7854</td>
+<td style="text-align: right;">0.2572</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">162,569</td>
+<td style="text-align: right;">14,779</td>
+<td style="text-align: right;">0.7592</td>
+<td style="text-align: right;">0.2402</td>
+<td style="text-align: right;">347,204</td>
+<td style="text-align: right;">31,564</td>
+<td style="text-align: right;">0.7501</td>
+<td style="text-align: right;">0.2312</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">100,408</td>
+<td style="text-align: right;">9,128</td>
+<td style="text-align: right;">0.7783</td>
+<td style="text-align: right;">0.2417</td>
+<td style="text-align: right;">181,852</td>
+<td style="text-align: right;">16,532</td>
+<td style="text-align: right;">0.7933</td>
+<td style="text-align: right;">0.2658</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">92,884</td>
+<td style="text-align: right;">8,444</td>
+<td style="text-align: right;">0.7664</td>
+<td style="text-align: right;">0.2555</td>
+<td style="text-align: right;">202,928</td>
+<td style="text-align: right;">18,448</td>
+<td style="text-align: right;">0.7547</td>
+<td style="text-align: right;">0.2420</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">97,383</td>
+<td style="text-align: right;">8,853</td>
+<td style="text-align: right;">0.7763</td>
+<td style="text-align: right;">0.2422</td>
+<td style="text-align: right;">176,616</td>
+<td style="text-align: right;">16,056</td>
+<td style="text-align: right;">0.7923</td>
+<td style="text-align: right;">0.2600</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">91,124</td>
+<td style="text-align: right;">8,284</td>
+<td style="text-align: right;">0.7622</td>
+<td style="text-align: right;">0.2433</td>
+<td style="text-align: right;">199,936</td>
+<td style="text-align: right;">18,176</td>
+<td style="text-align: right;">0.7526</td>
+<td style="text-align: right;">0.2360</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">94,468</td>
+<td style="text-align: right;">8,588</td>
+<td style="text-align: right;">0.7735</td>
+<td style="text-align: right;">0.2379</td>
+<td style="text-align: right;">171,281</td>
+<td style="text-align: right;">15,571</td>
+<td style="text-align: right;">0.7906</td>
+<td style="text-align: right;">0.2550</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">89,430</td>
+<td style="text-align: right;">8,130</td>
+<td style="text-align: right;">0.7608</td>
+<td style="text-align: right;">0.2410</td>
+<td style="text-align: right;">196,053</td>
+<td style="text-align: right;">17,823</td>
+<td style="text-align: right;">0.7505</td>
+<td style="text-align: right;">0.2317</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">73,051</td>
+<td style="text-align: right;">6,641</td>
+<td style="text-align: right;">0.7764</td>
+<td style="text-align: right;">0.2428</td>
+<td style="text-align: right;">130,449</td>
+<td style="text-align: right;">11,859</td>
+<td style="text-align: right;">0.7974</td>
+<td style="text-align: right;">0.2672</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">59,488</td>
+<td style="text-align: right;">5,408</td>
+<td style="text-align: right;">0.7676</td>
+<td style="text-align: right;">0.2513</td>
+<td style="text-align: right;">127,446</td>
+<td style="text-align: right;">11,586</td>
+<td style="text-align: right;">0.7531</td>
+<td style="text-align: right;">0.2447</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">70,598</td>
+<td style="text-align: right;">6,418</td>
+<td style="text-align: right;">0.7734</td>
+<td style="text-align: right;">0.2361</td>
+<td style="text-align: right;">126,357</td>
+<td style="text-align: right;">11,487</td>
+<td style="text-align: right;">0.7949</td>
+<td style="text-align: right;">0.2612</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">58,234</td>
+<td style="text-align: right;">5,294</td>
+<td style="text-align: right;">0.7634</td>
+<td style="text-align: right;">0.2445</td>
+<td style="text-align: right;">125,510</td>
+<td style="text-align: right;">11,410</td>
+<td style="text-align: right;">0.7523</td>
+<td style="text-align: right;">0.2406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: right;">68,420</td>
+<td style="text-align: right;">6,220</td>
+<td style="text-align: right;">0.7710</td>
+<td style="text-align: right;">0.2342</td>
+<td style="text-align: right;">122,386</td>
+<td style="text-align: right;">11,126</td>
+<td style="text-align: right;">0.7936</td>
+<td style="text-align: right;">0.2548</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: right;">57,068</td>
+<td style="text-align: right;">5,188</td>
+<td style="text-align: right;">0.7616</td>
+<td style="text-align: right;">0.2434</td>
+<td style="text-align: right;">123,068</td>
+<td style="text-align: right;">11,188</td>
+<td style="text-align: right;">0.7499</td>
+<td style="text-align: right;">0.2376</td>
+</tr>
+</tbody>
+</table>
+<p>The full table with M1, M2 and the gated policy is in <code>tablas/tablaS20_sensibilidad_d2.csv</code>. The 25 km/10 d row reproduces the same sample and features as the main partitions; its small difference from Table 10 reflects retraining inside this sensitivity harness, not a different target or sample. M3 beat M2 in all 18 region-by-evaluation comparisons (ΔROC +0.004 to +0.016). The 7-day window had the highest ROC-AUC in every region × radius pair, and the radius effect was small: 35 km was slightly better in Chaco and 25 km in Oriental. The ranking and the D2 conclusion are stable.</p>
 </section>
 <section id="data-availability" class="level1 unnumbered">
 <h1 class="unnumbered">Data availability</h1>
