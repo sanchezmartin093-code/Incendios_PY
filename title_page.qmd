@@ -112,7 +112,7 @@ Wildfire machine learning often suffers from spatial leakage and from the limite
 Todos los conjuntos de datos primarios utilizados son de acceso público internacional y gratuito:
 1. **Detecciones térmicas activas:** NASA FIRMS (sensores VIIRS Suomi-NPP, NOAA-20 y NOAA-21) disponibles en [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/).
 2. **Reanálisis meteorológico:** Copernicus Climate Data Store (CDS) ERA5-Land reanalysis ([cds.climate.copernicus.eu](https://cds.climate.copernicus.eu/)) procesado mediante pipeline nativo ECMWF CDS API (`src/clima_cds.py`).
-3. **Cobertura vegetal y biomas:** objetivo MapBiomas Chaco y Bosque Atlántico; se usa MapBiomas real (`collection2_2023`).
+3. **Cobertura vegetal y biomas:** objetivo MapBiomas Chaco y Bosque Atlántico; se usan mapas anuales de MapBiomas Colección 2 (2017–2023), unidos por año previo.
 4. **Límites cartográficos nacionales:** Marco geoBoundaries ADM0 y ADM1 ([geoboundaries.org](https://www.geoboundaries.org/)).  
 Los datasets consolidados y procesados no se versionan en git; se documentan con hashes en `fuentes/MANIFIESTO_DATOS_v3.csv` y están archivados en Zenodo bajo licencia CC BY 4.0 (DOI conceptual v2.0.0: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)).
 

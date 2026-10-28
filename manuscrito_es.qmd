@@ -94,7 +94,7 @@ El bootstrap remuestrea fechas en lugar de filas, porque la actividad diaria de 
 
 ## 2.4 Datos e implementación
 
-La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diarios son detecciones de fuego activo VIIRS de 375 m de Suomi-NPP, NOAA-20 y NOAA-21; meteorología ERA5-Land de 3 horas agregada a valores diarios; fracciones de combustible MapBiomas Colección 2 (2023); y priors históricos causales construidos con un corte mensual y una ventana móvil de tres años. Los datos crudos son públicos pero no se redistribuyen; los datos procesados y los modelos entrenados se archivan con un DOI.
+La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diarios son detecciones de fuego activo VIIRS de 375 m de Suomi-NPP, NOAA-20 y NOAA-21; meteorología ERA5-Land de 3 horas agregada a valores diarios; mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo; y priors históricos causales construidos con un corte mensual y una ventana móvil de tres años. Los datos crudos son públicos pero no se redistribuyen; los datos procesados y los modelos entrenados se archivan con un DOI.
 
 El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB. Un spatial join de 50 000 puntos se muestra solo como referencia; la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo procesa 400 006 celdas en 1.569 s con 2 182.1 MB de RAM pico en ARM64; x86_64 no se midió. El dominio de estudio y la división regional se muestran en @fig-area; el perfil por etapa está en la Tabla S4 del suplemento.
 
@@ -230,7 +230,7 @@ El marco también hace explícito el fallo. Un modelo excelente en celdas reteni
 ## 4.4 Limitaciones
 
 1. El estudio cubre un solo país y dos macro-regiones; aún falta validación externa.
-2. El combustible es una capa estática de MapBiomas 2023; no se usa una serie anual de combustible.
+2. El combustible es una serie anual de MapBiomas Colección 2 (2017–2023) unida por año previo; 2024 usa el mapa 2023 con lag 1 y 2025 reutiliza 2023 con lag 2, por lo que el estado de combustible de 2025 es extrapolado.
 3. VIIRS puede perder incendios bajo nubes; no se implementa un modelo de observación explícito.
 4. ERA5-Land se usa a 0.25° y resolución de 3 horas; los picos intradía de VPD y viento pueden subestimarse.
 5. La precisión poblacional de ignición es muy baja (0.082 %/0.198 %), y cost-loss no muestra una ventaja clara de M3 sobre M2.

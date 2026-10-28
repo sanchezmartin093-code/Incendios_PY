@@ -106,7 +106,7 @@ El benchmark completo está en la Tabla S11, la significancia pareada en la Tabl
 
 ---
 
-La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible provienen de MapBiomas Colección 2 (2023) [@mapbiomas2023]. Los priors históricos usan una ventana móvil causal de tres años en lugar del registro completo 2018–2022. `rafaga_max_kmh` es un proxy lineal y no se usa como variable. M3 contiene 44 variables en el Chaco y 45 en la Región Oriental; M2 contiene 35 y M1 contiene 24.
+La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible provienen de mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo; 2024 usa 2023 con lag 1 y 2025 reutiliza 2023 con lag 2 [@mapbiomas2023]. Los priors históricos usan una ventana móvil causal de tres años en lugar del registro completo 2018–2022. `rafaga_max_kmh` es un proxy lineal y no se usa como variable. M3 contiene 44 variables en el Chaco y 45 en la Región Oriental; M2 contiene 35 y M1 contiene 24.
 
 **Tabla S1.** Diccionario de variables y papel físico de los predictores.
 
@@ -124,18 +124,30 @@ La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible prov
 | rafaga_max_kmh | Linear wind proxy (1.3 × wind); not an ERA5-Land gust | Proxy | Not used |
 | potencial_viento_cuadratico | Dynamic wind pressure ((v/10)², dimensionless) | Derived | Ignition and propagation |
 | interaccion_viento_vpd | Advective–desiccant coupling (wind × VPD) | Derived | Ignition and propagation |
+| swvl1_m3m3 | Topsoil volumetric water content, 0–7 cm (m³/m³) | ERA5-Land | M1, M2, M3 and propagation |
+| fdd_heladas_60d | Antecedent frost severity over 60 days (°C-days) | ERA5-Land; derived | M1, M2, M3 and propagation |
+| deficit_hidro_60d | Antecedent water deficit over 60 days (mm) | ERA5-Land; derived | M1, M2, M3 and propagation |
+| riesgo_estero_seco | Dry estero risk (wetland × 60-day deficit) | Derived | M1, M2, M3 and propagation |
+| combustible_curado_helada | Frost-cured pasture and grassland fuel | Derived | M1, M2, M3 and propagation |
 | ffmc | Fine Fuel Moisture Code | FWI derived | Ignition and propagation |
 | isi | Initial Spread Index | FWI derived | Ignition and propagation |
 | dia_semana | Civil weekday (0 = Monday … 6 = Sunday) | Calendar | Ignition and propagation |
 | es_fin_de_semana | Weekend indicator (Saturday/Sunday) | Calendar | Ignition and propagation |
 | mes | Month of year (1–12) | Calendar | Ignition and propagation |
 | dia_del_anio | Ordinal day of year (1–366) | Calendar | Ignition and propagation |
-| pct_pastura | Cultivated pasture fraction (0–100 %) | MapBiomas C2 2023 | Ignition and propagation |
-| pct_sabana_pastizal | Savanna and natural grassland fraction (0–100 %) | MapBiomas C2 2023 | Ignition and propagation |
-| pct_humedal_palmar | Wetland and palm swamp fraction (0–100 %) | MapBiomas C2 2023 | Ignition and propagation |
-| pct_bosque_seco | Dry Chaco forest fraction (0–100 %) | MapBiomas C2 2023 | Ignition and propagation (Chaco) |
-| pct_bosque_humedo | Atlantic humid forest fraction (0–100 %) | MapBiomas C2 2023 | Ignition and propagation (Oriental) |
+| pct_pastura | Total pasture, annual agriculture and forest plantation (0–100 %) | Derived from MapBiomas C2 annual (Y-1) | INPE benchmark only; not a model feature |
+| pct_pastura_ganadera | Cultivated pasture fraction (0–100 %) | MapBiomas C2 annual (Y-1) | M1, M2, M3 and propagation |
+| pct_agricultura_anual | Annual agriculture fraction (0–100 %) | MapBiomas C2 annual (Y-1) | M1, M2, M3 and propagation |
+| pct_plantacion_forestal | Forest plantation fraction (0–100 %) | MapBiomas C2 annual (Y-1) | M1, M2, M3 and propagation |
+| pct_sabana_pastizal | Savanna and natural grassland fraction (0–100 %) | MapBiomas C2 annual (Y-1) | Ignition and propagation |
+| pct_humedal_palmar | Wetland and palm swamp fraction (0–100 %) | MapBiomas C2 annual (Y-1) | Ignition and propagation |
+| pct_bosque_seco | Dry Chaco forest fraction (0–100 %) | MapBiomas C2 annual (Y-1) | Ignition and propagation (Chaco) |
+| pct_bosque_humedo | Atlantic humid forest fraction (0–100 %) | MapBiomas C2 annual (Y-1) | Ignition and propagation (Oriental) |
 | indice_ecotono | Forest–pasture edge disruption index | Derived | Ignition and propagation |
+| borde_bosque_agro_pct | Forest–agriculture edge fraction (0–100 %) | Derived from MapBiomas C2 annual (Y-1) | M2, M3 and propagation |
+| pct_desmonte_t1 | Tree-cover loss in the prior year (0–100 %) | Hansen GFC-2025 v1.13 (Y-1) | M2, M3 and propagation |
+| pct_desmonte_t2 | Tree-cover loss two years before (0–100 %) | Hansen GFC-2025 v1.13 (Y-2) | M2, M3 and propagation |
+| presion_desmonte_vpd | Deforestation × VPD pressure | Derived (Hansen Y-1 × VPD) | M2, M3 and propagation |
 | dist_foco_hist_km | Minimum distance to training fires (km) | FIRMS, causal 3-year window | Ignition and propagation |
 | densidad_hist_25km | Cumulative historical fire density within 25 km | FIRMS, causal 3-year window | Ignition and propagation |
 | dist_foco_t1_km | Minimum distance to an active t-1 fire (km) | Causal spatial kernel | Propagation only |
@@ -151,7 +163,7 @@ La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible prov
 | presion_quema_pastura | Pasture burning pressure (pasture × VPD × month weight) | Human–climate interaction | M3 only |
 | focalizacion_antropica_local | Local-to-macro concentration ratio (5 km / 25 km) | Multiscale ratio | M3 only |
 | interaccion_acceso_vpd | Accessibility–desiccation synergy (exp(−d_hist/5) × VPD) | Human–climate interaction | M3 only |
-| es_combustible | Combustible biomass indicator | MapBiomas C2 2023 | Biophysical gate |
+| es_combustible | Combustible biomass indicator | MapBiomas C2 annual (Y-1) | Biophysical gate |
 
 Los modelos operativos no se seleccionaron mediante una búsqueda completamente registrada. La tabla reporta la configuración de los boosters entrenados por `scripts/06_entrenar_modelos.py` y `scripts/16_ablacion_modelo_hibrido.py`.
 
