@@ -555,7 +555,6 @@ def main(in_path: str, out_path: str):
         ("for INPE;", "for the INPE Risco de Fogo;"),
         ("the full Canadian FWI and 0.5389/0.4990 for INPE",
          "the full Canadian Forest Fire Weather Index (FWI) and 0.5389/0.4990 for the INPE Risco de Fogo"),
-        ("ROC-AUC 0.7844/0.7628", "area under the receiver operating characteristic curve (ROC-AUC) 0.7844/0.7628"),
         ("VPD below 0.8 kPa", "vapor pressure deficit (VPD) below 0.8 kPa"),
         ("FFMC and ISI", "Fine Fuel Moisture Code (FFMC) and Initial Spread Index (ISI)"),
         ("accumulated FRP", "accumulated fire radiative power (FRP)"),
@@ -602,6 +601,18 @@ def main(in_path: str, out_path: str):
                     run.text = run.text.replace(
                         "and the INPE Risco de Fogo",
                         "and the Instituto Nacional de Pesquisas Espaciais (INPE) Risco de Fogo",
+                    )
+                    break
+
+    # Definir ROC-AUC solo en el abstract (no redefinir la sigla en Conclusions)
+    for p in doc.paragraphs:
+        if p.text.startswith("Wildfire machine learning"):
+            for run in p.runs:
+                if "ROC-AUC 0.7844/0.7628" in run.text:
+                    run.text = run.text.replace(
+                        "ROC-AUC 0.7844/0.7628",
+                        "an area under the receiver operating characteristic curve "
+                        "(ROC-AUC) of 0.7844/0.7628",
                     )
                     break
 
