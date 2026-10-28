@@ -23,7 +23,7 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.docx`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S3, Tablas S1–S21 y S27 y Figuras S1–S3 y S8.  
+> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S3, Tablas S1–S21, S23, S24 y S27 y Figuras S1–S4 y S8.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.1 de GitHub).  
 > **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -49,9 +49,9 @@ format:
 
 • **Nota S3:** Protocolo de evaluación y análisis ampliados.
 
-• **Tablas S1–S21 y S27:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología y una sensibilidad al solapamiento train/test.
+• **Tablas S1–S21, S23, S24 y S27:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad al solapamiento train/test y una tabla de beneficio neto y una prueba pareada de valor de decisión.
 
-• **Figuras S1–S3 y S8:** SHAP, ablación, cost-loss y precisión por presupuesto de alertas.
+• **Figuras S1–S4 y S8:** SHAP, ablación, cost-loss, beneficio neto y precisión por presupuesto de alertas.
 
 ---
 
@@ -382,110 +382,180 @@ M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecologi
 
 $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitada; $V(\alpha)$ es el valor normalizado. Es un modelo de decisión simple, no una estimación de presupuestos de agencias. TP, FP y FN se expresan como fracciones de la población; las filas con $V(\alpha)=0$ se mantienen para completitud. M2 = modelo base de ignición en la tarea de ignición y modelo táctico de propagación en la tarea de propagación; M3 = modelo híbrido de ignición.
 
-**Tabla S14.** Valores cost-loss por región, tarea, modelo y $\alpha$.
+**Tabla S14.** Valores cost-loss por región, tarea, modelo y $\alpha$, con intervalos bootstrap del 95 % agrupados por fecha (B = 1 000). Las filas de FWI e INPE usan sus cortes F0.5 congelados (0.3029/2.1509 y 0.8963/0.0750, Chaco/Oriental); las de los modelos usan $p \geq \alpha$. $V$ se recorta en −1; las filas congeladas de FWI/INPE alcanzan esa cota para $\alpha \geq 0.001$.
 
-| Region | Task | Model | $\alpha$ | $V(\alpha)$ | TP rate | FP rate | FN rate | Prevalence |
-|----------|------|----------|------:|-------:|-------:|-------:|-------:|---------:|
-| Chaco | Ign. | M3 | 0.0001 | 0.353363 | 0.000136 | 0.478232 | 0.000017 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0002 | 0.345244 | 0.000100 | 0.238185 | 0.000052 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0005 | 0.053152 | 0.000032 | 0.047998 | 0.000121 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0010 | 0.002592 | 0.000001 | 0.000603 | 0.000152 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0020 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M3 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0001 | 0.355114 | 0.000136 | 0.474100 | 0.000017 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0002 | 0.311610 | 0.000096 | 0.243186 | 0.000057 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0005 | 0.013008 | 0.000024 | 0.044086 | 0.000129 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0010 | 0.000366 | 0.000000 | 0.000011 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0020 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Ign. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
-| Chaco | Prop. | M2 | 0.0001 | 0.000000 | 0.001553 | 0.998447 | 0.000000 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0002 | 0.000000 | 0.001553 | 0.998447 | 0.000000 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0005 | 0.318867 | 0.001504 | 0.582993 | 0.000049 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0010 | 0.524845 | 0.001247 | 0.168573 | 0.000306 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0020 | 0.622603 | 0.001057 | 0.045164 | 0.000496 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0050 | 0.540023 | 0.000933 | 0.018858 | 0.000620 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0100 | 0.480229 | 0.000871 | 0.012425 | 0.000682 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0200 | 0.405757 | 0.000795 | 0.008064 | 0.000758 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0300 | 0.350540 | 0.000751 | 0.006695 | 0.000801 | 0.001553 |
-| Chaco | Prop. | M2 | 0.0500 | 0.263214 | 0.000640 | 0.004402 | 0.000912 | 0.001553 |
-| Chaco | Prop. | M2 | 0.1000 | 0.100916 | 0.000253 | 0.000871 | 0.001299 | 0.001553 |
-| Chaco | Prop. | M2 | 0.1500 | 0.024609 | 0.000079 | 0.000233 | 0.001473 | 0.001553 |
-| Chaco | Prop. | M2 | 0.2000 | 0.000494 | 0.000001 | 0.000003 | 0.001551 | 0.001553 |
-| Chaco | Prop. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
-| Chaco | Prop. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
-| Chaco | Prop. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
-| Oriental | Ign. | M3 | 0.0001 | 0.108055 | 0.000403 | 0.781304 | 0.000011 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0002 | 0.223223 | 0.000374 | 0.576666 | 0.000040 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0005 | 0.309159 | 0.000244 | 0.231920 | 0.000170 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0010 | 0.126219 | 0.000108 | 0.055401 | 0.000306 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0020 | 0.035039 | 0.000033 | 0.009109 | 0.000381 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0050 | 0.002940 | 0.000003 | 0.000311 | 0.000411 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M3 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0001 | 0.098205 | 0.000404 | 0.795252 | 0.000011 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0002 | 0.213427 | 0.000376 | 0.597393 | 0.000038 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0005 | 0.299350 | 0.000254 | 0.260173 | 0.000160 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0010 | 0.096056 | 0.000089 | 0.049283 | 0.000325 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0020 | 0.009330 | 0.000009 | 0.002552 | 0.000405 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Ign. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
-| Oriental | Prop. | M2 | 0.0001 | 0.000000 | 0.002102 | 0.997898 | 0.000000 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0002 | 0.000000 | 0.002102 | 0.997898 | 0.000000 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0005 | 0.112058 | 0.002057 | 0.795132 | 0.000045 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0010 | 0.220486 | 0.001856 | 0.532198 | 0.000246 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0020 | 0.388701 | 0.001285 | 0.202092 | 0.000817 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0050 | 0.242135 | 0.000702 | 0.038460 | 0.001400 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0100 | 0.168701 | 0.000506 | 0.014958 | 0.001596 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0200 | 0.112571 | 0.000378 | 0.006948 | 0.001724 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0300 | 0.081204 | 0.000286 | 0.003735 | 0.001816 | 0.002102 |
-| Oriental | Prop. | M2 | 0.0500 | 0.040467 | 0.000170 | 0.001612 | 0.001932 | 0.002102 |
-| Oriental | Prop. | M2 | 0.1000 | 0.004147 | 0.000012 | 0.000029 | 0.002090 | 0.002102 |
-| Oriental | Prop. | M2 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
-| Oriental | Prop. | M2 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
-| Oriental | Prop. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
-| Oriental | Prop. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
-| Oriental | Prop. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
+<!-- tablaS14:inicio -->
+
+| Region | Task | Model | α | V(α) | V low | V high | TP rate | FP rate | FN rate | Prevalence |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | Ign. | M3 | 0.0001 | 0.371968 | 0.355026 | 0.388001 | 0.000135 | 0.449056 | 0.000018 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0002 | 0.371293 | 0.346042 | 0.394553 | 0.000104 | 0.238459 | 0.000048 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0005 | 0.102264 | 0.087819 | 0.115987 | 0.000037 | 0.043532 | 0.000116 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0010 | 0.015548 | 0.010366 | 0.020359 | 0.000006 | 0.003896 | 0.000147 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0020 | 0.001293 | -0.000340 | 0.002881 | 0.000001 | 0.000244 | 0.000152 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M3 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0001 | 0.373056 | 0.356332 | 0.389129 | 0.000135 | 0.442730 | 0.000018 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0002 | 0.369399 | 0.344195 | 0.392619 | 0.000104 | 0.239955 | 0.000048 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0005 | 0.095787 | 0.083549 | 0.108823 | 0.000029 | 0.028926 | 0.000124 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0010 | 0.014202 | 0.008608 | 0.019183 | 0.000006 | 0.003873 | 0.000147 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0020 | 0.000775 | -0.001213 | 0.002864 | 0.000001 | 0.000397 | 0.000152 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Ign. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000153 | 0.000153 |
+| Chaco | Prop. | Propagation | 0.0001 | -0.000000 | -0.000000 | 0.000000 | 0.001553 | 0.998447 | 0.000000 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0002 | -0.000000 | -0.000000 | 0.000000 | 0.001553 | 0.998447 | 0.000000 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0005 | 0.330444 | 0.313593 | 0.344566 | 0.001502 | 0.566814 | 0.000051 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0010 | 0.540306 | 0.518331 | 0.561899 | 0.001271 | 0.177558 | 0.000282 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0020 | 0.627818 | 0.607931 | 0.645834 | 0.001082 | 0.053233 | 0.000471 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0050 | 0.548056 | 0.529375 | 0.565812 | 0.000957 | 0.021117 | 0.000596 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0100 | 0.487266 | 0.469234 | 0.504644 | 0.000885 | 0.012704 | 0.000668 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0200 | 0.411943 | 0.395154 | 0.427191 | 0.000801 | 0.007887 | 0.000752 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0300 | 0.354662 | 0.338463 | 0.369301 | 0.000752 | 0.006516 | 0.000801 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.0500 | 0.270765 | 0.254209 | 0.285067 | 0.000652 | 0.004407 | 0.000900 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.1000 | 0.149222 | 0.138649 | 0.159973 | 0.000372 | 0.001260 | 0.001181 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.1500 | 0.033145 | 0.025803 | 0.040243 | 0.000084 | 0.000182 | 0.001469 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.2000 | 0.008640 | 0.006040 | 0.011320 | 0.000019 | 0.000021 | 0.001534 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
+| Chaco | Prop. | Propagation | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.001553 | 0.001553 |
+| Chaco | Ign. | FWI | 0.0001 | 0.068669 | 0.053930 | 0.082585 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0002 | -0.178710 | -0.259917 | -0.109427 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0005 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0010 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0020 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0050 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0100 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0200 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0300 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.0500 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.1000 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.1500 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.2000 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.3000 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.4000 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | FWI | 0.5000 | -1.000000 | -1.000000 | -1.000000 | 0.000147 | 0.871276 | 0.000006 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0001 | -0.413676 | -0.509413 | -0.318557 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0002 | 0.025776 | 0.014429 | 0.036279 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0005 | -0.124257 | -0.146519 | -0.104933 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0010 | -0.374511 | -0.421440 | -0.333288 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0020 | -0.875772 | -0.976925 | -0.787776 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0050 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0100 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0200 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0300 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.0500 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.1000 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.1500 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.2000 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.3000 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.4000 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Chaco | Ign. | INPE | 0.5000 | -1.000000 | -1.000000 | -1.000000 | 0.000019 | 0.076437 | 0.000134 | 0.000153 |
+| Oriental | Ign. | M3 | 0.0001 | 0.118356 | 0.103991 | 0.133034 | 0.000403 | 0.773058 | 0.000011 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0002 | 0.227428 | 0.210583 | 0.243789 | 0.000380 | 0.603330 | 0.000034 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0005 | 0.312940 | 0.283686 | 0.337783 | 0.000245 | 0.231522 | 0.000169 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0010 | 0.109388 | 0.090944 | 0.126584 | 0.000098 | 0.052440 | 0.000316 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0020 | 0.027366 | 0.018049 | 0.036984 | 0.000027 | 0.007784 | 0.000387 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0050 | 0.002752 | 0.001157 | 0.004441 | 0.000002 | 0.000122 | 0.000412 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M3 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0001 | 0.115532 | 0.101955 | 0.129397 | 0.000404 | 0.782261 | 0.000010 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0002 | 0.217896 | 0.203703 | 0.231666 | 0.000388 | 0.650334 | 0.000026 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0005 | 0.302413 | 0.274158 | 0.327699 | 0.000239 | 0.228395 | 0.000175 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0010 | 0.084210 | 0.067654 | 0.101712 | 0.000084 | 0.049473 | 0.000330 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0020 | 0.022331 | 0.015035 | 0.029399 | 0.000020 | 0.005288 | 0.000394 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0050 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0100 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0300 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.0500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.1000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.1500 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Ign. | M2 | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000414 | 0.000414 |
+| Oriental | Prop. | Propagation | 0.0001 | -0.000000 | -0.000000 | 0.000000 | 0.002102 | 0.997898 | 0.000000 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0002 | 0.033842 | 0.027791 | 0.039150 | 0.002096 | 0.935665 | 0.000006 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0005 | 0.120646 | 0.109791 | 0.130265 | 0.002038 | 0.748713 | 0.000064 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0010 | 0.224014 | 0.203781 | 0.242369 | 0.001828 | 0.500427 | 0.000274 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0020 | 0.399464 | 0.371134 | 0.418532 | 0.001307 | 0.202447 | 0.000795 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0050 | 0.246237 | 0.220007 | 0.272527 | 0.000709 | 0.038032 | 0.001393 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0100 | 0.169867 | 0.146363 | 0.193857 | 0.000505 | 0.014683 | 0.001597 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0200 | 0.110556 | 0.089139 | 0.132778 | 0.000367 | 0.006588 | 0.001735 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0300 | 0.078518 | 0.060126 | 0.098847 | 0.000281 | 0.003749 | 0.001821 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.0500 | 0.040991 | 0.026958 | 0.057576 | 0.000167 | 0.001529 | 0.001935 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.1000 | 0.008372 | 0.001704 | 0.016569 | 0.000044 | 0.000241 | 0.002058 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.1500 | 0.001604 | 0.000060 | 0.003434 | 0.000007 | 0.000019 | 0.002095 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.2000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.3000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.4000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
+| Oriental | Prop. | Propagation | 0.5000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.002102 | 0.002102 |
+| Oriental | Ign. | FWI | 0.0001 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0002 | -0.507812 | -0.626129 | -0.391812 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0005 | 0.095154 | 0.060975 | 0.128764 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0010 | -0.199841 | -0.253252 | -0.151506 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0020 | -0.790718 | -0.903235 | -0.686492 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0050 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0100 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0200 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0300 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.0500 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.1000 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.1500 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.2000 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.3000 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.4000 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | FWI | 0.5000 | -1.000000 | -1.000000 | -1.000000 | 0.000161 | 0.243979 | 0.000253 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0001 | -0.546558 | -0.644759 | -0.447792 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0002 | -0.121545 | -0.169156 | -0.071252 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0005 | -0.046250 | -0.121375 | 0.021749 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0010 | -0.888181 | -1.000000 | -0.760532 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0020 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0050 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0100 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0200 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0300 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.0500 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.1000 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.1500 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.2000 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.3000 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.4000 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+| Oriental | Ign. | INPE | 0.5000 | -1.000000 | -1.000000 | -1.000000 | 0.000329 | 0.696328 | 0.000085 | 0.000414 |
+
+<!-- tablaS14:fin -->
 
 ![**Figura S2.** Ablación controlada bajo el test D2. La figura complementa la Tabla S12.](../../entregables/figuras/supp_fig02_ablacion.png){width="80%" fig-alt="Ablación controlada de modelos biofísicos e híbridos"}
 
-![**Figura S3.** Curvas cost-loss. El panel de propagación usa todo el rango de $\alpha$; el panel de ignición se trunca en $\alpha=0.006$ porque el valor de decisión es cero o despreciable para valores mayores. La figura complementa la Tabla S14.](../../entregables/figuras/supp_fig03_cost_loss.png){width="95%" fig-alt="Curvas cost-loss por región y tarea"}
+![**Figura S3.** Curvas cost-loss con bandas bootstrap del 95 % agrupadas por fecha (B = 1 000). El panel de propagación usa todo el rango de $\alpha$; el panel de ignición se trunca en $\alpha=0.006$ porque el valor de decisión es cero o despreciable para valores mayores. La figura complementa la Tabla S14.](../../entregables/figuras/supp_fig03_cost_loss.png){width="95%" fig-alt="Curvas cost-loss por región y tarea"}
+
+![**Figura S4.** Análisis de curvas de decisión: beneficio neto por 1 000 celdas-día muestreadas en función de la probabilidad umbral $p_t$, calculado sobre la muestra caso-control del test. La ignición (0–0.30) y la propagación (0–0.90) se muestran por separado por región. Las referencias son no alertar (NB = 0), alertar todo y climatología. FWI e INPE son índices sin calibrar; para cada $p_t$ su umbral operativo se seleccionó en la validación de 2023 maximizando el beneficio neto y se congeló para el test. El eje y se recorta en −20; la referencia de alertar todo cae por debajo en $p_t$ altos.](../../entregables/figuras/supp_fig04_net_benefit.png){width="95%" fig-alt="Análisis de curvas de decisión por región y tarea"}
 
 ![**Figura S8.** Precisión poblacional en función del presupuesto diario de alertas. Las curvas recorren el umbral de la probabilidad corregida por prevalencia y reportan la precisión ponderada para el número resultante de alertas por día; los rombos marcan el punto operativo congelado. Los paneles de ignición incluyen M3, M2 y la política gated; los de propagación, el modelo táctico. La línea discontinua es la prevalencia poblacional.](../../entregables/figuras/supp_fig08_presupuesto_alertas.png){width="95%" fig-alt="Precisión poblacional frente al presupuesto diario de alertas por región y tarea"}
 
@@ -620,6 +690,147 @@ La tabla completa con M1, M2 y la política gated está en `tablas/tablaS20_sens
 | Oriental | 0.5645 [0.556–0.575] | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61905 | +0.1889 (≤0.001) |
 
 Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `precipitacion_mm`, `precipitacion_48h_mm`, `dias_secos_consecutivos`, `ffmc`, `isi`. El BSS es relativo a la prevalencia de entrenamiento 2018–2022. ΔROC es M3 menos el GBT solo meteorología, con bootstrap pareado agrupado por fecha (B = 1 000). La tabla legible por máquina está en `tablas/tablaS21_benchmark_weather_only.csv`.
+
+**Tabla S23.** Beneficio neto por 1 000 celdas-día muestreadas en umbrales seleccionados del análisis de curvas de decisión (Figura S4), calculado sobre la muestra caso-control del test. Las referencias (no alertar, alertar todo, climatología) se muestran en la figura.
+
+<!-- tablaS23:inicio -->
+
+| Region | Task | Model | $p_t$ | NB per 1 000 |
+|---|---|---|---:|---:|
+| Chaco | ignicion | M1 | 0.05 | 45.888 |
+| Chaco | ignicion | M2 | 0.05 | 59.032 |
+| Chaco | ignicion | M3 | 0.05 | 58.714 |
+| Chaco | ignicion | Gated | 0.05 | 59.032 |
+| Chaco | ignicion | FWI | 0.05 | 43.062 |
+| Chaco | ignicion | INPE | 0.05 | 43.062 |
+| Chaco | ignicion | M1 | 0.10 | 13.459 |
+| Chaco | ignicion | M2 | 0.10 | 37.682 |
+| Chaco | ignicion | M3 | 0.10 | 37.628 |
+| Chaco | ignicion | Gated | 0.10 | 38.083 |
+| Chaco | ignicion | FWI | 0.10 | 0.093 |
+| Chaco | ignicion | INPE | 0.10 | 1.839 |
+| Chaco | ignicion | M1 | 0.20 | 2.190 |
+| Chaco | ignicion | M2 | 0.20 | 12.587 |
+| Chaco | ignicion | M3 | 0.20 | 14.618 |
+| Chaco | ignicion | Gated | 0.20 | 14.683 |
+| Chaco | ignicion | FWI | 0.20 | 0.000 |
+| Chaco | ignicion | INPE | 0.20 | 0.000 |
+| Chaco | propagacion | Propagation | 0.30 | 46.241 |
+| Chaco | propagacion | Propagation | 0.50 | 38.409 |
+| Chaco | propagacion | Propagation | 0.70 | 27.821 |
+| Oriental | ignicion | M1 | 0.05 | 49.050 |
+| Oriental | ignicion | M2 | 0.05 | 54.201 |
+| Oriental | ignicion | M3 | 0.05 | 54.725 |
+| Oriental | ignicion | Gated | 0.05 | 54.301 |
+| Oriental | ignicion | FWI | 0.05 | 43.579 |
+| Oriental | ignicion | INPE | 0.05 | 43.014 |
+| Oriental | ignicion | M1 | 0.10 | 19.882 |
+| Oriental | ignicion | M2 | 0.10 | 27.247 |
+| Oriental | ignicion | M3 | 0.10 | 29.432 |
+| Oriental | ignicion | Gated | 0.10 | 28.830 |
+| Oriental | ignicion | FWI | 0.10 | 2.793 |
+| Oriental | ignicion | INPE | 0.10 | -1.091 |
+| Oriental | ignicion | M1 | 0.20 | 1.313 |
+| Oriental | ignicion | M2 | 0.20 | 5.247 |
+| Oriental | ignicion | M3 | 0.20 | 7.515 |
+| Oriental | ignicion | Gated | 0.20 | 7.474 |
+| Oriental | ignicion | FWI | 0.20 | 0.036 |
+| Oriental | ignicion | INPE | 0.20 | 0.000 |
+| Oriental | propagacion | Propagation | 0.30 | 14.951 |
+| Oriental | propagacion | Propagation | 0.50 | 8.729 |
+| Oriental | propagacion | Propagation | 0.70 | 3.459 |
+
+<!-- tablaS23:fin -->
+
+**Tabla S23 (continuación).** Carga operativa en el corte poblacional congelado y con presupuestos de K alertas/día (K = 10, 50, 100). Alertas/día, precisión, recall y lift están ponderados por población; alertas/acierto = 1/precisión; α* maximiza V(α).
+
+<!-- tablaS23b:inicio -->
+
+| Region | Model | Alerts/day | Prec. (op.) % | Rec. (op.) % | Alerts/hit | Lift | R@10 | R@50 | R@100 | P@10 | P@50 | P@100 | α* |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | M3 | 8237.8 | 0.082 | 27.35 | 1226.7 | 5.3 | 0.118 | 0.517 | 0.859 | 0.28 | 0.25 | 0.21 | 0.0001 |
+| Chaco | M2 | 6723.1 | 0.090 | 24.60 | 1113.4 | 5.9 | 0.100 | 0.480 | 0.884 | 0.24 | 0.23 | 0.22 | 0.0001 |
+| Chaco | Gated | 9834.2 | 0.077 | 30.87 | 1297.5 | 5.0 | 0.112 | 0.511 | 0.909 | 0.26 | 0.25 | 0.21 | 0.0002 |
+| Chaco | Propagation | 451.6 | 9.667 | 50.65 | 10.3 | 62.3 | 3.998 | 15.270 | 25.656 | 33.70 | 26.28 | 22.10 | 0.0020 |
+| Oriental | M3 | 3072.9 | 0.198 | 20.76 | 504.0 | 4.8 | 0.424 | 1.320 | 2.239 | 1.19 | 0.77 | 0.66 | 0.0005 |
+| Oriental | M2 | 3918.5 | 0.166 | 22.10 | 603.8 | 4.0 | 0.286 | 1.084 | 1.821 | 0.83 | 0.63 | 0.53 | 0.0005 |
+| Oriental | Gated | 2597.2 | 0.210 | 18.55 | 476.9 | 5.1 | 0.424 | 1.320 | 2.239 | 1.19 | 0.77 | 0.66 | 0.0005 |
+| Oriental | Propagation | 525.0 | 4.784 | 18.77 | 20.9 | 22.8 | 1.352 | 4.640 | 7.492 | 17.90 | 12.41 | 10.02 | 0.0020 |
+
+<!-- tablaS23b:fin -->
+
+**Tabla S24.** Diferencias pareadas de valor de decisión, ΔV(α) = V(M3) − V(referencia), para M2 y FWI, con bootstrap agrupado por fecha. Los valores positivos favorecen a M3. Los intervalos son percentiles del 95 % con B = 1 000 remuestreos de fechas; el p es bilateral. «Sí» marca los α en que el intervalo excluye cero. Para FWI, el umbral de cada α se seleccionó en la validación de 2023 maximizando V(α) y se congeló para el test.
+
+<!-- tablaS24:inicio -->
+
+| Region | Comparison | α | V(M3) | V(ref) | ΔV | 95% CI | p | CI excludes 0 |
+|---|---|---:|---:|---:|---:|---|---:|---|
+| Chaco | M3 - M2 | 0.0001 | 0.3720 | 0.3731 | -0.0011 | [-0.0051, +0.0030] | 0.584 | no |
+| Chaco | M3 - M2 | 0.0002 | 0.3713 | 0.3694 | +0.0019 | [-0.0050, +0.0090] | 0.598 | no |
+| Chaco | M3 - M2 | 0.0005 | 0.1023 | 0.0958 | +0.0065 | [-0.0035, +0.0163] | 0.196 | no |
+| Chaco | M3 - M2 | 0.0010 | 0.0155 | 0.0142 | +0.0013 | [-0.0026, +0.0055] | 0.532 | no |
+| Chaco | M3 - M2 | 0.0020 | 0.0013 | 0.0008 | +0.0005 | [-0.0009, +0.0020] | 0.498 | no |
+| Chaco | M3 - M2 | 0.0050 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.0100 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.0200 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.0300 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.0500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.1000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.1500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.2000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.3000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.4000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - M2 | 0.5000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.0001 | 0.3720 | 0.0687 | +0.3033 | [+0.2839, +0.3222] | ≤0.001 | yes |
+| Chaco | M3 - FWI | 0.0002 | 0.3713 | 0.0236 | +0.3477 | [+0.3200, +0.3735] | ≤0.001 | yes |
+| Chaco | M3 - FWI | 0.0005 | 0.1023 | 0.0010 | +0.1013 | [+0.0863, +0.1147] | ≤0.001 | yes |
+| Chaco | M3 - FWI | 0.0010 | 0.0155 | 0.0000 | +0.0155 | [+0.0104, +0.0204] | ≤0.001 | yes |
+| Chaco | M3 - FWI | 0.0020 | 0.0013 | 0.0000 | +0.0013 | [-0.0003, +0.0029] | 0.134 | no |
+| Chaco | M3 - FWI | 0.0050 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.0100 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.0200 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.0300 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.0500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.1000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.1500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.2000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.3000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.4000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Chaco | M3 - FWI | 0.5000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.0001 | 0.1184 | 0.1155 | +0.0028 | [-0.0045, +0.0101] | 0.390 | no |
+| Oriental | M3 - M2 | 0.0002 | 0.2274 | 0.2179 | +0.0095 | [+0.0022, +0.0164] | 0.016 | yes |
+| Oriental | M3 - M2 | 0.0005 | 0.3129 | 0.3024 | +0.0105 | [+0.0018, +0.0185] | 0.010 | yes |
+| Oriental | M3 - M2 | 0.0010 | 0.1094 | 0.0842 | +0.0252 | [+0.0178, +0.0320] | ≤0.001 | yes |
+| Oriental | M3 - M2 | 0.0020 | 0.0274 | 0.0223 | +0.0050 | [+0.0008, +0.0093] | 0.026 | yes |
+| Oriental | M3 - M2 | 0.0050 | 0.0028 | 0.0000 | +0.0028 | [+0.0012, +0.0044] | ≤0.001 | yes |
+| Oriental | M3 - M2 | 0.0100 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.0200 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.0300 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.0500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.1000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.1500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.2000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.3000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.4000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - M2 | 0.5000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.0001 | 0.1184 | 0.0178 | +0.1006 | [+0.0853, +0.1165] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0002 | 0.2274 | 0.0632 | +0.1642 | [+0.1403, +0.1873] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0005 | 0.3129 | 0.0990 | +0.2140 | [+0.1837, +0.2429] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0010 | 0.1094 | 0.0041 | +0.1053 | [+0.0891, +0.1203] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0020 | 0.0274 | 0.0000 | +0.0274 | [+0.0180, +0.0370] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0050 | 0.0028 | 0.0000 | +0.0028 | [+0.0012, +0.0044] | ≤0.001 | yes |
+| Oriental | M3 - FWI | 0.0100 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.0200 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.0300 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.0500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.1000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.1500 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.2000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.3000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.4000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+| Oriental | M3 - FWI | 0.5000 | 0.0000 | 0.0000 | +0.0000 | [+0.0000, +0.0000] | 1.000 | no |
+
+<!-- tablaS24:fin -->
 
 **Tabla S27.** Sensibilidad al solapamiento train/test en el test retrospectivo 2024–2025. Las métricas se recalculan con los cortes congelados de 2023 sobre: el test completo; celdas nunca vistas en entrenamiento; celdas sin ninguna detección de fuego en entrenamiento; celdas con `freq_hist_1km = 0`; y solo 2025. El BSS usa la prevalencia del test completo de cada región como referencia, de modo que las filas `full` reproducen la Tabla 2. Δ es relativo al test completo para el mismo modelo. La precisión, el recall y el F0.5 se reportan como fracciones en el corte congelado.
 
