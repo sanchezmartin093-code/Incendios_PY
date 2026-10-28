@@ -22,7 +22,7 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.pdf`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S16 y Figuras S1–S3.  
+> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S17 y Figuras S1–S3.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.0 de GitHub).  
 > **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -48,7 +48,7 @@ format:
 
 • **Nota S3:** Protocolo de evaluación y análisis ampliados.
 
-• **Tablas S1–S16:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, SHAP, cost-loss y auditoría de datos.
+• **Tablas S1–S17:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, SHAP, cost-loss y auditoría de datos.
 
 • **Figuras S1–S3:** SHAP, ablación y cost-loss.
 
@@ -219,17 +219,17 @@ El perfil se midió en macOS ARM64; x86_64 no se midió. La fila de point-in-pol
 |----------------------|----------------|-----------:|---------:|-----------:|----------------------------|
 | Integer cell_id lookup (O(1)) | NumPy int64 | 400 006 | 0.00073 | — | Median of 100 repetitions |
 | Point-in-Polygon | GeoPandas sjoin | 50 000 | 0.02610 | — | 50 000 points; non-linear extrapolation |
-| Ingestion, priors and gate | Polars/cKDTree | 400 006 | 1.26800 | — | Measured 2024-09-09 |
-| Dual inference | LightGBM C++ | 400 006 | 0.28500 | — | Measured 2024-09-09 |
-| Aggregation and bulletin | Polars | 400 006 | 0.01600 | — | Measured 2024-09-09 |
-| Total pipeline | Integrated | 400 006 | 1.56900 | 2 182.1 | ARM64; x86_64 not measured |
+| Ingestion, priors and gate | Polars/cKDTree | 400 006 | 2.40000 | — | Measured 2024-09-09 |
+| Dual inference | LightGBM C++ | 400 006 | 1.03800 | — | Measured 2024-09-09 |
+| Aggregation and bulletin | Polars | 400 006 | 0.03700 | — | Measured 2024-09-09 |
+| Total pipeline | Integrated | 400 006 | 3.47400 | 2 212.9 | ARM64; x86_64 not measured |
 
 **Tabla S5.** Cobertura conformal empírica. Estos valores no constituyen una garantía formal bajo cambio temporal.
 
 | Region | $\hat{q}_{90}$ | Coverage 90 (%) | $\hat{q}_{95}$ | Coverage 95 (%) |
 |--------------|---------------:|-----------------:|---------------:|-----------------:|
-| Chaco | 0.3360 | 89.77 % | 0.8457 | 95.04 % |
-| Oriental | 0.3743 | 90.18 % | 0.8464 | 94.56 % |
+| Chaco | 0.3552 | 90.17 % | 0.8394 | 95.32 % |
+| Oriental | 0.3583 | 90.31 % | 0.8637 | 94.79 % |
 
 Las métricas poblacionales aplican corrección de prior desde la muestra caso-control al denominador poblacional. La precisión poblacional es la cantidad operativa relevante, no la precisión caso-control.
 
@@ -343,27 +343,27 @@ M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecologi
 **Tabla S13.** Valores medios absolutos de TreeSHAP para el modelo híbrido de ignición.
 
 | Region | Feature | Description | Mean abs. SHAP | Rank |
-|----------|------------------------------|--------------------------------------|-----------:|---------:|
-| Chaco | `dist_foco_hist_km` | Distance to historical ignition (km) | 0.468108 | 1 |
-| Chaco | `pct_bosque_seco` | Dry Chaco forest fraction (%) | 0.187779 | 2 |
-| Chaco | `dist_corredor_antropico_km` | Distance to active anthropogenic corridor (km) | 0.080344 | 3 |
-| Chaco | `focalizacion_antropica_local` | Local focalization index (5 km / 25 km) | 0.077876 | 4 |
-| Chaco | `pct_pastura` | Cultivated pasture fraction (%) | 0.034180 | 5 |
-| Chaco | `doy_cos` | Seasonal cosine harmonic (DOY) | 0.032798 | 6 |
-| Chaco | `potencial_viento_cuadratico` | Dynamic wind pressure (v²) | 0.015865 | 7 |
-| Chaco | `densidad_hist_5km` | Local anthropogenic ignition density (5 km) | 0.011482 | 8 |
-| Chaco | `presion_quema_pastura` | Pasture burning pressure (pasture × VPD × month) | 0.010718 | 9 |
-| Chaco | `indice_ecotono` | Ecotone index | 0.009495 | 10 |
-| Oriental | `dist_foco_hist_km` | Distance to historical ignition (km) | 0.283984 | 1 |
-| Oriental | `focalizacion_antropica_local` | Local focalization index (5 km / 25 km) | 0.219708 | 2 |
-| Oriental | `dist_corredor_antropico_km` | Distance to active anthropogenic corridor (km) | 0.118975 | 3 |
-| Oriental | `pct_humedal_palmar` | Palm/wetland fraction (%) | 0.090180 | 4 |
-| Oriental | `freq_hist_1km` | Chronic recurrence in a 1-km² cell | 0.064126 | 5 |
-| Oriental | `pct_sabana_pastizal` | Savanna/natural grassland fraction | 0.060748 | 6 |
-| Oriental | `pct_pastura` | Cultivated pasture fraction (%) | 0.034921 | 7 |
-| Oriental | `ffmc` | Fine fuel moisture code (FFMC) | 0.024360 | 8 |
-| Oriental | `dia_del_anio` | Day of year (DOY) | 0.020410 | 9 |
-| Oriental | `indice_ecotono` | Ecotone index | 0.018477 | 10 |
+|---|---|---|---:|---:|
+| Chaco | `dist_foco_hist_km` | Distance to historical fire (km) | 0.488547 | 1 |
+| Chaco | `pct_bosque_seco` | Dry Chaco forest (%) | 0.138441 | 2 |
+| Chaco | `focalizacion_antropica_local` | Local focalization index (5 km / 25 km) | 0.077683 | 3 |
+| Chaco | `dist_corredor_antropico_km` | Distance to active anthropogenic corridor (km) | 0.062769 | 4 |
+| Chaco | `presion_desmonte_vpd` | Deforestation × VPD pressure | 0.062013 | 5 |
+| Chaco | `densidad_hist_5km` | Local anthropogenic ignition density (5 km) | 0.021952 | 6 |
+| Chaco | `pct_desmonte_t1` | Tree-cover loss, Y-1 (%) | 0.021775 | 7 |
+| Chaco | `doy_cos` | doy_cos | 0.018402 | 8 |
+| Chaco | `borde_bosque_agro_pct` | Forest–agriculture edge fraction (%) | 0.014573 | 9 |
+| Chaco | `precipitacion_mm` | Daily rainfall (mm) | 0.011608 | 10 |
+| Oriental | `dist_foco_hist_km` | Distance to historical fire (km) | 0.222959 | 1 |
+| Oriental | `focalizacion_antropica_local` | Local focalization index (5 km / 25 km) | 0.201239 | 2 |
+| Oriental | `pct_agricultura_anual` | Annual agriculture cover (%) | 0.166784 | 3 |
+| Oriental | `dist_corredor_antropico_km` | Distance to active anthropogenic corridor (km) | 0.101604 | 4 |
+| Oriental | `presion_desmonte_vpd` | Deforestation × VPD pressure | 0.090960 | 5 |
+| Oriental | `pct_humedal_palmar` | Flooded grassland / estero cover (%) | 0.070122 | 6 |
+| Oriental | `freq_hist_1km` | Chronic recurrence in a 1-km² cell | 0.056753 | 7 |
+| Oriental | `riesgo_estero_seco` | Dry estero risk (wetland × deficit) | 0.048684 | 8 |
+| Oriental | `pct_sabana_pastizal` | Savanna / natural grassland cover (%) | 0.043830 | 9 |
+| Oriental | `pct_desmonte_t1` | Tree-cover loss, Y-1 (%) | 0.033324 | 10 |
 
 ![**Figura S1.** Comparación TreeSHAP para el modelo híbrido de ignición. Las dos regiones usan modelos y conjuntos de variables separados.](figuras/supp_fig01_shap.png){width="95%" fig-alt="Comparación TreeSHAP entre las regiones Chaco y Oriental"}
 
@@ -531,6 +531,16 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 | Oriental | Celdas sin historia (`freq_hist_1km = 0`) | 0.7018 | 0.0740 | — |
 
 M1 es un baseline biofísico diagnóstico y no se usó operativamente. Los resultados de bloques espaciales están en la Tabla S8, los de lead time en la Tabla S9 y la ablación retrospectiva 2024–2025 en la Tabla S12.
+
+
+**Tabla S17.** Política operativa gated M3/M2 en el test retrospectivo 2024–2025. M3 se usa donde `freq_hist_1km > 0`; M2 donde es cero. El cutoff F0.5 se seleccionó en validación 2023 y se congeló.
+
+| Región | Política | ROC-AUC [IC 95 %] | PR-AUC | Precisión (%) | Recall (%) | F0.5 | FP |
+|:---|:---|:---|---:|---:|---:|---:|---:|
+| Chaco | M3/M2 gated | 0.8035 [0.799–0.809] | 0.2843 | 32.70 | 30.87 | 0.3232 | 10 200 |
+| Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 0.2679 | 7 811 |
+
+Métricas poblacionales tras corrección de prior: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precisión 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precisión 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 muestra / 0.000436 población; Oriental 0.2186 muestra / 0.001158 población.
 
 # Disponibilidad de datos {.unnumbered}
 

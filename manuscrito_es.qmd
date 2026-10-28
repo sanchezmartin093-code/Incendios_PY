@@ -10,6 +10,13 @@ crossref:
 bibliography: references.bib
 csl: apa.csl
 format:
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{lineno}
+        \usepackage{setspace}
+        \doublespacing
+        \AtBeginDocument{\linenumbers}
   html:
     toc: true
     toc-depth: 3
@@ -94,9 +101,9 @@ El bootstrap remuestrea fechas en lugar de filas, porque la actividad diaria de 
 
 ## 2.4 Datos e implementación
 
-La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diarios son detecciones de fuego activo VIIRS de 375 m de Suomi-NPP, NOAA-20 y NOAA-21; meteorología ERA5-Land de 3 horas agregada a valores diarios; mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo; y priors históricos causales construidos con un corte mensual y una ventana móvil de tres años. Los datos crudos son públicos pero no se redistribuyen; los datos procesados y los modelos entrenados se archivan con un DOI.
+La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diarios son detecciones de fuego activo VIIRS de 375 m de Suomi-NPP, NOAA-20 y NOAA-21; meteorología ERA5-Land de 3 horas agregada a valores diarios; mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo; pérdida de cobertura arbórea Hansen GFC-2025 v1.13 en t-1 y t-2 [@hansen2013]; y priors históricos causales construidos con un corte mensual y una ventana móvil de tres años. Los datos crudos son públicos pero no se redistribuyen; los datos procesados y los modelos entrenados se archivan con un DOI.
 
-El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB. Un spatial join de 50 000 puntos se muestra solo como referencia; la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo procesa 400 006 celdas en 1.569 s con 2 182.1 MB de RAM pico en ARM64; x86_64 no se midió. El dominio de estudio y la división regional se muestran en @fig-area; el perfil por etapa está en la Tabla S4 del suplemento.
+El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB. Un spatial join de 50 000 puntos se muestra solo como referencia; la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo de inferencia procesa 400 006 celdas en 3.474 s con 2 212.9 MB de RAM pico en ARM64; x86_64 no se midió. El dominio de estudio y la división regional se muestran en @fig-area; el perfil por etapa está en la Tabla S4 del suplemento.
 
 Las comprobaciones de calidad de datos son parte del pipeline: se colapsan sobrepasos VIIRS duplicados, se eliminan detecciones de confianza `low`, se reconstruye la precipitación diaria a partir de incrementos subdiarios y se rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land se mapean a celdas con un cKDTree precomputado. El archivo procesado contiene los objetivos de test, las probabilidades del modelo, las capas de benchmark, el plan de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin descargar el archivo crudo completo. El diccionario de datos y las comprobaciones están en la Nota complementaria S1 y la Tabla S15. El repositorio incluye 76 pruebas unitarias, un archivo de dependencias fijadas, un flujo de integración continua y un release público en GitHub. La suite de pruebas cubre definiciones de objetivos, filtrado VIIRS, agregación climática, calibración monótona, métricas y la capa de alerta; puede ejecutarse sin descargar el archivo crudo. Esta separación entre un paquete de evaluación reproducible y el pipeline completo de datos crudos es deliberada: los revisores pueden auditar las tablas sin una descarga de varios terabytes, mientras los scripts canónicos siguen disponibles para una reconstrucción completa.
 
@@ -119,14 +126,16 @@ La selección de modelo se realizó exclusivamente con la validación de 2023 y 
 
 La diferencia pareada M3 − M2 fue +0.0028 [+0.0001, +0.0054] ROC-AUC y +0.0089 [+0.0034, +0.0144] PR-AUC en el Chaco, y +0.0132 [+0.0097, +0.0169] y +0.0221 [+0.0166, +0.0272] en Oriental (bootstrap agrupado por fecha, B = 1 000). Con el margen preespecificado δ = 0.01, M3 se retiene en ambas regiones. En bloques espaciales de 2023, M2 fue el más robusto (0.6773/0.7470), por delante de M3 (0.6496/0.7277). M1 se evaluó como baseline diagnóstico y no superó a M2 en celdas sin historia; por eso M1 se rechaza como fallback operativo (Tablas S8 y S16 del suplemento). La arquitectura final es M3 para celdas con historia y M2 para celdas sin historia.
 
-@tbl-test reporta el test retrospectivo 2024–2025. M3 alcanza ROC-AUC 0.8021 en el Chaco y 0.7534 en la Región Oriental. La propagación alcanza 0.9039/0.7859. La precisión F0.5 caso-control es 32.82 %/30.13 % para ignición y 83.69 %/65.03 % para propagación. Estas son métricas a nivel de muestra; no son precisión operativa.
+@tbl-test reporta el test retrospectivo 2024–2025. M3 alcanza ROC-AUC 0.8021 en el Chaco y 0.7534 en la Región Oriental. La propagación alcanza 0.9039/0.7859. La precisión F0.5 caso-control es 32.82 %/30.13 % para ignición y 83.69 %/65.03 % para propagación. Estas son métricas a nivel de muestra; no son precisión operativa. La política gated M3/M2 real es cercana a M3 pero no es uniformemente mejor: en el Chaco mejora ligeramente ROC-AUC y reduce precisión; en Oriental mejora la precisión frente a M3 pero reduce ROC-AUC. La comparación completa de muestra y población está en la Tabla S17 del suplemento.
 
 | Región | Modelo | ROC-AUC [IC 95 %] | PR-AUC | Precisión (%) | Recall (%) | FP |
 |:---|:---|:---|---:|---:|---:|---:|
 | Chaco | M3 ignición | 0.8021 [0.797–0.807] | 0.2842 | 32.82 | 30.30 | 9 960 |
+| Chaco | M3/M2 gated | 0.8035 [0.799–0.809] | 0.2843 | 32.70 | 30.87 | 10 200 |
 | Chaco | M2 ignición | 0.7991 [0.794–0.805] | 0.2766 | 33.28 | 27.26 | 8 773 |
 | Chaco | Propagación | 0.9039 [0.899–0.909] | 0.6935 | 83.69 | 52.40 | 5 353 |
 | Oriental | M3 ignición | 0.7534 [0.747–0.759] | 0.2340 | 30.13 | 18.59 | 7 835 |
+| Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 7 811 |
 | Oriental | M2 ignición | 0.7406 [0.735–0.746] | 0.2146 | 26.09 | 19.59 | 10 075 |
 | Oriental | Propagación | 0.7859 [0.779–0.794] | 0.3752 | 65.03 | 19.84 | 8 351 |
 
@@ -160,7 +169,7 @@ En el test retrospectivo, M3 no domina uniformemente a M2. En el Chaco, M3 mejor
 
 @fig-benchmark muestra las curvas ROC y de precisión–recall correspondientes. Los índices canónicos están cerca de la diagonal en el Chaco; en la Región Oriental también son débiles y no mejoran materialmente respecto a una línea base climatológica. El FWI completo tiene un ROC-AUC de 0.5173/0.5564 y el INPE de 0.5389/0.4990; ninguno es competitivo con M3 en las mismas fechas retrospectivas. El resultado no afirma que los índices sean universalmente inválidos, sino que su transferencia a este sistema subtropical no está respaldada. FWI e INPE son índices de peligro normalizados, por lo que su punto operativo aparente depende fuertemente del cutoff elegido en validación. En el Chaco, el FWI completo alcanza un recall alto solo con una precisión muy baja, mientras que el INPE es conservador en ambas regiones; ninguno de los dos comportamientos se traduce en un ranking competitivo. Los valores de PR-AUC están cerca de la línea base caso-control de 0.09, lo que significa que los índices añaden poca discriminación más allá del azar en estas fechas retrospectivas.
 
-La ablación controlada confirma que las variables socioecológicas mejoran el ranking, sobre todo en Oriental. Con la misma capacidad (45/60 rondas y 23/31 hojas), M2 alcanza 0.7991/0.7406 y M3 0.8021/0.7534; M1 es el más bajo en ambas regiones. La ganancia M3 − M2 es +0.0030/+0.0128 ROC-AUC y +0.0076/+0.0194 PR-AUC. En Chaco la precisión de M3 es 32.81 % frente a 33.27 % de M2; en Oriental es 30.13 % frente a 26.09 %. La ventaja no es uniforme y no se presenta como una mejora de precisión en ambas regiones. La tabla completa de ablación está en la Tabla S12 del suplemento. TreeSHAP identifica la distancia histórica, la fracción de bosque seco, la accesibilidad y la estacionalidad como los impulsores dominantes en el Chaco; en Oriental dominan la distancia histórica y la concentración antrópica local. La tabla y figura completas de SHAP están en la Tabla S13 y la Figura S1 del suplemento. Esto no establece causalidad, pero muestra que el modelo no depende de una sola variable meteorológica.
+La ablación controlada confirma que las variables socioecológicas mejoran el ranking, sobre todo en Oriental. Con la misma capacidad (45/60 rondas y 23/31 hojas), M2 alcanza 0.7991/0.7406 y M3 0.8021/0.7534; M1 es el más bajo en ambas regiones. La ganancia M3 − M2 es +0.0030/+0.0128 ROC-AUC y +0.0076/+0.0194 PR-AUC. En Chaco la precisión de M3 es 32.81 % frente a 33.27 % de M2; en Oriental es 30.13 % frente a 26.09 %. La ventaja no es uniforme y no se presenta como una mejora de precisión en ambas regiones. La tabla completa de ablación está en la Tabla S12 del suplemento. TreeSHAP ordena la distancia histórica, la fracción de bosque seco, la accesibilidad, la presión de desmonte×VPD y la estacionalidad como los impulsores dominantes en el Chaco; en Oriental dominan la distancia histórica, la focalización local, la agricultura anual y la presión de desmonte. La tabla y figura completas de SHAP están en la Tabla S13 y la Figura S1 del suplemento. Esto no establece causalidad, pero muestra que el modelo no depende de una sola variable meteorológica.
 
 ![Curvas ROC y precisión–recall de M3 frente al FWI canadiense completo y al INPE bajo D2.](figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width="100%"}
 
@@ -187,7 +196,7 @@ El análisis cost-loss es sobrio para la ignición: M3 no supera claramente a M2
 
 Cost-loss se define como el valor esperado de emitir una alerta cuando el costo de una falsa alarma es $C$ y la pérdida evitada por una alerta verdadera es $L$; la relación $\alpha=C/L$ varía de 0 a 0.5. Es un modelo de decisión deliberadamente simple, no una estimación de presupuestos de agencias. Es útil porque expone el régimen en el que una capa probabilística tiene valor. Para ignición, las curvas son casi planas cerca de cero; para propagación, el valor se concentra en $\alpha$ pequeños. El resultado respalda la elección operativa de priorizar la propagación y tratar la ignición como capa de cribado.
 
-La cobertura conformal es empírica: 89.85 %/90.19 % para un nivel nominal del 90 % y 95.02 %/94.56 % para el 95 %. Estos valores están cerca de lo nominal, pero no constituyen una garantía formal bajo cambio temporal. El resultado sigue siendo útil porque muestra que la capa de calibración no es groseramente sobreconfiada. Un diagrama de fiabilidad y la tabla conformal completa están en la Tabla S5 del suplemento.
+La cobertura conformal es empírica: 90.17 %/90.31 % para un nivel nominal del 90 % y 95.32 %/94.79 % para el 95 %. Estos valores están cerca de lo nominal, pero no constituyen una garantía formal bajo cambio temporal. El resultado sigue siendo útil porque muestra que la capa de calibración no es groseramente sobreconfiada. Un diagrama de fiabilidad y la tabla conformal completa están en la Tabla S5 del suplemento.
 
 @fig-map muestra un ejemplo de mapa nacional de alerta. Las celdas se clasifican como bajas, moderadas o altas; el producto se genera con el mismo pipeline de test congelado. El mapa es ilustrativo del formato de salida, no un pronóstico institucional. Es una capa de comunicación construida a partir de las mismas probabilidades y cutoffs congelados; hereda los supuestos de calibración y prevalencia del modelo subyacente. Por tanto, el mapa debe leerse junto con la precisión poblacional de @tbl-test y la limitación espacial de @tbl-spatial, no como un producto de alerta autónomo.
 
@@ -254,7 +263,7 @@ Los datos procesados, las predicciones de test, los modelos entrenados y las tab
 
 # 7. Agradecimientos
 
-Agradecemos a NASA FIRMS, al Copernicus Climate Data Store, a MapBiomas y a geoBoundaries por los datos abiertos. El autor es responsable de todas las interpretaciones y errores.
+Agradecemos a NASA FIRMS, al Copernicus Climate Data Store, a MapBiomas, a Hansen/UMD y a geoBoundaries por los datos abiertos. El autor es responsable de todas las interpretaciones y errores.
 
 # 8. Financiamiento
 
@@ -283,8 +292,12 @@ Se utilizaron herramientas de IA generativa para edición de lenguaje y asistenc
 **Dependencias:** fijadas en `requirements-lock.txt`  
 **Licencia:** MIT  
 **Repositorio:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
+**DOI de versión del código:** [10.5281/zenodo.23717175](https://doi.org/10.5281/zenodo.23717175)  
+**DOI de versión de los datos:** [10.5281/zenodo.23717176](https://doi.org/10.5281/zenodo.23717176)  
 **DOI conceptual del código:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
 **DOI conceptual de los datos:** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)  
+**Guía de usuario:** `docs/USER_GUIDE.md`  
+**Tutorial:** `docs/TUTORIAL.md`  
 **Pruebas:** 76 pruebas pasan con `python -m pytest -q tests`.
 
 # Referencias {.unnumbered}

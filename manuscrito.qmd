@@ -11,6 +11,13 @@ crossref:
 bibliography: references.bib
 csl: apa.csl
 format:
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{lineno}
+        \usepackage{setspace}
+        \doublespacing
+        \AtBeginDocument{\linenumbers}
   html:
     toc: true
     toc-depth: 3
@@ -95,9 +102,9 @@ The bootstrap resamples dates rather than rows, because daily fire activity is s
 
 ## 2.4 Data and implementation
 
-The grid contains 400,006 cells of 1 km² in UTM zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21; ERA5-Land 3-hourly meteorology aggregated to daily values; annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
+The grid contains 400,006 cells of 1 km² in UTM zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21; ERA5-Land 3-hourly meteorology aggregated to daily values; annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map; Hansen GFC-2025 v1.13 tree-cover loss at t-1 and t-2 [@hansen2013]; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
 
-The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB. A spatial join of 50,000 points is shown only as a reference; the operational lookup avoids point-in-polygon at inference. The full pipeline processes 400,006 cells in 1.569 s with 2,182.1 MB peak RAM on ARM64; x86_64 was not measured. The study domain and regional split are shown in @fig-area; the per-stage profile is in Supplementary Table S4.
+The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB. A spatial join of 50,000 points is shown only as a reference; the operational lookup avoids point-in-polygon at inference. The full inference pipeline processes 400,006 cells in 3.474 s with 2,212.9 MB peak RAM on ARM64; x86_64 was not measured. The study domain and regional split are shown in @fig-area; the per-stage profile is in Supplementary Table S4.
 
 Data quality checks are part of the pipeline: duplicate VIIRS overpasses are collapsed, `low` confidence detections are removed, daily precipitation is reconstructed from sub-daily increments and impossible values above 300 mm/day are rejected. ERA5-Land nodes are mapped to cells with a precomputed cKDTree. The processed archive contains the test targets, model probabilities, benchmark layers, sampling plan and trained artifacts, so the result tables can be regenerated without downloading the full raw archive. The complete data dictionary and checks are in Supplementary Note S1 and Table S15. The repository includes 76 unit tests, a pinned dependency file, a continuous-integration workflow and a public GitHub release. The test suite covers target definitions, VIIRS filtering, climate aggregation, monotonic calibration, metrics and the alert layer; it can run without downloading the raw archive. This separation between a reproducible evaluation package and the full raw-data pipeline is deliberate: reviewers can audit the tables without a multi-terabyte download, while the canonical scripts remain available for a full rebuild.
 
@@ -120,14 +127,16 @@ Model selection used only the 2023 validation set and the 2023 development spati
 
 The paired M3 − M2 difference was +0.0028 [+0.0001, +0.0054] ROC-AUC and +0.0089 [+0.0034, +0.0144] PR-AUC in Chaco, and +0.0132 [+0.0097, +0.0169] and +0.0221 [+0.0166, +0.0272] in Oriental (grouped-by-date bootstrap, B = 1,000). With the pre-specified margin δ = 0.01, M3 is retained in both regions. In 2023 spatial blocks, M2 was the most robust model (0.6773/0.7470), ahead of M3 (0.6496/0.7277). M1 was evaluated as a diagnostic baseline and did not outperform M2 on cells without history; M1 is therefore rejected as the operational fallback (Supplementary Tables S8 and S16). The final architecture is M3 for cells with history and M2 for cells without history.
 
-@tbl-test reports the retrospective 2024–2025 test. M3 reaches ROC-AUC 0.8021 in Chaco and 0.7534 in Oriental. Propagation reaches 0.9039/0.7859. Case-control F0.5 precision is 32.82 %/30.13 % for ignition and 83.69 %/65.03 % for propagation. These are sample-level metrics; they are not operational precision.
+@tbl-test reports the retrospective 2024–2025 test. M3 reaches ROC-AUC 0.8021 in Chaco and 0.7534 in Oriental. Propagation reaches 0.9039/0.7859. Case-control F0.5 precision is 32.82 %/30.13 % for ignition and 83.69 %/65.03 % for propagation. These are sample-level metrics; they are not operational precision. The actual gated M3/M2 policy is close to M3 but not uniformly better: in Chaco it slightly improves ROC-AUC while reducing precision; in Oriental it improves precision over M3 but reduces ROC-AUC. The full sample and population comparison is in Supplementary Table S17.
 
 | Region | Model | ROC-AUC [95 % CI] | PR-AUC | Precision (%) | Recall (%) | FP |
 |:---|:---|:---|---:|---:|---:|---:|
 | Chaco | M3 ignition | 0.8021 [0.797–0.807] | 0.2842 | 32.82 | 30.30 | 9,960 |
+| Chaco | M3/M2 gated | 0.8035 [0.799–0.809] | 0.2843 | 32.70 | 30.87 | 10,200 |
 | Chaco | M2 ignition | 0.7991 [0.794–0.805] | 0.2766 | 33.28 | 27.26 | 8,773 |
 | Chaco | Propagation | 0.9039 [0.899–0.909] | 0.6935 | 83.69 | 52.40 | 5,353 |
 | Oriental | M3 ignition | 0.7534 [0.747–0.759] | 0.2340 | 30.13 | 18.59 | 7,835 |
+| Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 7,811 |
 | Oriental | M2 ignition | 0.7406 [0.735–0.746] | 0.2146 | 26.09 | 19.59 | 10,075 |
 | Oriental | Propagation | 0.7859 [0.779–0.794] | 0.3752 | 65.03 | 19.84 | 8,351 |
 
@@ -161,7 +170,7 @@ On the retrospective test, M3 does not uniformly dominate M2. In Chaco, M3 impro
 
 @fig-benchmark shows the corresponding ROC and precision–recall curves. The canonical indices are close to the diagonal in Chaco; in Oriental they are also weak and do not improve materially over a climatological baseline. Full FWI has ROC-AUC 0.5173/0.5564 and INPE 0.5389/0.4990; neither is competitive with M3 on the same retrospective dates. The result is not a claim that the indices are universally invalid, but that their transfer to this subtropical system is not supported. FWI and INPE are normalized danger indices, so their apparent operating point depends strongly on the cutoff chosen on validation. In Chaco, full FWI reaches high recall only at very low precision, while INPE is conservative in both regions; neither behavior translates into a competitive ranking. PR-AUC values are close to the 0.09 case-control baseline, which means that the indices add little discrimination beyond chance on these retrospective dates.
 
-The controlled ablation confirms that socio-ecological variables improve ranking, especially in Oriental. With the same capacity (45/60 rounds and 23/31 leaves), M2 reaches 0.7991/0.7406 and M3 0.8021/0.7534; M1 is the lowest in both regions. The M3 − M2 gain is +0.0030/+0.0128 ROC-AUC and +0.0076/+0.0194 PR-AUC. In Chaco, M3 precision is 32.81 % versus 33.27 % for M2; in Oriental it is 30.13 % versus 26.09 %. The advantage is not uniform and is not presented as a precision gain in both regions. The complete ablation table is Supplementary Table S12. TreeSHAP identifies historical distance, dry-forest fraction, accessibility and seasonality as the dominant drivers in Chaco; in Oriental, historical distance and local anthropic concentration dominate. The complete SHAP table and figure are Supplementary Table S13 and Supplementary Figure S1. This does not establish causality, but it shows that the model is not relying on a single weather variable.
+The controlled ablation confirms that socio-ecological variables improve ranking, especially in Oriental. With the same capacity (45/60 rounds and 23/31 leaves), M2 reaches 0.7991/0.7406 and M3 0.8021/0.7534; M1 is the lowest in both regions. The M3 − M2 gain is +0.0030/+0.0128 ROC-AUC and +0.0076/+0.0194 PR-AUC. In Chaco, M3 precision is 32.81 % versus 33.27 % for M2; in Oriental it is 30.13 % versus 26.09 %. The advantage is not uniform and is not presented as a precision gain in both regions. The complete ablation table is Supplementary Table S12. TreeSHAP ranks historical distance, dry-forest fraction, accessibility, deforestation×VPD pressure and seasonality highest in Chaco; in Oriental, historical distance, local focalization, annual agriculture and deforestation pressure dominate. The complete SHAP table and figure are Supplementary Table S13 and Supplementary Figure S1. This does not establish causality, but it shows that the model is not relying on a single weather variable.
 
 ![ROC and precision–recall curves for M3 against full Canadian FWI and INPE under D2.](figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width="100%"}
 
@@ -188,7 +197,7 @@ The cost-loss analysis is sobering for ignition: M3 does not clearly outperform 
 
 Cost-loss is defined as the expected value of issuing an alert when the cost of a false alarm is $C$ and the loss avoided by a true alert is $L$; the ratio $\alpha=C/L$ is varied from 0 to 0.5. This is a deliberately simple decision model, not an estimate of agency budgets. It is useful because it exposes the regime in which a probabilistic layer has value. For ignition, the curves are almost flat near zero; for propagation, the value is concentrated at small $\alpha$. The result supports the operational choice of prioritising propagation and treating ignition as a screening layer.
 
-Conformal coverage is empirical: 89.85 %/90.19 % for a nominal 90 % level and 95.02 %/94.56 % for 95 %. These values are close to nominal but do not constitute a formal guarantee under temporal shift. The result is still useful because it shows that the calibration layer is not grossly overconfident. A reliability diagram and the full conformal table are in Supplementary Table S5.
+Conformal coverage is empirical: 90.17 %/90.31 % for a nominal 90 % level and 95.32 %/94.79 % for 95 %. These values are close to nominal but do not constitute a formal guarantee under temporal shift. The result is still useful because it shows that the calibration layer is not grossly overconfident. A reliability diagram and the full conformal table are in Supplementary Table S5.
 
 @fig-map shows an example national alert map. Cells are classified as low, moderate or high; the product is generated from the same frozen test pipeline. The map is illustrative of the output format, not an institutional forecast. It is a communication layer built from the same frozen probabilities and cutoffs; it inherits the calibration and prevalence assumptions of the underlying model. The map should therefore be read together with the population precision in @tbl-test and the spatial limitation in @tbl-spatial, not as a stand-alone warning product.
 
@@ -255,7 +264,7 @@ Processed data, test predictions, trained models and derived tables are availabl
 
 # 7. Acknowledgements
 
-We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas and geoBoundaries for open data. The author is responsible for all interpretations and errors.
+We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas, Hansen/UMD and geoBoundaries for open data. The author is responsible for all interpretations and errors.
 
 # 8. Funding
 
@@ -284,8 +293,12 @@ Generative AI tools were used for language editing and code assistance. The auth
 **Dependencies:** pinned in `requirements-lock.txt`  
 **License:** MIT  
 **Repository:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
+**Code version DOI:** [10.5281/zenodo.23717175](https://doi.org/10.5281/zenodo.23717175)  
+**Data version DOI:** [10.5281/zenodo.23717176](https://doi.org/10.5281/zenodo.23717176)  
 **Code concept DOI:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
 **Data concept DOI:** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)  
+**User guide:** `docs/USER_GUIDE.md`  
+**Tutorial:** `docs/TUTORIAL.md`  
 **Tests:** 76 tests pass with `python -m pytest -q tests`.
 
 # References {.unnumbered}
