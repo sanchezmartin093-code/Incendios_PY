@@ -23,8 +23,8 @@ format:
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
 > **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S16 y Figuras S1–S3.  
-> **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); v2.0.0).  
-> **Datos:** los datos procesados y las predicciones de test se archivan en Zenodo bajo CC BY 4.0 (DOI conceptual [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278); v2.0.0).
+> **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.0 de GitHub).  
+> **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
 ```{=html}
 <style>
@@ -534,7 +534,7 @@ M1 es un baseline biofísico diagnóstico y no se usó operativamente. Los resul
 
 # Disponibilidad de datos {.unnumbered}
 
-Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas se archivan en Zenodo bajo CC BY 4.0 (DOI conceptual): [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
+Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.0.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
 
 # Disponibilidad del código informático {.unnumbered}
 
@@ -547,7 +547,7 @@ Los datos procesados, las predicciones de test, los modelos entrenados y las tab
 **Dependencias:** fijadas en `requirements-lock.txt`  
 **Licencia:** MIT  
 **Repositorio:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**DOI conceptual del código (v2.0.0):** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
+**DOI conceptual del código:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
 **Pruebas:** 76 pruebas pasan con `python -m pytest -q tests`. El repositorio incluye un README en inglés, instrucciones de instalación y uso, una guía de usuario y los scripts necesarios para reproducir los resultados principales.
 
 # Referencias {.unnumbered}

@@ -24,8 +24,8 @@ format:
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
 > **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S16 and Figures S1–S3.  
-> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); v2.0.0).  
-> **Data:** processed data and test predictions are archived in Zenodo under CC BY 4.0 (data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278); v2.0.0).
+> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.0).  
+> **Data:** processed data and test predictions are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
 # Supplementary contents {.unnumbered}
 
@@ -521,7 +521,7 @@ M1 is a diagnostic biophysical baseline and was not used operationally. Spatial 
 
 # Data availability {.unnumbered}
 
-Processed data, test predictions, trained models and derived tables are archived in Zenodo under CC BY 4.0 (concept DOI): [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
+Processed data, test predictions, trained models and derived tables are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
 
 # Computer code availability {.unnumbered}
 
@@ -534,7 +534,7 @@ Processed data, test predictions, trained models and derived tables are archived
 **Dependencies:** pinned in `requirements-lock.txt`  
 **License:** MIT  
 **Repository:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**Code concept DOI (v2.0.0):** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
+**Code concept DOI:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
 **Tests:** 76 tests pass with `python -m pytest -q tests`. The repository includes a README in English, installation and usage instructions, a user guide, and the scripts required to reproduce the main results.
 
 # References {.unnumbered}
