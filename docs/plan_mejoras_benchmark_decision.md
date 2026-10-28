@@ -18,14 +18,81 @@
 |---|---|---|---|
 | **B. Blindar FWI/INPE** | Crítica de comparación injusta ("straw man") | 1–2 semanas | +5 pp |
 | **C. Valor de decisión** | Objeción "¿para qué sirve con precisión 0.08 %?" | 2–3 semanas | +3–5 pp |
+| **R. Robustez** | Estabilidad, fuga residual, ruido de etiquetas, multiplicidad y reproducibilidad | 3–4 semanas | +4–6 pp |
 
-Las ganancias en puntos porcentuales son incrementos subjetivos de probabilidad de aceptación y **no son aditivos** entre sí. B y C se refuerzan mutuamente: los mismos artefactos (FWI/INPE dentro del análisis de decisión) sirven a ambas.
+Las ganancias en puntos porcentuales son incrementos subjetivos de probabilidad de aceptación y **no son aditivos** entre sí. B y C se refuerzan mutuamente: los mismos artefactos (FWI/INPE dentro del análisis de decisión) sirven a ambas. R convierte cada objeción previsible en una respuesta cuantitativa ya presente en el manuscrito y protege las ganancias de B y C.
 
 ---
 
-## 2. Estado actual verificado en el código
+## 2. Ruta priorizada (orden de ejecución)
 
-### 2.1 Comparación con FWI/INPE
+Criterio de orden: primero lo que **no requiere entrenamiento** y puede cambiar el manuscrito en horas; después **un único lote de entrenamiento** (para amortizar el entorno y no reconfigurarlo varias veces); dentro del lote, primero el experimento decisivo (**R.2**), porque si el backtest contradice el mensaje hay que reescribir. Las tareas opcionales quedan al final.
+
+### 2.1 Ya realizado
+
+| # | Tarea | ¿Entrena? | Estado |
+|---|---|---|---|
+| 0 | B.1 Simetría de umbral FWI/INPE | No | Hecho |
+| 0 | B.2 Baseline weather-only | Sí | Hecho |
+
+### 2.2 Fase 1 — Decisiones rápidas sin entrenamiento (3 días)
+
+| #   | Tarea                                        | ¿Entrena? | Días | Por qué ahora                                                          |
+| --- | -------------------------------------------- | --------- | ---- | ---------------------------------------------------------------------- |
+| 1   | **R.6** Holm–Bonferroni / BH                 | No        | 1    | Máximo retorno por hora; elimina la objeción de p-hacking              |
+| 2   | **R.3** Métricas sin solapamiento train/test | No        | 1    | Es la limitación más citada; se resuelve con predicciones ya guardadas |
+| 3   | **R.11** IC de precisión poblacional         | No        | 1    | Convierte 0.082 %/0.198 % en una cifra defendible                      |
+
+### 2.3 Fase 2 — Valor de decisión y texto (5 días)
+
+| # | Tarea | ¿Entrena? | Días | Por qué ahora |
+|---|---|---|---|---|
+| 4 | **C.1 + C.5** IC de V(α) y ΔV(M3−M2/FWI) | No | 2 | Usa las predicciones existentes |
+| 5 | **C.2 + C.4** Beneficio neto con FWI/INPE | No | 2 | Convierte el benchmark en valor operativo |
+| 6 | **C.3** Carga operativa (alertas/día, recall@k) | No | 1 | Traduce la precisión a decisiones |
+| 7 | **B.4** INPE con A fija vs A local | No (recalcula índice) | 1 | Cierra la ambigüedad metodológica |
+| 8 | **B.5** Nota S4 de implementación | No | 1 | Documenta lo que ya se hizo en B.1 |
+| 9 | **R.5** Curvas Fβ y cutoff por presupuesto | No | 2 | Demuestra que F0.5 no fue arbitrario |
+
+### 2.4 Fase 3 — Lote de entrenamiento (8–10 días)
+
+| # | Tarea | ¿Entrena? | Días | Por qué en este orden |
+|---|---|---|---|---|
+| 10 | **R.2** Backtest rolling-origin (4 folds) | Sí | 3 | Decisivo: si falla, cambia la narrativa; debe ir primero |
+| 11 | **R.1** 5 semillas × 2 capacidades | Sí | 2 | Demuestra que el resultado no es un run afortunado |
+| 12 | **R.9** Ablación del gate y umbrales | Sí | 2 | Neutraliza "el gate hace el trabajo" |
+| 13 | **R.8** Variantes de etiquetas VIIRS | Sí | 2 | Neutraliza "etiquetas ruidosas" |
+| 14 | **R.10** Control negativo + permutation importance | Sí | 1 | Demuestra ausencia de fuga residual |
+| 15 | **R.4** Razón de muestreo 1:5 y 1:20 | Sí | 2 | Neutraliza "artefacto del 1:10" |
+| 16 | **B.3** Índice + contexto local | Sí | 2 | Referencia intermedia del benchmark |
+
+### 2.5 Fase 4 — Cierre (4 días + opcional)
+
+| # | Tarea | ¿Entrena? | Días |
+|---|---|---|---|
+| 17 | **R.7** Validación adversarial | Clasificador auxiliar | 1 |
+| 18 | **R.12** Hashes SHA-256 y `run_all.sh` | No | 1 |
+| 19 | **C.6** Reescritura de §3.4/§3.5, 4.1, 4.2, Conclusiones y Abstract | No | 2 |
+| 20 | **B.6** FWI a 1 km (opcional) | No (recalcula índice) | 3–5 |
+
+**Total:** ~20 días de trabajo efectivo (4 semanas; 3 si se paraleliza). La ruta mínima antes del envío es **1 → 2 → 3 → 10 → 11 + reescritura** (~2 semanas).
+
+### 2.6 ¿Conviene entrenar primero?
+
+**No conviene dejar todo el entrenamiento para el final, ni empezar por él.** La secuencia correcta es:
+
+1. **Primero lo barato y decisivo sin entrenar** (R.6, R.3, R.11): si algo contradice el mensaje, es mejor saberlo antes de invertir días de cómputo y reescritura.
+2. **Después un único lote de entrenamiento**, agrupado para configurar el entorno una sola vez (LightGBM no está en el Python del sistema; el venv temporal ya existe).
+3. **Dentro del lote, R.2 primero**, porque el rolling-origin es el que puede invalidar la afirmación central; R.1, R.9, R.8, R.4 y B.3 solo matizan.
+4. **Al final, R.7, R.12 y la reescritura**, que dependen de que las tablas estén cerradas.
+
+Dejar todo el entrenamiento para el final tiene dos riesgos: (a) si R.2 falla, hay que rehacer texto y tablas con el plazo encima; (b) se ejecutan primero experimentos secundarios que quizá no hagan falta si el mensaje cambia.
+
+---
+
+## 3. Estado actual verificado en el código
+
+### 3.1 Comparación con FWI/INPE
 
 | Punto | Estado real | Evidencia |
 |---|---|---|
@@ -39,7 +106,7 @@ Las ganancias en puntos porcentuales son incrementos subjetivos de probabilidad 
 | FWI/INPE dentro del análisis cost-loss | **No existe** | — |
 | Documentación metodológica de los índices en el suplemento | **No existe** | — |
 
-### 2.2 Valor de decisión
+### 3.2 Valor de decisión
 
 | Punto | Estado real | Evidencia |
 |---|---|---|
@@ -54,11 +121,11 @@ Las ganancias en puntos porcentuales son incrementos subjetivos de probabilidad 
 
 ---
 
-## 3. Palanca B — Blindar la comparación con FWI/INPE
+## 4. Detalle de tareas por orden de ejecución
 
-Objetivo: que un revisor no pueda atribuir la ventaja de M3 a una comparación desleal (resolución, umbral o información disponible).
+### 4.1 Ya realizado
 
-### B.1 Publicar la simetría de umbral
+#### B.1 Publicar la simetría de umbral
 
 **Estado:** completado (2026-10-28). La tabla principal, la Tabla S11 y los textos EN/ES reportan ahora `Cutoff`, `Precision`, `Recall` y `F0.5` para FWI e INPE, con la regla F0.5 declarada.
 
@@ -76,9 +143,11 @@ Objetivo: que un revisor no pueda atribuir la ventaja de M3 a una comparación d
 
 **Riesgo:** ninguno; es documental.
 
+- [x] B.1 completado y verificado (Tabla 3, Tabla S11, EN/ES).
+
 ---
 
-### B.2 Baseline "solo meteorología"
+#### B.2 Baseline "solo meteorología"
 
 **Estado:** completado (2026-10-28). `scripts/43_benchmark_weather_only.py` entrena el modelo, escribe `tablaS21_benchmark_weather_only.csv`, integra las filas en `tabla04` y el manuscrito reporta el resultado en la Tabla 3, la Tabla S11 y la Tabla S21.
 
@@ -105,73 +174,65 @@ Ambos resultados son publicables.
 
 **Criterio de aceptación:** existe una fila "weather-only GBT" en el benchmark y el texto la interpreta.
 
----
+- [x] B.2 completado y verificado: ROC-AUC 0.5512/0.5645, a solo +0.0339/+0.0081 del FWI (Tabla 3, Tabla S11, Tabla S21).
 
-### B.3 Referencia intermedia "índice + contexto local"
+### 4.2 Fase 1 — Decisiones rápidas (sin entrenamiento)
+
+#### R.6 Corrección por multiplicidad
+
+**Crítica:** cuatro comparaciones reportadas con p ≤ 0.001 sin ajuste.
 
 **Qué hacer**
 
-- Entrenar un GBT con FWI e INPE como entradas, más las features locales de M3 (combustible, accesibilidad, densidad histórica).
+1. Aplicar Holm–Bonferroni y Benjamini–Hochberg a las cuatro comparaciones del benchmark y a M3 − M2 por región.
+2. Añadir la p ajustada a la tabla de significancia.
 
-**Salida:** fila adicional en el benchmark.
+**Salida:** columnas nuevas en la Tabla S7.
 
-**Interpretación**
+**Criterio de aceptación:** si todas siguen significativas, se declara; si alguna deja de serlo, se reporta como tal y se ajusta el texto.
 
-- Si ≈ M3: el índice es útil pero insuficiente por sí solo; reformular el mensaje central.
-- Si ≪ M3: la información local de alta resolución es la que domina.
-
-**Riesgo:** si empata con M3, hay que revisar el título y el abstract para no vender "M3 supera a FWI" como hallazgo principal.
-
----
-
-### B.4 Resolver la ambigüedad del INPE implementado
-
-**Problema detectado:** la constante A del INPE se calcula con `constante_a_desde_fracciones(...)` a partir de `pct_pastura`, `pct_sabana_pastizal`, `pct_bosque_seco`, `pct_bosque_humedo` y `pct_humedal_palmar` (`scripts/13_benchmarking_modelos.py`). Es decir, el INPE implementado **ya incorpora información local de cobertura**.
-
-**Qué hacer (elegir una)**
-
-1. **Recomendada:** mantener A local como versión primaria y añadir una versión con **A fija** como sensibilidad.
-2. Usar A fija como primaria y la local como sensibilidad.
-
-**Corrección de texto obligatoria en 4.1:** hoy afirma que los índices son "purely meteorological". Si el INPE usa fracciones de cobertura, la frase es inexacta. Reformular:
-
-> "FWI is purely meteorological; the INPE formulation used here incorporates land-cover fractions, yet neither carries the fine-scale anthropogenic and accessibility information that dominates ignition in the Chaco."
-
-**Criterio de aceptación:** el texto y el suplemento describen exactamente lo implementado.
+- [x] Cautela de multiplicidad declarada en el texto (Tabla S7).
+- [x] Aplicar Holm–Bonferroni y Benjamini–Hochberg y reportar p ajustada (m = 6; Holm p = 0.006, BH p = 0.001; todas significativas con α = 0.05).
 
 ---
 
-### B.5 Nota S4 — Implementación de los índices
+#### R.3 Sensibilidad al solapamiento train/test
 
-Añadir una nota suplementaria con:
+**Crítica:** el 90.65 % de las celdas de test aparecen también en entrenamiento por solapamiento temporal; no es un test espacial limpio.
 
-1. Ecuaciones y códigos de combustible del FWI.
-2. Origen de las variables de mediodía (ERA5-Land 3-h).
-3. Uso de meteorología del **mismo día** (nowcast), no t-1.
-4. Inicialización (85/6/15) y warm-up.
-5. Versión del INPE (2019), definición de PSE (ventana 120 d) y de la constante A.
-6. Declaración explícita: *"no local calibration was applied to either index"*.
-7. Resolución: 0.25° por nodo ERA5, asignada a celdas de 1 km por `nodo_clima_id`.
+**Qué hacer**
 
-**Salida:** `manuscrito/en/material_suplementario.qmd` (+ versión ES).
+1. Recomputar métricas (a) excluyendo toda celda con cualquier detección en train, (b) restringiendo a celdas con `freq_hist_1km = 0`, (c) solo con 2025.
+2. Reportar el Δ explícito respecto a la tabla principal.
 
-**Criterio de aceptación:** un revisor puede replicar ambos índices solo con la nota y el código.
+**Salida:** Tabla S27 (nueva) y ajuste de la limitación 13 de §4.4.
 
----
+**Criterio de aceptación:** la caída se reporta con cifras y la interpretación se acota a lo que el dato permite.
 
-### B.6 Opcional — FWI a 1 km
-
-Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. Si el FWI a 1 km sigue en ~0.52, la crítica de escala queda descartada definitivamente.
-
-**Coste:** 3–5 días.
+- [x] Limitación documentada: 90.65 % de celdas de test con solapamiento temporal.
+- [ ] Recomputar métricas excluyendo celdas vistas en train y restringiendo a 2025.
 
 ---
 
-## 4. Palanca C — Valor de decisión
+#### R.11 Incertidumbre de la precisión poblacional
 
-Objetivo: que la utilidad operativa sea un resultado primario y no una comprobación secundaria.
+**Crítica:** 0.082 %/0.198 % se reporta como punto sin incertidumbre.
 
-### C.1 Intervalos de confianza bootstrap sobre V(α)
+**Qué hacer**
+
+1. IC de Wilson y bootstrap agrupado por fecha para precisión y recall poblacionales.
+2. Curvas de precisión frente a presupuesto de alertas.
+
+**Salida:** columnas en la Tabla S6 y Figura S8 (nueva).
+
+**Criterio de aceptación:** todos los valores poblacionales llevan IC y el texto deja de presentarlos como exactos.
+
+- [x] Precisión poblacional reportada en la Tabla S6.
+- [ ] IC de Wilson/bootstrap y curvas por presupuesto de alertas.
+
+### 4.3 Fase 2 — Valor de decisión y texto
+
+#### C.1 Intervalos de confianza bootstrap sobre V(α)
 
 **Qué hacer**
 
@@ -184,7 +245,20 @@ Objetivo: que la utilidad operativa sea un resultado primario y no una comprobac
 
 ---
 
-### C.2 Curvas de beneficio neto (decision curve analysis)
+#### C.5 Test pareado de diferencia de valor
+
+**Qué hacer**
+
+- Bootstrap pareado por fecha de `V_M3(α) − V_M2(α)` y `V_M3(α) − V_FWI(α)`.
+- Reportar IC y el rango de α donde el IC excluye 0.
+
+**Salida:** `Tabla S24` (nueva) o columnas en `Tabla S23`.
+
+**Criterio de aceptación:** la afirmación "M3 no supera claramente a M2" pasa de cualitativa a cuantificada.
+
+---
+
+#### C.2 Curvas de beneficio neto (decision curve analysis)
 
 **Definición**
 
@@ -203,7 +277,19 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 
 ---
 
-### C.3 Métricas de carga operativa
+#### C.4 Incluir FWI e INPE en el análisis de decisión
+
+**Qué hacer**
+
+- Pasar `p_fwi` y `p_inpe` (ya calculadas en `scripts/13`) a `valor_cost_loss` y a beneficio neto, con sus cutoffs congelados.
+
+**Salida:** filas de FWI/INPE en `Tabla S14`, `Tabla S23` y `Figura S4`.
+
+**Criterio de aceptación:** se responde si la ventaja en AUC se traduce en valor de decisión.
+
+---
+
+#### C.3 Métricas de carga operativa
 
 | Métrica | Definición |
 |---|---|
@@ -214,38 +300,236 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 | `lift_climatologia` | Precisión / prevalencia |
 | `alpha_optimo` | α que maximiza V(α) por modelo y región |
 
-**Salida:** `Tabla S22` (nueva).
+**Salida:** `Tabla S23` (nueva).
 
 **Criterio de aceptación:** el manuscrito traduce la precisión poblacional a una carga operativa concreta.
 
 ---
 
-### C.4 Incluir FWI e INPE en el análisis de decisión
+#### B.4 Resolver la ambigüedad del INPE implementado
 
-**Qué hacer**
+**Problema detectado:** la constante A del INPE se calcula con `constante_a_desde_fracciones(...)` a partir de `pct_pastura`, `pct_sabana_pastizal`, `pct_bosque_seco`, `pct_bosque_humedo` y `pct_humedal_palmar` (`scripts/13_benchmarking_modelos.py`). Es decir, el INPE implementado **ya incorpora información local de cobertura**.
 
-- Pasar `p_fwi` y `p_inpe` (ya calculadas en `scripts/13`) a `valor_cost_loss` y a beneficio neto, con sus cutoffs congelados.
+**Qué hacer (elegir una)**
 
-**Salida:** filas de FWI/INPE en `Tabla S14`, `Tabla S22` y `Figura S4`.
+1. **Recomendada:** mantener A local como versión primaria y añadir una versión con **A fija** como sensibilidad.
+2. Usar A fija como primaria y la local como sensibilidad.
 
-**Criterio de aceptación:** se responde si la ventaja en AUC se traduce en valor de decisión.
+**Corrección de texto obligatoria en 4.1:** hoy afirma que los índices son "purely meteorological". Si el INPE usa fracciones de cobertura, la frase es inexacta. Reformular:
 
----
+> "FWI is purely meteorological; the INPE formulation used here incorporates land-cover fractions, yet neither carries the fine-scale anthropogenic and accessibility information that dominates ignition in the Chaco."
 
-### C.5 Test pareado de diferencia de valor
+**Salida:** Tabla S22 (nueva) con la sensibilidad A fija vs A local.
 
-**Qué hacer**
-
-- Bootstrap pareado por fecha de `V_M3(α) − V_M2(α)` y `V_M3(α) − V_FWI(α)`.
-- Reportar IC y el rango de α donde el IC excluye 0.
-
-**Salida:** `Tabla S23` (nueva) o columnas en `Tabla S22`.
-
-**Criterio de aceptación:** la afirmación "M3 no supera claramente a M2" pasa de cualitativa a cuantificada.
+**Criterio de aceptación:** el texto y el suplemento describen exactamente lo implementado.
 
 ---
 
-### C.6 Reordenar la narrativa
+#### B.5 Nota S4 — Implementación de los índices
+
+Añadir una nota suplementaria con:
+
+1. Ecuaciones y códigos de combustible del FWI.
+2. Origen de las variables de mediodía (ERA5-Land 3-h).
+3. Uso de meteorología del **mismo día** (nowcast), no t-1.
+4. Inicialización (85/6/15) y warm-up.
+5. Versión del INPE (2019), definición de PSE (ventana 120 d) y de la constante A.
+6. Declaración explícita: *"no local calibration was applied to either index"*.
+7. Resolución: 0.25° por nodo ERA5, asignada a celdas de 1 km por `nodo_clima_id`.
+
+**Salida:** `manuscrito/en/material_suplementario.qmd` (+ versión ES).
+
+**Criterio de aceptación:** un revisor puede replicar ambos índices solo con la nota y el código.
+
+- [x] Cortes, escalas y ausencia de calibración local declarados en la Tabla S11.
+- [ ] Nota S4 completa: ecuaciones, inicialización, resolución y warm-up.
+
+---
+
+#### R.5 Sensibilidad a umbral y métrica
+
+**Crítica:** el cutoff F0.5 se eligió a conveniencia.
+
+**Qué hacer**
+
+1. Curvas de precisión, recall y Fβ para β = 0.5, 1 y 2, además de Youden.
+2. Cutoff fijado por presupuesto operativo de alertas (top-k por día).
+3. Reportar en qué rango de umbrales se mantiene la conclusión.
+
+**Salida:** Figura S6 (nueva) y columnas adicionales en la Tabla S14.
+
+**Criterio de aceptación:** la conclusión operativa (propagación con valor; ignición como cribado) no depende de β ni del presupuesto.
+
+- [x] Cutoff F0.5 seleccionado en validación y congelado (B.1).
+- [ ] Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas.
+
+### 4.4 Fase 3 — Lote de entrenamiento
+
+#### R.2 Backtest rolling-origin
+
+**Crítica:** el manuscrito descansa en un único split temporal (train 2018–2022, test 2024–2025).
+
+**Qué hacer**
+
+1. Definir cuatro folds: train ≤ 2021 → test 2022; train ≤ 2022 → test 2023; train ≤ 2023 → test 2024; train ≤ 2024 → test 2025.
+2. Reentrenar M1/M2/M3 en cada fold con priors causales hasta el corte y cutoff F0.5 en el año inmediatamente anterior.
+3. Reportar ROC-AUC por fold y la tendencia temporal.
+
+**Salida:** Tabla S26 y Figura S5 (nuevas).
+
+**Criterio de aceptación:** M3 ≥ M2 en al menos 3 de 4 folds y la degradación temporal queda documentada, no oculta.
+
+- [ ] R.2 completado y verificado
+
+---
+
+#### R.1 Estabilidad a semillas e hiperparámetros
+
+**Crítica:** el resultado de M3 depende de una corrida afortunada.
+
+**Qué hacer**
+
+1. Entrenar M2 y M3 con 5 semillas (42, 7, 13, 21, 33) × 2 configuraciones de capacidad (la actual y una ±20 % en hojas/rondas), por región.
+2. Recalcular ROC-AUC, PR-AUC y Δ(M3 − M2) con bootstrap agrupado por fecha.
+3. Reportar media ± desviación estándar y el rango de Δ.
+
+**Salida:** Tabla S25 (nueva) y una frase en §3.1.
+
+**Criterio de aceptación:** el signo de Δ(M3 − M2) se mantiene en ≥ 90 % de las corridas y el IC de la media no cruza 0; si cruza, se reformula el mensaje de superioridad.
+
+- [ ] R.1 completado y verificado
+
+---
+
+#### R.9 Ablación del gate
+
+**Crítica:** el gate biofísico, y no el modelo, produce la separación.
+
+**Qué hacer**
+
+1. Sin gate; luego VPD 0.6/0.8/1.0 kPa y lluvia 5/10/15 mm.
+2. Reentrenar y evaluar M2/M3 frente a FWI en cada variante.
+3. Reportar la retención de detecciones térmicas.
+
+**Salida:** Tabla S31 (nueva).
+
+**Criterio de aceptación:** M3 > M2 y M3 > FWI en todas las variantes; la retención se reporta junto a cada una.
+
+- [x] Comparador acoplado t-1 implementado (Tabla S19).
+- [ ] Ablación del gate y sensibilidad de umbrales VPD/lluvia.
+
+---
+
+#### R.8 Calidad de etiquetas VIIRS
+
+**Crítica:** las etiquetas dependen de detecciones ruidosas y de la cobertura nubosa.
+
+**Qué hacer**
+
+1. Tres variantes: solo confianza `high`, cobertura nubosa < 40 %, FRP mínimo.
+2. Recalcular métricas titulares en cada variante.
+
+**Salida:** Tabla S30 (nueva).
+
+**Criterio de aceptación:** las conclusiones se mantienen en las tres variantes o el alcance se acota explícitamente.
+
+- [x] QC de VIIRS implementado: confianza `low` eliminada y ángulo de escaneo acotado.
+- [ ] Tabla de sensibilidad: solo `high`, nubes < 40 % y FRP mínimo.
+
+---
+
+#### R.10 Controles negativos y ablación por familias
+
+**Crítica:** caja negra o fuga residual no detectada.
+
+**Qué hacer**
+
+1. Modelo con etiquetas permutadas: debe dar AUC ≈ 0.5.
+2. Ablación por familias de variables (meteo, combustible, accesibilidad, priors).
+3. Permutation importance como contraste de SHAP.
+
+**Salida:** Tabla S32 y Figura S7 (nuevas).
+
+**Criterio de aceptación:** el control negativo cae a 0.5 ± 0.02 y cada familia tiene un efecto medido; se documenta la coincidencia o discrepancia con SHAP.
+
+**Nota:** la ablación M1/M2/M3 y SHAP ya existen (S12, S13); falta el control negativo y la permutation importance.
+
+- [x] Ablación M1/M2/M3 (Tabla S12) y SHAP (Tabla S13).
+- [ ] Control negativo con etiquetas permutadas y permutation importance.
+
+---
+
+#### R.4 Sensibilidad a la razón de muestreo
+
+**Crítica:** el 1:10 caso-control produce métricas que no sobreviven a otra razón.
+
+**Qué hacer**
+
+1. Regenerar muestras 1:5 y 1:20 con el mismo plan causal.
+2. Reentrenar M2/M3 y recalcular AUC, Δ y precisión poblacional corregida.
+
+**Salida:** Tabla S28 (nueva).
+
+**Criterio de aceptación:** se mantiene M3 > M2 y la precisión poblacional no cambia más de 20 % relativo; si cambia, se documenta.
+
+- [ ] R.4 completado y verificado
+
+---
+
+#### B.3 Referencia intermedia "índice + contexto local"
+
+**Qué hacer**
+
+- Entrenar un GBT con FWI e INPE como entradas, más las features locales de M3 (combustible, accesibilidad, densidad histórica).
+
+**Salida:** fila adicional en el benchmark.
+
+**Interpretación**
+
+- Si ≈ M3: el índice es útil pero insuficiente por sí solo; reformular el mensaje central.
+- Si ≪ M3: la información local de alta resolución es la que domina.
+
+**Riesgo:** si empata con M3, hay que revisar el título y el abstract para no vender "M3 supera a FWI" como hallazgo principal.
+
+### 4.5 Fase 4 — Cierre y opcionales
+
+#### R.7 Validación adversarial
+
+**Crítica:** el test no se parece al train y el shift no se documenta.
+
+**Qué hacer**
+
+1. Entrenar un clasificador train vs test con las mismas features.
+2. Reportar AUC y las 10 variables con mayor contribución al shift.
+
+**Salida:** Tabla S29 (nueva).
+
+**Criterio de aceptación:** el shift queda cuantificado y conectado con la caída espacial de §3.3.
+
+- [ ] R.7 completado y verificado
+
+---
+
+#### R.12 Reproducibilidad verificable
+
+**Crítica:** las tablas no se pueden reconstruir de forma independiente.
+
+**Qué hacer**
+
+1. Calcular SHA-256 de tablas y artefactos y publicarlos en `auditoria/HASHES.md`.
+2. Añadir `scripts/run_all.sh` (o `Makefile`) con el orden completo de ejecución.
+3. Ejecutar en entorno limpio con el lock y comparar hashes.
+
+**Salida:** `auditoria/HASHES.md`, `scripts/run_all.sh` y una frase en §3.5.
+
+**Criterio de aceptación:** un tercero reproduce las tablas con tolerancia declarada (o byte a byte) y los hashes coinciden.
+
+- [x] 76 pruebas, lockfile, CI y DOI de release.
+- [ ] Hashes SHA-256 y `run_all.sh` verificados en entorno limpio.
+
+---
+
+#### C.6 Reordenar la narrativa
 
 1. Renombrar §3.4 como **"Operational value"**; cost-loss y beneficio neto como resultados primarios.
 2. Mover calibración (conformal, ECE) a **§3.5 "Calibration"**.
@@ -258,6 +542,44 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 
 ---
 
+#### B.6 Opcional — FWI a 1 km
+
+Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. Si el FWI a 1 km sigue en ~0.52, la crítica de escala queda descartada definitivamente.
+
+**Coste:** 3–5 días.
+
+### 4.6 Estado de robustez y objetivos por palanca
+
+**Objetivo de R.** Que cada objeción previsible de un revisor tenga una respuesta cuantitativa **ya en el manuscrito**, no una promesa de trabajo futuro.
+
+| Ítem | Crítica que neutraliza | Coste | Prioridad | Estado |
+|---|---|---|---|---|
+| R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Pendiente |
+| R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Pendiente |
+| R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Parcial (limitación declarada) |
+| R.4 Sensibilidad a la razón de muestreo | "Artefacto del 1:10" | 2 d | Media | Pendiente |
+| R.5 Sensibilidad a umbral y métrica | "F0.5 elegido a conveniencia" | 2 d | Alta | Parcial (cutoff hecho; falta β y presupuesto) |
+| R.6 Corrección por multiplicidad | "p ≤ 0.001 sin ajuste" | 1 d | **Muy alta** | Completado (Holm 0.006 / BH 0.001) |
+| R.7 Validación adversarial | "El test no se parece al train" | 1 d | Media | Pendiente |
+| R.8 Calidad de etiquetas VIIRS | "Etiquetas ruidosas" | 2 d | Alta | Parcial (QC implementado) |
+| R.9 Ablación del gate | "El gate hace el trabajo" | 2 d | Media | Parcial (S19 acoplado) |
+| R.10 Controles negativos y ablación por familias | "Caja negra / fuga residual" | 1 d | Alta | Parcial (S12/S13) |
+| R.11 Incertidumbre de la precisión poblacional | "0.082 % sin IC" | 1 d | Alta | Parcial (S6 sin IC) |
+| R.12 Reproducibilidad verificable | "No se puede reconstruir" | 1 d | Media | Parcial |
+
+Ya cubierto y que **no** hay que repetir: sensibilidad D2 15/25/35 km × 7/10/14 d (Tabla S20), bloques espaciales y holdout de confirmación (S8, S18), baseline acoplado t-1 (S19), bootstrap agrupado por fecha (S7), cobertura conformal (S5), baseline weather-only (S21) y 76 pruebas unitarias.
+
+**Objetivos de las otras palancas.**
+
+- **B — Comparación.** Que un revisor no pueda atribuir la ventaja de M3 a una comparación desleal (resolución, umbral o información disponible).
+- **C — Decisión.** Que la utilidad operativa sea un resultado primario y no una comprobación secundaria.
+
+### 4.7 Dependencias y coste
+
+El orden está en §2 (Ruta priorizada). R.1, R.2, R.4, R.8, R.9 y R.10 requieren reentrenar: usar el entorno con LightGBM (venv temporal) y dejar los artefactos en `modelos/` (ignorados por git) y las tablas en `entregables/tablas/`.
+
+**Coste total de R:** 3–4 semanas. **Prioridad mínima antes del envío:** R.2, R.3, R.6 y R.11.
+
 ## 5. Sinergia B ∩ C
 
 | Artefacto | Contenido | Coste | Impacto |
@@ -267,25 +589,7 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 | **Figura S4** | Beneficio neto por región y tarea, con bandas | 2 días | Alto |
 | **Nota S4** | Implementación de FWI e INPE y declaración de no calibración local | 1 día | Medio-alto |
 
----
-
-## 6. Cronograma
-
-| Semana | Tarea | Entregable |
-|---|---|---|
-| 1 | B.1 + B.5 | Tabla de benchmark con umbrales; Nota S4 |
-| 1–2 | B.2 | Fila weather-only; decisión sobre el mensaje |
-| 2 | B.4 | Sensibilidad A fija vs A local del INPE |
-| 2–3 | C.1 + C.2 + C.4 | Tabla S22 + Figura S4 |
-| 3 | C.3 + C.5 | Tabla S23 |
-| 3–4 | Reescritura §3.4/§3.5, 4.1, 4.2, Conclusiones, Abstract | Manuscrito v3 |
-| 4 (opcional) | B.3 + B.6 | Tabla S24 / Figura S5 |
-
-**Total:** 3–4 semanas de trabajo efectivo, sin cómputo pesado (cabe en el portátil con DuckDB a 9 GB).
-
----
-
-## 7. Checklist de terminado
+## 6. Checklist de terminado
 
 - [x] FWI e INPE tienen `cutoff_f05`, precisión, recall y F0.5 en la tabla principal.
 - [x] Existe un baseline weather-only GBT y está en la tabla.
@@ -303,7 +607,22 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 
 ---
 
-## 8. Resultado esperado
+### Robustez (R)
+
+- [ ] R.1 Estabilidad a semillas e hiperparámetros (5 semillas × 2 capacidades).
+- [ ] R.2 Backtest rolling-origin con cuatro folds.
+- [ ] R.3 Métricas excluyendo celdas de test vistas en entrenamiento — parcial: limitación declarada; falta recomputar.
+- [ ] R.4 Sensibilidad a 1:5 y 1:20.
+- [ ] R.5 Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas — parcial: cutoff F0.5 hecho.
+- [ ] R.6 Holm–Bonferroni y Benjamini–Hochberg sobre las comparaciones del benchmark — parcial: cautela declarada.
+- [ ] R.7 Validación adversarial train vs test.
+- [ ] R.8 Variantes de calidad VIIRS (confianza, nubes, FRP) — parcial: QC implementado.
+- [ ] R.9 Ablación del gate y sensibilidad de umbrales — parcial: S19 acoplado.
+- [ ] R.10 Control negativo con etiquetas permutadas y permutation importance — parcial: S12/S13.
+- [ ] R.11 IC de Wilson/bootstrap para la precisión poblacional — parcial: S6 sin IC.
+- [ ] R.12 Hashes SHA-256 y `run_all.sh` verificados en entorno limpio — parcial: tests, lock y CI.
+
+## 7. Resultado esperado
 
 Con B y C cerrados, el manuscrito deja de apoyarse en el ΔAUC de +0.003 entre M3 y M2 y pasa a defender:
 
