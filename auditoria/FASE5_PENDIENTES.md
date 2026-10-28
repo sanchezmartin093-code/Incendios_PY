@@ -27,12 +27,13 @@
 - Release verificado: concept DOIs resuelven a v2.0.0 (`23717175`/`23717176`).
 - Holdout de confirmación espacial 2023 evaluado con reentrenamiento (Tabla S18).
 - Baseline acoplado t-1 implementado como comparador (Tabla S19).
+- Sensibilidad D2 completa 3 × 3 (15/25/35 km × 7/10/14 d) con remuestreo y reentrenamiento; Tabla S20. M3 supera a M2 en las 18 comparaciones región × evaluación y el ranking es estable.
 
 ## Pendiente científico
 
-1. Sensibilidad D2 a radio/ventana con reentrenamiento completo; no se incluyó un análisis parcial para no publicar un resultado no validado.
-2. Validación externa en otro país; el holdout de confirmación espacial 2023 ya se evaluó de forma independiente (Tabla S18).
+1. Validación externa en otro país; el holdout de confirmación espacial 2023 ya se evaluó de forma independiente (Tabla S18).
+2. Publicar v2.0.1 con S20, scripts 37–39 y el nuevo asset de datos; v2.0.0 no contiene estos artefactos.
 
 ## Nota
 
-No se reentrena: los boosters, calibradores, targets y tablas del paper no cambiaron. Cualquier cambio científico posterior requiere un candidato nuevo.
+La sensibilidad D2 reentrena modelos auxiliares y no modifica los boosters operativos de r4; cualquier cambio en el modelo principal requiere un candidato nuevo.

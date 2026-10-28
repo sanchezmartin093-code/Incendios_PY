@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S19 and Figures S1–S3.  
+> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S20 and Figures S1–S3.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.0).  
 > **Data:** processed data and test predictions are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -35,7 +35,7 @@ format:
 
 • **Note S3:** Evaluation protocol and extended analyses.
 
-• **Tables S1–S19:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, SHAP, cost-loss and data audit.
+• **Tables S1–S20:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss and data audit.
 
 • **Figures S1–S3:** SHAP, ablation and cost-loss.
 
@@ -556,6 +556,33 @@ The held-in 2023 reference rows and full precision/recall/FP/FN counts are in `t
 | Oriental | Decoupled task models | 0.7806 | 0.3532 | 0.0705 | 0.1467 | 0.0090 | 1,060,895 | 96,445 |
 
 This is a comparator for the leakage discussion, not an operational model. Because both sides use the same gated case-control sample, it does not test the effect of removing the gate.
+
+
+**Table S20.** D2 sensitivity with full retraining. Each row is an independent run: the 1:10 ignition sample was regenerated, M1/M2/M3 were retrained, the cutoff was selected on 2023 and applied to 2024–2025. Priors and predictors were held fixed; only the D2 radius and same-cell window changed. The 25 km/10 d row is the reference under this harness. 
+
+| R (km) | W (d) | Region | n 2023 | Pos 2023 | ROC 2023 | PR 2023 | n 2024–25 | Pos 2024–25 | ROC 2024–25 | PR 2024–25 |
+|---:|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 15 | 7 | Chaco | 139,139 | 12,649 | 0.7824 | 0.2499 | 250,470 | 22,770 | 0.7893 | 0.2667 |
+| 15 | 7 | Oriental | 168,630 | 15,330 | 0.7630 | 0.2491 | 358,952 | 32,632 | 0.7525 | 0.2384 |
+| 15 | 10 | Chaco | 135,300 | 12,300 | 0.7803 | 0.2458 | 243,518 | 22,138 | 0.7877 | 0.2638 |
+| 15 | 10 | Oriental | 165,891 | 15,081 | 0.7613 | 0.2464 | 353,650 | 32,150 | 0.7515 | 0.2341 |
+| 15 | 14 | Chaco | 131,549 | 11,959 | 0.7774 | 0.2406 | 236,368 | 21,488 | 0.7854 | 0.2572 |
+| 15 | 14 | Oriental | 162,569 | 14,779 | 0.7592 | 0.2402 | 347,204 | 31,564 | 0.7501 | 0.2312 |
+| 25 | 7 | Chaco | 100,408 | 9,128 | 0.7783 | 0.2417 | 181,852 | 16,532 | 0.7933 | 0.2658 |
+| 25 | 7 | Oriental | 92,884 | 8,444 | 0.7664 | 0.2555 | 202,928 | 18,448 | 0.7547 | 0.2420 |
+| 25 | 10 | Chaco | 97,383 | 8,853 | 0.7763 | 0.2422 | 176,616 | 16,056 | 0.7923 | 0.2600 |
+| 25 | 10 | Oriental | 91,124 | 8,284 | 0.7622 | 0.2433 | 199,936 | 18,176 | 0.7526 | 0.2360 |
+| 25 | 14 | Chaco | 94,468 | 8,588 | 0.7735 | 0.2379 | 171,281 | 15,571 | 0.7906 | 0.2550 |
+| 25 | 14 | Oriental | 89,430 | 8,130 | 0.7608 | 0.2410 | 196,053 | 17,823 | 0.7505 | 0.2317 |
+| 35 | 7 | Chaco | 73,051 | 6,641 | 0.7764 | 0.2428 | 130,449 | 11,859 | 0.7974 | 0.2672 |
+| 35 | 7 | Oriental | 59,488 | 5,408 | 0.7676 | 0.2513 | 127,446 | 11,586 | 0.7531 | 0.2447 |
+| 35 | 10 | Chaco | 70,598 | 6,418 | 0.7734 | 0.2361 | 126,357 | 11,487 | 0.7949 | 0.2612 |
+| 35 | 10 | Oriental | 58,234 | 5,294 | 0.7634 | 0.2445 | 125,510 | 11,410 | 0.7523 | 0.2406 |
+| 35 | 14 | Chaco | 68,420 | 6,220 | 0.7710 | 0.2342 | 122,386 | 11,126 | 0.7936 | 0.2548 |
+| 35 | 14 | Oriental | 57,068 | 5,188 | 0.7616 | 0.2434 | 123,068 | 11,188 | 0.7499 | 0.2376 |
+
+
+The full table with M1, M2 and the gated policy is in `tablas/tablaS20_sensibilidad_d2.csv`. The 25 km/10 d row reproduces the same sample and features as the main partitions; its small difference from Table 10 reflects retraining inside this sensitivity harness, not a different target or sample. M3 beat M2 in all 18 region-by-evaluation comparisons (ΔROC +0.004 to +0.016). The 7-day window had the highest ROC-AUC in every region × radius pair, and the radius effect was small: 35 km was slightly better in Chaco and 25 km in Oriental. The ranking and the D2 conclusion are stable.
 
 # Data availability {.unnumbered}
 

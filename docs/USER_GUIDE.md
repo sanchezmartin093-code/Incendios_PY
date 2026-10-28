@@ -77,6 +77,7 @@ python scripts/26_validacion_2023.py
 python scripts/35_evaluar_politica_gated.py
 python scripts/37_validacion_confirmacion_2023.py
 python scripts/38_coupled_baseline.py
+python scripts/39_sensibilidad_d2.py --reuse
 ```
 
 The scripts fail closed if required validation metadata are missing; they do not
@@ -127,6 +128,7 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
   reuses 2023 (`lag 2`).
 - The spatial holdout is 50-km blocks with a 20-km buffer.
 - The confirmation holdout is evaluated by `scripts/37_validacion_confirmacion_2023.py` after retraining without the confirmation blocks and buffer.
+- The D2 sensitivity grid is evaluated by `scripts/39_sensibilidad_d2.py`; it regenerates the 1:10 ignition sample and retrains M1/M2/M3 for each radius/window pair.
 
 ## 7. Troubleshooting
 

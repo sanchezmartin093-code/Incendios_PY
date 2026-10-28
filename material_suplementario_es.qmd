@@ -22,7 +22,7 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.pdf`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S19 y Figuras S1–S3.  
+> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S20 y Figuras S1–S3.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.0 de GitHub).  
 > **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -48,7 +48,7 @@ format:
 
 • **Nota S3:** Protocolo de evaluación y análisis ampliados.
 
-• **Tablas S1–S19:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, SHAP, cost-loss y auditoría de datos.
+• **Tablas S1–S20:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss y auditoría de datos.
 
 • **Figuras S1–S3:** SHAP, ablación y cost-loss.
 
@@ -569,6 +569,33 @@ Las filas held-in de referencia 2023 y los conteos completos de precisión/recal
 | Oriental | Modelos desacoplados | 0.7806 | 0.3532 | 0.0705 | 0.1467 | 0.0090 | 1 060 895 | 96 445 |
 
 Es un comparador para la discusión de fuga, no un modelo operativo. Como ambos lados usan la misma muestra gated caso-control, no prueba el efecto de eliminar el gating.
+
+
+**Tabla S20.** Sensibilidad D2 con reentrenamiento completo. Cada fila es una corrida independiente: se regeneró la muestra de ignición 1:10, se reentrenaron M1/M2/M3, y el cutoff se seleccionó en 2023 y se aplicó a 2024–2025. Los priors y predictores se mantuvieron fijos; solo cambiaron el radio D2 y la ventana de la misma celda. La fila 25 km/10 d es la referencia en este arnés.
+
+| R (km) | W (d) | Región | n 2023 | Pos 2023 | ROC 2023 | PR 2023 | n 2024–25 | Pos 2024–25 | ROC 2024–25 | PR 2024–25 |
+|---:|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 15 | 7 | Chaco | 139,139 | 12,649 | 0.7824 | 0.2499 | 250,470 | 22,770 | 0.7893 | 0.2667 |
+| 15 | 7 | Oriental | 168,630 | 15,330 | 0.7630 | 0.2491 | 358,952 | 32,632 | 0.7525 | 0.2384 |
+| 15 | 10 | Chaco | 135,300 | 12,300 | 0.7803 | 0.2458 | 243,518 | 22,138 | 0.7877 | 0.2638 |
+| 15 | 10 | Oriental | 165,891 | 15,081 | 0.7613 | 0.2464 | 353,650 | 32,150 | 0.7515 | 0.2341 |
+| 15 | 14 | Chaco | 131,549 | 11,959 | 0.7774 | 0.2406 | 236,368 | 21,488 | 0.7854 | 0.2572 |
+| 15 | 14 | Oriental | 162,569 | 14,779 | 0.7592 | 0.2402 | 347,204 | 31,564 | 0.7501 | 0.2312 |
+| 25 | 7 | Chaco | 100,408 | 9,128 | 0.7783 | 0.2417 | 181,852 | 16,532 | 0.7933 | 0.2658 |
+| 25 | 7 | Oriental | 92,884 | 8,444 | 0.7664 | 0.2555 | 202,928 | 18,448 | 0.7547 | 0.2420 |
+| 25 | 10 | Chaco | 97,383 | 8,853 | 0.7763 | 0.2422 | 176,616 | 16,056 | 0.7923 | 0.2600 |
+| 25 | 10 | Oriental | 91,124 | 8,284 | 0.7622 | 0.2433 | 199,936 | 18,176 | 0.7526 | 0.2360 |
+| 25 | 14 | Chaco | 94,468 | 8,588 | 0.7735 | 0.2379 | 171,281 | 15,571 | 0.7906 | 0.2550 |
+| 25 | 14 | Oriental | 89,430 | 8,130 | 0.7608 | 0.2410 | 196,053 | 17,823 | 0.7505 | 0.2317 |
+| 35 | 7 | Chaco | 73,051 | 6,641 | 0.7764 | 0.2428 | 130,449 | 11,859 | 0.7974 | 0.2672 |
+| 35 | 7 | Oriental | 59,488 | 5,408 | 0.7676 | 0.2513 | 127,446 | 11,586 | 0.7531 | 0.2447 |
+| 35 | 10 | Chaco | 70,598 | 6,418 | 0.7734 | 0.2361 | 126,357 | 11,487 | 0.7949 | 0.2612 |
+| 35 | 10 | Oriental | 58,234 | 5,294 | 0.7634 | 0.2445 | 125,510 | 11,410 | 0.7523 | 0.2406 |
+| 35 | 14 | Chaco | 68,420 | 6,220 | 0.7710 | 0.2342 | 122,386 | 11,126 | 0.7936 | 0.2548 |
+| 35 | 14 | Oriental | 57,068 | 5,188 | 0.7616 | 0.2434 | 123,068 | 11,188 | 0.7499 | 0.2376 |
+
+
+La tabla completa con M1, M2 y la política gated está en `tablas/tablaS20_sensibilidad_d2.csv`. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 10 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.
 
 # Disponibilidad de datos {.unnumbered}
 

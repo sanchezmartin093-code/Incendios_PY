@@ -136,6 +136,7 @@ python scripts/30_validacion_propagacion_2023.py
 python scripts/35_evaluar_politica_gated.py
 python scripts/37_validacion_confirmacion_2023.py
 python scripts/38_coupled_baseline.py
+python scripts/39_sensibilidad_d2.py --reuse
 
 # 4. Operational products
 python scripts/09_servicio_alerta.py --fecha 2024-09-09
@@ -280,7 +281,7 @@ licenses and terms.
 6. The model is a nowcast/hindcast: weather features are same-day.
 7. Ignition population precision is very low; operational use must be prioritised
    and evaluated prospectively.
-8. A coupled t-1 comparator is reported in Table S19; external-country validation is not included yet.
+8. A coupled t-1 comparator and a full 15/25/35-km × 7/10/14-d D2 sensitivity are reported in Tables S19–S20; external-country validation is not included yet.
 
 ## Tests
 
