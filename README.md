@@ -237,7 +237,7 @@ Raw datasets are public but are not redistributed in this repository:
 5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest and archived under the data concept DOI.
+`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, available in the v2.0.0 GitHub release, and indexed by the data concept DOI.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
@@ -247,8 +247,8 @@ licenses and terms.
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
 - Release: **v2.0.0** (2026-10-27) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases>
-- Code concept DOI: [`10.5281/zenodo.23675104`](https://doi.org/10.5281/zenodo.23675104) (v2.0.0).
-- Data concept DOI: [`10.5281/zenodo.23675278`](https://doi.org/10.5281/zenodo.23675278) (v2.0.0).
+- Code concept DOI: [`10.5281/zenodo.23675104`](https://doi.org/10.5281/zenodo.23675104).
+- Data concept DOI: [`10.5281/zenodo.23675278`](https://doi.org/10.5281/zenodo.23675278).
 - License: MIT.
 - Contact: Martín Sánchez Insfrán, `sanchez.martin093@gmail.com`.
 - ORCID: <https://orcid.org/0000-0003-4138-9668>
