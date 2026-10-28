@@ -46,7 +46,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Tests: **76 pass** (pytest; 2 warnings).
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
   exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
-- Public release: **v2.0.0** (2026-10-27); release page: <https://github.com/sanchezmartin093-code/Incendios_PY/releases>.
+- Public release: **v2.0.0** (2026-10-27): <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0>.
 
 ## Installation
 
@@ -246,7 +246,9 @@ licenses and terms.
 ## Code and data availability
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
-- Release: **v2.0.0** (2026-10-27) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases>
+- Release: **v2.0.0** (2026-10-27) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0>
+- Code version DOI: [`10.5281/zenodo.23717175`](https://doi.org/10.5281/zenodo.23717175).
+- Data version DOI: [`10.5281/zenodo.23717176`](https://doi.org/10.5281/zenodo.23717176).
 - Code concept DOI: [`10.5281/zenodo.23675104`](https://doi.org/10.5281/zenodo.23675104).
 - Data concept DOI: [`10.5281/zenodo.23675278`](https://doi.org/10.5281/zenodo.23675278).
 - License: MIT.
