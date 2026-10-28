@@ -1,0 +1,9 @@
+region,task,model,alerts_day,precision_pct,recall_pct,alerts_per_hit,lift,precision_top10_pct,recall_top10_pct,precision_top50_pct,recall_top50_pct,precision_top100_pct,recall_top100_pct,alpha_optimo,v_optimo
+Chaco,ignicion,M3,8237.8,0.082,27.35,1226.7,5.3,0.28,0.118,0.25,0.517,0.21,0.859,0.0001,0.372
+Chaco,ignicion,M2,6723.1,0.09,24.6,1113.4,5.9,0.24,0.1,0.23,0.48,0.22,0.884,0.0001,0.3731
+Chaco,ignicion,Gated,9834.2,0.077,30.87,1297.5,5.0,0.26,0.112,0.25,0.511,0.21,0.909,0.0002,0.3738
+Chaco,propagacion,Propagation,451.6,9.667,50.65,10.3,62.3,33.7,3.998,26.28,15.27,22.1,25.656,0.002,0.6278
+Oriental,ignicion,M3,3072.9,0.198,20.76,504.0,4.8,1.19,0.424,0.77,1.32,0.66,2.239,0.0005,0.3129
+Oriental,ignicion,M2,3918.5,0.166,22.1,603.8,4.0,0.83,0.286,0.63,1.084,0.53,1.821,0.0005,0.3024
+Oriental,ignicion,Gated,2597.2,0.21,18.55,476.9,5.1,1.19,0.424,0.77,1.32,0.66,2.239,0.0005,0.3101
+Oriental,propagacion,Propagation,525.0,4.784,18.77,20.9,22.8,17.9,1.352,12.41,4.64,10.02,7.492,0.002,0.3995

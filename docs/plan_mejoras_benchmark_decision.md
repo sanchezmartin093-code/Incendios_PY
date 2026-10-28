@@ -243,6 +243,8 @@ Ambos resultados son publicables.
 
 **Criterio de aceptación:** ninguna afirmación de superioridad sin IC.
 
+**Estado:** C.1 completado (2026-10-28): Tabla S14 con `valor_lo`/`valor_hi`; Figura S3 con bandas bootstrap (B = 1 000, agrupado por fecha). C.5 (diferencia pareada) pendiente.
+
 ---
 
 #### C.5 Test pareado de diferencia de valor
@@ -255,6 +257,8 @@ Ambos resultados son publicables.
 **Salida:** `Tabla S24` (nueva) o columnas en `Tabla S23`.
 
 **Criterio de aceptación:** la afirmación "M3 no supera claramente a M2" pasa de cualitativa a cuantificada.
+
+**Estado:** C.5 completado (2026-10-28): Tabla S24. M3−M2 excluye 0 en Oriental α=0.0002–0.005 y en ningún α del Chaco; M3−FWI excluye 0 en Chaco α=0.0001–0.001 y Oriental α=0.0001–0.005.
 
 ---
 
@@ -275,6 +279,8 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 
 **Criterio de aceptación:** se puede comparar M3 con FWI/INPE en el mismo eje de decisión.
 
+**Estado:** C.2 completado (2026-10-28): Figura S4 y Tabla S23; NB por 1 000 celdas-día muestreadas (muestra caso-control) para M1/M2/M3/gated/FWI/INPE y propagación. FWI/INPE usan el umbral de validación 2023 que maximiza NB en cada p_t. El NB ponderado por población sigue en la Tabla S14.
+
 ---
 
 #### C.4 Incluir FWI e INPE en el análisis de decisión
@@ -286,6 +292,8 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 **Salida:** filas de FWI/INPE en `Tabla S14`, `Tabla S23` y `Figura S4`.
 
 **Criterio de aceptación:** se responde si la ventaja en AUC se traduce en valor de decisión.
+
+**Estado:** C.4 completado (2026-10-28): FWI/INPE en Tabla S14 con cortes F0.5 congelados e IC bootstrap, y en Tabla S23/Figura S4 con umbral de validación por p_t. Conclusión: valor positivo solo en α≈0.0001–0.0005; negativo para α≥0.001.
 
 ---
 
@@ -303,6 +311,8 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 **Salida:** `Tabla S23` (nueva).
 
 **Criterio de aceptación:** el manuscrito traduce la precisión poblacional a una carga operativa concreta.
+
+**Estado:** C.3 completado (2026-10-28): bloque operativo en Tabla S23 (alertas/día, precisión/recall@10/50/100, alertas por acierto, lift y α*).
 
 ---
 

@@ -1,0 +1,1827 @@
+region,task,model,pt,nb_per_1000
+Chaco,ignicion,M3,0.0,90.9090909090909
+Chaco,ignicion,M3,0.005,86.34079488350845
+Chaco,ignicion,M3,0.01,81.72635445362718
+Chaco,ignicion,M3,0.015,78.97876582859853
+Chaco,ignicion,M3,0.02,75.56957420826735
+Chaco,ignicion,M3,0.025,72.20183901798252
+Chaco,ignicion,M3,0.03,69.6909457946858
+Chaco,ignicion,M3,0.035,66.81199527513336
+Chaco,ignicion,M3,0.04,64.088899080491
+Chaco,ignicion,M3,0.045,61.46134886773021
+Chaco,ignicion,M3,0.05,58.71376021246212
+Chaco,ignicion,M3,0.055,56.221994064545136
+Chaco,ignicion,M3,0.06,53.8864698892368
+Chaco,ignicion,M3,0.065,51.79513898729265
+Chaco,ignicion,M3,0.07,49.740010646997476
+Chaco,ignicion,M3,0.075,47.64834137031446
+Chaco,ignicion,M3,0.08,45.448883453367756
+Chaco,ignicion,M3,0.085,43.15038943429739
+Chaco,ignicion,M3,0.09,41.110421715802886
+Chaco,ignicion,M3,0.095,39.36952084079403
+Chaco,ignicion,M3,0.1,37.62777249324335
+Chaco,ignicion,M3,0.105,35.90768394924519
+Chaco,ignicion,M3,0.11,34.49189328667336
+Chaco,ignicion,M3,0.115,33.157062761075835
+Chaco,ignicion,M3,0.12,31.688933773116407
+Chaco,ignicion,M3,0.125,30.09110968752224
+Chaco,ignicion,M3,0.13,28.827851214583855
+Chaco,ignicion,M3,0.135,27.524296858001723
+Chaco,ignicion,M3,0.14,26.33238738411332
+Chaco,ignicion,M3,0.145,25.25060480768136
+Chaco,ignicion,M3,0.15,24.306971055849978
+Chaco,ignicion,M3,0.155,23.281813813031473
+Chaco,ignicion,M3,0.16,22.33093264483399
+Chaco,ignicion,M3,0.165,21.261492506222773
+Chaco,ignicion,M3,0.17,20.27746807313504
+Chaco,ignicion,M3,0.175,19.272079402531908
+Chaco,ignicion,M3,0.18,18.29585917139237
+Chaco,ignicion,M3,0.185,17.2337421367656
+Chaco,ignicion,M3,0.19,16.347944931236743
+Chaco,ignicion,M3,0.195,15.479911219821531
+Chaco,ignicion,M3,0.2,14.61787154051728
+Chaco,ignicion,M3,0.205,13.76176093791797
+Chaco,ignicion,M3,0.21,13.05184443630263
+Chaco,ignicion,M3,0.215,12.347201701975916
+Chaco,ignicion,M3,0.22,11.741248288333491
+Chaco,ignicion,M3,0.225,11.047660168881055
+Chaco,ignicion,M3,0.23,10.405728709846118
+Chaco,ignicion,M3,0.235,9.896511940827423
+Chaco,ignicion,M3,0.24,9.488619973632956
+Chaco,ignicion,M3,0.245,8.967859931540032
+Chaco,ignicion,M3,0.25,8.50621310262566
+Chaco,ignicion,M3,0.255,8.034227671119355
+Chaco,ignicion,M3,0.26,7.675072136955544
+Chaco,ignicion,M3,0.265,7.2253682919922495
+Chaco,ignicion,M3,0.27,6.879486554220872
+Chaco,ignicion,M3,0.275,6.547225775616065
+Chaco,ignicion,M3,0.28,6.272868193645473
+Chaco,ignicion,M3,0.285,6.017202664165565
+Chaco,ignicion,M3,0.29,5.652511344736445
+Chaco,ignicion,M3,0.295,5.30553603972171
+Chaco,ignicion,M3,0.3,5.095801059926621
+Chaco,ignicion,M2,0.0,90.9090909090909
+Chaco,ignicion,M2,0.005,86.34079488350845
+Chaco,ignicion,M2,0.01,81.72635445362718
+Chaco,ignicion,M2,0.015,78.78499317915676
+Chaco,ignicion,M2,0.02,75.52266048422358
+Chaco,ignicion,M2,0.025,72.13418536288492
+Chaco,ignicion,M2,0.03,69.28234777155308
+Chaco,ignicion,M2,0.035,66.85494434106158
+Chaco,ignicion,M2,0.04,64.2297413597862
+Chaco,ignicion,M2,0.045,61.65059606939728
+Chaco,ignicion,M2,0.05,59.03232227872303
+Chaco,ignicion,M2,0.055,56.37537737687214
+Chaco,ignicion,M2,0.06,54.01031110648514
+Chaco,ignicion,M2,0.065,51.68940792786743
+Chaco,ignicion,M2,0.07,49.629997355297505
+Chaco,ignicion,M2,0.075,47.59554703500891
+Chaco,ignicion,M2,0.08,45.60840418220024
+Chaco,ignicion,M2,0.085,43.669313389228115
+Chaco,ignicion,M2,0.09,41.52157010901406
+Chaco,ignicion,M2,0.095,39.52689944811443
+Chaco,ignicion,M2,0.1,37.68187606005244
+Chaco,ignicion,M2,0.105,36.104462213638755
+Chaco,ignicion,M2,0.11,34.3772536673227
+Chaco,ignicion,M2,0.115,32.468793736559945
+Chaco,ignicion,M2,0.12,31.121704200587203
+Chaco,ignicion,M2,0.125,29.754625046104866
+Chaco,ignicion,M2,0.13,28.346581114479676
+Chaco,ignicion,M2,0.135,26.83981655378011
+Chaco,ignicion,M2,0.14,25.4826921841209
+Chaco,ignicion,M2,0.145,24.167076582307487
+Chaco,ignicion,M2,0.15,22.827523454007235
+Chaco,ignicion,M2,0.155,21.456438238087078
+Chaco,ignicion,M2,0.16,20.398033290409966
+Chaco,ignicion,M2,0.165,19.255042029000837
+Chaco,ignicion,M2,0.17,17.763812417764548
+Chaco,ignicion,M2,0.175,16.388919772531676
+Chaco,ignicion,M2,0.18,15.22111633672391
+Chaco,ignicion,M2,0.185,14.39430065045625
+Chaco,ignicion,M2,0.19,13.973469400308794
+Chaco,ignicion,M2,0.195,13.259562733144326
+Chaco,ignicion,M2,0.2,12.586628618018752
+Chaco,ignicion,M2,0.205,11.903378199173103
+Chaco,ignicion,M2,0.21,11.50002608820796
+Chaco,ignicion,M2,0.215,10.884998913761303
+Chaco,ignicion,M2,0.22,10.455683661961688
+Chaco,ignicion,M2,0.225,9.80695133016846
+Chaco,ignicion,M2,0.23,9.26266626429692
+Chaco,ignicion,M2,0.235,8.80163634054428
+Chaco,ignicion,M2,0.24,8.533231774912212
+Chaco,ignicion,M2,0.245,8.156206438212793
+Chaco,ignicion,M2,0.25,7.824885627576211
+Chaco,ignicion,M2,0.255,7.539733568264582
+Chaco,ignicion,M2,0.26,7.1812538180251195
+Chaco,ignicion,M2,0.265,6.962990387077509
+Chaco,ignicion,M2,0.27,6.643001052977095
+Chaco,ignicion,M2,0.275,6.472448311786489
+Chaco,ignicion,M2,0.28,6.159313614470565
+Chaco,ignicion,M2,0.285,5.728519792930717
+Chaco,ignicion,M2,0.29,5.383606162043604
+Chaco,ignicion,M2,0.295,5.051910511790296
+Chaco,ignicion,M2,0.3,4.7916707109532215
+Chaco,ignicion,M1,0.0,90.9090909090909
+Chaco,ignicion,M1,0.005,86.34079488350845
+Chaco,ignicion,M1,0.01,81.72635445362718
+Chaco,ignicion,M1,0.015,77.06506691278264
+Chaco,ignicion,M1,0.02,72.35621521335807
+Chaco,ignicion,M1,0.025,67.5990675990676
+Chaco,ignicion,M1,0.03,62.80385100134534
+Chaco,ignicion,M1,0.035,58.55389321547921
+Chaco,ignicion,M1,0.04,54.31038712989385
+Chaco,ignicion,M1,0.045,50.0030889032603
+Chaco,ignicion,M1,0.05,45.888433544794175
+Chaco,ignicion,M1,0.055,41.863967935218554
+Chaco,ignicion,M1,0.06,37.42124999638596
+Chaco,ignicion,M1,0.065,33.72542237317663
+Chaco,ignicion,M1,0.07,30.645246524748906
+Chaco,ignicion,M1,0.075,27.62184320480285
+Chaco,ignicion,M1,0.08,24.472399959824408
+Chaco,ignicion,M1,0.085,21.378447911198037
+Chaco,ignicion,M1,0.09,18.548342539373934
+Chaco,ignicion,M1,0.095,15.735201781209266
+Chaco,ignicion,M1,0.1,13.458576799383975
+Chaco,ignicion,M1,0.105,11.366609705036947
+Chaco,ignicion,M1,0.11,9.197507396227602
+Chaco,ignicion,M1,0.115,7.590088516591517
+Chaco,ignicion,M1,0.12,6.723111671134501
+Chaco,ignicion,M1,0.125,6.279968163376234
+Chaco,ignicion,M1,0.13,5.50118732815501
+Chaco,ignicion,M1,0.135,4.617803792873132
+Chaco,ignicion,M1,0.14,4.120356764010949
+Chaco,ignicion,M1,0.145,3.6371569787508733
+Chaco,ignicion,M1,0.15,3.2629779728170654
+Chaco,ignicion,M1,0.155,3.0918546786087315
+Chaco,ignicion,M1,0.16,2.8504131643145088
+Chaco,ignicion,M1,0.165,2.9879431244861814
+Chaco,ignicion,M1,0.17,2.875205128163148
+Chaco,ignicion,M1,0.175,2.7570514219515436
+Chaco,ignicion,M1,0.18,2.585601171951385
+Chaco,ignicion,M1,0.185,2.434625770205841
+Chaco,ignicion,M1,0.19,2.332115373968887
+Chaco,ignicion,M1,0.195,2.258892295936554
+Chaco,ignicion,M1,0.2,2.1897789554740226
+Chaco,ignicion,M1,0.205,1.962862685004998
+Chaco,ignicion,M1,0.21,1.893115178578084
+Chaco,ignicion,M1,0.215,1.7881465248007193
+Chaco,ignicion,M1,0.22,1.7166026134636
+Chaco,ignicion,M1,0.225,1.6354051143578123
+Chaco,ignicion,M1,0.23,1.587198641825629
+Chaco,ignicion,M1,0.235,1.5500930936611936
+Chaco,ignicion,M1,0.24,1.4980463115936329
+Chaco,ignicion,M1,0.245,1.3931897599821454
+Chaco,ignicion,M1,0.25,1.3381196116622125
+Chaco,ignicion,M1,0.255,1.2833742669418475
+Chaco,ignicion,M1,0.26,1.2523734496828667
+Chaco,ignicion,M1,0.265,1.1206910630357136
+Chaco,ignicion,M1,0.27,1.0771763336417184
+Chaco,ignicion,M1,0.275,1.0757802237622864
+Chaco,ignicion,M1,0.28,1.037089882381362
+Chaco,ignicion,M1,0.285,1.0043519012128876
+Chaco,ignicion,M1,0.29,0.8213091567477977
+Chaco,ignicion,M1,0.295,0.8046868198571283
+Chaco,ignicion,M1,0.3,0.7077501472120307
+Chaco,ignicion,Gated,0.0,90.9090909090909
+Chaco,ignicion,Gated,0.005,86.34079488350845
+Chaco,ignicion,Gated,0.01,81.72635445362718
+Chaco,ignicion,Gated,0.015,78.78499317915676
+Chaco,ignicion,Gated,0.02,75.52266048422358
+Chaco,ignicion,Gated,0.025,72.13418536288492
+Chaco,ignicion,Gated,0.03,69.28234777155308
+Chaco,ignicion,Gated,0.035,66.85494434106158
+Chaco,ignicion,Gated,0.04,64.2297413597862
+Chaco,ignicion,Gated,0.045,61.65059606939728
+Chaco,ignicion,Gated,0.05,59.03232227872303
+Chaco,ignicion,Gated,0.055,56.37537737687214
+Chaco,ignicion,Gated,0.06,54.01031110648514
+Chaco,ignicion,Gated,0.065,51.68940792786743
+Chaco,ignicion,Gated,0.07,49.63084969956082
+Chaco,ignicion,Gated,0.075,47.60931947030601
+Chaco,ignicion,Gated,0.08,45.65394636558606
+Chaco,ignicion,Gated,0.085,43.7723432467239
+Chaco,ignicion,Gated,0.09,41.72552659099745
+Chaco,ignicion,Gated,0.095,39.843345878576166
+Chaco,ignicion,Gated,0.1,38.08261992118494
+Chaco,ignicion,Gated,0.105,36.56678517013713
+Chaco,ignicion,Gated,0.11,34.90973624998918
+Chaco,ignicion,Gated,0.115,33.08723141321758
+Chaco,ignicion,Gated,0.12,31.539405469287242
+Chaco,ignicion,Gated,0.125,30.090300830211145
+Chaco,ignicion,Gated,0.13,28.89449361925007
+Chaco,ignicion,Gated,0.135,27.450363559386602
+Chaco,ignicion,Gated,0.14,26.309739379402536
+Chaco,ignicion,Gated,0.145,25.241135027933865
+Chaco,ignicion,Gated,0.15,24.22503856821979
+Chaco,ignicion,Gated,0.155,23.220000841594498
+Chaco,ignicion,Gated,0.16,22.39213618137385
+Chaco,ignicion,Gated,0.165,21.37290170304858
+Chaco,ignicion,Gated,0.17,20.371470936061133
+Chaco,ignicion,Gated,0.175,19.403849611758293
+Chaco,ignicion,Gated,0.18,18.43740920083477
+Chaco,ignicion,Gated,0.185,17.284665411161328
+Chaco,ignicion,Gated,0.19,16.440284481307565
+Chaco,ignicion,Gated,0.195,15.564419224976838
+Chaco,ignicion,Gated,0.2,14.682984554060788
+Chaco,ignicion,Gated,0.205,13.863320858413502
+Chaco,ignicion,Gated,0.21,13.137419492076928
+Chaco,ignicion,Gated,0.215,12.457376310879496
+Chaco,ignicion,Gated,0.22,11.862908723895272
+Chaco,ignicion,Gated,0.225,11.181173809555121
+Chaco,ignicion,Gated,0.23,10.556396767159097
+Chaco,ignicion,Gated,0.235,10.030882700802687
+Chaco,ignicion,Gated,0.24,9.594111995575295
+Chaco,ignicion,Gated,0.245,9.028079626184935
+Chaco,ignicion,Gated,0.25,8.543959777143634
+Chaco,ignicion,Gated,0.255,8.043993673150686
+Chaco,ignicion,Gated,0.26,7.6262565051802715
+Chaco,ignicion,Gated,0.265,7.198753034755596
+Chaco,ignicion,Gated,0.27,6.806656155510507
+Chaco,ignicion,Gated,0.275,6.463467206470144
+Chaco,ignicion,Gated,0.28,6.210271625069831
+Chaco,ignicion,Gated,0.285,5.970124906121644
+Chaco,ignicion,Gated,0.29,5.642941765281183
+Chaco,ignicion,Gated,0.295,5.282928191047647
+Chaco,ignicion,Gated,0.3,5.073961912526935
+Chaco,ignicion,FWI,0.0,90.9090909090909
+Chaco,ignicion,FWI,0.005,86.34079488350845
+Chaco,ignicion,FWI,0.01,81.72635445362718
+Chaco,ignicion,FWI,0.015,77.06506691278264
+Chaco,ignicion,FWI,0.02,72.35621521335807
+Chaco,ignicion,FWI,0.025,67.5990675990676
+Chaco,ignicion,FWI,0.03,62.79287722586692
+Chaco,ignicion,FWI,0.035,57.93688177107866
+Chaco,ignicion,FWI,0.04,53.03030303030303
+Chaco,ignicion,FWI,0.045,48.072346501665876
+Chaco,ignicion,FWI,0.05,43.0622009569378
+Chaco,ignicion,FWI,0.055,37.999037999038
+Chaco,ignicion,FWI,0.06,32.92742808294759
+Chaco,ignicion,FWI,0.065,27.7683007383734
+Chaco,ignicion,FWI,0.07,22.553698906223136
+Chaco,ignicion,FWI,0.075,18.168137562756403
+Chaco,ignicion,FWI,0.08,13.004139661382798
+Chaco,ignicion,FWI,0.085,8.031626020304984
+Chaco,ignicion,FWI,0.09,2.9103930449221913
+Chaco,ignicion,FWI,0.095,0.09922578859476515
+Chaco,ignicion,FWI,0.1,0.0931084638110049
+Chaco,ignicion,FWI,0.105,0.0869227890296608
+Chaco,ignicion,FWI,0.11,0.08066761228448133
+Chaco,ignicion,FWI,0.115,0.07434175557607951
+Chaco,ignicion,FWI,0.12,0.06794401413235496
+Chaco,ignicion,FWI,0.125,0.06147315564355923
+Chaco,ignicion,FWI,0.13,0.12417354306947627
+Chaco,ignicion,FWI,0.135,0.12214212945180569
+Chaco,ignicion,FWI,0.14,0.12008709474555755
+Chaco,ignicion,FWI,0.145,0.11800802454566912
+Chaco,ignicion,FWI,0.15,0.11590449469637018
+Chaco,ignicion,FWI,0.155,0.11377607100270089
+Chaco,ignicion,FWI,0.16,0.11162230893172596
+Chaco,ignicion,FWI,0.165,0.10944275330301484
+Chaco,ignicion,FWI,0.17,0.10723693796793368
+Chaco,ignicion,FWI,0.175,0.0
+Chaco,ignicion,FWI,0.18,0.0
+Chaco,ignicion,FWI,0.185,0.0
+Chaco,ignicion,FWI,0.19,0.0
+Chaco,ignicion,FWI,0.195,0.0
+Chaco,ignicion,FWI,0.2,0.0
+Chaco,ignicion,FWI,0.205,0.0
+Chaco,ignicion,FWI,0.21,0.0
+Chaco,ignicion,FWI,0.215,0.0
+Chaco,ignicion,FWI,0.22,0.0
+Chaco,ignicion,FWI,0.225,0.0
+Chaco,ignicion,FWI,0.23,0.0
+Chaco,ignicion,FWI,0.235,0.0
+Chaco,ignicion,FWI,0.24,0.0
+Chaco,ignicion,FWI,0.245,0.0
+Chaco,ignicion,FWI,0.25,0.0
+Chaco,ignicion,FWI,0.255,0.0
+Chaco,ignicion,FWI,0.26,0.0
+Chaco,ignicion,FWI,0.265,0.0
+Chaco,ignicion,FWI,0.27,0.0
+Chaco,ignicion,FWI,0.275,0.0
+Chaco,ignicion,FWI,0.28,0.0
+Chaco,ignicion,FWI,0.285,0.0
+Chaco,ignicion,FWI,0.29,0.0
+Chaco,ignicion,FWI,0.295,0.0
+Chaco,ignicion,FWI,0.3,0.0
+Chaco,ignicion,INPE,0.0,90.9090909090909
+Chaco,ignicion,INPE,0.005,86.34079488350845
+Chaco,ignicion,INPE,0.01,81.72635445362718
+Chaco,ignicion,INPE,0.015,77.06506691278264
+Chaco,ignicion,INPE,0.02,72.35621521335807
+Chaco,ignicion,INPE,0.025,67.5990675990676
+Chaco,ignicion,INPE,0.03,62.79287722586692
+Chaco,ignicion,INPE,0.035,57.93688177107866
+Chaco,ignicion,INPE,0.04,53.03030303030303
+Chaco,ignicion,INPE,0.045,48.072346501665876
+Chaco,ignicion,INPE,0.05,43.0622009569378
+Chaco,ignicion,INPE,0.055,37.999037999038
+Chaco,ignicion,INPE,0.06,32.882011605415855
+Chaco,ignicion,INPE,0.065,27.71025765678173
+Chaco,ignicion,INPE,0.07,22.42706490138863
+Chaco,ignicion,INPE,0.075,17.584186306159406
+Chaco,ignicion,INPE,0.08,12.419476496294592
+Chaco,ignicion,INPE,0.085,8.285023777929752
+Chaco,ignicion,INPE,0.09,5.476710633661314
+Chaco,ignicion,INPE,0.095,2.370751841182681
+Chaco,ignicion,INPE,0.1,1.8388921602673474
+Chaco,ignicion,INPE,0.105,1.3010899130848022
+Chaco,ignicion,INPE,0.11,0.8047039651312333
+Chaco,ignicion,INPE,0.115,0.2609318847823069
+Chaco,ignicion,INPE,0.12,-0.2890194237524035
+Chaco,ignicion,INPE,0.125,-0.13993231482020757
+Chaco,ignicion,INPE,0.13,-0.42126590371526296
+Chaco,ignicion,INPE,0.135,-0.7058519040426301
+Chaco,ignicion,INPE,0.14,0.0
+Chaco,ignicion,INPE,0.145,0.0
+Chaco,ignicion,INPE,0.15,0.0
+Chaco,ignicion,INPE,0.155,0.0
+Chaco,ignicion,INPE,0.16,0.0
+Chaco,ignicion,INPE,0.165,0.0
+Chaco,ignicion,INPE,0.17,0.0
+Chaco,ignicion,INPE,0.175,0.0
+Chaco,ignicion,INPE,0.18,0.0
+Chaco,ignicion,INPE,0.185,0.0
+Chaco,ignicion,INPE,0.19,0.0
+Chaco,ignicion,INPE,0.195,0.0
+Chaco,ignicion,INPE,0.2,0.0
+Chaco,ignicion,INPE,0.205,0.0
+Chaco,ignicion,INPE,0.21,0.0
+Chaco,ignicion,INPE,0.215,0.0
+Chaco,ignicion,INPE,0.22,0.0
+Chaco,ignicion,INPE,0.225,0.0
+Chaco,ignicion,INPE,0.23,0.0
+Chaco,ignicion,INPE,0.235,0.0
+Chaco,ignicion,INPE,0.24,0.0
+Chaco,ignicion,INPE,0.245,0.0
+Chaco,ignicion,INPE,0.25,0.0
+Chaco,ignicion,INPE,0.255,0.0
+Chaco,ignicion,INPE,0.26,0.0
+Chaco,ignicion,INPE,0.265,0.0
+Chaco,ignicion,INPE,0.27,0.0
+Chaco,ignicion,INPE,0.275,0.0
+Chaco,ignicion,INPE,0.28,0.0
+Chaco,ignicion,INPE,0.285,0.0
+Chaco,ignicion,INPE,0.29,0.0
+Chaco,ignicion,INPE,0.295,0.0
+Chaco,ignicion,INPE,0.3,0.0
+Chaco,ignicion,No alert,0.0,0.0
+Chaco,ignicion,No alert,0.005,0.0
+Chaco,ignicion,No alert,0.01,0.0
+Chaco,ignicion,No alert,0.015,0.0
+Chaco,ignicion,No alert,0.02,0.0
+Chaco,ignicion,No alert,0.025,0.0
+Chaco,ignicion,No alert,0.03,0.0
+Chaco,ignicion,No alert,0.035,0.0
+Chaco,ignicion,No alert,0.04,0.0
+Chaco,ignicion,No alert,0.045,0.0
+Chaco,ignicion,No alert,0.05,0.0
+Chaco,ignicion,No alert,0.055,0.0
+Chaco,ignicion,No alert,0.06,0.0
+Chaco,ignicion,No alert,0.065,0.0
+Chaco,ignicion,No alert,0.07,0.0
+Chaco,ignicion,No alert,0.075,0.0
+Chaco,ignicion,No alert,0.08,0.0
+Chaco,ignicion,No alert,0.085,0.0
+Chaco,ignicion,No alert,0.09,0.0
+Chaco,ignicion,No alert,0.095,0.0
+Chaco,ignicion,No alert,0.1,0.0
+Chaco,ignicion,No alert,0.105,0.0
+Chaco,ignicion,No alert,0.11,0.0
+Chaco,ignicion,No alert,0.115,0.0
+Chaco,ignicion,No alert,0.12,0.0
+Chaco,ignicion,No alert,0.125,0.0
+Chaco,ignicion,No alert,0.13,0.0
+Chaco,ignicion,No alert,0.135,0.0
+Chaco,ignicion,No alert,0.14,0.0
+Chaco,ignicion,No alert,0.145,0.0
+Chaco,ignicion,No alert,0.15,0.0
+Chaco,ignicion,No alert,0.155,0.0
+Chaco,ignicion,No alert,0.16,0.0
+Chaco,ignicion,No alert,0.165,0.0
+Chaco,ignicion,No alert,0.17,0.0
+Chaco,ignicion,No alert,0.175,0.0
+Chaco,ignicion,No alert,0.18,0.0
+Chaco,ignicion,No alert,0.185,0.0
+Chaco,ignicion,No alert,0.19,0.0
+Chaco,ignicion,No alert,0.195,0.0
+Chaco,ignicion,No alert,0.2,0.0
+Chaco,ignicion,No alert,0.205,0.0
+Chaco,ignicion,No alert,0.21,0.0
+Chaco,ignicion,No alert,0.215,0.0
+Chaco,ignicion,No alert,0.22,0.0
+Chaco,ignicion,No alert,0.225,0.0
+Chaco,ignicion,No alert,0.23,0.0
+Chaco,ignicion,No alert,0.235,0.0
+Chaco,ignicion,No alert,0.24,0.0
+Chaco,ignicion,No alert,0.245,0.0
+Chaco,ignicion,No alert,0.25,0.0
+Chaco,ignicion,No alert,0.255,0.0
+Chaco,ignicion,No alert,0.26,0.0
+Chaco,ignicion,No alert,0.265,0.0
+Chaco,ignicion,No alert,0.27,0.0
+Chaco,ignicion,No alert,0.275,0.0
+Chaco,ignicion,No alert,0.28,0.0
+Chaco,ignicion,No alert,0.285,0.0
+Chaco,ignicion,No alert,0.29,0.0
+Chaco,ignicion,No alert,0.295,0.0
+Chaco,ignicion,No alert,0.3,0.0
+Chaco,ignicion,Alert all,0.0,90.9090909090909
+Chaco,ignicion,Alert all,0.005,86.34079488350845
+Chaco,ignicion,Alert all,0.01,81.72635445362718
+Chaco,ignicion,Alert all,0.015,77.06506691278264
+Chaco,ignicion,Alert all,0.02,72.35621521335807
+Chaco,ignicion,Alert all,0.025,67.5990675990676
+Chaco,ignicion,Alert all,0.03,62.79287722586692
+Chaco,ignicion,Alert all,0.035,57.93688177107866
+Chaco,ignicion,Alert all,0.04,53.03030303030303
+Chaco,ignicion,Alert all,0.045,48.072346501665876
+Chaco,ignicion,Alert all,0.05,43.0622009569378
+Chaco,ignicion,Alert all,0.055,37.999037999038
+Chaco,ignicion,Alert all,0.06,32.882011605415855
+Chaco,ignicion,Alert all,0.065,27.71025765678173
+Chaco,ignicion,Alert all,0.07,22.482893450635384
+Chaco,ignicion,Alert all,0.075,17.1990171990172
+Chaco,ignicion,Alert all,0.08,11.857707509881417
+Chaco,ignicion,Alert all,0.085,6.4580228514654765
+Chaco,ignicion,Alert all,0.09,0.999000999001004
+Chaco,ignicion,Alert all,0.095,-4.5203415369161215
+Chaco,ignicion,Alert all,0.1,-10.1010101010101
+Chaco,ignicion,Alert all,0.105,-15.744032503809043
+Chaco,ignicion,Alert all,0.11,-21.450459652706826
+Chaco,ignicion,Alert all,0.115,-27.221366204417055
+Chaco,ignicion,Alert all,0.12,-33.05785123966943
+Chaco,ignicion,Alert all,0.125,-38.96103896103897
+Chaco,ignicion,Alert all,0.13,-44.93207941483803
+Chaco,ignicion,Alert all,0.135,-50.97214923804521
+Chaco,ignicion,Alert all,0.14,-57.08245243128965
+Chaco,ignicion,Alert all,0.145,-63.26422115895799
+Chaco,ignicion,Alert all,0.15,-69.51871657754012
+Chaco,ignicion,Alert all,0.155,-75.84722969338354
+Chaco,ignicion,Alert all,0.16,-82.25108225108227
+Chaco,ignicion,Alert all,0.165,-88.73162765378335
+Chaco,ignicion,Alert all,0.17,-95.29025191675795
+Chaco,ignicion,Alert all,0.175,-101.92837465564742
+Chaco,ignicion,Alert all,0.18,-108.64745011086471
+Chaco,ignicion,Alert all,0.185,-115.44896820970442
+Chaco,ignicion,Alert all,0.19,-122.33445566778899
+Chaco,ignicion,Alert all,0.195,-129.30547713156412
+Chaco,ignicion,Alert all,0.2,-136.36363636363637
+Chaco,ignicion,Alert all,0.205,-143.51057747284165
+Chaco,ignicion,Alert all,0.21,-150.74798619102415
+Chaco,ignicion,Alert all,0.215,-158.07759119861032
+Chaco,ignicion,Alert all,0.22,-165.5011655011655
+Chaco,ignicion,Alert all,0.225,-173.02052785923755
+Chaco,ignicion,Alert all,0.23,-180.63754427390793
+Chaco,ignicion,Alert all,0.235,-188.35412953060015
+Chaco,ignicion,Alert all,0.24,-196.17224880382776
+Chaco,ignicion,Alert all,0.245,-204.0939193257074
+Chaco,ignicion,Alert all,0.25,-212.12121212121212
+Chaco,ignicion,Alert all,0.255,-220.25625381330082
+Chaco,ignicion,Alert all,0.26,-228.5012285012285
+Chaco,ignicion,Alert all,0.265,-236.85837971552257
+Chaco,ignicion,Alert all,0.27,-245.33001245330016
+Chaco,ignicion,Alert all,0.275,-253.91849529780566
+Chaco,ignicion,Alert all,0.28,-262.62626262626264
+Chaco,ignicion,Alert all,0.285,-271.4558169103624
+Chaco,ignicion,Alert all,0.29,-280.4097311139564
+Chaco,ignicion,Alert all,0.295,-289.49065119277884
+Chaco,ignicion,Alert all,0.3,-298.70129870129875
+Chaco,ignicion,Climatology,0.0,90.9090909090909
+Chaco,ignicion,Climatology,0.005,86.34079488350845
+Chaco,ignicion,Climatology,0.01,81.72635445362718
+Chaco,ignicion,Climatology,0.015,77.06506691278264
+Chaco,ignicion,Climatology,0.02,72.35621521335807
+Chaco,ignicion,Climatology,0.025,67.5990675990676
+Chaco,ignicion,Climatology,0.03,62.79287722586692
+Chaco,ignicion,Climatology,0.035,57.93688177107866
+Chaco,ignicion,Climatology,0.04,53.03030303030303
+Chaco,ignicion,Climatology,0.045,48.072346501665876
+Chaco,ignicion,Climatology,0.05,43.0622009569378
+Chaco,ignicion,Climatology,0.055,37.999037999038
+Chaco,ignicion,Climatology,0.06,32.882011605415855
+Chaco,ignicion,Climatology,0.065,27.71025765678173
+Chaco,ignicion,Climatology,0.07,22.482893450635384
+Chaco,ignicion,Climatology,0.075,17.1990171990172
+Chaco,ignicion,Climatology,0.08,11.857707509881417
+Chaco,ignicion,Climatology,0.085,6.4580228514654765
+Chaco,ignicion,Climatology,0.09,0.999000999001004
+Chaco,ignicion,Climatology,0.095,0.0
+Chaco,ignicion,Climatology,0.1,0.0
+Chaco,ignicion,Climatology,0.105,0.0
+Chaco,ignicion,Climatology,0.11,0.0
+Chaco,ignicion,Climatology,0.115,0.0
+Chaco,ignicion,Climatology,0.12,0.0
+Chaco,ignicion,Climatology,0.125,0.0
+Chaco,ignicion,Climatology,0.13,0.0
+Chaco,ignicion,Climatology,0.135,0.0
+Chaco,ignicion,Climatology,0.14,0.0
+Chaco,ignicion,Climatology,0.145,0.0
+Chaco,ignicion,Climatology,0.15,0.0
+Chaco,ignicion,Climatology,0.155,0.0
+Chaco,ignicion,Climatology,0.16,0.0
+Chaco,ignicion,Climatology,0.165,0.0
+Chaco,ignicion,Climatology,0.17,0.0
+Chaco,ignicion,Climatology,0.175,0.0
+Chaco,ignicion,Climatology,0.18,0.0
+Chaco,ignicion,Climatology,0.185,0.0
+Chaco,ignicion,Climatology,0.19,0.0
+Chaco,ignicion,Climatology,0.195,0.0
+Chaco,ignicion,Climatology,0.2,0.0
+Chaco,ignicion,Climatology,0.205,0.0
+Chaco,ignicion,Climatology,0.21,0.0
+Chaco,ignicion,Climatology,0.215,0.0
+Chaco,ignicion,Climatology,0.22,0.0
+Chaco,ignicion,Climatology,0.225,0.0
+Chaco,ignicion,Climatology,0.23,0.0
+Chaco,ignicion,Climatology,0.235,0.0
+Chaco,ignicion,Climatology,0.24,0.0
+Chaco,ignicion,Climatology,0.245,0.0
+Chaco,ignicion,Climatology,0.25,0.0
+Chaco,ignicion,Climatology,0.255,0.0
+Chaco,ignicion,Climatology,0.26,0.0
+Chaco,ignicion,Climatology,0.265,0.0
+Chaco,ignicion,Climatology,0.27,0.0
+Chaco,ignicion,Climatology,0.275,0.0
+Chaco,ignicion,Climatology,0.28,0.0
+Chaco,ignicion,Climatology,0.285,0.0
+Chaco,ignicion,Climatology,0.29,0.0
+Chaco,ignicion,Climatology,0.295,0.0
+Chaco,ignicion,Climatology,0.3,0.0
+Oriental,ignicion,M3,0.0,90.9090909090909
+Oriental,ignicion,M3,0.005,86.34079488350845
+Oriental,ignicion,M3,0.01,82.12577519755817
+Oriental,ignicion,M3,0.015,78.2076406582086
+Oriental,ignicion,M3,0.02,74.39105003397005
+Oriental,ignicion,M3,0.025,70.68556809974062
+Oriental,ignicion,M3,0.03,67.23342191150653
+Oriental,ignicion,M3,0.035,63.86134236530819
+Oriental,ignicion,M3,0.04,60.8348838294921
+Oriental,ignicion,M3,0.045,57.76735990071796
+Oriental,ignicion,M3,0.05,54.72514362490734
+Oriental,ignicion,M3,0.055,51.73083958295226
+Oriental,ignicion,M3,0.06,48.80402154221265
+Oriental,ignicion,M3,0.065,46.00030833396099
+Oriental,ignicion,M3,0.07,43.30331942780828
+Oriental,ignicion,M3,0.075,40.46321850019034
+Oriental,ignicion,M3,0.08,37.95105738184045
+Oriental,ignicion,M3,0.085,35.603250963805685
+Oriental,ignicion,M3,0.09,33.6272442346386
+Oriental,ignicion,M3,0.095,31.48430149581568
+Oriental,ignicion,M3,0.1,29.431640347133303
+Oriental,ignicion,M3,0.105,27.47736817681099
+Oriental,ignicion,M3,0.11,25.683387223237283
+Oriental,ignicion,M3,0.115,24.01409694039946
+Oriental,ignicion,M3,0.12,22.267125480153656
+Oriental,ignicion,M3,0.125,20.721630921895006
+Oriental,ignicion,M3,0.13,19.57678181155901
+Oriental,ignicion,M3,0.135,18.196747814792058
+Oriental,ignicion,M3,0.14,17.228652703748914
+Oriental,ignicion,M3,0.145,16.023109851292766
+Oriental,ignicion,M3,0.15,15.111600418016117
+Oriental,ignicion,M3,0.155,14.128308040821581
+Oriental,ignicion,M3,0.16,13.07299288153161
+Oriental,ignicion,M3,0.165,12.159998984106048
+Oriental,ignicion,M3,0.17,11.349475205559752
+Oriental,ignicion,M3,0.175,10.472290526908
+Oriental,ignicion,M3,0.18,9.832658645888639
+Oriental,ignicion,M3,0.185,9.221723957801467
+Oriental,ignicion,M3,0.19,8.522418531954916
+Oriental,ignicion,M3,0.195,8.030178352725045
+Oriental,ignicion,M3,0.2,7.5149047695262485
+Oriental,ignicion,M3,0.205,7.031589731355541
+Oriental,ignicion,M3,0.21,6.558174565227962
+Oriental,ignicion,M3,0.215,6.23565783088805
+Oriental,ignicion,M3,0.22,5.841228167372535
+Oriental,ignicion,M3,0.225,5.50998900293255
+Oriental,ignicion,M3,0.23,5.202898693815786
+Oriental,ignicion,M3,0.235,4.870905094859113
+Oriental,ignicion,M3,0.24,4.423784031942854
+Oriental,ignicion,M3,0.245,4.136522362652737
+Oriental,ignicion,M3,0.25,3.851232394366197
+Oriental,ignicion,M3,0.255,3.566611114214267
+Oriental,ignicion,M3,0.26,3.3184943506246323
+Oriental,ignicion,M3,0.265,3.064007693346224
+Oriental,ignicion,M3,0.27,2.8085014601932885
+Oriental,ignicion,M3,0.275,2.6085933705682365
+Oriental,ignicion,M3,0.28,2.457453051643192
+Oriental,ignicion,M3,0.285,2.297553398905831
+Oriental,ignicion,M3,0.29,2.09750218661521
+Oriental,ignicion,M3,0.295,1.9496309741102984
+Oriental,ignicion,M3,0.3,1.889890479239071
+Oriental,ignicion,M2,0.0,90.9090909090909
+Oriental,ignicion,M2,0.005,86.34079488350845
+Oriental,ignicion,M2,0.01,82.16048327383956
+Oriental,ignicion,M2,0.015,78.12091239755097
+Oriental,ignicion,M2,0.02,74.31439285061016
+Oriental,ignicion,M2,0.025,70.61080058439214
+Oriental,ignicion,M2,0.03,66.99638729754346
+Oriental,ignicion,M2,0.035,63.5833518539404
+Oriental,ignicion,M2,0.04,60.27199537185232
+Oriental,ignicion,M2,0.045,57.190735590362735
+Oriental,ignicion,M2,0.05,54.200765297526786
+Oriental,ignicion,M2,0.055,51.069119896144535
+Oriental,ignicion,M2,0.06,48.140404929577464
+Oriental,ignicion,M2,0.065,45.2579852290701
+Oriental,ignicion,M2,0.07,42.51559423746781
+Oriental,ignicion,M2,0.075,39.967384157525004
+Oriental,ignicion,M2,0.08,37.486560916884706
+Oriental,ignicion,M2,0.085,35.016915795568245
+Oriental,ignicion,M2,0.09,32.297093311617964
+Oriental,ignicion,M2,0.095,29.690771765196907
+Oriental,ignicion,M2,0.1,27.247052390098162
+Oriental,ignicion,M2,0.105,25.34425541312885
+Oriental,ignicion,M2,0.11,23.33752418751529
+Oriental,ignicion,M2,0.115,21.53044906573493
+Oriental,ignicion,M2,0.12,19.90637003841229
+Oriental,ignicion,M2,0.125,18.0943616242912
+Oriental,ignicion,M2,0.13,16.061116568796265
+Oriental,ignicion,M2,0.135,14.519704108783019
+Oriental,ignicion,M2,0.14,13.448722195753799
+Oriental,ignicion,M2,0.145,12.621670513511692
+Oriental,ignicion,M2,0.15,11.796421913835957
+Oriental,ignicion,M2,0.155,10.853443516126342
+Oriental,ignicion,M2,0.16,10.055836915431984
+Oriental,ignicion,M2,0.165,9.286384816794067
+Oriental,ignicion,M2,0.17,8.639089809944
+Oriental,ignicion,M2,0.175,7.94708852287277
+Oriental,ignicion,M2,0.18,7.468609467224637
+Oriental,ignicion,M2,0.185,6.793523620810193
+Oriental,ignicion,M2,0.19,6.204886798343374
+Oriental,ignicion,M2,0.195,5.6925048313597
+Oriental,ignicion,M2,0.2,5.246678937259923
+Oriental,ignicion,M2,0.205,4.776559945723511
+Oriental,ignicion,M2,0.21,4.2533864001037305
+Oriental,ignicion,M2,0.215,3.871366225727264
+Oriental,ignicion,M2,0.22,3.659376128566269
+Oriental,ignicion,M2,0.225,3.4138343624798644
+Oriental,ignicion,M2,0.23,3.180238455526547
+Oriental,ignicion,M2,0.235,2.816358751140234
+Oriental,ignicion,M2,0.24,2.5405498180470385
+Oriental,ignicion,M2,0.245,2.3706923964012856
+Oriental,ignicion,M2,0.25,2.077331412718736
+Oriental,ignicion,M2,0.255,2.1113132041179345
+Oriental,ignicion,M2,0.26,1.9838780842301975
+Oriental,ignicion,M2,0.265,1.9241871684653367
+Oriental,ignicion,M2,0.27,1.935550883131917
+Oriental,ignicion,M2,0.275,1.9287206388803029
+Oriental,ignicion,M2,0.28,1.939231665243989
+Oriental,ignicion,M2,0.285,1.8661566106748555
+Oriental,ignicion,M2,0.29,1.7778928693801734
+Oriental,ignicion,M2,0.295,1.6640076597560867
+Oriental,ignicion,M2,0.3,1.5983686208158039
+Oriental,ignicion,M1,0.0,90.9090909090909
+Oriental,ignicion,M1,0.005,86.3431825822454
+Oriental,ignicion,M1,0.01,81.8046118192165
+Oriental,ignicion,M1,0.015,77.19196031054811
+Oriental,ignicion,M1,0.02,72.72919170869373
+Oriental,ignicion,M1,0.025,68.48845476706391
+Oriental,ignicion,M1,0.03,64.48151037197883
+Oriental,ignicion,M1,0.035,60.55082704185546
+Oriental,ignicion,M1,0.04,56.54434419014085
+Oriental,ignicion,M1,0.045,52.7204045608731
+Oriental,ignicion,M1,0.05,49.049906496394634
+Oriental,ignicion,M1,0.055,45.49132971228042
+Oriental,ignicion,M1,0.06,41.875740662543926
+Oriental,ignicion,M1,0.065,38.71966301943895
+Oriental,ignicion,M1,0.07,35.659152864400475
+Oriental,ignicion,M1,0.075,32.64463547254041
+Oriental,ignicion,M1,0.08,29.774310388019817
+Oriental,ignicion,M1,0.085,26.936816502592297
+Oriental,ignicion,M1,0.09,24.064568793882177
+Oriental,ignicion,M1,0.095,21.990268930256583
+Oriental,ignicion,M1,0.1,19.881917769241714
+Oriental,ignicion,M1,0.105,17.98650987310353
+Oriental,ignicion,M1,0.11,15.882835316289976
+Oriental,ignicion,M1,0.115,14.132855847204441
+Oriental,ignicion,M1,0.12,12.50468331684321
+Oriental,ignicion,M1,0.125,11.015667870861533
+Oriental,ignicion,M1,0.13,9.637681759312404
+Oriental,ignicion,M1,0.135,8.481008720478412
+Oriental,ignicion,M1,0.14,7.605805950927551
+Oriental,ignicion,M1,0.145,6.889924073949279
+Oriental,ignicion,M1,0.15,5.838633068464261
+Oriental,ignicion,M1,0.155,5.048745776163163
+Oriental,ignicion,M1,0.16,4.285657124565573
+Oriental,ignicion,M1,0.165,3.7945975047344467
+Oriental,ignicion,M1,0.17,3.157034347376701
+Oriental,ignicion,M1,0.175,2.8734952760640935
+Oriental,ignicion,M1,0.18,2.4318757612192012
+Oriental,ignicion,M1,0.185,2.2298853424506886
+Oriental,ignicion,M1,0.19,1.9532176222317077
+Oriental,ignicion,M1,0.195,1.6053584351961572
+Oriental,ignicion,M1,0.2,1.3129201344430217
+Oriental,ignicion,M1,0.205,1.0158282096811855
+Oriental,ignicion,M1,0.21,0.9139633543493413
+Oriental,ignicion,M1,0.215,0.727939947152517
+Oriental,ignicion,M1,0.22,0.6411025887258288
+Oriental,ignicion,M1,0.225,0.5288789186733304
+Oriental,ignicion,M1,0.23,0.23936231022498644
+Oriental,ignicion,M1,0.235,-0.0139914053542887
+Oriental,ignicion,M1,0.24,-0.18137382909899494
+Oriental,ignicion,M1,0.245,-0.23434651406330795
+Oriental,ignicion,M1,0.25,-0.2567488262910794
+Oriental,ignicion,M1,0.255,-0.33020633716883396
+Oriental,ignicion,M1,0.26,-0.3920173374398724
+Oriental,ignicion,M1,0.265,-0.4008765798252729
+Oriental,ignicion,M1,0.27,-0.5104373125427534
+Oriental,ignicion,M1,0.275,-0.4209967879376575
+Oriental,ignicion,M1,0.28,-0.39457070707070774
+Oriental,ignicion,M1,0.285,-0.30097043641377885
+Oriental,ignicion,M1,0.29,-0.3012231519720115
+Oriental,ignicion,M1,0.295,-0.21840322236448978
+Oriental,ignicion,M1,0.3,-0.23007362355953906
+Oriental,ignicion,Gated,0.0,90.9090909090909
+Oriental,ignicion,Gated,0.005,86.34079488350845
+Oriental,ignicion,Gated,0.01,82.16048327383956
+Oriental,ignicion,Gated,0.015,78.12091239755097
+Oriental,ignicion,Gated,0.02,74.32041518592072
+Oriental,ignicion,Gated,0.025,70.6158021849043
+Oriental,ignicion,Gated,0.03,67.00546236651398
+Oriental,ignicion,Gated,0.035,63.59913410633372
+Oriental,ignicion,Gated,0.04,60.30846537558685
+Oriental,ignicion,Gated,0.045,57.28898692607812
+Oriental,ignicion,Gated,0.05,54.30106054990229
+Oriental,ignicion,Gated,0.055,51.14522890711271
+Oriental,ignicion,Gated,0.06,48.22372946576947
+Oriental,ignicion,Gated,0.065,45.34365435442015
+Oriental,ignicion,Gated,0.07,42.57088074635495
+Oriental,ignicion,Gated,0.075,40.072688125064886
+Oriental,ignicion,Gated,0.08,37.59529136280131
+Oriental,ignicion,Gated,0.085,35.28153599315715
+Oriental,ignicion,Gated,0.09,33.22684138045054
+Oriental,ignicion,Gated,0.095,31.018710517752424
+Oriental,ignicion,Gated,0.1,28.829781085502912
+Oriental,ignicion,Gated,0.105,27.058714654611265
+Oriental,ignicion,Gated,0.11,25.368623577522335
+Oriental,ignicion,Gated,0.115,23.75664167335808
+Oriental,ignicion,Gated,0.12,22.04159876615062
+Oriental,ignicion,Gated,0.125,20.534428159868302
+Oriental,ignicion,Gated,0.13,19.39396468939026
+Oriental,ignicion,Gated,0.135,17.963898736613057
+Oriental,ignicion,Gated,0.14,16.921694011851237
+Oriental,ignicion,Gated,0.145,15.768349965556231
+Oriental,ignicion,Gated,0.15,14.878584676508247
+Oriental,ignicion,Gated,0.155,13.948102446037169
+Oriental,ignicion,Gated,0.16,12.979153329065301
+Oriental,ignicion,Gated,0.165,12.078895186579466
+Oriental,ignicion,Gated,0.17,11.264628777594371
+Oriental,ignicion,Gated,0.175,10.38862739106817
+Oriental,ignicion,Gated,0.18,9.725795181287282
+Oriental,ignicion,Gated,0.185,9.111995593191047
+Oriental,ignicion,Gated,0.19,8.45708898452443
+Oriental,ignicion,Gated,0.195,7.979043977302549
+Oriental,ignicion,Gated,0.2,7.4736415653008965
+Oriental,ignicion,Gated,0.205,6.99701892026832
+Oriental,ignicion,Gated,0.21,6.5413337331237145
+Oriental,ignicion,Gated,0.215,6.225367913910797
+Oriental,ignicion,Gated,0.22,5.835072351357565
+Oriental,ignicion,Gated,0.225,5.506923505844451
+Oriental,ignicion,Gated,0.23,5.195298859271331
+Oriental,ignicion,Gated,0.235,4.862405643008377
+Oriental,ignicion,Gated,0.24,4.424310516207292
+Oriental,ignicion,Gated,0.245,4.136124884466341
+Oriental,ignicion,Gated,0.25,3.856233994878361
+Oriental,ignicion,Gated,0.255,3.5718812570358085
+Oriental,ignicion,Gated,0.26,3.3205220265079416
+Oriental,ignicion,Gated,0.265,3.066219285409426
+Oriental,ignicion,Gated,0.27,2.8071996737586153
+Oriental,ignicion,Gated,0.275,2.6073860876859896
+Oriental,ignicion,Gated,0.28,2.454396517996869
+Oriental,ignicion,Gated,0.285,2.292551798393667
+Oriental,ignicion,Gated,0.29,2.0925005861030463
+Oriental,ignicion,Gated,0.295,1.9446293735981346
+Oriental,ignicion,Gated,0.3,1.889890479239071
+Oriental,ignicion,FWI,0.0,90.9090909090909
+Oriental,ignicion,FWI,0.005,86.34097081920487
+Oriental,ignicion,FWI,0.01,81.72216119259173
+Oriental,ignicion,FWI,0.015,77.07397839389823
+Oriental,ignicion,FWI,0.02,72.37836515848336
+Oriental,ignicion,FWI,0.025,67.63459178732066
+Oriental,ignicion,FWI,0.03,62.88935139657062
+Oriental,ignicion,FWI,0.035,58.1490740249315
+Oriental,ignicion,FWI,0.04,53.326231060606055
+Oriental,ignicion,FWI,0.045,48.38909707650951
+Oriental,ignicion,FWI,0.05,43.57920850461621
+Oriental,ignicion,FWI,0.055,38.69388998130195
+Oriental,ignicion,FWI,0.06,33.90478570163729
+Oriental,ignicion,FWI,0.065,29.153339763911614
+Oriental,ignicion,FWI,0.07,24.499990534605473
+Oriental,ignicion,FWI,0.075,20.18213395854241
+Oriental,ignicion,FWI,0.08,15.540842634860546
+Oriental,ignicion,FWI,0.085,11.285715254017894
+Oriental,ignicion,FWI,0.09,7.194115303710375
+Oriental,ignicion,FWI,0.095,4.022861901443824
+Oriental,ignicion,FWI,0.1,2.7931160193484135
+Oriental,ignicion,FWI,0.105,1.649103131996658
+Oriental,ignicion,FWI,0.11,0.42350630853558624
+Oriental,ignicion,FWI,0.115,0.23205165766039487
+Oriental,ignicion,FWI,0.12,0.13231506809451773
+Oriental,ignicion,FWI,0.125,0.03143863179074442
+Oriental,ignicion,FWI,0.13,-0.07059730378088837
+Oriental,ignicion,FWI,0.135,-0.17381284554410006
+Oriental,ignicion,FWI,0.14,-0.27822856802548923
+Oriental,ignicion,FWI,0.145,-0.3272684686000105
+Oriental,ignicion,FWI,0.15,-0.38924220456428404
+Oriental,ignicion,FWI,0.155,-0.45194935752221765
+Oriental,ignicion,FWI,0.16,-0.5154030242058414
+Oriental,ignicion,FWI,0.165,-0.5796166150413644
+Oriental,ignicion,FWI,0.17,-0.6446038635977973
+Oriental,ignicion,FWI,0.175,-0.7103788363791567
+Oriental,ignicion,FWI,0.18,-0.7769559429749225
+Oriental,ignicion,FWI,0.185,0.041669776046126164
+Oriental,ignicion,FWI,0.19,0.03988930778836883
+Oriental,ignicion,FWI,0.195,0.03808672191250267
+Oriental,ignicion,FWI,0.2,0.03626160371318822
+Oriental,ignicion,FWI,0.205,0.0
+Oriental,ignicion,FWI,0.21,0.0
+Oriental,ignicion,FWI,0.215,0.0
+Oriental,ignicion,FWI,0.22,0.0
+Oriental,ignicion,FWI,0.225,0.0
+Oriental,ignicion,FWI,0.23,0.0
+Oriental,ignicion,FWI,0.235,0.0
+Oriental,ignicion,FWI,0.24,0.0
+Oriental,ignicion,FWI,0.245,0.0
+Oriental,ignicion,FWI,0.25,0.0
+Oriental,ignicion,FWI,0.255,0.0
+Oriental,ignicion,FWI,0.26,0.0
+Oriental,ignicion,FWI,0.265,0.0
+Oriental,ignicion,FWI,0.27,0.0
+Oriental,ignicion,FWI,0.275,0.0
+Oriental,ignicion,FWI,0.28,0.0
+Oriental,ignicion,FWI,0.285,0.0
+Oriental,ignicion,FWI,0.29,0.0
+Oriental,ignicion,FWI,0.295,0.0
+Oriental,ignicion,FWI,0.3,0.0
+Oriental,ignicion,INPE,0.0,90.9090909090909
+Oriental,ignicion,INPE,0.005,86.3410462202176
+Oriental,ignicion,INPE,0.01,81.72685966580012
+Oriental,ignicion,INPE,0.015,77.06582857783526
+Oriental,ignicion,INPE,0.02,72.35723594815647
+Oriental,ignicion,INPE,0.025,67.60035006073738
+Oriental,ignicion,INPE,0.03,62.79442411262326
+Oriental,ignicion,INPE,0.035,57.938695823077886
+Oriental,ignicion,INPE,0.04,52.92985422001706
+Oriental,ignicion,INPE,0.045,47.99802952651654
+Oriental,ignicion,INPE,0.05,43.0142908888739
+Oriental,ignicion,INPE,0.055,37.97781427622976
+Oriental,ignicion,INPE,0.06,32.49060976108098
+Oriental,ignicion,INPE,0.065,27.136063219374588
+Oriental,ignicion,INPE,0.07,21.154941624330533
+Oriental,ignicion,INPE,0.075,16.431474287988372
+Oriental,ignicion,INPE,0.08,11.516728831486946
+Oriental,ignicion,INPE,0.085,6.750274842047807
+Oriental,ignicion,INPE,0.09,2.1785542802268285
+Oriental,ignicion,INPE,0.095,-2.3273745941242647
+Oriental,ignicion,INPE,0.1,-1.0914603784322092
+Oriental,ignicion,INPE,0.105,0.10520126216925747
+Oriental,ignicion,INPE,0.11,-0.021636137047001017
+Oriental,ignicion,INPE,0.115,-0.14990672721485576
+Oriental,ignicion,INPE,0.12,-0.27963493772552656
+Oriental,ignicion,INPE,0.125,-0.4108457563563196
+Oriental,ignicion,INPE,0.13,-0.5435647453162024
+Oriental,ignicion,INPE,0.135,0.0
+Oriental,ignicion,INPE,0.14,0.0
+Oriental,ignicion,INPE,0.145,0.0
+Oriental,ignicion,INPE,0.15,0.0
+Oriental,ignicion,INPE,0.155,0.0
+Oriental,ignicion,INPE,0.16,0.0
+Oriental,ignicion,INPE,0.165,0.0
+Oriental,ignicion,INPE,0.17,0.0
+Oriental,ignicion,INPE,0.175,0.0
+Oriental,ignicion,INPE,0.18,0.0
+Oriental,ignicion,INPE,0.185,0.0
+Oriental,ignicion,INPE,0.19,0.0
+Oriental,ignicion,INPE,0.195,0.0
+Oriental,ignicion,INPE,0.2,0.0
+Oriental,ignicion,INPE,0.205,0.0
+Oriental,ignicion,INPE,0.21,0.0
+Oriental,ignicion,INPE,0.215,0.0
+Oriental,ignicion,INPE,0.22,0.0
+Oriental,ignicion,INPE,0.225,0.0
+Oriental,ignicion,INPE,0.23,0.0
+Oriental,ignicion,INPE,0.235,0.0
+Oriental,ignicion,INPE,0.24,0.0
+Oriental,ignicion,INPE,0.245,0.0
+Oriental,ignicion,INPE,0.25,0.0
+Oriental,ignicion,INPE,0.255,0.0
+Oriental,ignicion,INPE,0.26,0.0
+Oriental,ignicion,INPE,0.265,0.0
+Oriental,ignicion,INPE,0.27,0.0
+Oriental,ignicion,INPE,0.275,0.0
+Oriental,ignicion,INPE,0.28,0.0
+Oriental,ignicion,INPE,0.285,0.0
+Oriental,ignicion,INPE,0.29,0.0
+Oriental,ignicion,INPE,0.295,0.0
+Oriental,ignicion,INPE,0.3,0.0
+Oriental,ignicion,No alert,0.0,0.0
+Oriental,ignicion,No alert,0.005,0.0
+Oriental,ignicion,No alert,0.01,0.0
+Oriental,ignicion,No alert,0.015,0.0
+Oriental,ignicion,No alert,0.02,0.0
+Oriental,ignicion,No alert,0.025,0.0
+Oriental,ignicion,No alert,0.03,0.0
+Oriental,ignicion,No alert,0.035,0.0
+Oriental,ignicion,No alert,0.04,0.0
+Oriental,ignicion,No alert,0.045,0.0
+Oriental,ignicion,No alert,0.05,0.0
+Oriental,ignicion,No alert,0.055,0.0
+Oriental,ignicion,No alert,0.06,0.0
+Oriental,ignicion,No alert,0.065,0.0
+Oriental,ignicion,No alert,0.07,0.0
+Oriental,ignicion,No alert,0.075,0.0
+Oriental,ignicion,No alert,0.08,0.0
+Oriental,ignicion,No alert,0.085,0.0
+Oriental,ignicion,No alert,0.09,0.0
+Oriental,ignicion,No alert,0.095,0.0
+Oriental,ignicion,No alert,0.1,0.0
+Oriental,ignicion,No alert,0.105,0.0
+Oriental,ignicion,No alert,0.11,0.0
+Oriental,ignicion,No alert,0.115,0.0
+Oriental,ignicion,No alert,0.12,0.0
+Oriental,ignicion,No alert,0.125,0.0
+Oriental,ignicion,No alert,0.13,0.0
+Oriental,ignicion,No alert,0.135,0.0
+Oriental,ignicion,No alert,0.14,0.0
+Oriental,ignicion,No alert,0.145,0.0
+Oriental,ignicion,No alert,0.15,0.0
+Oriental,ignicion,No alert,0.155,0.0
+Oriental,ignicion,No alert,0.16,0.0
+Oriental,ignicion,No alert,0.165,0.0
+Oriental,ignicion,No alert,0.17,0.0
+Oriental,ignicion,No alert,0.175,0.0
+Oriental,ignicion,No alert,0.18,0.0
+Oriental,ignicion,No alert,0.185,0.0
+Oriental,ignicion,No alert,0.19,0.0
+Oriental,ignicion,No alert,0.195,0.0
+Oriental,ignicion,No alert,0.2,0.0
+Oriental,ignicion,No alert,0.205,0.0
+Oriental,ignicion,No alert,0.21,0.0
+Oriental,ignicion,No alert,0.215,0.0
+Oriental,ignicion,No alert,0.22,0.0
+Oriental,ignicion,No alert,0.225,0.0
+Oriental,ignicion,No alert,0.23,0.0
+Oriental,ignicion,No alert,0.235,0.0
+Oriental,ignicion,No alert,0.24,0.0
+Oriental,ignicion,No alert,0.245,0.0
+Oriental,ignicion,No alert,0.25,0.0
+Oriental,ignicion,No alert,0.255,0.0
+Oriental,ignicion,No alert,0.26,0.0
+Oriental,ignicion,No alert,0.265,0.0
+Oriental,ignicion,No alert,0.27,0.0
+Oriental,ignicion,No alert,0.275,0.0
+Oriental,ignicion,No alert,0.28,0.0
+Oriental,ignicion,No alert,0.285,0.0
+Oriental,ignicion,No alert,0.29,0.0
+Oriental,ignicion,No alert,0.295,0.0
+Oriental,ignicion,No alert,0.3,0.0
+Oriental,ignicion,Alert all,0.0,90.9090909090909
+Oriental,ignicion,Alert all,0.005,86.34079488350845
+Oriental,ignicion,Alert all,0.01,81.7263544536272
+Oriental,ignicion,Alert all,0.015,77.06506691278265
+Oriental,ignicion,Alert all,0.02,72.35621521335807
+Oriental,ignicion,Alert all,0.025,67.5990675990676
+Oriental,ignicion,Alert all,0.03,62.792877225866924
+Oriental,ignicion,Alert all,0.035,57.93688177107866
+Oriental,ignicion,Alert all,0.04,53.030303030303024
+Oriental,ignicion,Alert all,0.045,48.07234650166587
+Oriental,ignicion,Alert all,0.05,43.0622009569378
+Oriental,ignicion,Alert all,0.055,37.999037999038
+Oriental,ignicion,Alert all,0.06,32.882011605415855
+Oriental,ignicion,Alert all,0.065,27.710257656781728
+Oriental,ignicion,Alert all,0.07,22.482893450635384
+Oriental,ignicion,Alert all,0.075,17.199017199017202
+Oriental,ignicion,Alert all,0.08,11.857707509881422
+Oriental,ignicion,Alert all,0.085,6.458022851465467
+Oriental,ignicion,Alert all,0.09,0.999000999001
+Oriental,ignicion,Alert all,0.095,-4.520341536916125
+Oriental,ignicion,Alert all,0.1,-10.101010101010097
+Oriental,ignicion,Alert all,0.105,-15.744032503809036
+Oriental,ignicion,Alert all,0.11,-21.450459652706826
+Oriental,ignicion,Alert all,0.115,-27.221366204417052
+Oriental,ignicion,Alert all,0.12,-33.05785123966943
+Oriental,ignicion,Alert all,0.125,-38.961038961038966
+Oriental,ignicion,Alert all,0.13,-44.93207941483803
+Oriental,ignicion,Alert all,0.135,-50.97214923804521
+Oriental,ignicion,Alert all,0.14,-57.08245243128965
+Oriental,ignicion,Alert all,0.145,-63.26422115895797
+Oriental,ignicion,Alert all,0.15,-69.5187165775401
+Oriental,ignicion,Alert all,0.155,-75.84722969338355
+Oriental,ignicion,Alert all,0.16,-82.25108225108225
+Oriental,ignicion,Alert all,0.165,-88.73162765378335
+Oriental,ignicion,Alert all,0.17,-95.29025191675798
+Oriental,ignicion,Alert all,0.175,-101.9283746556474
+Oriental,ignicion,Alert all,0.18,-108.64745011086472
+Oriental,ignicion,Alert all,0.185,-115.44896820970442
+Oriental,ignicion,Alert all,0.19,-122.33445566778902
+Oriental,ignicion,Alert all,0.195,-129.30547713156412
+Oriental,ignicion,Alert all,0.2,-136.36363636363637
+Oriental,ignicion,Alert all,0.205,-143.51057747284165
+Oriental,ignicion,Alert all,0.21,-150.74798619102413
+Oriental,ignicion,Alert all,0.215,-158.07759119861032
+Oriental,ignicion,Alert all,0.22,-165.5011655011655
+Oriental,ignicion,Alert all,0.225,-173.02052785923755
+Oriental,ignicion,Alert all,0.23,-180.63754427390793
+Oriental,ignicion,Alert all,0.235,-188.35412953060015
+Oriental,ignicion,Alert all,0.24,-196.17224880382773
+Oriental,ignicion,Alert all,0.245,-204.0939193257074
+Oriental,ignicion,Alert all,0.25,-212.1212121212121
+Oriental,ignicion,Alert all,0.255,-220.25625381330082
+Oriental,ignicion,Alert all,0.26,-228.50122850122847
+Oriental,ignicion,Alert all,0.265,-236.85837971552257
+Oriental,ignicion,Alert all,0.27,-245.33001245330018
+Oriental,ignicion,Alert all,0.275,-253.91849529780575
+Oriental,ignicion,Alert all,0.28,-262.6262626262627
+Oriental,ignicion,Alert all,0.285,-271.45581691036244
+Oriental,ignicion,Alert all,0.29,-280.40973111395647
+Oriental,ignicion,Alert all,0.295,-289.4906511927788
+Oriental,ignicion,Alert all,0.3,-298.7012987012987
+Oriental,ignicion,Climatology,0.0,90.9090909090909
+Oriental,ignicion,Climatology,0.005,86.34079488350845
+Oriental,ignicion,Climatology,0.01,81.7263544536272
+Oriental,ignicion,Climatology,0.015,77.06506691278265
+Oriental,ignicion,Climatology,0.02,72.35621521335807
+Oriental,ignicion,Climatology,0.025,67.5990675990676
+Oriental,ignicion,Climatology,0.03,62.792877225866924
+Oriental,ignicion,Climatology,0.035,57.93688177107866
+Oriental,ignicion,Climatology,0.04,53.030303030303024
+Oriental,ignicion,Climatology,0.045,48.07234650166587
+Oriental,ignicion,Climatology,0.05,43.0622009569378
+Oriental,ignicion,Climatology,0.055,37.999037999038
+Oriental,ignicion,Climatology,0.06,32.882011605415855
+Oriental,ignicion,Climatology,0.065,27.710257656781728
+Oriental,ignicion,Climatology,0.07,22.482893450635384
+Oriental,ignicion,Climatology,0.075,17.199017199017202
+Oriental,ignicion,Climatology,0.08,11.857707509881422
+Oriental,ignicion,Climatology,0.085,6.458022851465467
+Oriental,ignicion,Climatology,0.09,0.999000999001
+Oriental,ignicion,Climatology,0.095,0.0
+Oriental,ignicion,Climatology,0.1,0.0
+Oriental,ignicion,Climatology,0.105,0.0
+Oriental,ignicion,Climatology,0.11,0.0
+Oriental,ignicion,Climatology,0.115,0.0
+Oriental,ignicion,Climatology,0.12,0.0
+Oriental,ignicion,Climatology,0.125,0.0
+Oriental,ignicion,Climatology,0.13,0.0
+Oriental,ignicion,Climatology,0.135,0.0
+Oriental,ignicion,Climatology,0.14,0.0
+Oriental,ignicion,Climatology,0.145,0.0
+Oriental,ignicion,Climatology,0.15,0.0
+Oriental,ignicion,Climatology,0.155,0.0
+Oriental,ignicion,Climatology,0.16,0.0
+Oriental,ignicion,Climatology,0.165,0.0
+Oriental,ignicion,Climatology,0.17,0.0
+Oriental,ignicion,Climatology,0.175,0.0
+Oriental,ignicion,Climatology,0.18,0.0
+Oriental,ignicion,Climatology,0.185,0.0
+Oriental,ignicion,Climatology,0.19,0.0
+Oriental,ignicion,Climatology,0.195,0.0
+Oriental,ignicion,Climatology,0.2,0.0
+Oriental,ignicion,Climatology,0.205,0.0
+Oriental,ignicion,Climatology,0.21,0.0
+Oriental,ignicion,Climatology,0.215,0.0
+Oriental,ignicion,Climatology,0.22,0.0
+Oriental,ignicion,Climatology,0.225,0.0
+Oriental,ignicion,Climatology,0.23,0.0
+Oriental,ignicion,Climatology,0.235,0.0
+Oriental,ignicion,Climatology,0.24,0.0
+Oriental,ignicion,Climatology,0.245,0.0
+Oriental,ignicion,Climatology,0.25,0.0
+Oriental,ignicion,Climatology,0.255,0.0
+Oriental,ignicion,Climatology,0.26,0.0
+Oriental,ignicion,Climatology,0.265,0.0
+Oriental,ignicion,Climatology,0.27,0.0
+Oriental,ignicion,Climatology,0.275,0.0
+Oriental,ignicion,Climatology,0.28,0.0
+Oriental,ignicion,Climatology,0.285,0.0
+Oriental,ignicion,Climatology,0.29,0.0
+Oriental,ignicion,Climatology,0.295,0.0
+Oriental,ignicion,Climatology,0.3,0.0
+Chaco,propagacion,Propagation,0.0,90.9090909090909
+Chaco,propagacion,Propagation,0.01,81.72635445362717
+Chaco,propagacion,Propagation,0.02,76.01874865358448
+Chaco,propagacion,Propagation,0.03,71.30120849733265
+Chaco,propagacion,Propagation,0.04,68.2306800473006
+Chaco,propagacion,Propagation,0.05,65.51604658052918
+Chaco,propagacion,Propagation,0.06,63.33213808462841
+Chaco,propagacion,Propagation,0.07,61.36421694220599
+Chaco,propagacion,Propagation,0.08,59.76536499511822
+Chaco,propagacion,Propagation,0.09,58.28221964086862
+Chaco,propagacion,Propagation,0.1,57.17397233473943
+Chaco,propagacion,Propagation,0.11,56.38730095676802
+Chaco,propagacion,Propagation,0.12,55.63014064805184
+Chaco,propagacion,Propagation,0.13,54.914615360611236
+Chaco,propagacion,Propagation,0.14,54.21516796829378
+Chaco,propagacion,Propagation,0.15,53.51716143344693
+Chaco,propagacion,Propagation,0.16,52.94065410466518
+Chaco,propagacion,Propagation,0.17,52.369650689042174
+Chaco,propagacion,Propagation,0.18,51.830415971800726
+Chaco,propagacion,Propagation,0.19,51.34824160998508
+Chaco,propagacion,Propagation,0.2,50.81966502155415
+Chaco,propagacion,Propagation,0.21,50.301466108490025
+Chaco,propagacion,Propagation,0.22,49.82308980019123
+Chaco,propagacion,Propagation,0.23,49.33237824963979
+Chaco,propagacion,Propagation,0.24,48.81350577874112
+Chaco,propagacion,Propagation,0.25,48.33855201186563
+Chaco,propagacion,Propagation,0.26,47.85638784303033
+Chaco,propagacion,Propagation,0.27,47.38646448302407
+Chaco,propagacion,Propagation,0.28,47.02660610493833
+Chaco,propagacion,Propagation,0.29,46.62194048837351
+Chaco,propagacion,Propagation,0.3,46.24149822127114
+Chaco,propagacion,Propagation,0.31,45.88263674062822
+Chaco,propagacion,Propagation,0.32,45.51765940609618
+Chaco,propagacion,Propagation,0.33,45.19173222541222
+Chaco,propagacion,Propagation,0.34,44.784909227059956
+Chaco,propagacion,Propagation,0.35,44.41656997710809
+Chaco,propagacion,Propagation,0.36,44.048212783304855
+Chaco,propagacion,Propagation,0.37,43.65885468833661
+Chaco,propagacion,Propagation,0.38,43.21619822603169
+Chaco,propagacion,Propagation,0.39,42.841499720379694
+Chaco,propagacion,Propagation,0.4,42.40284728787734
+Chaco,propagacion,Propagation,0.41,41.993899298885395
+Chaco,propagacion,Propagation,0.42,41.616012734193745
+Chaco,propagacion,Propagation,0.43,41.21485418971095
+Chaco,propagacion,Propagation,0.44,40.77012578109801
+Chaco,propagacion,Propagation,0.45,40.404320766187695
+Chaco,propagacion,Propagation,0.46,40.033512622006086
+Chaco,propagacion,Propagation,0.47,39.640594440024856
+Chaco,propagacion,Propagation,0.48,39.15656902967274
+Chaco,propagacion,Propagation,0.49,38.76036783987867
+Chaco,propagacion,Propagation,0.5,38.40889575075244
+Chaco,propagacion,Propagation,0.51,37.98214951730838
+Chaco,propagacion,Propagation,0.52,37.590387223055856
+Chaco,propagacion,Propagation,0.53,37.12887850669084
+Chaco,propagacion,Propagation,0.54,36.68848543176001
+Chaco,propagacion,Propagation,0.55,36.283838287463894
+Chaco,propagacion,Propagation,0.56,35.83390960896576
+Chaco,propagacion,Propagation,0.57,35.39593340451149
+Chaco,propagacion,Propagation,0.58,34.922892837213986
+Chaco,propagacion,Propagation,0.59,34.44099353259018
+Chaco,propagacion,Propagation,0.6,33.92198870683748
+Chaco,propagacion,Propagation,0.61,33.340872783674044
+Chaco,propagacion,Propagation,0.62,32.80440478076301
+Chaco,propagacion,Propagation,0.63,32.23007726394808
+Chaco,propagacion,Propagation,0.64,31.62779401687903
+Chaco,propagacion,Propagation,0.65,31.11455856422939
+Chaco,propagacion,Propagation,0.66,30.504702423075727
+Chaco,propagacion,Propagation,0.67,29.879175304230166
+Chaco,propagacion,Propagation,0.68,29.239923324457244
+Chaco,propagacion,Propagation,0.69,28.554281018494294
+Chaco,propagacion,Propagation,0.7,27.821194484680788
+Chaco,propagacion,Propagation,0.71,27.137985768545505
+Chaco,propagacion,Propagation,0.72,26.3460039626436
+Chaco,propagacion,Propagation,0.73,25.635870841480994
+Chaco,propagacion,Propagation,0.74,24.76262407566672
+Chaco,propagacion,Propagation,0.75,24.041772558135502
+Chaco,propagacion,Propagation,0.76,23.189147461640545
+Chaco,propagacion,Propagation,0.77,22.494157506166815
+Chaco,propagacion,Propagation,0.78,21.62102064262684
+Chaco,propagacion,Propagation,0.79,20.90007438733705
+Chaco,propagacion,Propagation,0.8,20.067481416589324
+Chaco,propagacion,Propagation,0.81,19.270322374184495
+Chaco,propagacion,Propagation,0.82,18.462267942279386
+Chaco,propagacion,Propagation,0.83,17.56251572108837
+Chaco,propagacion,Propagation,0.84,16.864716239775873
+Chaco,propagacion,Propagation,0.85,15.767059007207852
+Chaco,propagacion,Propagation,0.86,14.877136983806194
+Chaco,propagacion,Propagation,0.87,13.38832906431418
+Chaco,propagacion,Propagation,0.88,11.621606774741018
+Chaco,propagacion,Propagation,0.89,9.286855947913619
+Chaco,propagacion,Propagation,0.9,6.458439947610827
+Chaco,propagacion,No alert,0.0,0.0
+Chaco,propagacion,No alert,0.01,0.0
+Chaco,propagacion,No alert,0.02,0.0
+Chaco,propagacion,No alert,0.03,0.0
+Chaco,propagacion,No alert,0.04,0.0
+Chaco,propagacion,No alert,0.05,0.0
+Chaco,propagacion,No alert,0.06,0.0
+Chaco,propagacion,No alert,0.07,0.0
+Chaco,propagacion,No alert,0.08,0.0
+Chaco,propagacion,No alert,0.09,0.0
+Chaco,propagacion,No alert,0.1,0.0
+Chaco,propagacion,No alert,0.11,0.0
+Chaco,propagacion,No alert,0.12,0.0
+Chaco,propagacion,No alert,0.13,0.0
+Chaco,propagacion,No alert,0.14,0.0
+Chaco,propagacion,No alert,0.15,0.0
+Chaco,propagacion,No alert,0.16,0.0
+Chaco,propagacion,No alert,0.17,0.0
+Chaco,propagacion,No alert,0.18,0.0
+Chaco,propagacion,No alert,0.19,0.0
+Chaco,propagacion,No alert,0.2,0.0
+Chaco,propagacion,No alert,0.21,0.0
+Chaco,propagacion,No alert,0.22,0.0
+Chaco,propagacion,No alert,0.23,0.0
+Chaco,propagacion,No alert,0.24,0.0
+Chaco,propagacion,No alert,0.25,0.0
+Chaco,propagacion,No alert,0.26,0.0
+Chaco,propagacion,No alert,0.27,0.0
+Chaco,propagacion,No alert,0.28,0.0
+Chaco,propagacion,No alert,0.29,0.0
+Chaco,propagacion,No alert,0.3,0.0
+Chaco,propagacion,No alert,0.31,0.0
+Chaco,propagacion,No alert,0.32,0.0
+Chaco,propagacion,No alert,0.33,0.0
+Chaco,propagacion,No alert,0.34,0.0
+Chaco,propagacion,No alert,0.35,0.0
+Chaco,propagacion,No alert,0.36,0.0
+Chaco,propagacion,No alert,0.37,0.0
+Chaco,propagacion,No alert,0.38,0.0
+Chaco,propagacion,No alert,0.39,0.0
+Chaco,propagacion,No alert,0.4,0.0
+Chaco,propagacion,No alert,0.41,0.0
+Chaco,propagacion,No alert,0.42,0.0
+Chaco,propagacion,No alert,0.43,0.0
+Chaco,propagacion,No alert,0.44,0.0
+Chaco,propagacion,No alert,0.45,0.0
+Chaco,propagacion,No alert,0.46,0.0
+Chaco,propagacion,No alert,0.47,0.0
+Chaco,propagacion,No alert,0.48,0.0
+Chaco,propagacion,No alert,0.49,0.0
+Chaco,propagacion,No alert,0.5,0.0
+Chaco,propagacion,No alert,0.51,0.0
+Chaco,propagacion,No alert,0.52,0.0
+Chaco,propagacion,No alert,0.53,0.0
+Chaco,propagacion,No alert,0.54,0.0
+Chaco,propagacion,No alert,0.55,0.0
+Chaco,propagacion,No alert,0.56,0.0
+Chaco,propagacion,No alert,0.57,0.0
+Chaco,propagacion,No alert,0.58,0.0
+Chaco,propagacion,No alert,0.59,0.0
+Chaco,propagacion,No alert,0.6,0.0
+Chaco,propagacion,No alert,0.61,0.0
+Chaco,propagacion,No alert,0.62,0.0
+Chaco,propagacion,No alert,0.63,0.0
+Chaco,propagacion,No alert,0.64,0.0
+Chaco,propagacion,No alert,0.65,0.0
+Chaco,propagacion,No alert,0.66,0.0
+Chaco,propagacion,No alert,0.67,0.0
+Chaco,propagacion,No alert,0.68,0.0
+Chaco,propagacion,No alert,0.69,0.0
+Chaco,propagacion,No alert,0.7,0.0
+Chaco,propagacion,No alert,0.71,0.0
+Chaco,propagacion,No alert,0.72,0.0
+Chaco,propagacion,No alert,0.73,0.0
+Chaco,propagacion,No alert,0.74,0.0
+Chaco,propagacion,No alert,0.75,0.0
+Chaco,propagacion,No alert,0.76,0.0
+Chaco,propagacion,No alert,0.77,0.0
+Chaco,propagacion,No alert,0.78,0.0
+Chaco,propagacion,No alert,0.79,0.0
+Chaco,propagacion,No alert,0.8,0.0
+Chaco,propagacion,No alert,0.81,0.0
+Chaco,propagacion,No alert,0.82,0.0
+Chaco,propagacion,No alert,0.83,0.0
+Chaco,propagacion,No alert,0.84,0.0
+Chaco,propagacion,No alert,0.85,0.0
+Chaco,propagacion,No alert,0.86,0.0
+Chaco,propagacion,No alert,0.87,0.0
+Chaco,propagacion,No alert,0.88,0.0
+Chaco,propagacion,No alert,0.89,0.0
+Chaco,propagacion,No alert,0.9,0.0
+Chaco,propagacion,Alert all,0.0,90.9090909090909
+Chaco,propagacion,Alert all,0.01,81.72635445362717
+Chaco,propagacion,Alert all,0.02,72.35621521335807
+Chaco,propagacion,Alert all,0.03,62.79287722586691
+Chaco,propagacion,Alert all,0.04,53.03030303030303
+Chaco,propagacion,Alert all,0.05,43.062200956937794
+Chaco,propagacion,Alert all,0.06,32.88201160541586
+Chaco,propagacion,Alert all,0.07,22.482893450635384
+Chaco,propagacion,Alert all,0.08,11.857707509881424
+Chaco,propagacion,Alert all,0.09,0.999000999001002
+Chaco,propagacion,Alert all,0.1,-10.101010101010093
+Chaco,propagacion,Alert all,0.11,-21.450459652706837
+Chaco,propagacion,Alert all,0.12,-33.05785123966942
+Chaco,propagacion,Alert all,0.13,-44.93207941483802
+Chaco,propagacion,Alert all,0.14,-57.08245243128964
+Chaco,propagacion,Alert all,0.15,-69.51871657754012
+Chaco,propagacion,Alert all,0.16,-82.25108225108225
+Chaco,propagacion,Alert all,0.17,-95.29025191675794
+Chaco,propagacion,Alert all,0.18,-108.64745011086472
+Chaco,propagacion,Alert all,0.19,-122.33445566778899
+Chaco,propagacion,Alert all,0.2,-136.36363636363637
+Chaco,propagacion,Alert all,0.21,-150.74798619102415
+Chaco,propagacion,Alert all,0.22,-165.50116550116547
+Chaco,propagacion,Alert all,0.23,-180.63754427390788
+Chaco,propagacion,Alert all,0.24,-196.17224880382778
+Chaco,propagacion,Alert all,0.25,-212.12121212121212
+Chaco,propagacion,Alert all,0.26,-228.5012285012285
+Chaco,propagacion,Alert all,0.27,-245.33001245330018
+Chaco,propagacion,Alert all,0.28,-262.6262626262626
+Chaco,propagacion,Alert all,0.29,-280.40973111395647
+Chaco,propagacion,Alert all,0.3,-298.70129870129875
+Chaco,propagacion,Alert all,0.31,-317.52305665349144
+Chaco,propagacion,Alert all,0.32,-336.89839572192517
+Chaco,propagacion,Alert all,0.33,-356.8521031207599
+Chaco,propagacion,Alert all,0.34,-377.4104683195593
+Chaco,propagacion,Alert all,0.35,-398.6013986013987
+Chaco,propagacion,Alert all,0.36,-420.45454545454544
+Chaco,propagacion,Alert all,0.37,-443.00144300144296
+Chaco,propagacion,Alert all,0.38,-466.27565982404695
+Chaco,propagacion,Alert all,0.39,-490.3129657228018
+Chaco,propagacion,Alert all,0.4,-515.1515151515152
+Chaco,propagacion,Alert all,0.41,-540.8320493066257
+Chaco,propagacion,Alert all,0.42,-567.398119122257
+Chaco,propagacion,Alert all,0.43,-594.896331738437
+Chaco,propagacion,Alert all,0.44,-623.3766233766232
+Chaco,propagacion,Alert all,0.45,-652.892561983471
+Chaco,propagacion,Alert all,0.46,-683.5016835016835
+Chaco,propagacion,Alert all,0.47,-715.2658662092624
+Chaco,propagacion,Alert all,0.48,-748.2517482517482
+Chaco,propagacion,Alert all,0.49,-782.5311942959003
+Chaco,propagacion,Alert all,0.5,-818.1818181818181
+Chaco,propagacion,Alert all,0.51,-855.2875695732838
+Chaco,propagacion,Alert all,0.52,-893.939393939394
+Chaco,propagacion,Alert all,0.53,-934.2359767891683
+Chaco,propagacion,Alert all,0.54,-976.2845849802374
+Chaco,propagacion,Alert all,0.55,-1020.2020202020202
+Chaco,propagacion,Alert all,0.56,-1066.115702479339
+Chaco,propagacion,Alert all,0.57,-1114.1649048625798
+Chaco,propagacion,Alert all,0.58,-1164.5021645021643
+Chaco,propagacion,Alert all,0.59,-1217.2949002217294
+Chaco,propagacion,Alert all,0.6,-1272.7272727272727
+Chaco,propagacion,Alert all,0.61,-1331.0023310023312
+Chaco,propagacion,Alert all,0.62,-1392.3444976076553
+Chaco,propagacion,Alert all,0.63,-1457.002457002457
+Chaco,propagacion,Alert all,0.64,-1525.2525252525254
+Chaco,propagacion,Alert all,0.65,-1597.4025974025974
+Chaco,propagacion,Alert all,0.66,-1673.7967914438505
+Chaco,propagacion,Alert all,0.67,-1754.8209366391188
+Chaco,propagacion,Alert all,0.68,-1840.9090909090912
+Chaco,propagacion,Alert all,0.69,-1932.5513196480942
+Chaco,propagacion,Alert all,0.7,-2030.303030303031
+Chaco,propagacion,Alert all,0.71,-2134.796238244514
+Chaco,propagacion,Alert all,0.72,-2246.7532467532465
+Chaco,propagacion,Alert all,0.73,-2367.0033670033667
+Chaco,propagacion,Alert all,0.74,-2496.503496503496
+Chaco,propagacion,Alert all,0.75,-2636.3636363636365
+Chaco,propagacion,Alert all,0.76,-2787.878787878788
+Chaco,propagacion,Alert all,0.77,-2952.569169960475
+Chaco,propagacion,Alert all,0.78,-3132.231404958678
+Chaco,propagacion,Alert all,0.79,-3329.0043290043295
+Chaco,propagacion,Alert all,0.8,-3545.4545454545464
+Chaco,propagacion,Alert all,0.81,-3784.688995215312
+Chaco,propagacion,Alert all,0.82,-4050.505050505052
+Chaco,propagacion,Alert all,0.83,-4347.593582887704
+Chaco,propagacion,Alert all,0.84,-4681.818181818181
+Chaco,propagacion,Alert all,0.85,-5060.606060606059
+Chaco,propagacion,Alert all,0.86,-5493.506493506493
+Chaco,propagacion,Alert all,0.87,-5993.006993006992
+Chaco,propagacion,Alert all,0.88,-6575.757575757576
+Chaco,propagacion,Alert all,0.89,-7264.462809917355
+Chaco,propagacion,Alert all,0.9,-8090.909090909093
+Chaco,propagacion,Climatology,0.0,90.9090909090909
+Chaco,propagacion,Climatology,0.01,81.72635445362717
+Chaco,propagacion,Climatology,0.02,72.35621521335807
+Chaco,propagacion,Climatology,0.03,62.79287722586691
+Chaco,propagacion,Climatology,0.04,53.03030303030303
+Chaco,propagacion,Climatology,0.05,43.062200956937794
+Chaco,propagacion,Climatology,0.06,32.88201160541586
+Chaco,propagacion,Climatology,0.07,22.482893450635384
+Chaco,propagacion,Climatology,0.08,11.857707509881424
+Chaco,propagacion,Climatology,0.09,0.999000999001002
+Chaco,propagacion,Climatology,0.1,0.0
+Chaco,propagacion,Climatology,0.11,0.0
+Chaco,propagacion,Climatology,0.12,0.0
+Chaco,propagacion,Climatology,0.13,0.0
+Chaco,propagacion,Climatology,0.14,0.0
+Chaco,propagacion,Climatology,0.15,0.0
+Chaco,propagacion,Climatology,0.16,0.0
+Chaco,propagacion,Climatology,0.17,0.0
+Chaco,propagacion,Climatology,0.18,0.0
+Chaco,propagacion,Climatology,0.19,0.0
+Chaco,propagacion,Climatology,0.2,0.0
+Chaco,propagacion,Climatology,0.21,0.0
+Chaco,propagacion,Climatology,0.22,0.0
+Chaco,propagacion,Climatology,0.23,0.0
+Chaco,propagacion,Climatology,0.24,0.0
+Chaco,propagacion,Climatology,0.25,0.0
+Chaco,propagacion,Climatology,0.26,0.0
+Chaco,propagacion,Climatology,0.27,0.0
+Chaco,propagacion,Climatology,0.28,0.0
+Chaco,propagacion,Climatology,0.29,0.0
+Chaco,propagacion,Climatology,0.3,0.0
+Chaco,propagacion,Climatology,0.31,0.0
+Chaco,propagacion,Climatology,0.32,0.0
+Chaco,propagacion,Climatology,0.33,0.0
+Chaco,propagacion,Climatology,0.34,0.0
+Chaco,propagacion,Climatology,0.35,0.0
+Chaco,propagacion,Climatology,0.36,0.0
+Chaco,propagacion,Climatology,0.37,0.0
+Chaco,propagacion,Climatology,0.38,0.0
+Chaco,propagacion,Climatology,0.39,0.0
+Chaco,propagacion,Climatology,0.4,0.0
+Chaco,propagacion,Climatology,0.41,0.0
+Chaco,propagacion,Climatology,0.42,0.0
+Chaco,propagacion,Climatology,0.43,0.0
+Chaco,propagacion,Climatology,0.44,0.0
+Chaco,propagacion,Climatology,0.45,0.0
+Chaco,propagacion,Climatology,0.46,0.0
+Chaco,propagacion,Climatology,0.47,0.0
+Chaco,propagacion,Climatology,0.48,0.0
+Chaco,propagacion,Climatology,0.49,0.0
+Chaco,propagacion,Climatology,0.5,0.0
+Chaco,propagacion,Climatology,0.51,0.0
+Chaco,propagacion,Climatology,0.52,0.0
+Chaco,propagacion,Climatology,0.53,0.0
+Chaco,propagacion,Climatology,0.54,0.0
+Chaco,propagacion,Climatology,0.55,0.0
+Chaco,propagacion,Climatology,0.56,0.0
+Chaco,propagacion,Climatology,0.57,0.0
+Chaco,propagacion,Climatology,0.58,0.0
+Chaco,propagacion,Climatology,0.59,0.0
+Chaco,propagacion,Climatology,0.6,0.0
+Chaco,propagacion,Climatology,0.61,0.0
+Chaco,propagacion,Climatology,0.62,0.0
+Chaco,propagacion,Climatology,0.63,0.0
+Chaco,propagacion,Climatology,0.64,0.0
+Chaco,propagacion,Climatology,0.65,0.0
+Chaco,propagacion,Climatology,0.66,0.0
+Chaco,propagacion,Climatology,0.67,0.0
+Chaco,propagacion,Climatology,0.68,0.0
+Chaco,propagacion,Climatology,0.69,0.0
+Chaco,propagacion,Climatology,0.7,0.0
+Chaco,propagacion,Climatology,0.71,0.0
+Chaco,propagacion,Climatology,0.72,0.0
+Chaco,propagacion,Climatology,0.73,0.0
+Chaco,propagacion,Climatology,0.74,0.0
+Chaco,propagacion,Climatology,0.75,0.0
+Chaco,propagacion,Climatology,0.76,0.0
+Chaco,propagacion,Climatology,0.77,0.0
+Chaco,propagacion,Climatology,0.78,0.0
+Chaco,propagacion,Climatology,0.79,0.0
+Chaco,propagacion,Climatology,0.8,0.0
+Chaco,propagacion,Climatology,0.81,0.0
+Chaco,propagacion,Climatology,0.82,0.0
+Chaco,propagacion,Climatology,0.83,0.0
+Chaco,propagacion,Climatology,0.84,0.0
+Chaco,propagacion,Climatology,0.85,0.0
+Chaco,propagacion,Climatology,0.86,0.0
+Chaco,propagacion,Climatology,0.87,0.0
+Chaco,propagacion,Climatology,0.88,0.0
+Chaco,propagacion,Climatology,0.89,0.0
+Chaco,propagacion,Climatology,0.9,0.0
+Oriental,propagacion,Propagation,0.0,90.9090909090909
+Oriental,propagacion,Propagation,0.01,82.07778310071218
+Oriental,propagacion,Propagation,0.02,74.20500788975446
+Oriental,propagacion,Propagation,0.03,66.80967589929058
+Oriental,propagacion,Propagation,0.04,60.21923421053344
+Oriental,propagacion,Propagation,0.05,53.91124132630314
+Oriental,propagacion,Propagation,0.06,48.449288600072464
+Oriental,propagacion,Propagation,0.07,43.9089259142846
+Oriental,propagacion,Propagation,0.08,39.81631807241036
+Oriental,propagacion,Propagation,0.09,36.28698276643185
+Oriental,propagacion,Propagation,0.1,33.453135140904244
+Oriental,propagacion,Propagation,0.11,31.14471867150077
+Oriental,propagacion,Propagation,0.12,29.215676936997
+Oriental,propagacion,Propagation,0.13,27.522677098124458
+Oriental,propagacion,Propagation,0.14,26.099506075391265
+Oriental,propagacion,Propagation,0.15,24.750375829196756
+Oriental,propagacion,Propagation,0.16,23.6389222450115
+Oriental,propagacion,Propagation,0.17,22.596055222645603
+Oriental,propagacion,Propagation,0.18,21.72223209178625
+Oriental,propagacion,Propagation,0.19,20.87456911205777
+Oriental,propagacion,Propagation,0.2,20.10026029114046
+Oriental,propagacion,Propagation,0.21,19.427614725945652
+Oriental,propagacion,Propagation,0.22,18.81581007416268
+Oriental,propagacion,Propagation,0.23,18.18558022047387
+Oriental,propagacion,Propagation,0.24,17.630890302802488
+Oriental,propagacion,Propagation,0.25,17.132445718475946
+Oriental,propagacion,Propagation,0.26,16.628377601432067
+Oriental,propagacion,Propagation,0.27,16.20668077252561
+Oriental,propagacion,Propagation,0.28,15.759106350528242
+Oriental,propagacion,Propagation,0.29,15.30950853052187
+Oriental,propagacion,Propagation,0.3,14.95093594136638
+Oriental,propagacion,Propagation,0.31,14.56734183389803
+Oriental,propagacion,Propagation,0.32,14.184866219290486
+Oriental,propagacion,Propagation,0.33,13.876161315636693
+Oriental,propagacion,Propagation,0.34,13.515091187779433
+Oriental,propagacion,Propagation,0.35,13.15393648245735
+Oriental,propagacion,Propagation,0.36,12.827919215665322
+Oriental,propagacion,Propagation,0.37,12.497783709885564
+Oriental,propagacion,Propagation,0.38,12.167564533907406
+Oriental,propagacion,Propagation,0.39,11.908223043465123
+Oriental,propagacion,Propagation,0.4,11.607598813261335
+Oriental,propagacion,Propagation,0.41,11.31822238193551
+Oriental,propagacion,Propagation,0.42,11.02131059867443
+Oriental,propagacion,Propagation,0.43,10.721744538520824
+Oriental,propagacion,Propagation,0.44,10.39231501483479
+Oriental,propagacion,Propagation,0.45,10.052321148436063
+Oriental,propagacion,Propagation,0.46,9.779619995669774
+Oriental,propagacion,Propagation,0.47,9.466604670566237
+Oriental,propagacion,Propagation,0.48,9.229689933416825
+Oriental,propagacion,Propagation,0.49,8.943788605633541
+Oriental,propagacion,Propagation,0.5,8.728638645975012
+Oriental,propagacion,Propagation,0.51,8.397067238097165
+Oriental,propagacion,Propagation,0.52,8.068425248279341
+Oriental,propagacion,Propagation,0.53,7.78960660715971
+Oriental,propagacion,Propagation,0.54,7.528106802237766
+Oriental,propagacion,Propagation,0.55,7.209273483277238
+Oriental,propagacion,Propagation,0.56,6.929587714503138
+Oriental,propagacion,Propagation,0.57,6.637487558830084
+Oriental,propagacion,Propagation,0.58,6.351997625681972
+Oriental,propagacion,Propagation,0.59,6.12161951339628
+Oriental,propagacion,Propagation,0.6,5.879490196397274
+Oriental,propagacion,Propagation,0.61,5.63375944433579
+Oriental,propagacion,Propagation,0.62,5.317081851382251
+Oriental,propagacion,Propagation,0.63,5.0644028847404385
+Oriental,propagacion,Propagation,0.64,4.794008128661695
+Oriental,propagacion,Propagation,0.65,4.53763104365514
+Oriental,propagacion,Propagation,0.66,4.2870115492962935
+Oriental,propagacion,Propagation,0.67,4.063192816664235
+Oriental,propagacion,Propagation,0.68,3.8489056970192532
+Oriental,propagacion,Propagation,0.69,3.608878906188968
+Oriental,propagacion,Propagation,0.7,3.4585464193610442
+Oriental,propagacion,Propagation,0.71,3.2418540816413595
+Oriental,propagacion,Propagation,0.72,3.0129193143924398
+Oriental,propagacion,Propagation,0.73,2.783932628443227
+Oriental,propagacion,Propagation,0.74,2.502397371374872
+Oriental,propagacion,Propagation,0.75,2.278854161464135
+Oriental,propagacion,Propagation,0.76,2.0244866480285357
+Oriental,propagacion,Propagation,0.77,1.8294564044533352
+Oriental,propagacion,Propagation,0.78,1.5535530199991574
+Oriental,propagacion,Propagation,0.79,1.4419690025613183
+Oriental,propagacion,Propagation,0.8,1.2033093329647515
+Oriental,propagacion,Propagation,0.81,0.9341480348015834
+Oriental,propagacion,Propagation,0.82,0.7633606504168275
+Oriental,propagacion,Propagation,0.83,0.5671514179502835
+Oriental,propagacion,Propagation,0.84,0.35454649989140047
+Oriental,propagacion,Propagation,0.85,0.27295144135783495
+Oriental,propagacion,Propagation,0.86,0.17024205400190795
+Oriental,propagacion,Propagation,0.87,0.08979253635503244
+Oriental,propagacion,Propagation,0.88,0.024004240232887546
+Oriental,propagacion,Propagation,0.89,-0.020484556914282425
+Oriental,propagacion,Propagation,0.9,0.052267297281287484
+Oriental,propagacion,No alert,0.0,0.0
+Oriental,propagacion,No alert,0.01,0.0
+Oriental,propagacion,No alert,0.02,0.0
+Oriental,propagacion,No alert,0.03,0.0
+Oriental,propagacion,No alert,0.04,0.0
+Oriental,propagacion,No alert,0.05,0.0
+Oriental,propagacion,No alert,0.06,0.0
+Oriental,propagacion,No alert,0.07,0.0
+Oriental,propagacion,No alert,0.08,0.0
+Oriental,propagacion,No alert,0.09,0.0
+Oriental,propagacion,No alert,0.1,0.0
+Oriental,propagacion,No alert,0.11,0.0
+Oriental,propagacion,No alert,0.12,0.0
+Oriental,propagacion,No alert,0.13,0.0
+Oriental,propagacion,No alert,0.14,0.0
+Oriental,propagacion,No alert,0.15,0.0
+Oriental,propagacion,No alert,0.16,0.0
+Oriental,propagacion,No alert,0.17,0.0
+Oriental,propagacion,No alert,0.18,0.0
+Oriental,propagacion,No alert,0.19,0.0
+Oriental,propagacion,No alert,0.2,0.0
+Oriental,propagacion,No alert,0.21,0.0
+Oriental,propagacion,No alert,0.22,0.0
+Oriental,propagacion,No alert,0.23,0.0
+Oriental,propagacion,No alert,0.24,0.0
+Oriental,propagacion,No alert,0.25,0.0
+Oriental,propagacion,No alert,0.26,0.0
+Oriental,propagacion,No alert,0.27,0.0
+Oriental,propagacion,No alert,0.28,0.0
+Oriental,propagacion,No alert,0.29,0.0
+Oriental,propagacion,No alert,0.3,0.0
+Oriental,propagacion,No alert,0.31,0.0
+Oriental,propagacion,No alert,0.32,0.0
+Oriental,propagacion,No alert,0.33,0.0
+Oriental,propagacion,No alert,0.34,0.0
+Oriental,propagacion,No alert,0.35,0.0
+Oriental,propagacion,No alert,0.36,0.0
+Oriental,propagacion,No alert,0.37,0.0
+Oriental,propagacion,No alert,0.38,0.0
+Oriental,propagacion,No alert,0.39,0.0
+Oriental,propagacion,No alert,0.4,0.0
+Oriental,propagacion,No alert,0.41,0.0
+Oriental,propagacion,No alert,0.42,0.0
+Oriental,propagacion,No alert,0.43,0.0
+Oriental,propagacion,No alert,0.44,0.0
+Oriental,propagacion,No alert,0.45,0.0
+Oriental,propagacion,No alert,0.46,0.0
+Oriental,propagacion,No alert,0.47,0.0
+Oriental,propagacion,No alert,0.48,0.0
+Oriental,propagacion,No alert,0.49,0.0
+Oriental,propagacion,No alert,0.5,0.0
+Oriental,propagacion,No alert,0.51,0.0
+Oriental,propagacion,No alert,0.52,0.0
+Oriental,propagacion,No alert,0.53,0.0
+Oriental,propagacion,No alert,0.54,0.0
+Oriental,propagacion,No alert,0.55,0.0
+Oriental,propagacion,No alert,0.56,0.0
+Oriental,propagacion,No alert,0.57,0.0
+Oriental,propagacion,No alert,0.58,0.0
+Oriental,propagacion,No alert,0.59,0.0
+Oriental,propagacion,No alert,0.6,0.0
+Oriental,propagacion,No alert,0.61,0.0
+Oriental,propagacion,No alert,0.62,0.0
+Oriental,propagacion,No alert,0.63,0.0
+Oriental,propagacion,No alert,0.64,0.0
+Oriental,propagacion,No alert,0.65,0.0
+Oriental,propagacion,No alert,0.66,0.0
+Oriental,propagacion,No alert,0.67,0.0
+Oriental,propagacion,No alert,0.68,0.0
+Oriental,propagacion,No alert,0.69,0.0
+Oriental,propagacion,No alert,0.7,0.0
+Oriental,propagacion,No alert,0.71,0.0
+Oriental,propagacion,No alert,0.72,0.0
+Oriental,propagacion,No alert,0.73,0.0
+Oriental,propagacion,No alert,0.74,0.0
+Oriental,propagacion,No alert,0.75,0.0
+Oriental,propagacion,No alert,0.76,0.0
+Oriental,propagacion,No alert,0.77,0.0
+Oriental,propagacion,No alert,0.78,0.0
+Oriental,propagacion,No alert,0.79,0.0
+Oriental,propagacion,No alert,0.8,0.0
+Oriental,propagacion,No alert,0.81,0.0
+Oriental,propagacion,No alert,0.82,0.0
+Oriental,propagacion,No alert,0.83,0.0
+Oriental,propagacion,No alert,0.84,0.0
+Oriental,propagacion,No alert,0.85,0.0
+Oriental,propagacion,No alert,0.86,0.0
+Oriental,propagacion,No alert,0.87,0.0
+Oriental,propagacion,No alert,0.88,0.0
+Oriental,propagacion,No alert,0.89,0.0
+Oriental,propagacion,No alert,0.9,0.0
+Oriental,propagacion,Alert all,0.0,90.9090909090909
+Oriental,propagacion,Alert all,0.01,81.7263544536272
+Oriental,propagacion,Alert all,0.02,72.35621521335807
+Oriental,propagacion,Alert all,0.03,62.79287722586692
+Oriental,propagacion,Alert all,0.04,53.030303030303024
+Oriental,propagacion,Alert all,0.05,43.062200956937794
+Oriental,propagacion,Alert all,0.06,32.882011605415855
+Oriental,propagacion,Alert all,0.07,22.48289345063538
+Oriental,propagacion,Alert all,0.08,11.857707509881424
+Oriental,propagacion,Alert all,0.09,0.9990009990010142
+Oriental,propagacion,Alert all,0.1,-10.101010101010091
+Oriental,propagacion,Alert all,0.11,-21.450459652706833
+Oriental,propagacion,Alert all,0.12,-33.05785123966942
+Oriental,propagacion,Alert all,0.13,-44.93207941483803
+Oriental,propagacion,Alert all,0.14,-57.082452431289646
+Oriental,propagacion,Alert all,0.15,-69.5187165775401
+Oriental,propagacion,Alert all,0.16,-82.25108225108225
+Oriental,propagacion,Alert all,0.17,-95.29025191675798
+Oriental,propagacion,Alert all,0.18,-108.64745011086471
+Oriental,propagacion,Alert all,0.19,-122.33445566778897
+Oriental,propagacion,Alert all,0.2,-136.36363636363637
+Oriental,propagacion,Alert all,0.21,-150.74798619102415
+Oriental,propagacion,Alert all,0.22,-165.5011655011655
+Oriental,propagacion,Alert all,0.23,-180.63754427390793
+Oriental,propagacion,Alert all,0.24,-196.17224880382778
+Oriental,propagacion,Alert all,0.25,-212.1212121212121
+Oriental,propagacion,Alert all,0.26,-228.50122850122847
+Oriental,propagacion,Alert all,0.27,-245.33001245330013
+Oriental,propagacion,Alert all,0.28,-262.6262626262627
+Oriental,propagacion,Alert all,0.29,-280.40973111395647
+Oriental,propagacion,Alert all,0.3,-298.70129870129875
+Oriental,propagacion,Alert all,0.31,-317.5230566534915
+Oriental,propagacion,Alert all,0.32,-336.8983957219252
+Oriental,propagacion,Alert all,0.33,-356.8521031207599
+Oriental,propagacion,Alert all,0.34,-377.41046831955936
+Oriental,propagacion,Alert all,0.35,-398.6013986013987
+Oriental,propagacion,Alert all,0.36,-420.4545454545454
+Oriental,propagacion,Alert all,0.37,-443.00144300144296
+Oriental,propagacion,Alert all,0.38,-466.27565982404695
+Oriental,propagacion,Alert all,0.39,-490.31296572280183
+Oriental,propagacion,Alert all,0.4,-515.1515151515152
+Oriental,propagacion,Alert all,0.41,-540.8320493066257
+Oriental,propagacion,Alert all,0.42,-567.398119122257
+Oriental,propagacion,Alert all,0.43,-594.896331738437
+Oriental,propagacion,Alert all,0.44,-623.3766233766233
+Oriental,propagacion,Alert all,0.45,-652.892561983471
+Oriental,propagacion,Alert all,0.46,-683.5016835016836
+Oriental,propagacion,Alert all,0.47,-715.2658662092626
+Oriental,propagacion,Alert all,0.48,-748.2517482517482
+Oriental,propagacion,Alert all,0.49,-782.5311942959001
+Oriental,propagacion,Alert all,0.5,-818.1818181818181
+Oriental,propagacion,Alert all,0.51,-855.2875695732839
+Oriental,propagacion,Alert all,0.52,-893.9393939393939
+Oriental,propagacion,Alert all,0.53,-934.2359767891684
+Oriental,propagacion,Alert all,0.54,-976.2845849802372
+Oriental,propagacion,Alert all,0.55,-1020.2020202020205
+Oriental,propagacion,Alert all,0.56,-1066.115702479339
+Oriental,propagacion,Alert all,0.57,-1114.1649048625795
+Oriental,propagacion,Alert all,0.58,-1164.5021645021645
+Oriental,propagacion,Alert all,0.59,-1217.2949002217292
+Oriental,propagacion,Alert all,0.6,-1272.7272727272727
+Oriental,propagacion,Alert all,0.61,-1331.0023310023307
+Oriental,propagacion,Alert all,0.62,-1392.3444976076555
+Oriental,propagacion,Alert all,0.63,-1457.002457002457
+Oriental,propagacion,Alert all,0.64,-1525.2525252525254
+Oriental,propagacion,Alert all,0.65,-1597.4025974025974
+Oriental,propagacion,Alert all,0.66,-1673.7967914438505
+Oriental,propagacion,Alert all,0.67,-1754.820936639119
+Oriental,propagacion,Alert all,0.68,-1840.9090909090914
+Oriental,propagacion,Alert all,0.69,-1932.5513196480945
+Oriental,propagacion,Alert all,0.7,-2030.3030303030307
+Oriental,propagacion,Alert all,0.71,-2134.796238244514
+Oriental,propagacion,Alert all,0.72,-2246.753246753246
+Oriental,propagacion,Alert all,0.73,-2367.0033670033667
+Oriental,propagacion,Alert all,0.74,-2496.5034965034965
+Oriental,propagacion,Alert all,0.75,-2636.3636363636365
+Oriental,propagacion,Alert all,0.76,-2787.878787878788
+Oriental,propagacion,Alert all,0.77,-2952.569169960475
+Oriental,propagacion,Alert all,0.78,-3132.2314049586785
+Oriental,propagacion,Alert all,0.79,-3329.004329004329
+Oriental,propagacion,Alert all,0.8,-3545.454545454546
+Oriental,propagacion,Alert all,0.81,-3784.688995215312
+Oriental,propagacion,Alert all,0.82,-4050.5050505050526
+Oriental,propagacion,Alert all,0.83,-4347.593582887703
+Oriental,propagacion,Alert all,0.84,-4681.818181818181
+Oriental,propagacion,Alert all,0.85,-5060.60606060606
+Oriental,propagacion,Alert all,0.86,-5493.506493506494
+Oriental,propagacion,Alert all,0.87,-5993.006993006994
+Oriental,propagacion,Alert all,0.88,-6575.757575757575
+Oriental,propagacion,Alert all,0.89,-7264.462809917356
+Oriental,propagacion,Alert all,0.9,-8090.909090909093
+Oriental,propagacion,Climatology,0.0,90.9090909090909
+Oriental,propagacion,Climatology,0.01,81.7263544536272
+Oriental,propagacion,Climatology,0.02,72.35621521335807
+Oriental,propagacion,Climatology,0.03,62.79287722586692
+Oriental,propagacion,Climatology,0.04,53.030303030303024
+Oriental,propagacion,Climatology,0.05,43.062200956937794
+Oriental,propagacion,Climatology,0.06,32.882011605415855
+Oriental,propagacion,Climatology,0.07,22.48289345063538
+Oriental,propagacion,Climatology,0.08,11.857707509881424
+Oriental,propagacion,Climatology,0.09,0.9990009990010142
+Oriental,propagacion,Climatology,0.1,0.0
+Oriental,propagacion,Climatology,0.11,0.0
+Oriental,propagacion,Climatology,0.12,0.0
+Oriental,propagacion,Climatology,0.13,0.0
+Oriental,propagacion,Climatology,0.14,0.0
+Oriental,propagacion,Climatology,0.15,0.0
+Oriental,propagacion,Climatology,0.16,0.0
+Oriental,propagacion,Climatology,0.17,0.0
+Oriental,propagacion,Climatology,0.18,0.0
+Oriental,propagacion,Climatology,0.19,0.0
+Oriental,propagacion,Climatology,0.2,0.0
+Oriental,propagacion,Climatology,0.21,0.0
+Oriental,propagacion,Climatology,0.22,0.0
+Oriental,propagacion,Climatology,0.23,0.0
+Oriental,propagacion,Climatology,0.24,0.0
+Oriental,propagacion,Climatology,0.25,0.0
+Oriental,propagacion,Climatology,0.26,0.0
+Oriental,propagacion,Climatology,0.27,0.0
+Oriental,propagacion,Climatology,0.28,0.0
+Oriental,propagacion,Climatology,0.29,0.0
+Oriental,propagacion,Climatology,0.3,0.0
+Oriental,propagacion,Climatology,0.31,0.0
+Oriental,propagacion,Climatology,0.32,0.0
+Oriental,propagacion,Climatology,0.33,0.0
+Oriental,propagacion,Climatology,0.34,0.0
+Oriental,propagacion,Climatology,0.35,0.0
+Oriental,propagacion,Climatology,0.36,0.0
+Oriental,propagacion,Climatology,0.37,0.0
+Oriental,propagacion,Climatology,0.38,0.0
+Oriental,propagacion,Climatology,0.39,0.0
+Oriental,propagacion,Climatology,0.4,0.0
+Oriental,propagacion,Climatology,0.41,0.0
+Oriental,propagacion,Climatology,0.42,0.0
+Oriental,propagacion,Climatology,0.43,0.0
+Oriental,propagacion,Climatology,0.44,0.0
+Oriental,propagacion,Climatology,0.45,0.0
+Oriental,propagacion,Climatology,0.46,0.0
+Oriental,propagacion,Climatology,0.47,0.0
+Oriental,propagacion,Climatology,0.48,0.0
+Oriental,propagacion,Climatology,0.49,0.0
+Oriental,propagacion,Climatology,0.5,0.0
+Oriental,propagacion,Climatology,0.51,0.0
+Oriental,propagacion,Climatology,0.52,0.0
+Oriental,propagacion,Climatology,0.53,0.0
+Oriental,propagacion,Climatology,0.54,0.0
+Oriental,propagacion,Climatology,0.55,0.0
+Oriental,propagacion,Climatology,0.56,0.0
+Oriental,propagacion,Climatology,0.57,0.0
+Oriental,propagacion,Climatology,0.58,0.0
+Oriental,propagacion,Climatology,0.59,0.0
+Oriental,propagacion,Climatology,0.6,0.0
+Oriental,propagacion,Climatology,0.61,0.0
+Oriental,propagacion,Climatology,0.62,0.0
+Oriental,propagacion,Climatology,0.63,0.0
+Oriental,propagacion,Climatology,0.64,0.0
+Oriental,propagacion,Climatology,0.65,0.0
+Oriental,propagacion,Climatology,0.66,0.0
+Oriental,propagacion,Climatology,0.67,0.0
+Oriental,propagacion,Climatology,0.68,0.0
+Oriental,propagacion,Climatology,0.69,0.0
+Oriental,propagacion,Climatology,0.7,0.0
+Oriental,propagacion,Climatology,0.71,0.0
+Oriental,propagacion,Climatology,0.72,0.0
+Oriental,propagacion,Climatology,0.73,0.0
+Oriental,propagacion,Climatology,0.74,0.0
+Oriental,propagacion,Climatology,0.75,0.0
+Oriental,propagacion,Climatology,0.76,0.0
+Oriental,propagacion,Climatology,0.77,0.0
+Oriental,propagacion,Climatology,0.78,0.0
+Oriental,propagacion,Climatology,0.79,0.0
+Oriental,propagacion,Climatology,0.8,0.0
+Oriental,propagacion,Climatology,0.81,0.0
+Oriental,propagacion,Climatology,0.82,0.0
+Oriental,propagacion,Climatology,0.83,0.0
+Oriental,propagacion,Climatology,0.84,0.0
+Oriental,propagacion,Climatology,0.85,0.0
+Oriental,propagacion,Climatology,0.86,0.0
+Oriental,propagacion,Climatology,0.87,0.0
+Oriental,propagacion,Climatology,0.88,0.0
+Oriental,propagacion,Climatology,0.89,0.0
+Oriental,propagacion,Climatology,0.9,0.0
