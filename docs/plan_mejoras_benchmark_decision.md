@@ -8,7 +8,7 @@
 
 **Fuera de alcance:** palanca D (test ciego 2026), aplazada por su coste temporal; validación externa, tratada en documento aparte.
 
-> **Actualización 2026-10-28:** B.1–B.5, C.1–C.6 y R.1–R.12 están ejecutados. R.8 cubre confianza alta y FRP; la variante de nubes < 40 % no completó porque la cola del CDS no entregó el proxy ERA5. R.9 ya incluye una muestra sin gate y R.4 un 1:20 con negativos independientes. R.12 se verificó en entorno limpio (76 tests, hashes OK; `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`). Solo queda **B.6**, opcional.
+> **Actualización 2026-10-28:** B.1–B.5, C.1–C.6 y R.1–R.12 están ejecutados. R.8 cubre confianza alta y FRP; la variante de nubes < 40 % no completó porque la cola del CDS no entregó el proxy ERA5. R.9 ya incluye una muestra sin gate y R.4 un 1:20 con negativos independientes. R.12 se verificó en entorno limpio (76 tests, hashes OK) y E.1 (validación externa en Boquerón) está completada. Solo queda **B.6**, opcional.
 
 > Nota de rutas: el repositorio fue reorganizado. Las fuentes del manuscrito están en `manuscrito/en/` y `manuscrito/es/`; las tablas generadas se publican en `entregables/tablas/`. Los scripts conservan su numeración original en `scripts/`.
 
@@ -105,11 +105,14 @@ Se ejecutaron R.10, R.9 y R.4; R.8 quedó completo en confianza alta/FRP y la va
 | 3 | **R.8** Variantes de calidad VIIRS | Parcial: alta confianza y FRP completos; nubes no completada (cola CDS) | Alta confianza retiene 12.2 %/6.5 % y sube ROC a 0.8228/0.7793; FRP ≥ 10 retiene 31.9 %/19.0 %. La nubosidad < 40 % se está calculando con tcc ERA5 15 UTC como proxy, no con FIRMS. Tabla S30. |
 | 4 | **R.4** Sensibilidad 1:5 y 1:20 | Completado | 1:5 estable; 1:20 con negativos independientes baja Chaco M3 a 0.7926 (precisión poblacional −7 %) y deja Oriental en 0.7526. Tabla S28. |
 | 5 | **R.12** Verificación limpia | Completado | Python 3.12 + lock: 76 tests OK; hashes OK. `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`. |
-| 6 | **B.6** FWI a 1 km | Opcional, no ejecutado | No resuelve el shift temporal; coste 3–5 días. |
+| 6 | **E.1** Validación externa Boquerón | Completado | Leave-one-department-out + buffer 25 km; M2/M3 0.8104/0.8120; M3−M2 +0.0016 (p=0.254); FWI 0.4719; INPE 0.5845; precisión poblacional M2/M3 0.0891/0.0678 %; buffer 20/25/30 km (p=0.010/0.254/0.206). Tabla S33/S33b; Figura S9. |
+| 7 | **B.6** FWI a 1 km | Opcional, no ejecutado | No resuelve el shift temporal; coste 3–5 días. |
 
 **Lectura de cierre:** la conclusión operativa se mantiene, pero R.10 obliga a moderar la interpretación causal en Chaco. El modelo es un nowcast/priorización, no una atribución causal; el control negativo por encima de 0.5 indica señal residual de celda/histórica o fuga de variables.
 
-**No repetir:** R.1, R.2, R.3, R.4, R.5, R.6, R.7, R.8, R.9, R.10, R.11 y R.12 ya están hechos y documentados.
+**No repetir:** R.1–R.12 y E.1 ya están hechos y documentados.
+
+**Cierre documental (2026-10-28):** Nota S5 con los protocolos de robustez; control negativo discutido en §4.2; metadatos de release v2.1.0 con DOI conceptuales; `auditoria/HASHES.md` regenerado (223 archivos, árbol de trabajo). El DOI de versión v2.1.0 se asigna al depositar en Zenodo.
 
 ---
 
@@ -597,6 +600,7 @@ Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. S
 
 | Ítem | Crítica que neutraliza | Coste | Prioridad | Estado |
 |---|---|---|---|---|
+| E.1 Validación externa Boquerón | "Solo vale para Paraguay" | 3–5 d | Alta | Completado (S33/S9; M2/M3 0.8104/0.8120) |
 | R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Completado (S25; 20/20 Δ > 0) |
 | R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Completado (S26/S5; 8/8 Δ > 0) |
 | R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Completado (S27; a1 −0.018/−0.039; bootstrap pareado) |
@@ -664,6 +668,7 @@ El orden y estado están en §2.7. R.4, R.8, R.9 y R.10 se ejecutaron con el ent
 - [x] R.10 Control negativo y permutation importance (Tabla S32; Figura S7).
 - [x] R.11 IC de Wilson/bootstrap para la precisión poblacional (S6; Figura S8).
 - [x] Hashes SHA-256 y `run_all.sh` generados; verificación limpia pendiente en CI.
+- [x] E.1 Validación externa espacial en Boquerón (Tabla S33; Figura S9).
 
 ## 7. Resultado esperado
 

@@ -23,9 +23,9 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S4, Tables S1–S32 and Figures S1–S7 and S8.  
-> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.1).  
-> **Data:** processed data and test predictions are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
+> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S5, Tables S1–S33 and Figures S1–S9.  
+> **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.1.0).  
+> **Data:** processed data and test predictions are available in the v2.1.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
 # Supplementary contents {.unnumbered}
 
@@ -37,9 +37,11 @@ format:
 
 • **Note S4:** Implementation of the FWI and INPE indices.
 
-• **Tables S1–S32:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest, an adversarial validation, gate and label sensitivities, a sampling-ratio sensitivity and a negative control.
+• **Note S5:** Robustness analyses.
 
-• **Figures S1–S7 and S8:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance and alert-budget precision.
+• **Tables S1–S33:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest, an adversarial validation, gate and label sensitivities, a sampling-ratio sensitivity and a negative control and an external spatial validation in Boquerón.
+
+• **Figures S1–S9:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance, external validation and alert-budget precision.
 
 ---
 
@@ -241,6 +243,46 @@ where $H_{min}$ and $T_{max}$ are the same-day daily minimum relative humidity a
 ## S4.3 Calibration and operating points
 
 **No local calibration was applied to either index.** The FWI remains on the Canadian index scale and INPE on a 0–1 risk scale; neither is a calibrated probability. For ignition in each region, the operating cutoff was selected on 2023 validation by maximizing F0.5 and then frozen for 2024–2025 (Tables S11 and S22). The local $A$ weighting is a land-cover parameterization, not a calibration to fire observations.
+
+# Supplementary Note S5. Robustness analyses
+
+This note documents the protocols behind Tables S25–S32 and Figures S5–S7. All analyses use the frozen 2018–2025 data and the same feature definitions as the main models unless stated otherwise.
+
+## S5.1 Rolling-origin backtest
+
+Four folds were evaluated for test years $Y=2022,\dots,2025$. In each fold, models were trained through $Y-2$, calibrated and thresholded on $Y-1$, and evaluated on $Y$. M1, M2 and M3 were retrained with the operational capacity of Table S2; the F0.5 cutoff was selected on $Y-1$ and frozen for $Y$. ROC-AUC and PR-AUC were computed on the case-control test rows. The M3−M2 ROC-AUC difference uses a paired bootstrap grouped by date ($B=1\,000$). The fold construction is strictly nested, so no test year contributes to training or threshold selection (Table S26; Figure S5).
+
+## S5.2 Seed and capacity stability
+
+M2 and M3 were trained with seeds 42, 7, 13, 21 and 33 and two capacities: the operational configuration and a +20 % variant in `num_leaves` and `num_boost_round` (Chaco 28/54; Oriental 37/72). All other hyperparameters were fixed. ROC-AUC and PR-AUC were evaluated on the frozen test. ΔROC is M3−M2 within the same seed and capacity; the table reports the mean, standard deviation, range, a t interval for the mean and the fraction of positive runs (Table S25).
+
+## S5.3 Threshold and metric sensitivity
+
+For M3 ignition and the propagation model, cutoffs were selected on 2023 validation by maximizing F0.5, F1, F2 and Youden's J. Precision, recall, F0.5, F1 and F2 were then evaluated on the 2024–2025 test. Figure S6 shows the validation curves; Table S14 (continued) reports the test metrics. The operational F0.5 cutoff is retained for the main tables; this analysis tests whether the ranking depends on that choice.
+
+## S5.4 Adversarial validation
+
+A LightGBM classifier was trained to separate training rows (2018–2022) from test rows (2024–2025) using the M3 feature set. Five stratified folds were used, with 100 boosting rounds, 31 leaves, learning rate 0.05 and gain importance. The reported AUC is the mean across folds; the top features are ranked by mean gain. Adversarial AUC measures distribution shift and is not a performance metric for the fire model (Table S29).
+
+## S5.5 Negative control and permutation importance
+
+The negative control retrains M3 after randomly permuting the training labels while keeping the features and validation labels unchanged. A correctly specified, leakage-free pipeline should yield an AUC near 0.5. The control was repeated with and without the historical features (`dist_foco_hist_km`, `densidad_hist_25km`, `freq_hist_1km`). Permutation importance shuffles each feature, or each feature family, on the test rows and records the mean drop in ROC-AUC over three repeats. Families are weather, fuel, anthropogenic, historical and calendar. The control and permutation results are in Table S32 and Figure S7. An AUC above 0.5 in the control indicates residual cell-level or feature information; it is a diagnostic of what the score can and cannot support, not a substitute for the main ranking.
+
+## S5.6 Gate thresholds and the no-gate sample
+
+The baseline gate is fuel and VPD ≥ 0.8 kPa with 48-h rainfall < 10 mm. Stricter variants use VPD ≥ 1.0/1.2 kPa and rainfall < 5/2 mm. A no-gate ignition sample was generated from the full candidate archive with the same D2 operator, a 1:10 ratio and no biophysical filter (Table S31). Positives are all D2 ignitions in the sampled domain; negatives are all non-fire candidates. The no-gate sample is independent of the frozen gated sample; validation and test years are unchanged. FWI is evaluated on the same retained rows.
+
+## S5.7 Sampling-ratio sensitivity
+
+The 1:5 sample was obtained by downsampling training negatives from the frozen 1:10 sample. The 1:20 sample was generated independently from the full candidate archive with the baseline gate and 20 negatives per positive. Validation and test remain at 1:10 so ROC-AUC, PR-AUC and the prevalence-corrected population precision are comparable across training ratios (Table S28). The 1:5 and 1:20 analyses change the training class balance only.
+
+## S5.8 VIIRS label-quality variants
+
+The raw FIRMS archive (2018–2025) was filtered to vegetation fires with scan ≤ 1.5 km and non-low confidence. Two variants were built: high confidence (`h`) and FRP ≥ 10 MW. The variants were applied to the positive rows of the frozen 1:10 sample; negatives were unchanged. This is a label sensitivity, not a full reconstruction of D2 under the variant fire masks: removing a low-confidence or low-FRP detection can also change the t−1 buffer and the recent-fire state. The cloud-cover < 40 % variant is not reported because FIRMS lacks a cloud mask and the ERA5 total-cloud proxy did not complete in the CDS queue (Table S30).
+
+## S5.9 Clean-environment verification
+
+A separate Python 3.12 environment was created from `requirements-lock.txt`. The 76-test suite passed, and `shasum -a 256 -c auditoria/HASHES.sha256` returned OK. The run is recorded in `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`. The hashes cover the generated tables, figures, manuscript sources and analysis scripts.
 
 ---
 
@@ -1253,9 +1295,32 @@ Top features by gain:
 
 ![**Figure S7.** Permutation importance of the M3 features on the retrospective test (mean ΔROC after shuffling, three repeats), by region.](../../entregables/figuras/supp_fig07_permutation_importance.png){width="95%" fig-alt="Permutation importance by region"}
 
+**Table S33.** External spatial validation in Boquerón. Boquerón and a 25-km buffer were excluded from training and validation; causal priors were recomputed without those cells. M2/M3 were retrained and calibrated on 2023 outside the buffer; FWI/INPE cutoffs were selected on the same 2023 rows. Metrics are at the F0.5 cutoff on 2024–2025 Boquerón rows (66,845 rows; 5,038 positives). Case-control and population precision/recall are reported; population weights use department-level D2 counts reconstructed from the full candidate archive. ΔROC is M3−M2 with a paired date-grouped bootstrap (B = 1 000). Population precision is a fraction; multiply by 100 for %. 
+
+| Model | ROC-AUC [95 % CI] | PR-AUC | Brier | ECE | Cutoff | Precision | Recall | F0.5 | Precision pop. | Recall pop. | FP | ΔROC vs M2 (p) |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| M2 | 0.8104 [0.803–0.818] | 0.2440 | 0.0626 | 0.0124 | 0.2542 | 0.3512 | 0.1624 | 0.2849 | 0.000891 | 0.1624 | 1,511 | — |
+| M3 | 0.8120 [0.804–0.820] | 0.2505 | 0.0624 | 0.0104 | 0.2370 | 0.2911 | 0.2707 | 0.2868 | 0.000678 | 0.2705 | 3,322 | +0.0016 (0.254) |
+| FWI | 0.4719 [0.457–0.488] | 0.0685 | — | — | 3.2369 | 0.0679 | 0.4043 | 0.0814 | 0.000153 | 0.4043 | 27,976 | — |
+| INPE | 0.5845 [0.570–0.600] | 0.1006 | — | — | 0.0786 | 0.0785 | 0.8896 | 0.0960 | 0.000131 | 0.8896 | 52,596 | — |
+
+**Table S33b.** Buffer sensitivity for the Boquerón external validation. M2/M3 were retrained with 20, 25 and 30 km buffers; 25 km is the primary specification. The M3−M2 p-value changes with the buffer, so the hybrid advantage is not robust to this choice. FWI/INPE are unchanged because they are not trained on the buffer. Population precision is a fraction.
+
+| Buffer (km) | M2 ROC | M3 ROC | M2 PR | M3 PR | ΔROC M3−M2 | p | M2 pop. precision | M3 pop. precision |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 20 | 0.8106 | 0.8145 | 0.2448 | 0.2557 | +0.0039 | 0.010 | 0.000865 | 0.000757 |
+| 25 | 0.8104 | 0.8120 | 0.2440 | 0.2505 | +0.0016 | 0.254 | 0.000891 | 0.000678 |
+| 30 | 0.8079 | 0.8099 | 0.2414 | 0.2501 | +0.0020 | 0.206 | 0.000836 | 0.000702 |
+
+![**Figure S9.** External validation in Boquerón: ROC and precision–recall curves for M2, M3, FWI and INPE on 2024–2025.](../../entregables/figuras/supp_fig09_external_boqueron.png){width="90%" fig-alt="External validation in Boquerón"}
+
+## S5.10 External spatial validation in Boquerón
+
+The leave-one-department-out pilot excluded Boquerón and a 25-km buffer from training and validation. Causal historical priors were recomputed with `excluir_cell_ids` for the excluded cells. M2 and M3 were retrained with the operational capacity; calibration and the F0.5 cutoff used 2023 rows outside the excluded area. FWI and INPE cutoffs were selected on the same 2023 rows. Evaluation used the 2024–2025 Boquerón rows (66,845 sampled rows; 5,038 positives). Metrics are reported both case-control and population-weighted; the latter use department-level D2 counts reconstructed from the full candidate archive because `conteos_poblacionales_d2.parquet` stores denominators by region. The buffer sensitivity uses 20, 25 and 30 km (Table S33b). This is a spatial external validation within Paraguay, not a cross-country validation.
+
 # Data availability {.unnumbered}
 
-Processed data, test predictions, trained models and derived tables are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
+Processed data, test predictions, trained models and derived tables are available in the v2.1.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
 
 # Computer code availability {.unnumbered}
 

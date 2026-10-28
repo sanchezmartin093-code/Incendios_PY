@@ -23,9 +23,9 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.docx`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S4, Tablas S1–S32 y Figuras S1–S7 y S8.  
-> **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.1 de GitHub).  
-> **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
+> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S5, Tablas S1–S33 y Figuras S1–S9.  
+> **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.1.0 de GitHub).  
+> **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.1.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
 ```{=html}
 <style>
@@ -51,9 +51,11 @@ format:
 
 • **Nota S4:** Implementación de los índices FWI e INPE.
 
-• **Tablas S1–S32:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad de A del INPE, una sensibilidad al solapamiento train/test, una tabla de beneficio neto, una prueba pareada de valor de decisión, estabilidad a semillas/capacidad, un backtest rolling-origin, una validación adversarial, sensibilidades de gate y etiquetas, una sensibilidad de muestreo y un control negativo.
+• **Nota S5:** Análisis de robustez.
 
-• **Figuras S1–S7 y S8:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral, importancia por permutación y precisión por presupuesto de alertas.
+• **Tablas S1–S33:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad de A del INPE, una sensibilidad al solapamiento train/test, una tabla de beneficio neto, una prueba pareada de valor de decisión, estabilidad a semillas/capacidad, un backtest rolling-origin, una validación adversarial, sensibilidades de gate y etiquetas, una sensibilidad de muestreo y un control negativo y una validación espacial externa en Boquerón.
+
+• **Figuras S1–S9:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral, importancia por permutación, validación externa y precisión por presupuesto de alertas.
 
 ---
 
@@ -255,6 +257,46 @@ donde $H_{min}$ y $T_{max}$ son la humedad relativa mínima y la temperatura má
 ## S4.3 Calibración y puntos operativos
 
 **No se aplicó calibración local a ninguno de los dos índices.** El FWI permanece en la escala del índice canadiense y el INPE en una escala de riesgo 0–1; ninguno es una probabilidad calibrada. Para ignición en cada región, el corte operativo se seleccionó en la validación de 2023 maximizando F0.5 y luego se congeló para 2024–2025 (Tablas S11 y S22). La ponderación local de $A$ es una parametrización de cobertura, no una calibración a observaciones de fuego.
+
+# Nota complementaria S5. Análisis de robustez
+
+Esta nota documenta los protocolos de las Tablas S25–S32 y las Figuras S5–S7. Todos los análisis usan los datos congelados 2018–2025 y las mismas definiciones de variables que los modelos principales, salvo que se indique lo contrario.
+
+## S5.1 Backtest rolling-origin
+
+Se evaluaron cuatro folds para los años de test $Y=2022,\dots,2025$. En cada fold, los modelos se entrenaron hasta $Y-2$, se calibraron y se umbralizaron en $Y-1$, y se evaluaron en $Y$. M1, M2 y M3 se reentrenaron con la capacidad operativa de la Tabla S2; el corte F0.5 se seleccionó en $Y-1$ y se congeló para $Y$. ROC-AUC y PR-AUC se calcularon sobre las filas caso-control de test. La diferencia M3−M2 usa un bootstrap pareado agrupado por fecha ($B=1\,000$). La construcción es estrictamente anidada: ningún año de test contribuye al entrenamiento ni a la selección del umbral (Tabla S26; Figura S5).
+
+## S5.2 Estabilidad a semillas y capacidad
+
+M2 y M3 se entrenaron con semillas 42, 7, 13, 21 y 33 y dos capacidades: la configuración operativa y una variante +20 % en `num_leaves` y `num_boost_round` (Chaco 28/54; Oriental 37/72). Los demás hiperparámetros quedaron fijos. ROC-AUC y PR-AUC se evaluaron en el test congelado. ΔROC es M3−M2 dentro de la misma semilla y capacidad; la tabla reporta media, desviación estándar, rango, intervalo t para la media y fracción de corridas positivas (Tabla S25).
+
+## S5.3 Sensibilidad a umbral y métrica
+
+Para la ignición M3 y el modelo de propagación, los cortes se seleccionaron en la validación de 2023 maximizando F0.5, F1, F2 y la J de Youden. Precisión, recall, F0.5, F1 y F2 se evaluaron después en el test 2024–2025. La Figura S6 muestra las curvas de validación; la Tabla S14 (continuación) reporta las métricas de test. El corte F0.5 operativo se mantiene en las tablas principales; este análisis prueba si el ranking depende de esa elección.
+
+## S5.4 Validación adversarial
+
+Se entrenó un clasificador LightGBM para separar filas de entrenamiento (2018–2022) de test (2024–2025) usando el conjunto de variables de M3. Se usaron cinco folds estratificados, 100 rondas, 31 hojas, learning rate 0.05 e importancia por ganancia. El AUC reportado es la media entre folds; las variables principales se ordenan por ganancia media. El AUC adversarial mide cambio de distribución y no es una métrica de desempeño del modelo de fuego (Tabla S29).
+
+## S5.5 Control negativo y permutation importance
+
+El control negativo reentrena M3 tras permutar aleatoriamente las etiquetas de entrenamiento, manteniendo las variables y las etiquetas de validación. Un pipeline correctamente especificado y sin fuga debería dar un AUC cercano a 0.5. El control se repitió con y sin las variables históricas (`dist_foco_hist_km`, `densidad_hist_25km`, `freq_hist_1km`). La importancia por permutación barre cada variable, o cada familia, en las filas de test y registra la caída media de ROC-AUC en tres repeticiones. Las familias son meteorología, combustible, antropogénicas, históricas y calendario. Los resultados están en la Tabla S32 y la Figura S7. Un AUC superior a 0.5 en el control indica información residual de celda o de variables; es un diagnóstico de lo que el score puede y no puede sostener, no un sustituto del ranking principal.
+
+## S5.6 Umbrales del gate y muestra sin gate
+
+El gate basal es combustible y VPD ≥ 0.8 kPa con lluvia 48 h < 10 mm. Las variantes estrictas usan VPD ≥ 1.0/1.2 kPa y lluvia < 5/2 mm. Se generó una muestra de ignición sin gate desde el archivo candidato completo con el mismo operador D2, ratio 1:10 y sin filtro biofísico (Tabla S31). Los positivos son todas las igniciones D2 del dominio muestreado; los negativos son todos los candidatos sin fuego. La muestra sin gate es independiente de la muestra gateada congelada; los años de validación y test no cambian. El FWI se evalúa en las mismas filas retenidas.
+
+## S5.7 Sensibilidad a la razón de muestreo
+
+La muestra 1:5 se obtuvo submuestreando negativos de entrenamiento del muestreo 1:10 congelado. La muestra 1:20 se generó de forma independiente desde el archivo candidato completo con el gate basal y 20 negativos por positivo. Validación y test permanecen en 1:10 para que ROC-AUC, PR-AUC y la precisión poblacional corregida por prevalencia sean comparables entre ratios de entrenamiento (Tabla S28). Los análisis 1:5 y 1:20 cambian solo el balance de clases de entrenamiento.
+
+## S5.8 Variantes de calidad de etiquetas VIIRS
+
+El archivo crudo FIRMS (2018–2025) se filtró a fuegos de vegetación con scan ≤ 1.5 km y confianza no baja. Se construyeron dos variantes: confianza alta (`h`) y FRP ≥ 10 MW. Las variantes se aplicaron a las filas positivas del muestreo 1:10 congelado; los negativos no cambiaron. Es una sensibilidad de etiquetas, no una reconstrucción completa de D2 bajo las máscaras variantes: quitar una detección de baja confianza o bajo FRP también puede cambiar el buffer t−1 y el estado de fuego reciente. La variante de nubosidad < 40 % no se reporta porque FIRMS no trae máscara de nubes y el proxy de nubosidad total ERA5 no completó en la cola del CDS (Tabla S30).
+
+## S5.9 Verificación en entorno limpio
+
+Se creó un entorno Python 3.12 separado desde `requirements-lock.txt`. Las 76 pruebas pasaron y `shasum -a 256 -c auditoria/HASHES.sha256` devolvió OK. La ejecución está registrada en `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`. Los hashes cubren tablas, figuras, fuentes del manuscrito y scripts de análisis.
 
 ---
 
@@ -1267,9 +1309,32 @@ Top features by gain:
 
 ![**Figura S7.** Importancia por permutación de las variables de M3 en el test retrospectivo (ΔROC medio tras permutar, tres repeticiones), por región.](../../entregables/figuras/supp_fig07_permutation_importance.png){width="95%" fig-alt="Importancia por permutación por región"}
 
+**Tabla S33.** Validación espacial externa en Boquerón. Boquerón y un buffer de 25 km se excluyeron de entrenamiento y validación; los priors causales se recalcularon sin esas celdas. M2/M3 se reentrenaron y calibraron en 2023 fuera del buffer; los cortes de FWI/INPE se seleccionaron en las mismas filas de 2023. Las métricas son en el corte F0.5 sobre las filas de Boquerón 2024–2025 (66 845 filas; 5 038 positivos). Se reportan métricas caso-control y poblacionales; los pesos poblacionales usan conteos D2 por departamento reconstruidos desde el archivo candidato completo. ΔROC es M3−M2 con bootstrap pareado agrupado por fecha (B = 1 000). La precisión poblacional es una fracción; multiplicar por 100 para %. 
+
+| Model | ROC-AUC [95 % CI] | PR-AUC | Brier | ECE | Cutoff | Precision | Recall | F0.5 | Precision pop. | Recall pop. | FP | ΔROC vs M2 (p) |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| M2 | 0.8104 [0.803–0.818] | 0.2440 | 0.0626 | 0.0124 | 0.2542 | 0.3512 | 0.1624 | 0.2849 | 0.000891 | 0.1624 | 1,511 | — |
+| M3 | 0.8120 [0.804–0.820] | 0.2505 | 0.0624 | 0.0104 | 0.2370 | 0.2911 | 0.2707 | 0.2868 | 0.000678 | 0.2705 | 3,322 | +0.0016 (0.254) |
+| FWI | 0.4719 [0.457–0.488] | 0.0685 | — | — | 3.2369 | 0.0679 | 0.4043 | 0.0814 | 0.000153 | 0.4043 | 27,976 | — |
+| INPE | 0.5845 [0.570–0.600] | 0.1006 | — | — | 0.0786 | 0.0785 | 0.8896 | 0.0960 | 0.000131 | 0.8896 | 52,596 | — |
+
+**Tabla S33b.** Sensibilidad al buffer en la validación externa de Boquerón. M2/M3 se reentrenaron con buffers de 20, 25 y 30 km; 25 km es la especificación primaria. El p de M3−M2 cambia con el buffer, por lo que la ventaja híbrida no es robusta a esta elección. FWI/INPE no cambian porque no se entrenan con el buffer. La precisión poblacional es una fracción.
+
+| Buffer (km) | M2 ROC | M3 ROC | M2 PR | M3 PR | ΔROC M3−M2 | p | M2 pop. precision | M3 pop. precision |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 20 | 0.8106 | 0.8145 | 0.2448 | 0.2557 | +0.0039 | 0.010 | 0.000865 | 0.000757 |
+| 25 | 0.8104 | 0.8120 | 0.2440 | 0.2505 | +0.0016 | 0.254 | 0.000891 | 0.000678 |
+| 30 | 0.8079 | 0.8099 | 0.2414 | 0.2501 | +0.0020 | 0.206 | 0.000836 | 0.000702 |
+
+![**Figura S9.** Validación externa en Boquerón: curvas ROC y precisión–recall para M2, M3, FWI e INPE en 2024–2025.](../../entregables/figuras/supp_fig09_external_boqueron.png){width="90%" fig-alt="Validación externa en Boquerón"}
+
+## S5.10 Validación espacial externa en Boquerón
+
+El piloto leave-one-department-out excluyó Boquerón y un buffer de 25 km de entrenamiento y validación. Los priors históricos causales se recalcularon con `excluir_cell_ids` para las celdas excluidas. M2 y M3 se reentrenaron con la capacidad operativa; la calibración y el corte F0.5 usaron filas de 2023 fuera del área excluida. Los cortes de FWI e INPE se seleccionaron en las mismas filas de 2023. La evaluación usó las filas de Boquerón 2024–2025 (66 845 filas muestreadas; 5 038 positivos). Las métricas se reportan caso-control y ponderadas por población; estas últimas usan conteos D2 por departamento reconstruidos desde el archivo candidato completo, porque `conteos_poblacionales_d2.parquet` guarda denominadores por región. La sensibilidad al buffer usa 20, 25 y 30 km (Tabla S33b). Es una validación externa espacial dentro de Paraguay, no entre países.
+
 # Disponibilidad de datos {.unnumbered}
 
-Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
+Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.1.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
 
 # Disponibilidad del código informático {.unnumbered}
 
