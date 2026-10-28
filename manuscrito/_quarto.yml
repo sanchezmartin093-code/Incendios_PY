@@ -1,0 +1,8 @@
+project:
+  type: default
+  output-dir: ../entregables
+  render:
+    - en/manuscrito.qmd
+    - en/material_suplementario.qmd
+    - es/manuscrito_es.qmd
+    - es/material_suplementario_es.qmd

@@ -2363,7 +2363,7 @@ window.Quarto = {
 
 <blockquote class="blockquote">
 <p><strong>Target journal:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Article type:</strong> research article. <strong>Peer review:</strong> single-anonymized.<br>
-<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S20 and Figures S1–S3.<br>
+<strong>Supplementary file:</strong> <code>material_suplementario.docx</code> / <code>.html</code> — Notes S1–S3, Tables S1–S20 and Figures S1–S3.<br>
 <strong>Code:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (MIT License; code concept DOI <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; GitHub release v2.0.1).<br>
 <strong>Data:</strong> processed data and test predictions are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>.</p>
 </blockquote>
@@ -3849,22 +3849,23 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline. FWI and INPE are normalized indices, not calibrated probabilities.</p>
+<p>The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline. FWI and INPE are normalized indices, not calibrated probabilities. All cutoffs, including those of FWI and INPE, were selected on the 2023 validation set by maximizing F0.5 and then frozen for the 2024–2025 test; neither index received local calibration. FWI is reported on the Canadian index scale (0.3029 in Chaco, 2.1509 in Oriental) and INPE on a 0–1 risk scale (0.8963 in Chaco, 0.0750 in Oriental).</p>
 <p><strong>Table S11.</strong> Full benchmark on the retrospective 2024–2025 test.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3876,6 +3877,7 @@ window.Quarto = {
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
+<th>Cutoff</th>
 <th>Precision</th>
 <th>Recall</th>
 <th>F0.5</th>
@@ -3892,6 +3894,7 @@ window.Quarto = {
 <td>0.0733</td>
 <td>0.1131</td>
 <td>0.0082</td>
+<td>0.2218</td>
 <td>0.3282</td>
 <td>0.3030</td>
 <td>0.3228</td>
@@ -3906,6 +3909,7 @@ window.Quarto = {
 <td>0.0737</td>
 <td>0.1083</td>
 <td>0.0104</td>
+<td>0.2071</td>
 <td>0.3328</td>
 <td>0.2725</td>
 <td>0.3187</td>
@@ -3920,6 +3924,7 @@ window.Quarto = {
 <td>—</td>
 <td>—</td>
 <td>—</td>
+<td>0.3029</td>
 <td>0.0928</td>
 <td>0.9608</td>
 <td>0.1133</td>
@@ -3934,6 +3939,7 @@ window.Quarto = {
 <td>—</td>
 <td>—</td>
 <td>—</td>
+<td>0.8963</td>
 <td>0.1172</td>
 <td>0.1257</td>
 <td>0.1188</td>
@@ -3948,6 +3954,7 @@ window.Quarto = {
 <td>0.0826</td>
 <td>0.0000</td>
 <td>0.0000</td>
+<td>0.0909</td>
 <td>0.0000</td>
 <td>0.0000</td>
 <td>0.0000</td>
@@ -3962,6 +3969,7 @@ window.Quarto = {
 <td>0.0442</td>
 <td>0.4656</td>
 <td>0.0086</td>
+<td>0.5467</td>
 <td>0.8369</td>
 <td>0.5240</td>
 <td>0.7476</td>
@@ -3976,6 +3984,7 @@ window.Quarto = {
 <td>0.0826</td>
 <td>0.0000</td>
 <td>0.0000</td>
+<td>0.0909</td>
 <td>0.0000</td>
 <td>0.0000</td>
 <td>0.0000</td>
@@ -3990,6 +3999,7 @@ window.Quarto = {
 <td>0.0765</td>
 <td>0.0748</td>
 <td>0.0082</td>
+<td>0.2186</td>
 <td>0.3013</td>
 <td>0.1859</td>
 <td>0.2680</td>
@@ -4004,6 +4014,7 @@ window.Quarto = {
 <td>0.0774</td>
 <td>0.0640</td>
 <td>0.0070</td>
+<td>0.1983</td>
 <td>0.2610</td>
 <td>0.1958</td>
 <td>0.2447</td>
@@ -4018,6 +4029,7 @@ window.Quarto = {
 <td>—</td>
 <td>—</td>
 <td>—</td>
+<td>2.1509</td>
 <td>0.1076</td>
 <td>0.3899</td>
 <td>0.1258</td>
@@ -4032,6 +4044,7 @@ window.Quarto = {
 <td>—</td>
 <td>—</td>
 <td>—</td>
+<td>0.0750</td>
 <td>0.0924</td>
 <td>0.7947</td>
 <td>0.1123</td>
@@ -4046,6 +4059,7 @@ window.Quarto = {
 <td>0.0826</td>
 <td>0.0000</td>
 <td>0.0000</td>
+<td>0.0909</td>
 <td>0.0000</td>
 <td>0.0000</td>
 <td>0.0000</td>
@@ -4060,6 +4074,7 @@ window.Quarto = {
 <td>0.0691</td>
 <td>0.1633</td>
 <td>0.0092</td>
+<td>0.4320</td>
 <td>0.6503</td>
 <td>0.1984</td>
 <td>0.4468</td>
@@ -4074,6 +4089,7 @@ window.Quarto = {
 <td>0.0826</td>
 <td>0.0000</td>
 <td>0.0000</td>
+<td>0.0909</td>
 <td>0.0000</td>
 <td>0.0000</td>
 <td>0.0000</td>

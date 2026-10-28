@@ -44,4 +44,4 @@ jobs:
 
     - name: Validar Compilación del Manuscrito Quarto
       run: |
-        quarto render manuscrito.qmd --to html
+        quarto render manuscrito/en/manuscrito.qmd --to html

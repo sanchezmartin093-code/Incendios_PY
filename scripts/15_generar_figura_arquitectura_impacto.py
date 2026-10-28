@@ -48,7 +48,7 @@ def crear_figura_impacto(
 
     # Dynamic metrics from the generated tables (avoids hardcoded KPIs).
     def _tabla(nombre: str) -> pd.DataFrame | None:
-        ruta = ROOT_DIR / "tablas" / nombre
+        ruta = ROOT_DIR / "entregables" / "tablas" / nombre
         return pd.read_csv(ruta) if ruta.exists() else None
 
     t04 = _tabla("tabla04_benchmarking_internacional.csv")
@@ -397,7 +397,7 @@ def crear_figura_impacto(
     print("=" * 65)
 
 if __name__ == "__main__":
-    out_dir = ROOT_DIR / "figuras"
+    out_dir = ROOT_DIR / "entregables" / "figuras"
     png_path = out_dir / "fig01_arquitectura_impacto_nature.png"
     pdf_path = out_dir / "fig01_arquitectura_impacto_nature.pdf"
     crear_figura_impacto(png_path, pdf_path)

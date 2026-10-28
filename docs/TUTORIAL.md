@@ -6,14 +6,14 @@ This tutorial assumes the v2.0.1 data archive is placed next to the repository.
 
 ```bash
 python scripts/35_evaluar_politica_gated.py
-cat tablas/tabla13_politica_gated.md
+cat entregables/tablas/tabla13_politica_gated.md
 ```
 
 Expected outputs:
 
-- `tablas/tabla13_politica_gated.csv`
-- `tablas/tabla13_politica_gated_poblacional.csv`
-- `tablas/tabla13_politica_gated.md`
+- `entregables/tablas/tabla13_politica_gated.csv`
+- `entregables/tablas/tabla13_politica_gated_poblacional.csv`
+- `entregables/tablas/tabla13_politica_gated.md`
 
 The script selects the gated F0.5 cutoff on 2023 validation and applies it to
 the retrospective 2024–2025 test.
@@ -24,7 +24,7 @@ the retrospective 2024–2025 test.
 python scripts/26_validacion_2023.py
 ```
 
-Expected outputs in `tablas/tabla10_validacion_2023.csv` and related files.
+Expected outputs in `entregables/tablas/tabla10_validacion_2023.csv` and related files.
 
 ## C. Run one daily alert
 

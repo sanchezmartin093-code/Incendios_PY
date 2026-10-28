@@ -2230,7 +2230,7 @@ vertical-align: -.125em;
   <li><a href="#computer-code-availability" id="toc-computer-code-availability" class="nav-link" data-scroll-target="#computer-code-availability">Computer Code Availability</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="manuscrito.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="manuscrito.docx"><i class="bi bi-file-word"></i>MS Word</a></li></ul></div></nav>
 </div>
 <main class="content" id="quarto-document-content">
 
@@ -2512,14 +2512,26 @@ Figure 3: ROC and precision–recall curves for the retrospective D2 test (2024
 </section>
 <section id="benchmark-against-fwi-and-inpe" class="level2">
 <h2 class="anchored" data-anchor-id="benchmark-against-fwi-and-inpe">3.2 Benchmark against FWI and INPE</h2>
-<p><a href="#tbl-benchmark" class="quarto-xref">Table 3</a> compares M3 with full FWI and INPE on the same retrospective test. M3 exceeds FWI by ΔROC = +0.2848 in Chaco and +0.1970 in Oriental, and INPE by +0.2633 and +0.2544. All paired comparisons have p ≤ 0.001 with B = 1 000. The full benchmark, including M2 and propagation rows, is in Supplementary Table S11; the complete significance table is in Supplementary Table S7.</p>
+<p><a href="#tbl-benchmark" class="quarto-xref">Table 3</a> compares M3 with full FWI and INPE on the same retrospective test. M3 exceeds FWI by ΔROC = +0.2848 in Chaco and +0.1970 in Oriental, and INPE by +0.2633 and +0.2544. All paired comparisons have p ≤ 0.001 with B = 1 000. To keep the comparison symmetric, the FWI and INPE operating points were selected on the same 2023 validation split with the identical F0.5 rule applied to the models and then frozen for the retrospective test (<a href="#tbl-benchmark" class="quarto-xref">Table 3</a>); the resulting cutoffs are 0.3029 and 0.8963 in Chaco and 2.1509 and 0.0750 in Oriental for FWI and INPE, respectively. The full benchmark, including M2 and propagation rows, is in Supplementary Table S11; the complete significance table is in Supplementary Table S7.</p>
 <div id="tbl-benchmark" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the reference. FWI and INPE are normalized indices, not calibrated probabilities. Dashes (—) indicate reference models or comparisons not evaluated by construction. The full table is Supplementary Table S11.
+Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the reference. Cutoffs for every row, including FWI and INPE, were selected on 2023 validation by maximizing F0.5 and then frozen for 2024–2025; precision and recall are case-control at that cutoff. FWI is on the Canadian index scale and INPE on a 0–1 risk scale, so cutoffs are not comparable across indices. Dashes (—) indicate reference models or comparisons not evaluated by construction. The full table is Supplementary Table S11.
 </figcaption>
 <div aria-describedby="tbl-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Region</th>
@@ -2528,6 +2540,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <th style="text-align: right;">PR-AUC</th>
 <th style="text-align: right;">ΔROC (M3 − reference)</th>
 <th style="text-align: right;">p</th>
+<th style="text-align: right;">Cutoff</th>
+<th style="text-align: right;">Prec. (%)</th>
+<th style="text-align: right;">Rec. (%)</th>
+<th style="text-align: right;">F0.5</th>
 </tr>
 </thead>
 <tbody>
@@ -2538,6 +2554,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.2842</td>
 <td style="text-align: right;">—</td>
 <td style="text-align: right;">—</td>
+<td style="text-align: right;">0.2218</td>
+<td style="text-align: right;">32.82</td>
+<td style="text-align: right;">30.30</td>
+<td style="text-align: right;">0.3228</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Chaco</td>
@@ -2546,6 +2566,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.0957</td>
 <td style="text-align: right;">+0.2848</td>
 <td style="text-align: right;">≤0.001</td>
+<td style="text-align: right;">0.3029</td>
+<td style="text-align: right;">9.28</td>
+<td style="text-align: right;">96.08</td>
+<td style="text-align: right;">0.1133</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
@@ -2554,6 +2578,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.1031</td>
 <td style="text-align: right;">+0.2633</td>
 <td style="text-align: right;">≤0.001</td>
+<td style="text-align: right;">0.8963</td>
+<td style="text-align: right;">11.72</td>
+<td style="text-align: right;">12.57</td>
+<td style="text-align: right;">0.1188</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Oriental</td>
@@ -2562,6 +2590,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.2340</td>
 <td style="text-align: right;">—</td>
 <td style="text-align: right;">—</td>
+<td style="text-align: right;">0.2186</td>
+<td style="text-align: right;">30.13</td>
+<td style="text-align: right;">18.59</td>
+<td style="text-align: right;">0.2680</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Oriental</td>
@@ -2570,6 +2602,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.1061</td>
 <td style="text-align: right;">+0.1970</td>
 <td style="text-align: right;">≤0.001</td>
+<td style="text-align: right;">2.1509</td>
+<td style="text-align: right;">10.76</td>
+<td style="text-align: right;">38.99</td>
+<td style="text-align: right;">0.1258</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Oriental</td>
@@ -2578,6 +2614,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.0908</td>
 <td style="text-align: right;">+0.2544</td>
 <td style="text-align: right;">≤0.001</td>
+<td style="text-align: right;">0.0750</td>
+<td style="text-align: right;">9.24</td>
+<td style="text-align: right;">79.47</td>
+<td style="text-align: right;">0.1123</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
@@ -2586,6 +2626,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.0909</td>
 <td style="text-align: right;">+0.3021</td>
 <td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Oriental</td>
@@ -2593,6 +2637,10 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 <td style="text-align: right;">0.5000</td>
 <td style="text-align: right;">0.0909</td>
 <td style="text-align: right;">+0.2534</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
 <td style="text-align: right;">—</td>
 </tr>
 </tbody>

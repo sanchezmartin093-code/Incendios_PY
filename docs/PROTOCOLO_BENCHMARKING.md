@@ -82,9 +82,9 @@ Un modelo superior debe mantener $V(\alpha) > 0$ en el rango operativo típico d
 
 Los resultados anteriores de esta sección quedaron **obsoletos** tras la corrección D2, el clima CDS v2 y el muestreo poblacional. Las cifras vigentes están en:
 
-- `tablas/tabla04_benchmarking_internacional.csv`
-- `tablas/tabla10_significancia_pareada.csv`
-- `tablas/tabla07_evaluacion_poblacional.csv`
+- `entregables/tablas/tabla04_benchmarking_internacional.csv`
+- `entregables/tablas/tabla10_significancia_pareada.csv`
+- `entregables/tablas/tabla07_evaluacion_poblacional.csv`
 
 Resumen en test D2:
 

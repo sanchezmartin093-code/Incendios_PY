@@ -69,7 +69,7 @@ format:
 
 # 4. Resumen Gráfico / Graphical Abstract
 
-![](figuras/graphical_abstract.png){width=100%}
+![](entregables/figuras/graphical_abstract.png){width=100%}
 
 **Graphical abstract.** Decoupled D2 targets, M3/M2 inference, causal t-1 propagation and a retrospective benchmark against FWI and INPE. The visual uses only current, traceable results.
 

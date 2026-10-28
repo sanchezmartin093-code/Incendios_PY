@@ -276,7 +276,9 @@ def format_tables(doc):
 
         # Reparto de columnas
         header = [c.text.strip() for c in table.rows[0].cells]
-        if ncols == 7 and "FP" in header:
+        if ncols == 10 and any("ΔROC" in h for h in header) and any("Cutoff" in h for h in header):
+            widths = [936, 2146, 835, 749, 893, 691, 835, 835, 749, 691]
+        elif ncols == 7 and "FP" in header:
             widths = [1224, 1728, 2232, 1080, 1152, 1080, 864]
         elif ncols == 6 and any("ΔROC" in h for h in header):
             widths = [1440, 2016, 1440, 1152, 1440, 1872]
@@ -632,7 +634,7 @@ def main(in_path: str, out_path: str):
     normalize_ooxml_order(doc)
 
     doc.save(out_path)
-    figdir = Path("figuras")
+    figdir = Path("entregables/figuras")
     replace_media(out_path, {
         "word/media/rId12.png": str(figdir / "fig01_framework_conceptual.png"),
         "word/media/rId18.png": str(figdir / "fig01_macro_regiones_cobertura.png"),
