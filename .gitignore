@@ -40,3 +40,8 @@ dist/
 *.html.md
 # Backups locales de auditoría
 modelos/legacy_v1/
+
+# Bloqueos de LibreOffice/Word
+.~lock.*#
+~$*.docx
+~$*.doc
