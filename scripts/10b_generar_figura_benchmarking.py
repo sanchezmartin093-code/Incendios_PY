@@ -13,9 +13,12 @@ if str(ROOT_DIR) not in sys.path:
 import numpy as np
 import polars as pl
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from sklearn.metrics import roc_curve, precision_recall_curve, roc_auc_score, average_precision_score
 
 from src.constantes import DIR_PROCESSED, DIR_FIGURAS
+
+plt.rcParams.update({"font.family": "Arial", "font.size": 7})
 
 spec = importlib.util.spec_from_file_location(
     "bench", ROOT_DIR / "scripts" / "13_benchmarking_modelos.py"
@@ -26,7 +29,7 @@ spec.loader.exec_module(bench)
 
 def main():
     dir_targets = DIR_PROCESSED / "targets_poblacionales"
-    fig, axes = plt.subplots(2, 2, figsize=(15, 11), dpi=300)
+    fig, axes = plt.subplots(2, 2, figsize=(5.83, 5.2), dpi=600)
     colores = {"Chaco": "#c0392b", "Oriental": "#27ae60"}
 
     for fila, task in enumerate(["ignicion", "propagacion"]):
@@ -38,10 +41,10 @@ def main():
             if task == "ignicion":
                 (p_fwi, _), (p_inpe, _) = bench._benchmarks(df_val, df_test, region, target_col)
                 curva_modelo = bench._p_modelo(region, "hibrido", df_test)
-                nombre_modelo = "M3 ignition"
+                nombre_modelo = "M3"
                 curvas = [
                     (f"{region} {nombre_modelo}", curva_modelo, "-"),
-                    (f"{region} full FWI", p_fwi, ":"),
+                    (f"{region} FWI", p_fwi, ":"),
                     (f"{region} INPE", p_inpe, "--"),
                 ]
             else:
@@ -52,25 +55,35 @@ def main():
             for nombre, p, ls in curvas:
                 fpr, tpr, _ = roc_curve(y, p)
                 auc = roc_auc_score(y, p)
-                axes[fila, 0].plot(fpr, tpr, color=colores[region], linestyle=ls, linewidth=1.8, label=f"{nombre} ({auc:.3f})")
+                axes[fila, 0].plot(fpr, tpr, color=colores[region], linestyle=ls, linewidth=1.2, label=f"{nombre} ({auc:.3f})")
                 prec, rec, _ = precision_recall_curve(y, p)
                 ap = average_precision_score(y, p)
-                axes[fila, 1].plot(rec, prec, color=colores[region], linestyle=ls, linewidth=1.8, label=f"{nombre} ({ap:.3f})")
+                axes[fila, 1].plot(rec, prec, color=colores[region], linestyle=ls, linewidth=1.2, label=f"{nombre} ({ap:.3f})")
 
         axes[fila, 0].plot([0, 1], [0, 1], color="grey", linestyle=":", linewidth=1)
-        axes[fila, 0].set_title(f"ROC — {task.title()}", fontweight="bold")
-        axes[fila, 0].set_xlabel("False positive rate")
-        axes[fila, 0].set_ylabel("True positive rate")
-        axes[fila, 0].legend(fontsize=7, loc="lower right")
-        axes[fila, 1].set_title(f"Precision–recall — {task.title()}", fontweight="bold")
-        axes[fila, 1].set_xlabel("Recall")
-        axes[fila, 1].set_ylabel("Precision")
-        axes[fila, 1].legend(fontsize=7, loc="upper right")
+        axes[fila, 0].set_title(f"ROC — {task.title()}", fontsize=7.5, fontweight="bold")
+        axes[fila, 0].set_xlabel("False positive rate", fontsize=7)
+        axes[fila, 0].set_ylabel("True positive rate", fontsize=7)
+        axes[fila, 1].set_title(f"Precision–recall — {task.title()}", fontsize=7.5, fontweight="bold")
+        axes[fila, 1].set_xlabel("Recall", fontsize=7)
+        axes[fila, 1].set_ylabel("Precision", fontsize=7)
 
-    plt.suptitle("D2 benchmark: Incendios_PY vs full Canadian FWI and INPE", fontweight="bold", y=0.99)
-    plt.tight_layout()
+    legend_handles = [
+        Line2D([0], [0], color=colores["Chaco"], ls="-", lw=1.2,
+               label="Chaco M3 / Propagation"),
+        Line2D([0], [0], color=colores["Chaco"], ls=":", lw=1.2, label="Chaco FWI"),
+        Line2D([0], [0], color=colores["Chaco"], ls="--", lw=1.2, label="Chaco INPE"),
+        Line2D([0], [0], color=colores["Oriental"], ls="-", lw=1.2,
+               label="Oriental M3 / Propagation"),
+        Line2D([0], [0], color=colores["Oriental"], ls=":", lw=1.2, label="Oriental FWI"),
+        Line2D([0], [0], color=colores["Oriental"], ls="--", lw=1.2, label="Oriental INPE"),
+    ]
+    fig.legend(handles=legend_handles, loc="lower center", ncol=3, fontsize=6.2,
+               frameon=False, bbox_to_anchor=(0.5, 0.0))
+    fig.subplots_adjust(left=0.09, right=0.98, top=0.95, bottom=0.18,
+                        hspace=0.45, wspace=0.28)
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
-    fig.savefig(DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png", dpi=300)
+    fig.savefig(DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png", dpi=600)
     fig.savefig(DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.pdf")
     plt.close(fig)
     print("✓ fig05 actualizada")
