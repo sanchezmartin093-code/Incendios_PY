@@ -671,6 +671,25 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 Los intervalos son percentiles bootstrap del 95 % con 500 réplicas que remuestrean fechas, no filas. Los subconjuntos cambian la prevalencia, por lo que PR-AUC, precisión, recall y F0.5 no son directamente comparables entre filas; ROC-AUC es la comparación primaria. El subconjunto de celdas no vistas es pequeño y espacialmente sesgado, sobre todo en Oriental, y no sustituye a un holdout espacial ciego. La propagación no se evalúa en el subconjunto de celdas no vistas porque contiene solo 3 292/145 filas (115/2 positivos). El subconjunto sin historia tiene menor prevalencia (4.0–5.3 %), por lo que los cortes congelados producen un recall bajo; es un efecto de composición, no evidencia de fallo del modelo.
 
+**Tabla S27 (continuación).** Diferencias pareadas M3 − M2 de ROC-AUC y PR-AUC por subconjunto. Los valores positivos favorecen a M3. Los intervalos son percentiles bootstrap pareados del 95 % agrupados por fecha (B = 1 000); el p es bilateral y tiene resolución 0.001.
+
+<!-- tablaS27b:inicio -->
+
+| Region | Subset | n | n+ | ΔROC (M3 − M2) | 95% CI | p | ΔPR-AUC | 95% CI | p |
+|---|---|---:|---:|---:|---|---:|---:|---|---:|
+| Chaco | Full | 176616 | 16056 | +0.0030 | [+0.0014, +0.0046] | ≤0.001 | +0.0076 | [+0.0026, +0.0128] | 0.004 |
+| Chaco | Unseen cell | 23074 | 2115 | +0.0059 | [+0.0022, +0.0093] | 0.004 | +0.0152 | [+0.0048, +0.0260] | 0.012 |
+| Chaco | No train fire | 150696 | 11540 | +0.0022 | [+0.0005, +0.0038] | 0.008 | +0.0113 | [+0.0054, +0.0164] | 0.002 |
+| Chaco | No history | 132562 | 6619 | -0.0035 | [-0.0056, -0.0014] | 0.002 | -0.0019 | [-0.0060, +0.0024] | 0.380 |
+| Chaco | 2025 only | 75372 | 6852 | +0.0020 | [-0.0006, +0.0044] | 0.120 | +0.0094 | [+0.0022, +0.0161] | 0.014 |
+| Oriental | Full | 199936 | 18176 | +0.0128 | [+0.0105, +0.0149] | ≤0.001 | +0.0194 | [+0.0160, +0.0226] | ≤0.001 |
+| Oriental | Unseen cell | 9378 | 882 | +0.0059 | [-0.0027, +0.0147] | 0.174 | +0.0133 | [+0.0023, +0.0237] | 0.018 |
+| Oriental | No train fire | 154948 | 11049 | +0.0097 | [+0.0075, +0.0120] | ≤0.001 | +0.0139 | [+0.0109, +0.0171] | ≤0.001 |
+| Oriental | No history | 116022 | 5104 | +0.0101 | [+0.0066, +0.0134] | ≤0.001 | +0.0086 | [+0.0054, +0.0118] | ≤0.001 |
+| Oriental | 2025 only | 99429 | 9039 | +0.0088 | [+0.0058, +0.0118] | ≤0.001 | +0.0157 | [+0.0112, +0.0209] | ≤0.001 |
+
+<!-- tablaS27b:fin -->
+
 # Disponibilidad de datos {.unnumbered}
 
 Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
