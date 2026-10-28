@@ -16,12 +16,21 @@
 - DOI conceptuales: código `10.5281/zenodo.23675104`; datos `10.5281/zenodo.23675278`; ambos resuelven a v2.0.0.
 - Asset de datos: `Incendios_PY_data_v2.0.0.zip` (1.185.970.018 bytes; SHA-256 `8e10284d2bffdfcfb6e1727856f11195a67df7533b80733e79cea86d2b840d89`).
 
-## Pendiente
+## Hecho en P1
 
-1. **Decidir el lock sin hashes.**
-   `requirements-lock.txt` mantiene versiones exactas y 0 hashes de ruedas; la excepción está documentada.
+- S5, S13, S1–S3 regenerados desde los CSV actuales; figuras suplementarias actualizadas.
+- Política operativa **M3/M2 gated** evaluada en test y población; nueva Tabla S17.
+- Guía de usuario (`docs/USER_GUIDE.md`) y tutorial (`docs/TUTORIAL.md`) agregados.
+- Provenance de Hansen GFC-2025 v1.13 agregada al manuscrito y a Data Availability.
+- PDFs con numeración de líneas y doble espacio; highlights en archivo separado (`highlights.docx`).
+- Lock sin hashes: excepción aceptada y documentada en `auditoria/FASE2_0_LOCK_EXCEPTION.md`.
+- Release verificado: concept DOIs resuelven a v2.0.0 (`23717175`/`23717176`).
 
-2. **Verificación final del release.** Concept DOIs resuelven a v2.0.0 (`23717175`/`23717176`).
+## Pendiente científico
+
+1. Baseline acoplado `t-1` con el mismo target y capacidad; requiere un nuevo candidato.
+2. Sensibilidad D2 a radio/ventana con reentrenamiento; el análisis de conteos no se incluyó para no publicar un resultado no validado.
+3. Validación externa o uso independiente del holdout de confirmación; requiere datos/reentrenamiento.
 
 ## Nota
 
