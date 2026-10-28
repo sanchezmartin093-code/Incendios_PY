@@ -25,9 +25,27 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc, average_prec
 
 from src.constantes import DIR_FIGURAS, DIR_PROCESSED, DIR_RAW, DIR_OUTPUTS
 
+plt.rcParams.update({"font.family": "Arial", "font.size": 7})
+
+def add_scale_north(ax, bar_km=100):
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    lat = (y0 + y1) / 2
+    km_per_deg = 111.32 * np.cos(np.deg2rad(abs(lat)))
+    frac = bar_km / ((x1 - x0) * km_per_deg)
+    xa = 0.66
+    xb = min(xa + frac, 0.92)
+    ax.plot([xa, xb], [0.06, 0.06], transform=ax.transAxes, color="black", lw=1.4, zorder=10)
+    ax.text((xa + xb) / 2, 0.075, f"{bar_km} km", transform=ax.transAxes,
+            ha="center", va="bottom", fontsize=6, zorder=10)
+    ax.annotate("N", xy=(0.95, 0.95), xytext=(0.95, 0.86), xycoords="axes fraction",
+                ha="center", va="center", fontsize=7, fontweight="bold",
+                arrowprops=dict(arrowstyle="-|>", color="black", lw=1.0), zorder=10)
+
 def generar_todas_las_figuras():
     DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
     plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
+    plt.rcParams.update({"font.family": "Arial", "font.size": 7})
 
     path_adm1 = DIR_RAW / "vector" / "paraguay_adm1_departamentos.geojson"
     if not path_adm1.exists():
@@ -44,7 +62,7 @@ def generar_todas_las_figuras():
     # FIGURE 1: Macro-Region and Territorial Coverage Map
     # -------------------------------------------------------------
     print("\n--- Generando Figura 01: Macro-Regiones y Departamentos ---")
-    fig, ax = plt.subplots(figsize=(9, 10), dpi=300)
+    fig, ax = plt.subplots(figsize=(4.67, 5.19), dpi=600)
 
     # Colors by region
     colores_reg = {"Chaco": "#e67e22", "Oriental": "#27ae60"}
@@ -52,24 +70,24 @@ def generar_todas_las_figuras():
 
     gdf_deptos.plot(ax=ax, color=gdf_deptos["color"], edgecolor="black", linewidth=0.8, alpha=0.6)
 
-    # Departmental labels
-    for _, row in gdf_deptos.iterrows():
-        centroid = row.geometry.centroid
-        ax.annotate(row["departamento"], xy=(centroid.x, centroid.y),
-                    ha="center", va="center", fontsize=7, fontweight="bold",
-                    color="#2c3e50", bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.65))
+    # Region labels only: department labels are illegible at final print size
+    for region, color in (("Chaco", "#7a3e00"), ("Oriental", "#145a32")):
+        sub = gdf_deptos[gdf_deptos["region"] == region]
+        centroid = sub.geometry.union_all().centroid if hasattr(sub.geometry, "union_all") else sub.geometry.unary_union.centroid
+        ax.text(centroid.x, centroid.y, region, ha="center", va="center",
+                fontsize=9, fontweight="bold", color=color, alpha=0.9, zorder=5,
+                bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.70))
 
-    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (western region, 240,880 km²)")
-    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Oriental Region (159,126 km²)")
-    ax.legend(handles=[patch_chaco, patch_oriental], loc="lower left", fontsize=9, frameon=True)
+    patch_chaco = mpatches.Patch(facecolor="#e67e22", edgecolor="black", alpha=0.6, label="Chaco (western region, 240\u00A0880 km²)")
+    patch_oriental = mpatches.Patch(facecolor="#27ae60", edgecolor="black", alpha=0.6, label="Oriental Region (159\u00A0126 km²)")
+    ax.legend(handles=[patch_chaco, patch_oriental], loc="lower left", fontsize=7, frameon=True)
 
-    ax.set_title("Study domain and macro-regional stratification of Paraguay\n1-km² regular grid (EPSG:32721)",
-                 fontsize=11, fontweight="bold", pad=12)
-    ax.set_xlabel("Longitude (°W)", fontsize=9)
-    ax.set_ylabel("Latitude (°S)", fontsize=9)
+    ax.set_xlabel("Longitude (°W)", fontsize=7)
+    ax.set_ylabel("Latitude (°S)", fontsize=7)
+    add_scale_north(ax)
     plt.tight_layout()
 
-    fig.savefig(DIR_FIGURAS / "fig01_macro_regiones_cobertura.png", dpi=300)
+    fig.savefig(DIR_FIGURAS / "fig01_macro_regiones_cobertura.png", dpi=600)
     fig.savefig(DIR_FIGURAS / "fig01_macro_regiones_cobertura.pdf")
     plt.close(fig)
     print(" ✓ Fig 01 guardada en PNG y PDF.")
@@ -83,7 +101,7 @@ def generar_todas_las_figuras():
     if p_ign.exists() and p_prop.exists():
         df_ign = pl.read_parquet(p_ign)
         df_prop = pl.read_parquet(p_prop)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5), dpi=300)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5.83, 3.05), dpi=600)
 
         modelos_curvas = [
             ("Chaco", "Hybrid ignition M3", df_ign, "target_ignicion", "probabilidad_hibrido", "#d35400", "-"),
@@ -92,6 +110,7 @@ def generar_todas_las_figuras():
             ("Oriental", "Tactical propagation", df_prop, "target_propagacion", "probabilidad_propagacion", "#27ae60", "--"),
         ]
 
+        short = {"Hybrid ignition M3": "M3", "Tactical propagation": "Propagation"}
         for reg, capa, df_fuente, col_y, col_prob, col, ls in modelos_curvas:
             sub = df_fuente.filter(pl.col("region") == reg)
             y_true = sub[col_y].to_numpy()
@@ -101,29 +120,28 @@ def generar_todas_las_figuras():
                 # ROC curve
                 fpr, tpr, _ = roc_curve(y_true, y_prob)
                 roc_score = auc(fpr, tpr)
-                ax1.plot(fpr, tpr, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (AUC = {roc_score:.3f})")
+                ax1.plot(fpr, tpr, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} {short[capa]} ({roc_score:.3f})")
 
                 # Precision-Recall curve
                 prec, rec, _ = precision_recall_curve(y_true, y_prob)
                 pr_score = average_precision_score(y_true, y_prob)
-                ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} - {capa} (PR-AUC = {pr_score:.3f})")
+                ax2.plot(rec, prec, color=col, linestyle=ls, linewidth=2.0, label=f"{reg} {short[capa]} ({pr_score:.3f})")
 
         ax1.plot([0, 1], [0, 1], color="grey", linestyle=":", label="Chance (AUC = 0.500)")
-        ax1.set_title("ROC curves (receiver operating characteristic)", fontsize=11, fontweight="bold")
-        ax1.set_xlabel("False positive rate (1 − specificity)", fontsize=10)
-        ax1.set_ylabel("True positive rate (recall)", fontsize=10)
-        ax1.legend(loc="lower right", fontsize=8.5)
+        ax1.set_title("ROC curves (receiver operating characteristic)", fontsize=7.5, fontweight="bold")
+        ax1.set_xlabel("False positive rate (1 − specificity)", fontsize=7)
+        ax1.set_ylabel("True positive rate (recall)", fontsize=7)
 
-        ax2.set_title("Precision–recall curves (rare-event detection)", fontsize=11, fontweight="bold")
-        ax2.set_xlabel("Recall", fontsize=10)
-        ax2.set_ylabel("Precision (PPV)", fontsize=10)
-        ax2.legend(loc="upper right", fontsize=8.5)
+        ax2.set_title("Precision–recall curves (rare-event detection)", fontsize=7.5, fontweight="bold")
+        ax2.set_xlabel("Recall", fontsize=7)
+        ax2.set_ylabel("Precision (PPV)", fontsize=7)
 
-        plt.suptitle("Retrospective out-of-time performance (2024–2025)",
-                     fontsize=13, fontweight="bold", y=0.98)
-        plt.tight_layout()
+        handles, labels = ax1.get_legend_handles_labels()
+        fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=6.2,
+                   frameon=False, bbox_to_anchor=(0.5, 0.0))
+        fig.subplots_adjust(left=0.08, right=0.98, top=0.88, bottom=0.28, wspace=0.30)
 
-        fig.savefig(DIR_FIGURAS / "fig02_curvas_roc_pr_test.png", dpi=300)
+        fig.savefig(DIR_FIGURAS / "fig02_curvas_roc_pr_test.png", dpi=600)
         fig.savefig(DIR_FIGURAS / "fig02_curvas_roc_pr_test.pdf")
         plt.close(fig)
         print(" ✓ Fig 02 guardada en PNG y PDF con 4 curvas.")
@@ -150,7 +168,7 @@ def generar_todas_las_figuras():
         # Representative sampling of cells for fast cartographic rendering (1 out of every 3 cells)
         df_plot = df_alerta.gather_every(3)
 
-        fig, ax = plt.subplots(figsize=(9, 10), dpi=300)
+        fig, ax = plt.subplots(figsize=(4.67, 5.19), dpi=600)
         gdf_deptos.boundary.plot(ax=ax, color="#7f8c8d", linewidth=0.7, zorder=3)
 
         # Color points according to risk level
@@ -172,18 +190,17 @@ def generar_todas_las_figuras():
                     c=colores_nivel[nivel],
                     s=1.2,
                     alpha=0.7 if nivel in ["ALTO", "EXTREMO"] else 0.35,
-                    label=f"{ {'EXTREMO':'Extreme','ALTO':'High','MODERADO':'Moderate','BAJO':'Low','NULO':'None'}[nivel] } ({df_alerta.filter(pl.col('nivel_alerta') == nivel).height:,} km²)",
+                    label=f"{ {'EXTREMO':'Extreme','ALTO':'High','MODERADO':'Moderate','BAJO':'Low','NULO':'None'}[nivel] } ({df_alerta.filter(pl.col('nivel_alerta') == nivel).height:,} km²)".replace(",", "\u00A0"),
                     zorder=2 if nivel in ["ALTO", "EXTREMO"] else 1
                 )
 
-        ax.set_title(f"National operational fire alert map\nDate: {fecha_alerta} | Resolution: 1 km² (Incendios_PY)",
-                     fontsize=11, fontweight="bold", pad=12)
-        ax.set_xlabel("Longitude (°W)", fontsize=9)
-        ax.set_ylabel("Latitude (°S)", fontsize=9)
-        ax.legend(loc="lower left", fontsize=8.5, frameon=True, title="Alert level")
+        ax.set_xlabel("Longitude (°W)", fontsize=7)
+        ax.set_ylabel("Latitude (°S)", fontsize=7)
+        ax.legend(loc="lower left", fontsize=6.2, frameon=True, title="Alert level")
+        add_scale_north(ax)
         plt.tight_layout()
 
-        fig.savefig(DIR_FIGURAS / "fig03_mapa_riesgo_operativo_nacional.png", dpi=300)
+        fig.savefig(DIR_FIGURAS / "fig03_mapa_riesgo_operativo_nacional.png", dpi=600)
         fig.savefig(DIR_FIGURAS / "fig03_mapa_riesgo_operativo_nacional.pdf")
         plt.close(fig)
         print(" ✓ Fig 03 guardada en PNG y PDF.")
