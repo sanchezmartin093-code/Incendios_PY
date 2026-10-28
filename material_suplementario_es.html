@@ -2431,7 +2431,7 @@ max-width: 100%;
 <p>El bootstrap remuestrea por fecha, no por fila, porque la actividad diaria de incendios está fuertemente agrupada. Se retienen todas las celdas de una fecha muestreada; esto preserva la dependencia intradía. El holdout espacial elimina un bloque completo de 50 km más un buffer de 20 km, recalcula los priors históricos sin los incendios retenidos y evalúa tanto celdas retenidas como no retenidas. Las métricas principales son ROC-AUC y PR-AUC; también se reportan Brier score, error de calibración esperado, precisión, recall, F0.5 y falsos positivos. Los intervalos de AUC usan 500 réplicas bootstrap agrupadas; las diferencias pareadas usan 1 000. Como se hacen cuatro comparaciones principales frente a FWI e INPE, las afirmaciones de significancia son un resultado de cribado conservador, no una inferencia ajustada por multiplicidad. La resolución del bootstrap es 0.001.</p>
 <p>El benchmark completo está en la Tabla S11, la significancia pareada en la Tabla S7, los resultados completos de bloques espaciales en la Tabla S8 y los resultados de lead time en la Tabla S9. La ablación controlada está en la Tabla S12 y la Figura S2; SHAP está en la Tabla S13 y la Figura S1; la evaluación poblacional está en la Tabla S6; la cobertura conformal en la Tabla S5; el cost-loss en la Tabla S14 y la Figura S3. El perfil computacional está en la Tabla S4. Todos los análisis usan las filas de test congeladas archivadas con la release (versión publicada) del código.</p>
 <hr>
-<p>La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible provienen de MapBiomas Colección 2 (2023) <span class="citation" data-cites="mapbiomas2023">(<a href="#ref-mapbiomas2023" role="doc-biblioref">MapBiomas Chaco, 2023</a>)</span>. Los priors históricos usan una ventana móvil causal de tres años en lugar del registro completo 2018–2022. <code>rafaga_max_kmh</code> es un proxy lineal y no se usa como variable. M3 contiene 44 variables en el Chaco y 45 en la Región Oriental; M2 contiene 35 y M1 contiene 24.</p>
+<p>La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible provienen de mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo; 2024 usa 2023 con lag 1 y 2025 reutiliza 2023 con lag 2 <span class="citation" data-cites="mapbiomas2023">(<a href="#ref-mapbiomas2023" role="doc-biblioref">MapBiomas Chaco, 2023</a>)</span>. Los priors históricos usan una ventana móvil causal de tres años en lugar del registro completo 2018–2022. <code>rafaga_max_kmh</code> es un proxy lineal y no se usa como variable. M3 contiene 44 variables en el Chaco y 45 en la Región Oriental; M2 contiene 35 y M1 contiene 24.</p>
 <p><strong>Tabla S1.</strong> Diccionario de variables y papel físico de los predictores.</p>
 <table class="caption-top table">
 <colgroup>
@@ -2522,69 +2522,117 @@ max-width: 100%;
 <td>Ignition and propagation</td>
 </tr>
 <tr class="odd">
+<td>swvl1_m3m3</td>
+<td>Topsoil volumetric water content, 0–7 cm (m³/m³)</td>
+<td>ERA5-Land</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="even">
+<td>fdd_heladas_60d</td>
+<td>Antecedent frost severity over 60 days (°C-days)</td>
+<td>ERA5-Land; derived</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="odd">
+<td>deficit_hidro_60d</td>
+<td>Antecedent water deficit over 60 days (mm)</td>
+<td>ERA5-Land; derived</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="even">
+<td>riesgo_estero_seco</td>
+<td>Dry estero risk (wetland × 60-day deficit)</td>
+<td>Derived</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="odd">
+<td>combustible_curado_helada</td>
+<td>Frost-cured pasture and grassland fuel</td>
+<td>Derived</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="even">
 <td>ffmc</td>
 <td>Fine Fuel Moisture Code</td>
 <td>FWI derived</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>isi</td>
 <td>Initial Spread Index</td>
 <td>FWI derived</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>dia_semana</td>
 <td>Civil weekday (0 = Monday … 6 = Sunday)</td>
 <td>Calendar</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>es_fin_de_semana</td>
 <td>Weekend indicator (Saturday/Sunday)</td>
 <td>Calendar</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>mes</td>
 <td>Month of year (1–12)</td>
 <td>Calendar</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>dia_del_anio</td>
 <td>Ordinal day of year (1–366)</td>
 <td>Calendar</td>
 <td>Ignition and propagation</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>pct_pastura</td>
+<td>Total pasture, annual agriculture and forest plantation (0–100 %)</td>
+<td>Derived from MapBiomas C2 annual (Y-1)</td>
+<td>INPE benchmark only; not a model feature</td>
+</tr>
+<tr class="odd">
+<td>pct_pastura_ganadera</td>
 <td>Cultivated pasture fraction (0–100 %)</td>
-<td>MapBiomas C2 2023</td>
-<td>Ignition and propagation</td>
+<td>MapBiomas C2 annual (Y-1)</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="even">
+<td>pct_agricultura_anual</td>
+<td>Annual agriculture fraction (0–100 %)</td>
+<td>MapBiomas C2 annual (Y-1)</td>
+<td>M1, M2, M3 and propagation</td>
+</tr>
+<tr class="odd">
+<td>pct_plantacion_forestal</td>
+<td>Forest plantation fraction (0–100 %)</td>
+<td>MapBiomas C2 annual (Y-1)</td>
+<td>M1, M2, M3 and propagation</td>
 </tr>
 <tr class="even">
 <td>pct_sabana_pastizal</td>
 <td>Savanna and natural grassland fraction (0–100 %)</td>
-<td>MapBiomas C2 2023</td>
+<td>MapBiomas C2 annual (Y-1)</td>
 <td>Ignition and propagation</td>
 </tr>
 <tr class="odd">
 <td>pct_humedal_palmar</td>
 <td>Wetland and palm swamp fraction (0–100 %)</td>
-<td>MapBiomas C2 2023</td>
+<td>MapBiomas C2 annual (Y-1)</td>
 <td>Ignition and propagation</td>
 </tr>
 <tr class="even">
 <td>pct_bosque_seco</td>
 <td>Dry Chaco forest fraction (0–100 %)</td>
-<td>MapBiomas C2 2023</td>
+<td>MapBiomas C2 annual (Y-1)</td>
 <td>Ignition and propagation (Chaco)</td>
 </tr>
 <tr class="odd">
 <td>pct_bosque_humedo</td>
 <td>Atlantic humid forest fraction (0–100 %)</td>
-<td>MapBiomas C2 2023</td>
+<td>MapBiomas C2 annual (Y-1)</td>
 <td>Ignition and propagation (Oriental)</td>
 </tr>
 <tr class="even">
@@ -2592,6 +2640,30 @@ max-width: 100%;
 <td>Forest–pasture edge disruption index</td>
 <td>Derived</td>
 <td>Ignition and propagation</td>
+</tr>
+<tr class="odd">
+<td>borde_bosque_agro_pct</td>
+<td>Forest–agriculture edge fraction (0–100 %)</td>
+<td>Derived from MapBiomas C2 annual (Y-1)</td>
+<td>M2, M3 and propagation</td>
+</tr>
+<tr class="even">
+<td>pct_desmonte_t1</td>
+<td>Tree-cover loss in the prior year (0–100 %)</td>
+<td>Hansen GFC-2025 v1.13 (Y-1)</td>
+<td>M2, M3 and propagation</td>
+</tr>
+<tr class="odd">
+<td>pct_desmonte_t2</td>
+<td>Tree-cover loss two years before (0–100 %)</td>
+<td>Hansen GFC-2025 v1.13 (Y-2)</td>
+<td>M2, M3 and propagation</td>
+</tr>
+<tr class="even">
+<td>presion_desmonte_vpd</td>
+<td>Deforestation × VPD pressure</td>
+<td>Derived (Hansen Y-1 × VPD)</td>
+<td>M2, M3 and propagation</td>
 </tr>
 <tr class="odd">
 <td>dist_foco_hist_km</td>
@@ -2686,7 +2758,7 @@ max-width: 100%;
 <tr class="even">
 <td>es_combustible</td>
 <td>Combustible biomass indicator</td>
-<td>MapBiomas C2 2023</td>
+<td>MapBiomas C2 annual (Y-1)</td>
 <td>Biophysical gate</td>
 </tr>
 </tbody>

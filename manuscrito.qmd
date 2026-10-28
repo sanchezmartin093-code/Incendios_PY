@@ -95,7 +95,7 @@ The bootstrap resamples dates rather than rows, because daily fire activity is s
 
 ## 2.4 Data and implementation
 
-The grid contains 400,006 cells of 1 km² in UTM zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21; ERA5-Land 3-hourly meteorology aggregated to daily values; MapBiomas Collection 2 (2023) fuel fractions; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
+The grid contains 400,006 cells of 1 km² in UTM zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21; ERA5-Land 3-hourly meteorology aggregated to daily values; annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
 
 The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB. A spatial join of 50,000 points is shown only as a reference; the operational lookup avoids point-in-polygon at inference. The full pipeline processes 400,006 cells in 1.569 s with 2,182.1 MB peak RAM on ARM64; x86_64 was not measured. The study domain and regional split are shown in @fig-area; the per-stage profile is in Supplementary Table S4.
 
@@ -231,7 +231,7 @@ The framework also makes failure explicit. A model that is excellent on held-in 
 ## 4.4 Limitations
 
 1. The study covers one country and two macro-regions; external validation is still missing.
-2. Fuel is a static 2023 MapBiomas layer; no annual fuel series is used.
+2. Fuel is an annual MapBiomas Collection 2 series (2017–2023) joined by prior year; 2024 uses the 2023 map with lag 1 and 2025 reuses 2023 with lag 2, so the 2025 fuel state is extrapolated.
 3. VIIRS can miss fires under clouds; no explicit observation model is implemented.
 4. ERA5-Land is used at 0.25° and 3-hourly resolution; intra-day VPD and wind peaks may be underestimated.
 5. Population-level ignition precision is very low (0.082 %/0.198 %), and cost-loss does not show a clear M3 advantage over M2.
