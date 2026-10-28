@@ -2376,7 +2376,7 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p><strong>Versión de lectura en español.</strong> Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (<code>material_suplementario.docx</code>).</p>
 <p><strong>Revista objetivo:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Tipo de artículo:</strong> artículo de investigación. <strong>Revisión por pares:</strong> simple anonimizada.<br>
-<strong>Archivo suplementario:</strong> <code>material_suplementario.docx</code> / <code>.html</code> — Notas S1–S3, Tablas S1–S20 y Figuras S1–S3.<br>
+<strong>Archivo suplementario:</strong> <code>material_suplementario.docx</code> / <code>.html</code> — Notas S1–S3, Tablas S1–S21 y Figuras S1–S3.<br>
 <strong>Código:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (Licencia MIT; DOI conceptual del código <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; release v2.0.1 de GitHub).<br>
 <strong>Datos:</strong> los datos procesados y las predicciones de test están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>.</p>
 </blockquote>
@@ -2396,7 +2396,7 @@ max-width: 100%;
 <p>• <strong>Nota S1:</strong> Datos, construcción del objetivo D2, control de calidad y muestreo.</p>
 <p>• <strong>Nota S2:</strong> Calibración de Platt monótona acotada e hiperparámetros.</p>
 <p>• <strong>Nota S3:</strong> Protocolo de evaluación y análisis ampliados.</p>
-<p>• <strong>Tablas S1–S20:</strong> diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss y auditoría de datos.</p>
+<p>• <strong>Tablas S1–S21:</strong> diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos y una línea base solo meteorología.</p>
 <p>• <strong>Figuras S1–S3:</strong> SHAP, ablación y cost-loss.</p>
 <hr>
 </section>
@@ -3873,7 +3873,7 @@ max-width: 100%;
 </tr>
 </tbody>
 </table>
-<p>El benchmark completo incluye M2, propagación, FWI, INPE y la línea base climatológica. FWI e INPE son índices normalizados, no probabilidades calibradas. Todos los cortes, incluidos los de FWI e INPE, se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para el test 2024–2025; ningún índice recibió calibración local. El FWI se reporta en la escala del índice canadiense (0.3029 en el Chaco, 2.1509 en Oriental) y el INPE en una escala de riesgo 0–1 (0.8963 en el Chaco, 0.0750 en Oriental).</p>
+<p>El benchmark completo incluye M2, propagación, FWI, INPE y la línea base climatológica. FWI e INPE son índices normalizados, no probabilidades calibradas. El GBT solo meteorología usa el mismo aprendiz, capacidad y calibración que M1/M2/M3, pero solo el conjunto de información del FWI; su detalle completo está en la Tabla S21. Todos los cortes, incluidos los de FWI e INPE, se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para el test 2024–2025; ningún índice recibió calibración local. El FWI se reporta en la escala del índice canadiense (0.3029 en el Chaco, 2.1509 en Oriental) y el INPE en una escala de riesgo 0–1 (0.8963 en el Chaco, 0.0750 en Oriental).</p>
 <p><strong>Tabla S11.</strong> Benchmark completo en el test retrospectivo 2024–2025.</p>
 <table class="caption-top table">
 <colgroup>
@@ -3972,6 +3972,21 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>ignicion</td>
+<td>Weather-only GBT</td>
+<td>0.5512</td>
+<td>0.1071</td>
+<td>0.0824</td>
+<td>0.0025</td>
+<td>0.0013</td>
+<td>0.1020</td>
+<td>0.1143</td>
+<td>0.1932</td>
+<td>0.1245</td>
+<td>24036</td>
+</tr>
+<tr class="even">
+<td>Chaco</td>
+<td>ignicion</td>
 <td>Línea Base Climatológica</td>
 <td>0.5000</td>
 <td>0.0909</td>
@@ -3984,7 +3999,7 @@ max-width: 100%;
 <td>0.0000</td>
 <td>0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Chaco</td>
 <td>propagacion</td>
 <td>Incendios_PY (Propagación Táctica)</td>
@@ -3999,7 +4014,7 @@ max-width: 100%;
 <td>0.7476</td>
 <td>5353</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Chaco</td>
 <td>propagacion</td>
 <td>Línea Base Climatológica</td>
@@ -4014,7 +4029,7 @@ max-width: 100%;
 <td>0.0000</td>
 <td>0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Híbrida M3)</td>
@@ -4029,7 +4044,7 @@ max-width: 100%;
 <td>0.2680</td>
 <td>7835</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Base M2)</td>
@@ -4044,7 +4059,7 @@ max-width: 100%;
 <td>0.2447</td>
 <td>10075</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Canadian FWI completo</td>
@@ -4059,7 +4074,7 @@ max-width: 100%;
 <td>0.1258</td>
 <td>58766</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>INPE Risco de Fogo</td>
@@ -4073,6 +4088,21 @@ max-width: 100%;
 <td>0.7947</td>
 <td>0.1123</td>
 <td>141802</td>
+</tr>
+<tr class="odd">
+<td>Oriental</td>
+<td>ignicion</td>
+<td>Weather-only GBT</td>
+<td>0.5645</td>
+<td>0.1077</td>
+<td>0.0823</td>
+<td>0.0042</td>
+<td>0.0013</td>
+<td>0.0975</td>
+<td>0.1108</td>
+<td>0.4244</td>
+<td>0.1300</td>
+<td>61905</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -6439,6 +6469,70 @@ max-width: 100%;
 </tbody>
 </table>
 <p>La tabla completa con M1, M2 y la política gated está en <code>tablas/tablaS20_sensibilidad_d2.csv</code>. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 10 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.</p>
+<p><strong>Tabla S21.</strong> Línea base GBT solo meteorología en el test retrospectivo 2024–2025. El modelo usa el mismo aprendiz, capacidad, restricciones monótonas y calibración de Platt monótona que M1/M2/M3, pero solo el conjunto de información disponible para el FWI canadiense.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Region</th>
+<th>ROC-AUC [95 % CI]</th>
+<th>PR-AUC</th>
+<th>Brier</th>
+<th>BSS</th>
+<th>ECE</th>
+<th>Cutoff</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F0.5</th>
+<th>FP</th>
+<th>ΔROC vs M3 (p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chaco</td>
+<td>0.5512 [0.542–0.560]</td>
+<td>0.1071</td>
+<td>0.0824</td>
+<td>0.0025</td>
+<td>0.0013</td>
+<td>0.1020</td>
+<td>0.1143</td>
+<td>0.1932</td>
+<td>0.1245</td>
+<td>24036</td>
+<td>+0.2509 (≤0.001)</td>
+</tr>
+<tr class="even">
+<td>Oriental</td>
+<td>0.5645 [0.556–0.575]</td>
+<td>0.1077</td>
+<td>0.0823</td>
+<td>0.0042</td>
+<td>0.0013</td>
+<td>0.0975</td>
+<td>0.1108</td>
+<td>0.4244</td>
+<td>0.1300</td>
+<td>61905</td>
+<td>+0.1889 (≤0.001)</td>
+</tr>
+</tbody>
+</table>
+<p>Variables (9): <code>temp_max_c</code>, <code>temp_min_c</code>, <code>vpd_max_kpa</code>, <code>viento_max_kmh</code>, <code>precipitacion_mm</code>, <code>precipitacion_48h_mm</code>, <code>dias_secos_consecutivos</code>, <code>ffmc</code>, <code>isi</code>. El BSS es relativo a la prevalencia de entrenamiento 2018–2022. ΔROC es M3 menos el GBT solo meteorología, con bootstrap pareado agrupado por fecha (B = 1 000). La tabla legible por máquina está en <code>tablas/tablaS21_benchmark_weather_only.csv</code>.</p>
 </section>
 <section id="disponibilidad-de-datos" class="level1 unnumbered">
 <h1 class="unnumbered">Disponibilidad de datos</h1>

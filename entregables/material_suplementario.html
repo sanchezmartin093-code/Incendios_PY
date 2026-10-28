@@ -2363,7 +2363,7 @@ window.Quarto = {
 
 <blockquote class="blockquote">
 <p><strong>Target journal:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Article type:</strong> research article. <strong>Peer review:</strong> single-anonymized.<br>
-<strong>Supplementary file:</strong> <code>material_suplementario.docx</code> / <code>.html</code> — Notes S1–S3, Tables S1–S20 and Figures S1–S3.<br>
+<strong>Supplementary file:</strong> <code>material_suplementario.docx</code> / <code>.html</code> — Notes S1–S3, Tables S1–S21 and Figures S1–S3.<br>
 <strong>Code:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (MIT License; code concept DOI <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; GitHub release v2.0.1).<br>
 <strong>Data:</strong> processed data and test predictions are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>.</p>
 </blockquote>
@@ -2372,7 +2372,7 @@ window.Quarto = {
 <p>• <strong>Note S1:</strong> Data, D2 target construction, quality control and sampling.</p>
 <p>• <strong>Note S2:</strong> Bounded monotonic Platt calibration and hyperparameters.</p>
 <p>• <strong>Note S3:</strong> Evaluation protocol and extended analyses.</p>
-<p>• <strong>Tables S1–S20:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss and data audit.</p>
+<p>• <strong>Tables S1–S21:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit and a weather-only baseline.</p>
 <p>• <strong>Figures S1–S3:</strong> SHAP, ablation and cost-loss.</p>
 <hr>
 </section>
@@ -3849,7 +3849,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline. FWI and INPE are normalized indices, not calibrated probabilities. All cutoffs, including those of FWI and INPE, were selected on the 2023 validation set by maximizing F0.5 and then frozen for the 2024–2025 test; neither index received local calibration. FWI is reported on the Canadian index scale (0.3029 in Chaco, 2.1509 in Oriental) and INPE on a 0–1 risk scale (0.8963 in Chaco, 0.0750 in Oriental).</p>
+<p>The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline. FWI and INPE are normalized indices, not calibrated probabilities. The weather-only GBT uses the same learner, capacity and calibration as M1/M2/M3 but only the FWI information set; its full detail is in Table S21. All cutoffs, including those of FWI and INPE, were selected on the 2023 validation set by maximizing F0.5 and then frozen for the 2024–2025 test; neither index received local calibration. FWI is reported on the Canadian index scale (0.3029 in Chaco, 2.1509 in Oriental) and INPE on a 0–1 risk scale (0.8963 in Chaco, 0.0750 in Oriental).</p>
 <p><strong>Table S11.</strong> Full benchmark on the retrospective 2024–2025 test.</p>
 <table class="caption-top table">
 <colgroup>
@@ -3948,6 +3948,21 @@ window.Quarto = {
 <tr class="odd">
 <td>Chaco</td>
 <td>ignicion</td>
+<td>Weather-only GBT</td>
+<td>0.5512</td>
+<td>0.1071</td>
+<td>0.0824</td>
+<td>0.0025</td>
+<td>0.0013</td>
+<td>0.1020</td>
+<td>0.1143</td>
+<td>0.1932</td>
+<td>0.1245</td>
+<td>24036</td>
+</tr>
+<tr class="even">
+<td>Chaco</td>
+<td>ignicion</td>
 <td>Línea Base Climatológica</td>
 <td>0.5000</td>
 <td>0.0909</td>
@@ -3960,7 +3975,7 @@ window.Quarto = {
 <td>0.0000</td>
 <td>0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Chaco</td>
 <td>propagacion</td>
 <td>Incendios_PY (Propagación Táctica)</td>
@@ -3975,7 +3990,7 @@ window.Quarto = {
 <td>0.7476</td>
 <td>5353</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Chaco</td>
 <td>propagacion</td>
 <td>Línea Base Climatológica</td>
@@ -3990,7 +4005,7 @@ window.Quarto = {
 <td>0.0000</td>
 <td>0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Híbrida M3)</td>
@@ -4005,7 +4020,7 @@ window.Quarto = {
 <td>0.2680</td>
 <td>7835</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Base M2)</td>
@@ -4020,7 +4035,7 @@ window.Quarto = {
 <td>0.2447</td>
 <td>10075</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>Canadian FWI completo</td>
@@ -4035,7 +4050,7 @@ window.Quarto = {
 <td>0.1258</td>
 <td>58766</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Oriental</td>
 <td>ignicion</td>
 <td>INPE Risco de Fogo</td>
@@ -4049,6 +4064,21 @@ window.Quarto = {
 <td>0.7947</td>
 <td>0.1123</td>
 <td>141802</td>
+</tr>
+<tr class="odd">
+<td>Oriental</td>
+<td>ignicion</td>
+<td>Weather-only GBT</td>
+<td>0.5645</td>
+<td>0.1077</td>
+<td>0.0823</td>
+<td>0.0042</td>
+<td>0.0013</td>
+<td>0.0975</td>
+<td>0.1108</td>
+<td>0.4244</td>
+<td>0.1300</td>
+<td>61905</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -6415,6 +6445,70 @@ window.Quarto = {
 </tbody>
 </table>
 <p>The full table with M1, M2 and the gated policy is in <code>tablas/tablaS20_sensibilidad_d2.csv</code>. The 25 km/10 d row reproduces the same sample and features as the main partitions; its small difference from Table 10 reflects retraining inside this sensitivity harness, not a different target or sample. M3 beat M2 in all 18 region-by-evaluation comparisons (ΔROC +0.004 to +0.016). The 7-day window had the highest ROC-AUC in every region × radius pair, and the radius effect was small: 35 km was slightly better in Chaco and 25 km in Oriental. The ranking and the D2 conclusion are stable.</p>
+<p><strong>Table S21.</strong> Weather-only GBT baseline on the retrospective 2024–2025 test. The model uses the same learner, capacity, monotonic constraints and monotonic Platt calibration as M1/M2/M3, but only the information set available to the Canadian FWI.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Region</th>
+<th>ROC-AUC [95 % CI]</th>
+<th>PR-AUC</th>
+<th>Brier</th>
+<th>BSS</th>
+<th>ECE</th>
+<th>Cutoff</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F0.5</th>
+<th>FP</th>
+<th>ΔROC vs M3 (p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chaco</td>
+<td>0.5512 [0.542–0.560]</td>
+<td>0.1071</td>
+<td>0.0824</td>
+<td>0.0025</td>
+<td>0.0013</td>
+<td>0.1020</td>
+<td>0.1143</td>
+<td>0.1932</td>
+<td>0.1245</td>
+<td>24036</td>
+<td>+0.2509 (≤0.001)</td>
+</tr>
+<tr class="even">
+<td>Oriental</td>
+<td>0.5645 [0.556–0.575]</td>
+<td>0.1077</td>
+<td>0.0823</td>
+<td>0.0042</td>
+<td>0.0013</td>
+<td>0.0975</td>
+<td>0.1108</td>
+<td>0.4244</td>
+<td>0.1300</td>
+<td>61905</td>
+<td>+0.1889 (≤0.001)</td>
+</tr>
+</tbody>
+</table>
+<p>Features (9): <code>temp_max_c</code>, <code>temp_min_c</code>, <code>vpd_max_kpa</code>, <code>viento_max_kmh</code>, <code>precipitacion_mm</code>, <code>precipitacion_48h_mm</code>, <code>dias_secos_consecutivos</code>, <code>ffmc</code>, <code>isi</code>. BSS is relative to the 2018–2022 training prevalence. ΔROC is M3 minus the weather-only GBT, with a paired bootstrap grouped by date (B = 1 000). The full machine-readable table is <code>tablas/tablaS21_benchmark_weather_only.csv</code>.</p>
 </section>
 <section id="data-availability" class="level1 unnumbered">
 <h1 class="unnumbered">Data availability</h1>

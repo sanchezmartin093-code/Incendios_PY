@@ -42,10 +42,21 @@ def main():
                 (p_fwi, _), (p_inpe, _) = bench._benchmarks(df_val, df_test, region, target_col)
                 curva_modelo = bench._p_modelo(region, "hibrido", df_test)
                 nombre_modelo = "M3"
+                wo = pl.read_parquet(
+                    DIR_PROCESSED / "evaluacion_test_weather_only.parquet"
+                ).filter(pl.col("region") == region).select(
+                    ["cell_id", "fecha", "probabilidad_weather_only"]
+                )
+                p_wo = (
+                    df_test.select(["cell_id", "fecha"])
+                    .join(wo, on=["cell_id", "fecha"], how="left")["probabilidad_weather_only"]
+                    .to_numpy()
+                )
                 curvas = [
                     (f"{region} {nombre_modelo}", curva_modelo, "-"),
                     (f"{region} FWI", p_fwi, ":"),
                     (f"{region} INPE", p_inpe, "--"),
+                    (f"{region} Weather-only", p_wo, "-."),
                 ]
             else:
                 curva_modelo = bench._p_modelo(region, "propagacion", df_test)
@@ -77,6 +88,8 @@ def main():
                label="Oriental M3 / Propagation"),
         Line2D([0], [0], color=colores["Oriental"], ls=":", lw=1.2, label="Oriental FWI"),
         Line2D([0], [0], color=colores["Oriental"], ls="--", lw=1.2, label="Oriental INPE"),
+        Line2D([0], [0], color=colores["Chaco"], ls="-.", lw=1.2, label="Chaco weather-only"),
+        Line2D([0], [0], color=colores["Oriental"], ls="-.", lw=1.2, label="Oriental weather-only"),
     ]
     fig.legend(handles=legend_handles, loc="lower center", ncol=3, fontsize=6.2,
                frameon=False, bbox_to_anchor=(0.5, 0.0))

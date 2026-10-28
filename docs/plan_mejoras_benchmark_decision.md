@@ -1,8 +1,11 @@
 # Plan de mejoras: blindaje del benchmark (B) y valor de decisión (C)
 
 **Proyecto:** `Incendios_PY` — manuscrito para *Computers & Geosciences*
+
 **Fecha:** 2026-10-28
+
 **Alcance:** mejoras B (comparación con FWI/INPE) y C (sustituir la narrativa de AUC por beneficio de decisión).
+
 **Fuera de alcance:** palanca D (test ciego 2026), aplazada por su coste temporal; validación externa, tratada en documento aparte.
 
 > Nota de rutas: el repositorio fue reorganizado. Las fuentes del manuscrito están en `manuscrito/en/` y `manuscrito/es/`; las tablas generadas se publican en `entregables/tablas/`. Los scripts conservan su numeración original en `scripts/`.
@@ -60,6 +63,7 @@ Objetivo: que un revisor no pueda atribuir la ventaja de M3 a una comparación d
 **Estado:** completado (2026-10-28). La tabla principal, la Tabla S11 y los textos EN/ES reportan ahora `Cutoff`, `Precision`, `Recall` y `F0.5` para FWI e INPE, con la regla F0.5 declarada.
 
 **Qué hacer**
+
 1. Exportar `cutoff_f05` de FWI e INPE en el CSV del benchmark.
 2. Añadir a la tabla principal las columnas `umbral_f05`, `precisión`, `recall`, `F0.5` de cada índice.
 3. Declarar en el suplemento: *"FWI and INPE cutoffs were selected on 2023 validation with the same F0.5 rule applied to the models and then frozen for 2024–2025."*
@@ -76,11 +80,15 @@ Objetivo: que un revisor no pueda atribuir la ventaja de M3 a una comparación d
 
 ### B.2 Baseline "solo meteorología"
 
+**Estado:** completado (2026-10-28). `scripts/43_benchmark_weather_only.py` entrena el modelo, escribe `tablaS21_benchmark_weather_only.csv`, integra las filas en `tabla04` y el manuscrito reporta el resultado en la Tabla 3, la Tabla S11 y la Tabla S21.
+
 **Qué hacer**
+
 - Entrenar un GBT con exactamente las variables que alimentan al FWI: temperatura, humedad relativa, viento, precipitación (y opcionalmente FFMC/ISI), sin combustible, sin accesibilidad, sin priors y sin calendario.
 - Mismo esquema de entrenamiento, misma validación 2023 y mismo cutoff F0.5.
 
 **Archivos**
+
 - Nuevo: `scripts/43_benchmark_weather_only.py`.
 - Reutiliza `src/modelo.py` con una lista `FEATURES_WEATHER_ONLY`.
 
@@ -102,11 +110,13 @@ Ambos resultados son publicables.
 ### B.3 Referencia intermedia "índice + contexto local"
 
 **Qué hacer**
+
 - Entrenar un GBT con FWI e INPE como entradas, más las features locales de M3 (combustible, accesibilidad, densidad histórica).
 
 **Salida:** fila adicional en el benchmark.
 
 **Interpretación**
+
 - Si ≈ M3: el índice es útil pero insuficiente por sí solo; reformular el mensaje central.
 - Si ≪ M3: la información local de alta resolución es la que domina.
 
@@ -119,6 +129,7 @@ Ambos resultados son publicables.
 **Problema detectado:** la constante A del INPE se calcula con `constante_a_desde_fracciones(...)` a partir de `pct_pastura`, `pct_sabana_pastizal`, `pct_bosque_seco`, `pct_bosque_humedo` y `pct_humedal_palmar` (`scripts/13_benchmarking_modelos.py`). Es decir, el INPE implementado **ya incorpora información local de cobertura**.
 
 **Qué hacer (elegir una)**
+
 1. **Recomendada:** mantener A local como versión primaria y añadir una versión con **A fija** como sensibilidad.
 2. Usar A fija como primaria y la local como sensibilidad.
 
@@ -133,6 +144,7 @@ Ambos resultados son publicables.
 ### B.5 Nota S4 — Implementación de los índices
 
 Añadir una nota suplementaria con:
+
 1. Ecuaciones y códigos de combustible del FWI.
 2. Origen de las variables de mediodía (ERA5-Land 3-h).
 3. Uso de meteorología del **mismo día** (nowcast), no t-1.
@@ -162,6 +174,7 @@ Objetivo: que la utilidad operativa sea un resultado primario y no una comprobac
 ### C.1 Intervalos de confianza bootstrap sobre V(α)
 
 **Qué hacer**
+
 - Para cada α y cada modelo, remuestrear **fechas** (no filas), B = 1 000, recalcular V(α) y reportar IC 95 %.
 - Reutilizar el patrón de `_delta_bootstrap` de `scripts/26_validacion_2023.py`.
 
@@ -210,6 +223,7 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 ### C.4 Incluir FWI e INPE en el análisis de decisión
 
 **Qué hacer**
+
 - Pasar `p_fwi` y `p_inpe` (ya calculadas en `scripts/13`) a `valor_cost_loss` y a beneficio neto, con sus cutoffs congelados.
 
 **Salida:** filas de FWI/INPE en `Tabla S14`, `Tabla S22` y `Figura S4`.
@@ -221,6 +235,7 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 ### C.5 Test pareado de diferencia de valor
 
 **Qué hacer**
+
 - Bootstrap pareado por fecha de `V_M3(α) − V_M2(α)` y `V_M3(α) − V_FWI(α)`.
 - Reportar IC y el rango de α donde el IC excluye 0.
 
@@ -273,7 +288,7 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 ## 7. Checklist de terminado
 
 - [x] FWI e INPE tienen `cutoff_f05`, precisión, recall y F0.5 en la tabla principal.
-- [ ] Existe un baseline weather-only GBT y está en la tabla.
+- [x] Existe un baseline weather-only GBT y está en la tabla.
 - [ ] Existe una versión canónica (A fija) del INPE, o el texto declara que A es local.
 - [ ] El texto de 4.1 ya no afirma que ambos índices son "purely meteorological" sin matiz.
 - [ ] La Nota S4 documenta ecuaciones, inicialización, resolución y ausencia de calibración local.
