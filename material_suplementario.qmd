@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S17 and Figures S1–S3.  
+> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S19 and Figures S1–S3.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.0).  
 > **Data:** processed data and test predictions are available in the v2.0.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -35,7 +35,7 @@ format:
 
 • **Note S3:** Evaluation protocol and extended analyses.
 
-• **Tables S1–S17:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, SHAP, cost-loss and data audit.
+• **Tables S1–S19:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, SHAP, cost-loss and data audit.
 
 • **Figures S1–S3:** SHAP, ablation and cost-loss.
 
@@ -261,7 +261,7 @@ The comparison uses B = 1,000 grouped-by-date bootstrap replicates. Values are r
 | Oriental | M3_hibrido | holdout_espacial_2023 | 25961 | 1998 | 0.076962 | 0.7277 | 0.1608 | 0.0716 | -0.0075 | 0.0474 | 0.3750 | 0.0015 | 0.0074 | 5 | 1995 |
 | Oriental | M3_hibrido | heldin_referencia_2023 | 65163 | 6286 | 0.096466 | 0.7473 | 0.2384 | 0.0806 | 0.0757 | 0.0048 | 0.3087 | 0.2151 | 0.2840 | 3028 | 4934 |
 
-M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid. Holdout = 50-km spatial block; Held-in = reference cells not excluded from training. The confirmation holdout is not used here.
+M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid. Holdout = 50-km spatial block; Held-in = reference cells not excluded from training. The confirmation holdout is evaluated separately in Table S18.
 
 **Table S9.** Evaluation with t-1 weather (24-h anticipation) on 2023 validation.
 
@@ -528,6 +528,34 @@ M1 is a diagnostic biophysical baseline and was not used operationally. Spatial 
 | Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 0.2679 | 7,811 |
 
 Population-level metrics after prior correction: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precision 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precision 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 sample / 0.000436 population; Oriental 0.2186 sample / 0.001158 population.
+
+
+**Table S18.** Independent spatial confirmation holdout on 2023. Models were retrained excluding the 31 confirmation blocks and their 20-km buffer; the cutoff was selected on held-in 2023 cells and applied once to the confirmation cells.
+
+| Region | Model | Evaluation | n | Positives | ROC-AUC | PR-AUC | Precision | Recall | F0.5 |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | M1 | Confirmation | 16,579 | 1,404 | 0.6435 | 0.1263 | 14.57 % | 9.26 % | 0.1307 |
+| Chaco | M2 | Confirmation | 16,579 | 1,404 | 0.6871 | 0.1759 | 44.44 % | 0.57 % | 0.0271 |
+| Chaco | M3 | Confirmation | 16,579 | 1,404 | 0.6757 | 0.1663 | 60.00 % | 0.43 % | 0.0208 |
+| Chaco | M3/M2 gated | Confirmation | 16,579 | 1,404 | 0.6871 | 0.1759 | 54.55 % | 0.43 % | 0.0207 |
+| Oriental | M1 | Confirmation | 14,551 | 1,615 | 0.6388 | 0.1735 | 20.48 % | 25.57 % | 0.2133 |
+| Oriental | M2 | Confirmation | 14,551 | 1,615 | 0.6621 | 0.1842 | 25.00 % | 0.12 % | 0.0061 |
+| Oriental | M3 | Confirmation | 14,551 | 1,615 | 0.6344 | 0.1700 | 50.00 % | 0.06 % | 0.0031 |
+| Oriental | M3/M2 gated | Confirmation | 14,551 | 1,615 | 0.6621 | 0.1842 | 14.29 % | 0.06 % | 0.0030 |
+
+The held-in 2023 reference rows and full precision/recall/FP/FN counts are in `tablas/tablaS18_confirmacion_espacial_2023.csv`. The low recall at the frozen cutoff reflects the calibration shift between held-in and confirmation blocks; discrimination (ROC-AUC/PR-AUC) is the primary comparison.
+
+
+**Table S19.** Coupled t-1 baseline versus the decoupled task architecture on the combined fire sample. The coupled baseline is a single binary fire-at-`t` model with the three causal t-1 fire features; the decoupled comparator uses M3 for ignition rows and the propagation model for propagation rows. Both use the same combined case-control test rows.
+
+| Region | Comparator | ROC-AUC | PR-AUC | Brier | BSS | ECE | n | Positives |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | Coupled t-1 | 0.8862 | 0.6223 | 0.0513 | 0.3788 | 0.0091 | 753,071 | 68,461 |
+| Chaco | Decoupled task models | 0.8868 | 0.6262 | 0.0510 | 0.3829 | 0.0084 | 753,071 | 68,461 |
+| Oriental | Coupled t-1 | 0.7871 | 0.3598 | 0.0701 | 0.1512 | 0.0089 | 1,060,895 | 96,445 |
+| Oriental | Decoupled task models | 0.7806 | 0.3532 | 0.0705 | 0.1467 | 0.0090 | 1,060,895 | 96,445 |
+
+This is a comparator for the leakage discussion, not an operational model. Because both sides use the same gated case-control sample, it does not test the effect of removing the gate.
 
 # Data availability {.unnumbered}
 
