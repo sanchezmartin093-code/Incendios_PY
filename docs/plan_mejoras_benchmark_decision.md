@@ -210,7 +210,7 @@ Ambos resultados son publicables.
 **Criterio de aceptación:** la caída se reporta con cifras y la interpretación se acota a lo que el dato permite.
 
 - [x] Limitación documentada: 90.65 % de celdas de test con solapamiento temporal.
-- [ ] Recomputar métricas excluyendo celdas vistas en train y restringiendo a 2025.
+- [x] Recomputar métricas en a1/a2/b/c (Tabla S27, 38 filas; M3 a1 −0.018/−0.039; propagación sin a1 por 115/2 positivos).
 
 ---
 
@@ -556,7 +556,7 @@ Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. S
 |---|---|---|---|---|
 | R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Pendiente |
 | R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Pendiente |
-| R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Parcial (limitación declarada) |
+| R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Completado (S27; a1 −0.018/−0.039) |
 | R.4 Sensibilidad a la razón de muestreo | "Artefacto del 1:10" | 2 d | Media | Pendiente |
 | R.5 Sensibilidad a umbral y métrica | "F0.5 elegido a conveniencia" | 2 d | Alta | Parcial (cutoff hecho; falta β y presupuesto) |
 | R.6 Corrección por multiplicidad | "p ≤ 0.001 sin ajuste" | 1 d | **Muy alta** | Completado (Holm 0.006 / BH 0.001) |
