@@ -8,18 +8,18 @@ authors:
     given-names: "Martín"
     orcid: "https://orcid.org/0000-0003-4138-9668"
     affiliation: "Independent Researcher, Asunción, Paraguay"
-version: 2.0.1
+version: 2.1.0
 date-released: 2026-10-28
-doi: "10.5281/zenodo.23718675"
+doi: "10.5281/zenodo.23675104"
 repository-code: "https://github.com/sanchezmartin093-code/Incendios_PY"
 url: "https://github.com/sanchezmartin093-code/Incendios_PY"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.23718675"
-    description: "Code version DOI"
+    value: "10.5281/zenodo.23675104"
+    description: "Code concept DOI (resolves to latest version)"
   - type: doi
-    value: "10.5281/zenodo.23718676"
-    description: "Data version DOI"
+    value: "10.5281/zenodo.23675278"
+    description: "Data concept DOI (resolves to latest version)"
 license: MIT
 keywords:
   - "wildfire prediction"

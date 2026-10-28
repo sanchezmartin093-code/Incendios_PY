@@ -3,7 +3,7 @@
   "description": "<p>Open-source pipeline for daily 1-km wildfire ignition and propagation modelling in Paraguay. The release includes code for D2 target construction, biophysical gating, M3/M2 fallback inference, monotonic Platt calibration, spatial block validation, grouped bootstrap, and benchmarking against the full Canadian FWI and INPE Risco de Fogo. Raw third-party datasets are documented but not redistributed; processed data and trained models are deposited separately.</p>",
   "upload_type": "software",
   "publication_date": "2026-10-28",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "creators": [
     {
       "name": "Sánchez Insfrán, Martín",
@@ -24,15 +24,15 @@
     "Gran Chaco",
     "Paraguay"
   ],
-  "notes": "Code archive v2.0.1 (2026-10-28). Processed data and trained models are deposited separately under the data concept DOI. Third-party raw data retain their original licenses. This version adds the confirmation holdout, coupled baseline and full D2 radius/window sensitivity.",
+  "notes": "Code archive v2.1.0 (2026-10-28). Processed data and trained models are deposited separately under the data concept DOI. Third-party raw data retain their original licenses. This version adds rolling-origin, seed/capacity stability, threshold, adversarial, negative-control, gate, sampling-ratio and VIIRS label-quality analyses, plus the robustness supplement note.",
   "related_identifiers": [
     {
-      "identifier": "10.5281/zenodo.23718676",
+      "identifier": "10.5281/zenodo.23675278",
       "relation": "isSupplementedBy",
       "resource_type": "dataset"
     },
     {
-      "identifier": "https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1",
+      "identifier": "https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.1.0",
       "relation": "isSupplementTo",
       "resource_type": "software"
     }

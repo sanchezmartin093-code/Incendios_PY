@@ -22,15 +22,24 @@ def sha(path: Path) -> str:
 def main():
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        dirty = bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip())
+        commit = commit + (" (working tree with uncommitted changes)" if dirty else "")
     except Exception:
         commit = "unknown"
     patrones = [
         "entregables/tablas/*.csv",
         "entregables/figuras/*.pdf",
         "entregables/figuras/*.png",
+        "entregables/*.docx",
+        "entregables/*.html",
         "manuscrito/en/*.qmd",
         "manuscrito/es/*.qmd",
         "scripts/*.py",
+        "src/*.py",
+        "README.md",
+        "CITATION.cff",
+        ".zenodo.json",
+        "requirements-lock.txt",
     ]
     archivos = sorted({p for patron in patrones for p in ROOT.glob(patron) if p.is_file()})
     lineas = [
