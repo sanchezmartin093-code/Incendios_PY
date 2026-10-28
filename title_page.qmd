@@ -1,5 +1,5 @@
 ---
-title: "Title Page / Portada de Identificación"
+title: "Title Page"
 subtitle: "Un marco computacional reproducible para el desacoplamiento y benchmarking de ignición y propagación de incendios en el Gran Chaco (2018–2025)"
 date: "2026-10-28"
 date-modified: today
@@ -25,9 +25,9 @@ format:
 - **Subtítulo (Español):**  
   *Targets D2, inferencia con gating y fallback M2/M3, y benchmark abierto frente a Canadian FWI e INPE Risco de Fogo*
 - **Title (English):**  
-  *A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025)*
+  *A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025)*
 - **Subtitle (English):**  
-  *D2 Targets, M3/M2 Inference and an Open Benchmark Against Canadian FWI and INPE*
+  *D2 targets, M3/M2 inference and an open benchmark against Canadian FWI and INPE*
 - **Título Corto / Running Head:**  
   *Reproducible Decoupled Wildfire Benchmarking in the Gran Chaco*
 - **Revista Objetivo / Target Journal:**  
@@ -38,19 +38,17 @@ format:
   Revisión de un solo anonimizado (*Single-Anonymized Peer Review*, política de C&G)
 - **Tipo de Artículo / Article Type:**  
   *Research Paper* (Metodología Computacional y Algorítmica en Geociencias)
-- **Manuscrito en HTML / Manuscript in HTML:**  
-  [Abrir el manuscrito en HTML](manuscrito.html)
-- **Material Suplementario en HTML / Supplementary Material in HTML:**  
-  [Abrir el material suplementario](material_suplementario.html)
 
 ---
 
 # 2. Autores y Afiliaciones / Authors and Affiliations
 
-- **Autor:**  
+- **Autor / Corresponding author:**  
   **Martín Sánchez Insfrán, MD**  
   *Investigador Independiente / Médico Cirujano*  
   Asunción, Paraguay  
+  - **Dirección postal / Postal address:** Asunción, Paraguay  
+  - **Teléfono / Telephone:** +595 971 907 727  
   - **ORCID:** [0000-0003-4138-9668](https://orcid.org/0000-0003-4138-9668)  
   - **Email:** `sanchez.martin093@gmail.com`  
   - **Rol:** Conceptualización, diseño de arquitectura de software, ingeniería de datos espaciales, modelado predictivo, benchmarking, redacción y validación.
@@ -63,7 +61,7 @@ format:
 
 1. **D2 formally separates primary ignition from tactical fire spread.** (61 chars)
 2. **Gated M3/M2 inference links calibration, spatial blocks and cost-loss.** (69 chars)
-3. **M3 beats full Canadian FWI and INPE under the same retrospective D2 test.** (71 chars)
+3. **M3 outperforms full Canadian FWI and INPE under the same retrospective D2 test.** (71 chars)
 4. **Spatial block holdout shows where the hybrid model does not transfer.** (70 chars)
 5. **National inference runs in 3.47 s and 2.21 GB peak RAM on ARM64.** (62 chars)
 
