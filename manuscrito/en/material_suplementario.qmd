@@ -87,7 +87,7 @@ The harness is fixed before the test is opened. It contains five components:
 
 **(5)** Population-level, conformal and cost-loss analyses.
 
-Bootstrap resampling is by date, not by row, because daily fire activity is strongly clustered. All cells from a sampled date are retained; this preserves within-day dependence. The spatial holdout removes an entire 50-km block plus a 20-km buffer, recomputes historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are ROC-AUC and PR-AUC; Brier score, expected calibration error, precision, recall, F0.5 and false positives are also reported. AUC intervals use 500 grouped bootstrap replicates; paired differences use 1 000. Because four main comparisons are made against FWI and INPE, the significance statements are a conservative screening result rather than multiplicity-adjusted inference. The bootstrap resolution is 0.001.
+Bootstrap resampling is by date, not by row, because daily fire activity is strongly clustered. All cells from a sampled date are retained; this preserves within-day dependence. The spatial holdout removes an entire 50-km block plus a 20-km buffer, recomputes historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are ROC-AUC and PR-AUC; Brier score, expected calibration error, precision, recall, F0.5 and false positives are also reported. AUC intervals use 500 grouped bootstrap replicates; paired differences use 1 000. The six confirmatory comparisons are corrected with Holm–Bonferroni and Benjamini–Hochberg; all remain significant at α = 0.05. The bootstrap resolution is 0.001, so adjusted values at the floor are upper bounds.
 
 The full benchmark is in Table S11, paired significance in Table S7, the complete spatial block results in Table S8 and the lead-time results in Table S9. The controlled ablation is in Table S12 and Figure S2; SHAP is in Table S13 and Figure S1; population evaluation is in Table S6; conformal coverage is in Table S5; cost-loss is in Table S14 and Figure S3. The computational profile is in Table S4. All analyses use the frozen test rows archived with the code release.
 
@@ -233,16 +233,22 @@ Population metrics apply prior correction from the case-control sample to the po
 
 Ign. = ignition; Prop. = propagation. M2 is the baseline ignition model in the ignition task and the tactical propagation model in the propagation task; M3 is the hybrid ignition model.
 
-**Table S7.** Paired ROC-AUC differences against FWI and INPE, grouped by date (retrospective 2024–2025 test).
+**Table S7.** Paired ROC-AUC differences for the six confirmatory comparisons (four against FWI and INPE and two M3−M2), grouped by date (retrospective 2024–2025 test). Holm–Bonferroni and Benjamini–Hochberg adjusted p-values are reported.
 
-| Region | Task | Comparison | ΔROC | p value | Bootstrap replicates |
-|---|---|---|---|---|---|
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.1970 | 0.001 | 1000 |
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2544 | 0.001 | 1000 |
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.2848 | 0.001 | 1000 |
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2633 | 0.001 | 1000 |
+<!-- tablaS7:inicio -->
 
-The comparison uses B = 1,000 grouped-by-date bootstrap replicates. Values are retrospective diagnostics, not a blind confirmation.
+| Region | Task | Comparison | ΔROC | p raw | p Holm | p BH | B |
+|---|---|---|---|---|---|---|---|
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.1970 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2544 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0128 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.2848 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2633 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0030 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+
+<!-- tablaS7:fin -->
+
+The family is pre-specified as the six confirmatory comparisons. With B = 1,000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.
 
 **Table S8.** Full spatial block results on 2023 development blocks.
 

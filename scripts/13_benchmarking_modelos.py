@@ -197,6 +197,7 @@ def main():
                 pares = [
                     ("Incendios_PY (Ignición Híbrida M3)", "Canadian FWI completo"),
                     ("Incendios_PY (Ignición Híbrida M3)", "INPE Risco de Fogo"),
+                    ("Incendios_PY (Ignición Híbrida M3)", "Incendios_PY (Ignición Base M2)"),
                 ]
             else:
                 pares = []

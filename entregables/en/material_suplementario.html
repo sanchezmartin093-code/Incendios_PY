@@ -2404,7 +2404,7 @@ window.Quarto = {
 <p><strong>(3)</strong> A paired bootstrap grouped by date (<span class="math inline">\(B=1\,000\)</span>) for confidence intervals and differences against FWI <span class="citation" data-cites="vanwagner1987">(<a href="#ref-vanwagner1987" role="doc-biblioref">Van Wagner, 1987</a>)</span> and INPE <span class="citation" data-cites="setzer2019">(<a href="#ref-setzer2019" role="doc-biblioref">Setzer et al., 2019</a>)</span>.</p>
 <p><strong>(4)</strong> A lead-time analysis using t-1 weather to quantify the nowcast-to-forecast gap.</p>
 <p><strong>(5)</strong> Population-level, conformal and cost-loss analyses.</p>
-<p>Bootstrap resampling is by date, not by row, because daily fire activity is strongly clustered. All cells from a sampled date are retained; this preserves within-day dependence. The spatial holdout removes an entire 50-km block plus a 20-km buffer, recomputes historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are ROC-AUC and PR-AUC; Brier score, expected calibration error, precision, recall, F0.5 and false positives are also reported. AUC intervals use 500 grouped bootstrap replicates; paired differences use 1 000. Because four main comparisons are made against FWI and INPE, the significance statements are a conservative screening result rather than multiplicity-adjusted inference. The bootstrap resolution is 0.001.</p>
+<p>Bootstrap resampling is by date, not by row, because daily fire activity is strongly clustered. All cells from a sampled date are retained; this preserves within-day dependence. The spatial holdout removes an entire 50-km block plus a 20-km buffer, recomputes historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are ROC-AUC and PR-AUC; Brier score, expected calibration error, precision, recall, F0.5 and false positives are also reported. AUC intervals use 500 grouped bootstrap replicates; paired differences use 1 000. The six confirmatory comparisons are corrected with Holm–Bonferroni and Benjamini–Hochberg; all remain significant at α = 0.05. The bootstrap resolution is 0.001, so adjusted values at the floor are upper bounds.</p>
 <p>The full benchmark is in Table S11, paired significance in Table S7, the complete spatial block results in Table S8 and the lead-time results in Table S9. The controlled ablation is in Table S12 and Figure S2; SHAP is in Table S13 and Figure S1; population evaluation is in Table S6; conformal coverage is in Table S5; cost-loss is in Table S14 and Figure S3. The computational profile is in Table S4. All analyses use the frozen test rows archived with the code release.</p>
 <hr>
 <p>The 1-km² grid is the modeling unit. Fuel fractions come from annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map; 2024 uses 2023 with lag 1 and 2025 reuses 2023 with lag 2 <span class="citation" data-cites="mapbiomas2023">(<a href="#ref-mapbiomas2023" role="doc-biblioref">MapBiomas Chaco, 2023</a>)</span>. Historical priors use a causal three-year rolling window rather than the full 2018–2022 record. <code>rafaga_max_kmh</code> is a linear proxy and is not used as a feature. M3 contains 44 variables in the Chaco and 45 in the Oriental Region; M2 contains 35 and M1 contains 24.</p>
@@ -3342,15 +3342,18 @@ window.Quarto = {
 </tbody>
 </table>
 <p>Ign. = ignition; Prop. = propagation. M2 is the baseline ignition model in the ignition task and the tactical propagation model in the propagation task; M3 is the hybrid ignition model.</p>
-<p><strong>Table S7.</strong> Paired ROC-AUC differences against FWI and INPE, grouped by date (retrospective 2024–2025 test).</p>
+<p><strong>Table S7.</strong> Paired ROC-AUC differences for the six confirmatory comparisons (four against FWI and INPE and two M3−M2), grouped by date (retrospective 2024–2025 test). Holm–Bonferroni and Benjamini–Hochberg adjusted p-values are reported.</p>
+<!-- tablaS7:inicio -->
 <table class="caption-top table">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3358,8 +3361,10 @@ window.Quarto = {
 <th>Task</th>
 <th>Comparison</th>
 <th>ΔROC</th>
-<th>p value</th>
-<th>Bootstrap replicates</th>
+<th>p raw</th>
+<th>p Holm</th>
+<th>p BH</th>
+<th>B</th>
 </tr>
 </thead>
 <tbody>
@@ -3368,7 +3373,9 @@ window.Quarto = {
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo</td>
 <td>0.1970</td>
-<td>0.001</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
 <td>1000</td>
 </tr>
 <tr class="even">
@@ -3376,28 +3383,55 @@ window.Quarto = {
 <td>ignicion</td>
 <td>Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo</td>
 <td>0.2544</td>
-<td>0.001</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
 <td>1000</td>
 </tr>
 <tr class="odd">
-<td>Chaco</td>
+<td>Oriental</td>
 <td>ignicion</td>
-<td>Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo</td>
-<td>0.2848</td>
-<td>0.001</td>
+<td>Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2)</td>
+<td>0.0128</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
 <td>1000</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
 <td>ignicion</td>
+<td>Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo</td>
+<td>0.2848</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
+<td>1000</td>
+</tr>
+<tr class="odd">
+<td>Chaco</td>
+<td>ignicion</td>
 <td>Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo</td>
 <td>0.2633</td>
-<td>0.001</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
+<td>1000</td>
+</tr>
+<tr class="even">
+<td>Chaco</td>
+<td>ignicion</td>
+<td>Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2)</td>
+<td>0.0030</td>
+<td>≤0.001</td>
+<td>0.0060</td>
+<td>0.0010</td>
 <td>1000</td>
 </tr>
 </tbody>
 </table>
-<p>The comparison uses B = 1,000 grouped-by-date bootstrap replicates. Values are retrospective diagnostics, not a blind confirmation.</p>
+<!-- tablaS7:fin -->
+<p>The family is pre-specified as the six confirmatory comparisons. With B = 1,000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.</p>
 <p><strong>Table S8.</strong> Full spatial block results on 2023 development blocks.</p>
 <table class="caption-top table">
 <colgroup>
