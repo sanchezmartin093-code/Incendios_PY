@@ -2387,7 +2387,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Fecha de publicación</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">27 de octubre de 2026</p>
+      <p class="date">28 de octubre de 2026</p>
     </div>
   </div>
   
@@ -2852,7 +2852,7 @@ Figura 5: Mapa nacional de alerta de 1 km² para el 2024-09-09, con la distribu
 <section id="comprobaciones-de-reproducibilidad" class="level2">
 <h2 class="anchored" data-anchor-id="comprobaciones-de-reproducibilidad">3.5 Comprobaciones de reproducibilidad</h2>
 <p>Las releases de código y datos son parte del resultado. El repositorio contiene el operador de objetivos, los scripts de evaluación congelados, los boosters y calibradores entrenados, las tablas generadas y un entorno fijado. Una ejecución de las 76 pruebas unitarias en un entorno limpio cubre la construcción de objetivos, el filtrado VIIRS, la agregación climática, la calibración monótona, las métricas y el enrutamiento de alertas. El archivo de datos contiene los objetivos de test y las probabilidades del modelo, de modo que las tablas principales pueden regenerarse sin el archivo crudo de varios terabytes. El pipeline completo de datos crudos sigue disponible para una reconstrucción total.</p>
-<p>Merece la pena reportar dos comprobaciones prácticas. Primera, la división de test está congelada y el cutoff se selecciona en validación; ninguna fila de test se usa para selección de modelo. Segunda, las capas de calibración y conformal se ajustan antes del test y nunca se actualizan. Estas comprobaciones no eliminan el cambio de distribución, pero eliminan las fuentes más comunes de sesgo optimista. Las tablas de este manuscrito se regeneran desde el repositorio y corresponden a la release v2.0.0; los DOI conceptuales de código y datos se reportan en las secciones de disponibilidad.</p>
+<p>Merece la pena reportar dos comprobaciones prácticas. Primera, la división de test está congelada y el cutoff se selecciona en validación; ninguna fila de test se usa para selección de modelo. Segunda, las capas de calibración y conformal se ajustan antes del test y nunca se actualizan. Estas comprobaciones no eliminan el cambio de distribución, pero eliminan las fuentes más comunes de sesgo optimista. Las tablas de este manuscrito se regeneran desde el repositorio y corresponden a la release v2.0.1; los DOI conceptuales de código y datos se reportan en las secciones de disponibilidad.</p>
 </section>
 </section>
 <section id="discusión" class="level1">
@@ -2902,7 +2902,7 @@ Figura 5: Mapa nacional de alerta de 1 km² para el 2024-09-09, con la distribu
 </section>
 <section id="disponibilidad-de-datos" class="level1">
 <h1>6. Disponibilidad de datos</h1>
-<p>Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.0.0 de GitHub (<a href="https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0" class="uri">https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0</a>; asset <code>Incendios_PY_data_v2.0.0.zip</code>) bajo CC BY 4.0, y se documentan bajo el DOI conceptual de datos <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>. Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en <code>fuentes/MANIFIESTO_DATOS_v3.csv</code>.</p>
+<p>Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.0.1 de GitHub (<a href="https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1" class="uri">https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1</a>; asset <code>Incendios_PY_data_v2.0.1.zip</code>) bajo CC BY 4.0, y se documentan bajo el DOI conceptual de datos <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>. Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en <code>fuentes/MANIFIESTO_DATOS_v3.csv</code>.</p>
 </section>
 <section id="agradecimientos" class="level1">
 <h1>7. Agradecimientos</h1>
@@ -2935,8 +2935,8 @@ Figura 5: Mapa nacional de alerta de 1 km² para el 2024-09-09, con la distribu
 <strong>Dependencias:</strong> fijadas en <code>requirements-lock.txt</code><br>
 <strong>Licencia:</strong> MIT<br>
 <strong>Repositorio:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">https://github.com/sanchezmartin093-code/Incendios_PY</a><br>
-<strong>DOI de versión del código:</strong> <a href="https://doi.org/10.5281/zenodo.23717175">10.5281/zenodo.23717175</a><br>
-<strong>DOI de versión de los datos:</strong> <a href="https://doi.org/10.5281/zenodo.23717176">10.5281/zenodo.23717176</a><br>
+<strong>DOI de versión del código:</strong> <a href="https://doi.org/10.5281/zenodo.23718675">10.5281/zenodo.23718675</a><br>
+<strong>DOI de versión de los datos:</strong> <a href="https://doi.org/10.5281/zenodo.23718676">10.5281/zenodo.23718676</a><br>
 <strong>DOI conceptual del código:</strong> <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a><br>
 <strong>DOI conceptual de los datos:</strong> <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a><br>
 <strong>Guía de usuario:</strong> <code>docs/USER_GUIDE.md</code><br>

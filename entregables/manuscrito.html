@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-10-27">
+<meta name="dcterms.date" content="2026-10-28">
 
 <title>A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025)</title>
 <style>
@@ -2388,14 +2388,14 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 27, 2026</p>
+      <p class="date">October 28, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 27, 2026</p>
+      <p class="date-modified">October 28, 2026</p>
     </div>
   </div>
     
@@ -2844,7 +2844,7 @@ Figure 5: National 1-km² alert map for 2024-09-09, showing the spatial distrib
 <section id="reproducibility-checks" class="level2">
 <h2 class="anchored" data-anchor-id="reproducibility-checks">3.5 Reproducibility checks</h2>
 <p>The code and data releases are part of the result. The repository contains the target operator, the frozen evaluation scripts, the trained boosters and calibrators, the generated tables and a pinned environment. A clean-environment run of the 76 unit tests covers target construction, VIIRS filtering, climate aggregation, monotonic calibration, metrics and alert routing. The data archive contains the test targets and model probabilities, so the main tables can be regenerated without the raw multi-terabyte archive. The full raw-data pipeline remains available for a complete rebuild.</p>
-<p>Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.0.0; the code and data concept DOIs are reported in the Code and Data Availability sections.</p>
+<p>Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.0.1; the code and data concept DOIs are reported in the Code and Data Availability sections.</p>
 </section>
 </section>
 <section id="discussion" class="level1">
@@ -2894,7 +2894,7 @@ Figure 5: National 1-km² alert map for 2024-09-09, showing the spatial distrib
 </section>
 <section id="data-availability" class="level1">
 <h1>6. Data availability</h1>
-<p>Processed data, test predictions, trained models and derived tables are available in the v2.0.0 GitHub release (<a href="https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0" class="uri">https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0</a>; asset <code>Incendios_PY_data_v2.0.0.zip</code>) under CC BY 4.0, and are documented under the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>. Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in <code>fuentes/MANIFIESTO_DATOS_v3.csv</code>.</p>
+<p>Processed data, test predictions, trained models and derived tables are available in the v2.0.1 GitHub release (<a href="https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1" class="uri">https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1</a>; asset <code>Incendios_PY_data_v2.0.1.zip</code>) under CC BY 4.0, and are documented under the data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>. Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in <code>fuentes/MANIFIESTO_DATOS_v3.csv</code>.</p>
 </section>
 <section id="acknowledgements" class="level1">
 <h1>7. Acknowledgements</h1>
@@ -2927,8 +2927,8 @@ Figure 5: National 1-km² alert map for 2024-09-09, showing the spatial distrib
 <strong>Dependencies:</strong> pinned in <code>requirements-lock.txt</code><br>
 <strong>License:</strong> MIT<br>
 <strong>Repository:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">https://github.com/sanchezmartin093-code/Incendios_PY</a><br>
-<strong>Code version DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23717175">10.5281/zenodo.23717175</a><br>
-<strong>Data version DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23717176">10.5281/zenodo.23717176</a><br>
+<strong>Code version DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23718675">10.5281/zenodo.23718675</a><br>
+<strong>Data version DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23718676">10.5281/zenodo.23718676</a><br>
 <strong>Code concept DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a><br>
 <strong>Data concept DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a><br>
 <strong>User guide:</strong> <code>docs/USER_GUIDE.md</code><br>
