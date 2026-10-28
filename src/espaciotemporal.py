@@ -10,6 +10,9 @@ Theoretical Basis (2024-2026):
   to model geographic recurrence without data leakage.
 """
 
+from __future__ import annotations
+
+
 from pathlib import Path
 from datetime import datetime, timedelta
 import numpy as np

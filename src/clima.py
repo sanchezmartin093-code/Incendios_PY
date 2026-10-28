@@ -8,6 +8,9 @@ SOTA philosophy:
   Fine Fuel Moisture Code (FFMC), and Initial Spread Index (ISI).
 """
 
+from __future__ import annotations
+
+
 from pathlib import Path
 from datetime import datetime
 import time

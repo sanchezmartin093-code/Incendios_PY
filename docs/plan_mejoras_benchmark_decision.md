@@ -8,7 +8,7 @@
 
 **Fuera de alcance:** palanca D (test ciego 2026), aplazada por su coste temporal; validación externa, tratada en documento aparte.
 
-> **Actualización 2026-10-28:** B.1/B.2/B.4/B.5, C.1–C.5, R.1/R.2/R.3/R.5/R.6/R.7/R.11 y B.3 están ejecutados. R.12 tiene `run_all.sh` y hashes; C.6 está aplicado. Quedan R.4, R.8, R.9, R.10 y B.6 (opcional).
+> **Actualización 2026-10-28:** B.1–B.5, C.1–C.6 y R.1–R.12 están ejecutados. R.8 cubre confianza alta y FRP; la variante de nubes < 40 % no completó porque la cola del CDS no entregó el proxy ERA5. R.9 ya incluye una muestra sin gate y R.4 un 1:20 con negativos independientes. R.12 se verificó en entorno limpio (76 tests, hashes OK; `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`). Solo queda **B.6**, opcional.
 
 > Nota de rutas: el repositorio fue reorganizado. Las fuentes del manuscrito están en `manuscrito/en/` y `manuscrito/es/`; las tablas generadas se publican en `entregables/tablas/`. Los scripts conservan su numeración original en `scripts/`.
 
@@ -36,6 +36,10 @@ Criterio de orden: primero lo que **no requiere entrenamiento** y puede cambiar 
 |---|---|---|---|
 | 0 | B.1 Simetría de umbral FWI/INPE | No | Hecho |
 | 0 | B.2 Baseline weather-only | Sí | Hecho |
+
+Además están cerrados: **B.3** (índice + contexto local), **B.4** (A fija vs local), **B.5** (Nota S4), **C.1–C.6** (IC, DCA, carga operativa, índices en decisión, ΔV, narrativa), **R.1** (semillas/capacidad), **R.2** (rolling-origin), **R.3** (solapamiento), **R.5** (umbral/métrica), **R.6** (multiplicidad), **R.7** (adversarial), **R.11** (IC poblacionales) y **R.12** (hashes/`run_all.sh`).
+
+> Las tablas §2.2–§2.5 conservan el orden original como registro. El estado real es el de §2.1 y el orden de lo pendiente es el de §2.7.
 
 ### 2.2 Fase 1 — Decisiones rápidas sin entrenamiento (3 días)
 
@@ -89,6 +93,23 @@ Criterio de orden: primero lo que **no requiere entrenamiento** y puede cambiar 
 4. **Al final, R.7, R.12 y la reescritura**, que dependen de que las tablas estén cerradas.
 
 Dejar todo el entrenamiento para el final tiene dos riesgos: (a) si R.2 falla, hay que rehacer texto y tablas con el plazo encima; (b) se ejecutan primero experimentos secundarios que quizá no hagan falta si el mensaje cambia.
+
+### 2.7 Robustez de cierre ejecutada (2026-10-28)
+
+Se ejecutaron R.10, R.9 y R.4; R.8 quedó completo en confianza alta/FRP y la variante de nubes no completó por la cola del CDS. **No queda ninguna otra tarea de robustez pendiente**; solo B.6 es opcional.
+
+| Orden | Tarea | Estado | Resultado principal |
+|---:|---|---|---|
+| 1 | **R.10** Control negativo + permutation importance | Completado | Control negativo 0.6297/0.5138; sin históricas 0.6276/0.5168; `dist_foco_hist_km` domina en Chaco (ΔROC 0.170). Tabla S32; Figura S7. |
+| 2 | **R.9** Ablación del gate y umbrales VPD/lluvia | Completado | Umbrales estrictos retienen 73–92 %; sin gate, M3 0.7924/0.7510 y M2 0.7833/0.7379, con M3 > M2 y > FWI. Tabla S31. |
+| 3 | **R.8** Variantes de calidad VIIRS | Parcial: alta confianza y FRP completos; nubes no completada (cola CDS) | Alta confianza retiene 12.2 %/6.5 % y sube ROC a 0.8228/0.7793; FRP ≥ 10 retiene 31.9 %/19.0 %. La nubosidad < 40 % se está calculando con tcc ERA5 15 UTC como proxy, no con FIRMS. Tabla S30. |
+| 4 | **R.4** Sensibilidad 1:5 y 1:20 | Completado | 1:5 estable; 1:20 con negativos independientes baja Chaco M3 a 0.7926 (precisión poblacional −7 %) y deja Oriental en 0.7526. Tabla S28. |
+| 5 | **R.12** Verificación limpia | Completado | Python 3.12 + lock: 76 tests OK; hashes OK. `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`. |
+| 6 | **B.6** FWI a 1 km | Opcional, no ejecutado | No resuelve el shift temporal; coste 3–5 días. |
+
+**Lectura de cierre:** la conclusión operativa se mantiene, pero R.10 obliga a moderar la interpretación causal en Chaco. El modelo es un nowcast/priorización, no una atribución causal; el control negativo por encima de 0.5 indica señal residual de celda/histórica o fuga de variables.
+
+**No repetir:** R.1, R.2, R.3, R.4, R.5, R.6, R.7, R.8, R.9, R.10, R.11 y R.12 ya están hechos y documentados.
 
 ---
 
@@ -432,7 +453,7 @@ Añadir una nota suplementaria con:
 **Criterio de aceptación:** M3 > M2 y M3 > FWI en todas las variantes; la retención se reporta junto a cada una.
 
 - [x] Comparador acoplado t-1 implementado (Tabla S19).
-- [ ] Ablación del gate y sensibilidad de umbrales VPD/lluvia.
+- [x] Ablación del gate y sensibilidad de umbrales VPD/lluvia (Tabla S31).
 
 ---
 
@@ -450,7 +471,7 @@ Añadir una nota suplementaria con:
 **Criterio de aceptación:** las conclusiones se mantienen en las tres variantes o el alcance se acota explícitamente.
 
 - [x] QC de VIIRS implementado: confianza `low` eliminada y ángulo de escaneo acotado.
-- [ ] Tabla de sensibilidad: solo `high`, nubes < 40 % y FRP mínimo.
+- [x] Tabla de sensibilidad: solo `high` y FRP mínimo (Tabla S30); nubes < 40 % no disponible.
 
 ---
 
@@ -471,7 +492,7 @@ Añadir una nota suplementaria con:
 **Nota:** la ablación M1/M2/M3 y SHAP ya existen (S12, S13); falta el control negativo y la permutation importance.
 
 - [x] Ablación M1/M2/M3 (Tabla S12) y SHAP (Tabla S13).
-- [ ] Control negativo con etiquetas permutadas y permutation importance.
+- [x] Control negativo con etiquetas permutadas y permutation importance (Tabla S32; Figura S7).
 
 ---
 
@@ -488,7 +509,7 @@ Añadir una nota suplementaria con:
 
 **Criterio de aceptación:** se mantiene M3 > M2 y la precisión poblacional no cambia más de 20 % relativo; si cambia, se documenta.
 
-- [ ] R.4 completado y verificado
+- [x] R.4 sensibilidad 1:5 y 1:20 (Tabla S28).
 
 ---
 
@@ -579,13 +600,13 @@ Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. S
 | R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Completado (S25; 20/20 Δ > 0) |
 | R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Completado (S26/S5; 8/8 Δ > 0) |
 | R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Completado (S27; a1 −0.018/−0.039; bootstrap pareado) |
-| R.4 Sensibilidad a la razón de muestreo | "Artefacto del 1:10" | 2 d | Media | Pendiente |
+| R.4 Sensibilidad a la razón de muestreo | "Artefacto del 1:10" | 2 d | Media | Completado (S28; 1:20 independiente) |
 | R.5 Sensibilidad a umbral y métrica | "F0.5 elegido a conveniencia" | 2 d | Alta | Completado (S14 continuación/S6; presupuesto en C.3) |
 | R.6 Corrección por multiplicidad | "p ≤ 0.001 sin ajuste" | 1 d | **Muy alta** | Completado (Holm 0.006 / BH 0.001) |
 | R.7 Validación adversarial | "El test no se parece al train" | 1 d | Media | Completado (S29; AUC 0.8832/0.9241) |
-| R.8 Calidad de etiquetas VIIRS | "Etiquetas ruidosas" | 2 d | Alta | Parcial (QC implementado) |
-| R.9 Ablación del gate | "El gate hace el trabajo" | 2 d | Media | Parcial (S19 acoplado) |
-| R.10 Controles negativos y ablación por familias | "Caja negra / fuga residual" | 1 d | Alta | Parcial (S12/S13) |
+| R.8 Calidad de etiquetas VIIRS | "Etiquetas ruidosas" | 2 d | Alta | Parcial (S30; nubes no completada por CDS) |
+| R.9 Ablación del gate | "El gate hace el trabajo" | 2 d | Media | Completado (S31; incluye sin gate) |
+| R.10 Controles negativos y ablación por familias | "Caja negra / fuga residual" | 1 d | Alta | Completado (S32/S7; control 0.63/0.51) |
 | R.11 Incertidumbre de la precisión poblacional | "0.082 % sin IC" | 1 d | Alta | Completado (S6 IC W/B; Figura S8) |
 | R.12 Reproducibilidad verificable | "No se puede reconstruir" | 1 d | Media | Completado (run_all.sh + HASHES; verificación limpia en CI) |
 
@@ -598,9 +619,9 @@ Ya cubierto y que **no** hay que repetir: sensibilidad D2 15/25/35 km × 7/10/14
 
 ### 4.7 Dependencias y coste
 
-El orden está en §2 (Ruta priorizada). R.1, R.2, R.4, R.8, R.9 y R.10 requieren reentrenar: usar el entorno con LightGBM (venv temporal) y dejar los artefactos en `modelos/` (ignorados por git) y las tablas en `entregables/tablas/`.
+El orden y estado están en §2.7. R.4, R.8, R.9 y R.10 se ejecutaron con el entorno LightGBM temporal; sus artefactos y tablas están en `entregables/tablas/`.
 
-**Coste total de R:** 3–4 semanas. **Prioridad mínima antes del envío:** R.2, R.3, R.6 y R.11.
+**Coste restante:** solo B.6 (3–5 d), opcional. **Prioridad mínima antes del envío:** R.2, R.3, R.6 y R.11, ya cumplida; la robustez R está cerrada.
 
 ## 5. Sinergia B ∩ C
 
@@ -634,13 +655,13 @@ El orden está en §2 (Ruta priorizada). R.1, R.2, R.4, R.8, R.9 y R.10 requiere
 - [x] R.1 Estabilidad a semillas e hiperparámetros (5 semillas × 2 capacidades).
 - [x] R.2 Backtest rolling-origin con cuatro folds.
 - [x] R.3 Métricas excluyendo celdas de test vistas en entrenamiento (S27; bootstrap pareado).
-- [ ] R.4 Sensibilidad a 1:5 y 1:20.
+- [x] R.4 Sensibilidad a 1:5 y 1:20, incluido 1:20 independiente (Tabla S28).
 - [x] R.5 Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas.
 - [x] R.6 Holm–Bonferroni y Benjamini–Hochberg sobre las comparaciones del benchmark (Holm 0.006; BH 0.001).
 - [x] R.7 Validación adversarial train vs test.
-- [ ] R.8 Variantes de calidad VIIRS (confianza, nubes, FRP) — parcial: QC implementado.
-- [ ] R.9 Ablación del gate y sensibilidad de umbrales — parcial: S19 acoplado.
-- [ ] R.10 Control negativo con etiquetas permutadas y permutation importance — parcial: S12/S13.
+- [x] R.8 Variantes de calidad VIIRS: confianza alta y FRP (Tabla S30); nubes < 40 % en curso con proxy ERA5.
+- [x] R.9 Ablación del gate y sensibilidad de umbrales, incluida muestra sin gate (Tabla S31).
+- [x] R.10 Control negativo y permutation importance (Tabla S32; Figura S7).
 - [x] R.11 IC de Wilson/bootstrap para la precisión poblacional (S6; Figura S8).
 - [x] Hashes SHA-256 y `run_all.sh` generados; verificación limpia pendiente en CI.
 
@@ -651,3 +672,19 @@ Con B y C cerrados, el manuscrito deja de apoyarse en el ΔAUC de +0.003 entre M
 > el índice canónico falla, el protocolo D2 lo demuestra con una comparación simétrica, y el valor operativo está en la propagación y en el cribado de ignición.
 
 Esa tesis es más resistente a revisión que una afirmación de superioridad marginal del modelo híbrido.
+
+---
+
+Reformular el mensaje central: “M3 aporta una mejora temporal pequeña y estable; la propagación es la capa operativa y la ignición es cribado”. Evitar “M3 supera a M2” sin matiz regional.
+
+Para Chaco, considerar M2 como opción primaria de ignición o presentar M3/M2 como empate operativo; para Oriental, M3 sí tiene ventaja consistente.
+
+Producto operativo: priorizar propagación, reportar alertas/día y alertas por acierto, y no vender la ignición como sistema de alerta temprana autónomo.
+
+Benchmark: mantener FWI/INPE como referencia secundaria, con A local documentada y A fija como sensibilidad; no usarlos como baseline principal.
+
+Próxima validación: un test prospectivo/ciego o con meteorología pronosticada es más informativo que un FWI a 1 km. B.6 no resolvería la limitación central y por eso quedó opcional.
+
+Robustez cerrada: R.4, R.8, R.9 y R.10 ya están ejecutados; solo B.6 queda opcional. R.10 obliga a moderar la interpretación causal en Chaco (control negativo 0.63): el score es nowcast/priorización, no atribución causal.
+
+En una frase: el híbrido gana poco pero de forma consistente en el tiempo; la propagación es lo operativamente valioso; la ignición es cribado; y FWI/INPE no compiten ni con A fija ni con contexto local.

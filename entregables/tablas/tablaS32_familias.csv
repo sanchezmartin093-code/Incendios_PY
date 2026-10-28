@@ -1,0 +1,11 @@
+region,family,n_features,delta_roc
+Chaco,weather,18,0.0034133535785562477
+Chaco,fuel,11,0.028224342771670147
+Chaco,anthropogenic,7,0.023403262801151792
+Chaco,historical,2,0.17007514641393387
+Chaco,calendar,6,0.0018463094664439295
+Oriental,weather,18,0.012801076299668127
+Oriental,fuel,11,0.04107497955041758
+Oriental,anthropogenic,7,0.0408444510103414
+Oriental,historical,3,0.03416737926815857
+Oriental,calendar,6,0.0021764878722824546
