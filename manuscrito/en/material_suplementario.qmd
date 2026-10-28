@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S3, Tables S1–S21 and S27 and Figures S1–S3.  
+> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S3, Tables S1–S21 and S27 and Figures S1–S3 and S8.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.1).  
 > **Data:** processed data and test predictions are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -37,7 +37,7 @@ format:
 
 • **Tables S1–S21 and S27:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline and a train/test overlap sensitivity.
 
-• **Figures S1–S3:** SHAP, ablation and cost-loss.
+• **Figures S1–S3 and S8:** SHAP, ablation, cost-loss and alert-budget precision.
 
 ---
 
@@ -222,16 +222,20 @@ Population metrics apply prior correction from the case-control sample to the po
 
 **Table S6.** Population-level evaluation with prevalence correction (retrospective 2024–2025 test).
 
-| Region | Task | Model | Pop. prevalence | Sample prevalence | Pop. cutoff | ROC-AUC | PR-AUC | Precision (%) | Recall (%) | F0.5 | Brier | BSS | ECE | Pop. N | Pop. positives |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | ignicion | M3_ignicion_hibrida | 0.000153 | 0.090909 | 0.000467 | 0.8059 | 0.0009 | 0.082 | 27.304 | 0.0010 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
-| Chaco | ignicion | M2_ignicion_base | 0.000153 | 0.090909 | 0.000428 | 0.8078 | 0.0007 | 0.090 | 24.589 | 0.0011 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
-| Chaco | propagacion | M2_propagacion_tactica | 0.001553 | 0.090909 | 0.022388 | 0.9088 | 0.1270 | 9.667 | 50.652 | 0.1153 | 0.001447 | 0.0666 | 0.0002 | 33748163 | 52405 |
-| Oriental | ignicion | M3_ignicion_hibrida | 0.000414 | 0.090909 | 0.001084 | 0.7627 | 0.0019 | 0.198 | 20.731 | 0.0025 | 0.000414 | 0.0005 | 0.0001 | 43887357 | 18176 |
-| Oriental | ignicion | M2_ignicion_base | 0.000414 | 0.090909 | 0.000959 | 0.7549 | 0.0015 | 0.166 | 22.106 | 0.0021 | 0.000414 | 0.0005 | 0.0000 | 43887357 | 18176 |
-| Oriental | propagacion | M2_propagacion_tactica | 0.002102 | 0.090909 | 0.017575 | 0.7963 | 0.0287 | 4.784 | 18.771 | 0.0562 | 0.002069 | 0.0135 | 0.0004 | 37235186 | 78269 |
+<!-- tablaS6:inicio -->
 
-Ign. = ignition; Prop. = propagation. M2 is the baseline ignition model in the ignition task and the tactical propagation model in the propagation task; M3 is the hybrid ignition model.
+| Region | Task | Model | Pop. prevalence | Sample prevalence | Pop. cutoff | ROC-AUC | PR-AUC | Precision (%) [W; B] | Recall (%) [W; B] | F0.5 | Brier | BSS | ECE | Pop. N | Pop. positives |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Chaco | ignicion | M3_ignicion_hibrida | 0.000153 | 0.090909 | 0.000467 | 0.8059 | 0.0009 | 0.082 [0.080–0.084; 0.075–0.088] | 27.304 [26.62–28.00; 26.16–28.56] | 0.0010 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
+| Chaco | ignicion | M2_ignicion_base | 0.000153 | 0.090909 | 0.000428 | 0.8078 | 0.0007 | 0.090 [0.087–0.093; 0.082–0.098] | 24.589 [23.93–25.26; 23.26–25.91] | 0.0011 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
+| Chaco | propagacion | M2_propagacion_tactica | 0.001553 | 0.090909 | 0.022388 | 0.9088 | 0.1270 | 9.667 [9.557–9.778; 9.087–10.316] | 50.652 [50.22–51.08; 49.01–52.02] | 0.1153 | 0.001447 | 0.0666 | 0.0002 | 33748163 | 52405 |
+| Oriental | ignicion | M3_ignicion_hibrida | 0.000414 | 0.090909 | 0.001084 | 0.7627 | 0.0019 | 0.198 [0.192–0.204; 0.178–0.222] | 20.731 [20.15–21.33; 19.26–22.31] | 0.0025 | 0.000414 | 0.0005 | 0.0001 | 43887357 | 18176 |
+| Oriental | ignicion | M2_ignicion_base | 0.000414 | 0.090909 | 0.000959 | 0.7549 | 0.0015 | 0.166 [0.161–0.171; 0.149–0.184] | 22.106 [21.51–22.72; 20.42–23.86] | 0.0021 | 0.000414 | 0.0005 | 0.0000 | 43887357 | 18176 |
+| Oriental | propagacion | M2_propagacion_tactica | 0.002102 | 0.090909 | 0.017575 | 0.7963 | 0.0287 | 4.784 [4.709–4.860; 4.129–5.491] | 18.771 [18.50–19.05; 16.71–21.01] | 0.0562 | 0.002069 | 0.0135 | 0.0004 | 37235186 | 78269 |
+
+<!-- tablaS6:fin -->
+
+Ign. = ignition; Prop. = propagation. M2 is the baseline ignition model in the ignition task and the tactical propagation model in the propagation task; M3 is the hybrid ignition model. Precision and recall brackets are 95 % intervals: Wilson on population counts; date-grouped bootstrap (B = 1 000).
 
 **Table S7.** Paired ROC-AUC differences for the six confirmatory comparisons (four against FWI and INPE and two M3−M2), grouped by date (retrospective 2024–2025 test). Holm–Bonferroni and Benjamini–Hochberg adjusted p-values are reported.
 
@@ -468,6 +472,8 @@ $\alpha=C/L$ is the ratio of false-alarm cost to avoided loss; $V(\alpha)$ is th
 ![**Figure S2.** Controlled ablation under the D2 test. The figure complements Table S12.](../../entregables/figuras/supp_fig02_ablacion.png){width="80%" fig-alt="Controlled ablation of biophysical and hybrid models"}
 
 ![**Figure S3.** Cost-loss curves. The propagation panel uses the full $\alpha$ range; the ignition panel is truncated at $\alpha=0.006$ because the decision value is zero or negligible at larger values. The figure complements Table S14.](../../entregables/figuras/supp_fig03_cost_loss.png){width="95%" fig-alt="Cost-loss curves by region and task"}
+
+![**Figure S8.** Population precision as a function of the daily alert budget. Curves sweep the population-corrected score threshold and report weighted precision at the resulting number of alerts per day; diamonds mark the frozen operating point. Ignition panels include M3, M2 and the gated policy; propagation panels show the tactical model. The dashed line is the population prevalence.](../../entregables/figuras/supp_fig08_presupuesto_alertas.png){width="95%" fig-alt="Population precision versus daily alert budget by region and task"}
 
 **Table S15.** Data audit log generated by the repository checks.
 

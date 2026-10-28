@@ -228,7 +228,7 @@ Ambos resultados son publicables.
 **Criterio de aceptación:** todos los valores poblacionales llevan IC y el texto deja de presentarlos como exactos.
 
 - [x] Precisión poblacional reportada en la Tabla S6.
-- [ ] IC de Wilson/bootstrap y curvas por presupuesto de alertas.
+- [x] IC de Wilson/bootstrap y curvas por presupuesto de alertas (S6 con W/B; Figura S8; B = 1 000).
 
 ### 4.3 Fase 2 — Valor de decisión y texto
 
@@ -564,7 +564,7 @@ Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. S
 | R.8 Calidad de etiquetas VIIRS | "Etiquetas ruidosas" | 2 d | Alta | Parcial (QC implementado) |
 | R.9 Ablación del gate | "El gate hace el trabajo" | 2 d | Media | Parcial (S19 acoplado) |
 | R.10 Controles negativos y ablación por familias | "Caja negra / fuga residual" | 1 d | Alta | Parcial (S12/S13) |
-| R.11 Incertidumbre de la precisión poblacional | "0.082 % sin IC" | 1 d | Alta | Parcial (S6 sin IC) |
+| R.11 Incertidumbre de la precisión poblacional | "0.082 % sin IC" | 1 d | Alta | Completado (S6 IC W/B; Figura S8) |
 | R.12 Reproducibilidad verificable | "No se puede reconstruir" | 1 d | Media | Parcial |
 
 Ya cubierto y que **no** hay que repetir: sensibilidad D2 15/25/35 km × 7/10/14 d (Tabla S20), bloques espaciales y holdout de confirmación (S8, S18), baseline acoplado t-1 (S19), bootstrap agrupado por fecha (S7), cobertura conformal (S5), baseline weather-only (S21) y 76 pruebas unitarias.
