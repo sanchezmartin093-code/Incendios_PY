@@ -1,6 +1,6 @@
 ---
 title: "Cover Letter to the Editor-in-Chief"
-date: "2026-10-27"
+date: "2026-10-28"
 format:
   html:
     theme: cosmo
@@ -40,7 +40,7 @@ Our work sits precisely at the convergence of **Computer Science Applications** 
 
 ### Mandatory Declarations
 - This manuscript has not been published previously, is not under consideration for publication elsewhere, and its publication has been approved by the author.
-- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`, available in the v2.0.0 GitHub release, and indexed by the code and data concept DOIs (10.5281/zenodo.23675104; 10.5281/zenodo.23675278).
+- All source code and reproduction scripts are openly hosted on GitHub (`https://github.com/sanchezmartin093-code/Incendios_PY`). Processed data and trained models are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`, available in the v2.0.1 GitHub release, and indexed by the code and data concept DOIs (10.5281/zenodo.23675104; 10.5281/zenodo.23675278).
 - We declare no competing financial or non-financial conflicts of interest.
 
 Thank you very much for your time, consideration, and editorial guidance.

@@ -1,7 +1,7 @@
 ---
 title: "A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025)"
 subtitle: "D2 targets, M3/M2 inference, and an open benchmark against Canadian FWI and INPE"
-date: "2026-10-27"
+date: "2026-10-28"
 date-modified: today
 lang: en
 crossref:
@@ -207,7 +207,7 @@ Conformal coverage is empirical: 90.17 %/90.31 % for a nominal 90 % level and 95
 
 The code and data releases are part of the result. The repository contains the target operator, the frozen evaluation scripts, the trained boosters and calibrators, the generated tables and a pinned environment. A clean-environment run of the 76 unit tests covers target construction, VIIRS filtering, climate aggregation, monotonic calibration, metrics and alert routing. The data archive contains the test targets and model probabilities, so the main tables can be regenerated without the raw multi-terabyte archive. The full raw-data pipeline remains available for a complete rebuild.
 
-Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.0.0; the code and data concept DOIs are reported in the Code and Data Availability sections.
+Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.0.1; the code and data concept DOIs are reported in the Code and Data Availability sections.
 
 # 4. Discussion
 
@@ -260,7 +260,7 @@ We presented a reproducible computational framework for decoupled wildfire ignit
 
 # 6. Data availability
 
-Processed data, test predictions, trained models and derived tables are available in the v2.0.0 GitHub release (<https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0>; asset `Incendios_PY_data_v2.0.0.zip`) under CC BY 4.0, and are documented under the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`.
+Processed data, test predictions, trained models and derived tables are available in the v2.0.1 GitHub release (<https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1>; asset `Incendios_PY_data_v2.0.1.zip`) under CC BY 4.0, and are documented under the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`.
 
 # 7. Acknowledgements
 
@@ -293,8 +293,8 @@ Generative AI tools were used for language editing and code assistance. The auth
 **Dependencies:** pinned in `requirements-lock.txt`  
 **License:** MIT  
 **Repository:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)  
-**Code version DOI:** [10.5281/zenodo.23717175](https://doi.org/10.5281/zenodo.23717175)  
-**Data version DOI:** [10.5281/zenodo.23717176](https://doi.org/10.5281/zenodo.23717176)  
+**Code version DOI:** [10.5281/zenodo.23718675](https://doi.org/10.5281/zenodo.23718675)  
+**Data version DOI:** [10.5281/zenodo.23718676](https://doi.org/10.5281/zenodo.23718676)  
 **Code concept DOI:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)  
 **Data concept DOI:** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)  
 **User guide:** `docs/USER_GUIDE.md`  

@@ -46,7 +46,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Tests: **76 pass** (pytest; 2 warnings).
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
   exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
-- Public release: **v2.0.0** (2026-10-27): <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0>.
+- Public release: **v2.0.1** (2026-10-28): <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1>.
 
 ## Installation
 
@@ -89,7 +89,7 @@ calibrators, thresholds and D2 prevalences) can be rebuilt with:
 python scripts/34_empaquetar_operativo.py
 ```
 
-It is written to `dist/operativo_v2.0.0/` and deliberately excludes M1. M1 remains
+It is written to `dist/operativo_v2.0.1/` and deliberately excludes M1. M1 remains
 in the scientific archive and in the supplementary material as the diagnostic
 biophysical baseline.
 Raw data and trained binaries are not versioned in Git.
@@ -245,7 +245,7 @@ Raw datasets are public but are not redistributed in this repository:
 5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, available in the v2.0.0 GitHub release, and indexed by the data concept DOI.
+`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, available in the v2.0.1 GitHub release, and indexed by the data concept DOI.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
@@ -254,9 +254,9 @@ licenses and terms.
 ## Code and data availability
 
 - Source code: <https://github.com/sanchezmartin093-code/Incendios_PY>
-- Release: **v2.0.0** (2026-10-27) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.0>
-- Code version DOI: [`10.5281/zenodo.23717175`](https://doi.org/10.5281/zenodo.23717175).
-- Data version DOI: [`10.5281/zenodo.23717176`](https://doi.org/10.5281/zenodo.23717176).
+- Release: **v2.0.1** (2026-10-28) — <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1>
+- Code version DOI: [`10.5281/zenodo.23718675`](https://doi.org/10.5281/zenodo.23718675).
+- Data version DOI: [`10.5281/zenodo.23718676`](https://doi.org/10.5281/zenodo.23718676).
 - Code concept DOI: [`10.5281/zenodo.23675104`](https://doi.org/10.5281/zenodo.23675104).
 - Data concept DOI: [`10.5281/zenodo.23675278`](https://doi.org/10.5281/zenodo.23675278).
 - License: MIT.
@@ -294,7 +294,7 @@ calibration, metrics, bootstrap resampling and the alert layer.
 
 ## Citation
 
-See `CITATION.cff`. Cite the v2.0.0 release (2026-10-27) and the concept DOIs.
+See `CITATION.cff`. Cite the v2.0.1 release (2026-10-28) and the concept DOIs.
 
 ## License
 

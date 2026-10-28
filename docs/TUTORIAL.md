@@ -1,6 +1,6 @@
 # Quick tutorial: reproduce one table and one alert
 
-This tutorial assumes the v2.0.0 data archive is placed next to the repository.
+This tutorial assumes the v2.0.1 data archive is placed next to the repository.
 
 ## A. Reproduce the gated M3/M2 table
 

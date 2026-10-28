@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEST = ROOT / "dist" / "operativo_v2.0.0"
+DEST = ROOT / "dist" / "operativo_v2.0.1"
 REGIONS = ("chaco", "oriental")
 
 
@@ -65,7 +65,7 @@ def main() -> None:
         shutil.copy2(src, dst)
         rows.append((rel.as_posix(), dst.stat().st_size, sha256(dst)))
 
-    readme = """# Paquete operativo Incendios_PY v2.0.0
+    readme = """# Paquete operativo Incendios_PY v2.0.1
 
 Este bundle contiene solo los artefactos necesarios para la inferencia operativa:
 
