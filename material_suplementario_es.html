@@ -2376,7 +2376,7 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p><strong>Versión de lectura en español.</strong> Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (<code>material_suplementario.pdf</code>).</p>
 <p><strong>Revista objetivo:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Tipo de artículo:</strong> artículo de investigación. <strong>Revisión por pares:</strong> simple anonimizada.<br>
-<strong>Archivo suplementario:</strong> <code>material_suplementario.pdf</code> — Notas S1–S3, Tablas S1–S15 y Figuras S1–S3.<br>
+<strong>Archivo suplementario:</strong> <code>material_suplementario.pdf</code> — Notas S1–S3, Tablas S1–S16 y Figuras S1–S3.<br>
 <strong>Código:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (Licencia MIT; DOI conceptual del código <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; v2.0.0).<br>
 <strong>Datos:</strong> los datos procesados y las predicciones de test se archivan en Zenodo bajo CC BY 4.0 (DOI conceptual <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>; v2.0.0).</p>
 </blockquote>
@@ -2396,7 +2396,7 @@ max-width: 100%;
 <p>• <strong>Nota S1:</strong> Datos, construcción del objetivo D2, control de calidad y muestreo.</p>
 <p>• <strong>Nota S2:</strong> Calibración de Platt monótona acotada e hiperparámetros.</p>
 <p>• <strong>Nota S3:</strong> Protocolo de evaluación y análisis ampliados.</p>
-<p>• <strong>Tablas S1–S15:</strong> diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, SHAP, cost-loss y auditoría de datos.</p>
+<p>• <strong>Tablas S1–S16:</strong> diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, SHAP, cost-loss y auditoría de datos.</p>
 <p>• <strong>Figuras S1–S3:</strong> SHAP, ablación y cost-loss.</p>
 <hr>
 </section>
@@ -5777,12 +5777,62 @@ max-width: 100%;
 <tr class="odd">
 <td>Manifest</td>
 <td>Rows</td>
-<td style="text-align: right;">44</td>
+<td style="text-align: right;">69</td>
 <td>OK</td>
 <td></td>
 </tr>
 </tbody>
 </table>
+<p><strong>Tabla S16.</strong> Baseline biofísico M1 en validación 2023.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Región</th>
+<th style="text-align: left;">Evaluación</th>
+<th style="text-align: right;">ROC-AUC</th>
+<th style="text-align: right;">PR-AUC</th>
+<th style="text-align: right;">F0.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Temporal 2023, todas las celdas</td>
+<td style="text-align: right;">0.6354</td>
+<td style="text-align: right;">0.1480</td>
+<td style="text-align: right;">0.1762</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Temporal 2023, todas las celdas</td>
+<td style="text-align: right;">0.7041</td>
+<td style="text-align: right;">0.1818</td>
+<td style="text-align: right;">0.2301</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Celdas sin historia (<code>freq_hist_1km = 0</code>)</td>
+<td style="text-align: right;">0.6650</td>
+<td style="text-align: right;">0.0841</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Celdas sin historia (<code>freq_hist_1km = 0</code>)</td>
+<td style="text-align: right;">0.7018</td>
+<td style="text-align: right;">0.0740</td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<p>M1 es un baseline biofísico diagnóstico y no se usó operativamente. Los resultados de bloques espaciales están en la Tabla S8, los de lead time en la Tabla S9 y la ablación retrospectiva 2024–2025 en la Tabla S12.</p>
 </section>
 <section id="disponibilidad-de-datos" class="level1 unnumbered">
 <h1 class="unnumbered">Disponibilidad de datos</h1>

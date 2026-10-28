@@ -78,6 +78,17 @@ python -m pytest -q tests
 
 The full data pipeline requires the raw NASA FIRMS, ERA5-Land, MapBiomas and
 administrative boundary inputs documented in `fuentes/MANIFIESTO_DATOS_v3.csv`.
+
+The minimal operational artifact bundle (M3, M2 fallback, propagation,
+calibrators, thresholds and D2 prevalences) can be rebuilt with:
+
+```bash
+python scripts/34_empaquetar_operativo.py
+```
+
+It is written to `dist/operativo_v2.0.0/` and deliberately excludes M1. M1 remains
+in the scientific archive and in the supplementary material as the diagnostic
+biophysical baseline.
 Raw data and trained binaries are not versioned in Git.
 
 Canonical pipeline:

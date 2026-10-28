@@ -2412,7 +2412,7 @@ window.Quarto = {
 </blockquote>
 <section id="abstract" class="level1 unnumbered">
 <h1 class="unnumbered">Abstract</h1>
-<p>Wildfire machine learning often suffers from spatial leakage and from the limited transferability of boreal fire-weather indices to subtropical biomes. We present a reproducible computational framework that separates primary ignition from tactical propagation and makes target construction, gated inference and evaluation explicit. D2 defines ignition as fire at day t with no t-1 fire within 25 km and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a t-1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without t-1 fire inputs, with M2 as the fallback for cells without history and M1 as a biophysical baseline. In 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental), versus 0.7817/0.7496 for M2 and 0.6354/0.7041 for M1. In 2023 development spatial blocks, M2 is the most robust model (0.6773/0.7470), and M1 does not outperform M2 on cells without history, so M1 is rejected as an operational fallback. On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5173/0.5564 for full Canadian FWI and 0.5389/0.4990 for INPE; propagation reaches 0.9039/0.7859. Population-level ignition precision is only 0.082 %/0.198 %, so the system is a nowcast and prioritisation tool, not a stand-alone warning system. The 2024–2025 test was already observed and is reported as retrospective, not blind. The contribution is a reproducible computational protocol and benchmark, not a new boosting algorithm.</p>
+<p>Wildfire machine learning often suffers from spatial leakage and from the limited transferability of boreal fire-weather indices to subtropical biomes. We present a reproducible computational framework that separates primary ignition from tactical propagation and makes target construction, gated inference and evaluation explicit. D2 defines ignition as fire at day t with no t-1 fire within 25 km and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a t-1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without t-1 fire inputs, with M2 as the fallback for cells without history and M1 as a biophysical baseline. In 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental), versus 0.7817/0.7496 for M2; the M1 biophysical baseline is reported in Supplementary Table S16. In 2023 development spatial blocks, M2 is the most robust model (0.6773/0.7470), and M1 does not outperform M2 on cells without history, so M1 is rejected as an operational fallback (Supplementary Tables S8 and S16). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5173/0.5564 for full Canadian FWI and 0.5389/0.4990 for INPE; propagation reaches 0.9039/0.7859. Population-level ignition precision is only 0.082 %/0.198 %, so the system is a nowcast and prioritisation tool, not a stand-alone warning system. The 2024–2025 test was already observed and is reported as retrospective, not blind. The contribution is a reproducible computational protocol and benchmark, not a new boosting algorithm.</p>
 <p><strong>Keywords:</strong> Wildfire nowcasting; GeoAI; reproducibility; spatial cross-validation; LightGBM; Gran Chaco.</p>
 </section>
 <section id="introduction" class="level1">
@@ -2497,7 +2497,7 @@ Figure 2: Study domain and regional split: Dry Chaco (west) and Oriental Region
 <div id="tbl-val" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-val-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 1: 2023 temporal validation (1:10 case-control). Selection was frozen before the 2024–2025 test was evaluated.
+Table 1: 2023 temporal validation (1:10 case-control). Selection was frozen before the 2024–2025 test was evaluated. The M1 baseline is reported in Supplementary Table S16.
 </figcaption>
 <div aria-describedby="tbl-val-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2513,31 +2513,17 @@ Table 1: 2023 temporal validation (1:10 case-control). Selection was frozen bef
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: left;">M1 biophysical</td>
-<td style="text-align: right;">0.6354</td>
-<td style="text-align: right;">0.1480</td>
-<td style="text-align: right;">0.1762</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M2 base</td>
 <td style="text-align: right;">0.7817</td>
 <td style="text-align: right;">0.2452</td>
 <td style="text-align: right;">0.2933</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M3 hybrid</td>
 <td style="text-align: right;">0.7844</td>
 <td style="text-align: right;">0.2542</td>
 <td style="text-align: right;">0.2979</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: left;">M1 biophysical</td>
-<td style="text-align: right;">0.7041</td>
-<td style="text-align: right;">0.1818</td>
-<td style="text-align: right;">0.2301</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Oriental</td>
@@ -2558,7 +2544,7 @@ Table 1: 2023 temporal validation (1:10 case-control). Selection was frozen bef
 </div>
 </figure>
 </div>
-<p>The paired M3 − M2 difference was +0.0028 [+0.0001, +0.0054] ROC-AUC and +0.0089 [+0.0034, +0.0144] PR-AUC in Chaco, and +0.0132 [+0.0097, +0.0169] and +0.0221 [+0.0166, +0.0272] in Oriental (grouped-by-date bootstrap, B = 1,000). With the pre-specified margin δ = 0.01, M3 is retained in both regions. In 2023 spatial blocks, M2 was the most robust model (0.6773/0.7470), ahead of M3 (0.6496/0.7277) and M1 (0.6456/0.7176). On cells without history, M1 reached 0.6650/0.7018 versus 0.7677/0.7440 for M2 and 0.7626/0.7421 for M3; M1 is rejected as the operational fallback. The final architecture is M3 for cells with history and M2 for cells without history.</p>
+<p>The paired M3 − M2 difference was +0.0028 [+0.0001, +0.0054] ROC-AUC and +0.0089 [+0.0034, +0.0144] PR-AUC in Chaco, and +0.0132 [+0.0097, +0.0169] and +0.0221 [+0.0166, +0.0272] in Oriental (grouped-by-date bootstrap, B = 1,000). With the pre-specified margin δ = 0.01, M3 is retained in both regions. In 2023 spatial blocks, M2 was the most robust model (0.6773/0.7470), ahead of M3 (0.6496/0.7277). M1 was evaluated as a diagnostic baseline and did not outperform M2 on cells without history; M1 is therefore rejected as the operational fallback (Supplementary Tables S8 and S16). The final architecture is M3 for cells with history and M2 for cells without history.</p>
 <p><a href="#tbl-test" class="quarto-xref">Table 2</a> reports the retrospective 2024–2025 test. M3 reaches ROC-AUC 0.8021 in Chaco and 0.7534 in Oriental. Propagation reaches 0.9039/0.7859. Case-control F0.5 precision is 32.82 %/30.13 % for ignition and 83.69 %/65.03 % for propagation. These are sample-level metrics; they are not operational precision.</p>
 <div id="tbl-test" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -2752,7 +2738,7 @@ Table 3: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the
 </figure>
 </div>
 <p><a href="#fig-benchmark" class="quarto-xref">Figure 4</a> shows the corresponding ROC and precision–recall curves. The canonical indices are close to the diagonal in Chaco; in Oriental they are also weak and do not improve materially over a climatological baseline. Full FWI has ROC-AUC 0.5173/0.5564 and INPE 0.5389/0.4990; neither is competitive with M3 on the same retrospective dates. The result is not a claim that the indices are universally invalid, but that their transfer to this subtropical system is not supported. FWI and INPE are normalized danger indices, so their apparent operating point depends strongly on the cutoff chosen on validation. In Chaco, full FWI reaches high recall only at very low precision, while INPE is conservative in both regions; neither behavior translates into a competitive ranking. PR-AUC values are close to the 0.09 case-control baseline, which means that the indices add little discrimination beyond chance on these retrospective dates.</p>
-<p>The controlled ablation confirms that socio-ecological variables improve ranking, especially in Oriental. With the same capacity (45/60 rounds and 23/31 leaves), M1 reaches 0.6421/0.6840, M2 0.7991/0.7406 and M3 0.8021/0.7534. The M3 − M2 gain is +0.0030/+0.0128 ROC-AUC and +0.0076/+0.0194 PR-AUC. In Chaco, M3 precision is 32.81 % versus 33.27 % for M2; in Oriental it is 30.13 % versus 26.09 %. The advantage is not uniform and is not presented as a precision gain in both regions. The complete ablation table is Supplementary Table S12. TreeSHAP identifies historical distance, dry-forest fraction, accessibility and seasonality as the dominant drivers in Chaco; in Oriental, historical distance and local anthropic concentration dominate. The complete SHAP table and figure are Supplementary Table S13 and Supplementary Figure S1. This does not establish causality, but it shows that the model is not relying on a single weather variable.</p>
+<p>The controlled ablation confirms that socio-ecological variables improve ranking, especially in Oriental. With the same capacity (45/60 rounds and 23/31 leaves), M2 reaches 0.7991/0.7406 and M3 0.8021/0.7534; M1 is the lowest in both regions. The M3 − M2 gain is +0.0030/+0.0128 ROC-AUC and +0.0076/+0.0194 PR-AUC. In Chaco, M3 precision is 32.81 % versus 33.27 % for M2; in Oriental it is 30.13 % versus 26.09 %. The advantage is not uniform and is not presented as a precision gain in both regions. The complete ablation table is Supplementary Table S12. TreeSHAP identifies historical distance, dry-forest fraction, accessibility and seasonality as the dominant drivers in Chaco; in Oriental, historical distance and local anthropic concentration dominate. The complete SHAP table and figure are Supplementary Table S13 and Supplementary Figure S1. This does not establish causality, but it shows that the model is not relying on a single weather variable.</p>
 <div id="fig-benchmark" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2766,11 +2752,11 @@ Figure 4: ROC and precision–recall curves for M3 against full Canadian FWI an
 </section>
 <section id="temporal-and-spatial-generalization" class="level2">
 <h2 class="anchored" data-anchor-id="temporal-and-spatial-generalization">3.3 Temporal and spatial generalization</h2>
-<p>The M3 advantage is temporal, not spatial. In the 50-km block holdout with a 20-km buffer evaluated in 2023, M2 reaches 0.6773 in Chaco and 0.7470 in Oriental; M3 reaches 0.6496 and 0.7277, and M1 0.6456 and 0.7176. M2 is the most robust model in unseen blocks. M3 falls from 0.7821 on held-in cells to 0.6496 in the Chaco holdout, and from 0.7473 to 0.7277 in Oriental; M2 falls from 0.7832 to 0.6773 in Chaco but improves from 0.7365 to 0.7470 in Oriental. M1 is more stable, but its absolute level is lower. <a href="#tbl-spatial" class="quarto-xref">Table 4</a> reports the compact comparison; the full block table and design are in Supplementary Table S8.</p>
+<p>The M3 advantage is temporal, not spatial. In the 50-km block holdout with a 20-km buffer evaluated in 2023, M2 reaches 0.6773 in Chaco and 0.7470 in Oriental, and M3 reaches 0.6496 and 0.7277; M1 is reported in Supplementary Table S8. M2 is the most robust model in unseen blocks. M3 falls from 0.7821 on held-in cells to 0.6496 in the Chaco holdout, and from 0.7473 to 0.7277 in Oriental; M2 falls from 0.7832 to 0.6773 in Chaco but improves from 0.7365 to 0.7470 in Oriental. M1 is more stable, but its absolute level is lower (Supplementary Table S8). <a href="#tbl-spatial" class="quarto-xref">Table 4</a> reports the compact comparison; the full block table and design are in Supplementary Table S8.</p>
 <div id="tbl-spatial" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-spatial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 4: Development spatial block validation with 50-km blocks and a 20-km buffer, evaluated in 2023. Held-in values are the reference for cells not excluded from training. Full results are in Supplementary Table S8.
+Table 4: Development spatial block validation with 50-km blocks and a 20-km buffer, evaluated in 2023. Held-in values are the reference for cells not excluded from training. Full results, including M1, are in Supplementary Table S8.
 </figcaption>
 <div aria-describedby="tbl-spatial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2786,31 +2772,17 @@ Table 4: Development spatial block validation with 50-km blocks and a 20-km buf
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: left;">M1 biophysical</td>
-<td style="text-align: right;">0.6280</td>
-<td style="text-align: right;">0.6456</td>
-<td style="text-align: right;">0.1668</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M2 base</td>
 <td style="text-align: right;">0.7832</td>
 <td style="text-align: right;">0.6773</td>
 <td style="text-align: right;">0.1760</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M3 hybrid</td>
 <td style="text-align: right;">0.7821</td>
 <td style="text-align: right;">0.6496</td>
 <td style="text-align: right;">0.1630</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: left;">M1 biophysical</td>
-<td style="text-align: right;">0.6899</td>
-<td style="text-align: right;">0.7176</td>
-<td style="text-align: right;">0.1574</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Oriental</td>
@@ -2831,8 +2803,8 @@ Table 4: Development spatial block validation with 50-km blocks and a 20-km buf
 </div>
 </figure>
 </div>
-<p>The spatial design retains 44 blocks and excludes a 20-km buffer around holdout cells during training; priors are recomputed without held-out fires. The gap between held-in and holdout performance measures spatial memorization. M3 shows a large drop in Chaco and a smaller drop in Oriental; M2 retains the best absolute discrimination in both regions. The result does not support M3 as a spatial extrapolator, but it does not make M1 the best option either: on cells without history, M1 reaches 0.6650/0.7018 versus 0.7677/0.7440 for M2 and 0.7626/0.7421 for M3. M1 is a stable baseline, not the operational fallback. The M3/M2 architecture follows that evidence.</p>
-<p>With t-1 weather, M3 retains 0.7831/0.7613 and M2 0.7818/0.7463; M1 reaches 0.6342/0.6965. The small M3 drop shows that recurrence priors, not same-day weather, dominate the hybrid signal. This is why the current system is a nowcast/hindcast; a real day-ahead system would require forecast weather. Lead-time details are in Supplementary Table S9.</p>
+<p>The spatial design retains 44 blocks and excludes a 20-km buffer around holdout cells during training; priors are recomputed without held-out fires. The gap between held-in and holdout performance measures spatial memorization. M3 shows a large drop in Chaco and a smaller drop in Oriental; M2 retains the best absolute discrimination in both regions. The result does not support M3 as a spatial extrapolator, and it does not make M1 the best option: M1 was a stable but lower baseline and was rejected as the operational fallback. The full M1 spatial and no-history results are in Supplementary Tables S8 and S16; the M3/M2 architecture follows that evidence.</p>
+<p>With t-1 weather, M3 retains 0.7831/0.7613 and M2 0.7818/0.7463; M1 is lower and is reported in Supplementary Table S9. The small M3 drop shows that recurrence priors, not same-day weather, dominate the hybrid signal. This is why the current system is a nowcast/hindcast; a real day-ahead system would require forecast weather. Lead-time details are in Supplementary Table S9.</p>
 </section>
 <section id="operational-utility" class="level2">
 <h2 class="anchored" data-anchor-id="operational-utility">3.4 Operational utility</h2>

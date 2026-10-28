@@ -2405,7 +2405,7 @@ window.Quarto = {
 </blockquote>
 <section id="resumen" class="level1 unnumbered">
 <h1 class="unnumbered">Resumen</h1>
-<p>La predicción operativa de incendios con aprendizaje automático sufre a menudo fugas espaciales y una transferibilidad limitada de los índices boreales a biomas subtropicales. Presentamos un marco computacional reproducible que separa la ignición primaria de la propagación táctica y hace explícitos la construcción de objetivos, la inferencia con gating y la evaluación. D2 define la ignición como fuego en el día t sin fuego t-1 a menos de 25 km y sin fuego en la misma celda en los 10 días previos; la propagación se evalúa a menos de 25 km de un fuego t-1. Un gate biofísico elimina celdas-día no combustibles y húmedas. Un modelo híbrido LightGBM (M3) predice ignición sin insumos de fuego t-1, con M2 como fallback para celdas sin historia y M1 como baseline biofísico. En validación 2023, M3 alcanza ROC-AUC 0.7844/0.7628 (Chaco/Oriental), frente a 0.7817/0.7496 de M2 y 0.6354/0.7041 de M1. En bloques espaciales de desarrollo 2023, M2 es el más robusto (0.6773/0.7470) y M1 no supera a M2 en celdas sin historia, por lo que M1 se rechaza como fallback operativo. En el test retrospectivo 2024–2025, M3 alcanza 0.8021/0.7534 frente a 0.5173/0.5564 del FWI canadiense y 0.5389/0.4990 del INPE; la propagación alcanza 0.9039/0.7859. La precisión poblacional de ignición es solo 0.082 %/0.198 %, por lo que el sistema es una herramienta de nowcast y priorización, no un sistema de alerta autónomo. El test 2024–2025 ya fue observado y se reporta como retrospectivo, no como ciego. La contribución es un protocolo computacional y un benchmark reproducibles, no un nuevo algoritmo de boosting.</p>
+<p>La predicción operativa de incendios con aprendizaje automático sufre a menudo fugas espaciales y una transferibilidad limitada de los índices boreales a biomas subtropicales. Presentamos un marco computacional reproducible que separa la ignición primaria de la propagación táctica y hace explícitos la construcción de objetivos, la inferencia con gating y la evaluación. D2 define la ignición como fuego en el día t sin fuego t-1 a menos de 25 km y sin fuego en la misma celda en los 10 días previos; la propagación se evalúa a menos de 25 km de un fuego t-1. Un gate biofísico elimina celdas-día no combustibles y húmedas. Un modelo híbrido LightGBM (M3) predice ignición sin insumos de fuego t-1, con M2 como fallback para celdas sin historia y M1 como baseline biofísico. En validación 2023, M3 alcanza ROC-AUC 0.7844/0.7628 (Chaco/Oriental), frente a 0.7817/0.7496 de M2; el baseline biofísico M1 se reporta en la Tabla S16 del suplemento. En bloques espaciales de desarrollo 2023, M2 es el más robusto (0.6773/0.7470) y M1 no supera a M2 en celdas sin historia, por lo que M1 se rechaza como fallback operativo (Tablas S8 y S16 del suplemento). En el test retrospectivo 2024–2025, M3 alcanza 0.8021/0.7534 frente a 0.5173/0.5564 del FWI canadiense y 0.5389/0.4990 del INPE; la propagación alcanza 0.9039/0.7859. La precisión poblacional de ignición es solo 0.082 %/0.198 %, por lo que el sistema es una herramienta de nowcast y priorización, no un sistema de alerta autónomo. El test 2024–2025 ya fue observado y se reporta como retrospectivo, no como ciego. La contribución es un protocolo computacional y un benchmark reproducibles, no un nuevo algoritmo de boosting.</p>
 <p><strong>Palabras clave:</strong> Nowcasting de incendios; GeoAI; reproducibilidad; validación espacial; LightGBM; Gran Chaco.</p>
 </section>
 <section id="introducción" class="level1">
@@ -2490,7 +2490,7 @@ Figura 2: Dominio de estudio y división regional: Chaco Seco (oeste) y Región
 <div id="tbl-val" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-val-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 1: Validación temporal 2023 (caso-control 1:10). La selección se congeló antes de evaluar el test 2024–2025.
+Tabla 1: Validación temporal 2023 (caso-control 1:10). La selección se congeló antes de evaluar el test 2024–2025. El baseline M1 se reporta en la Tabla S16 del suplemento.
 </figcaption>
 <div aria-describedby="tbl-val-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2506,31 +2506,17 @@ Tabla 1: Validación temporal 2023 (caso-control 1:10). La selección se congel
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: left;">M1 biofísico</td>
-<td style="text-align: right;">0.6354</td>
-<td style="text-align: right;">0.1480</td>
-<td style="text-align: right;">0.1762</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M2 base</td>
 <td style="text-align: right;">0.7817</td>
 <td style="text-align: right;">0.2452</td>
 <td style="text-align: right;">0.2933</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M3 híbrido</td>
 <td style="text-align: right;">0.7844</td>
 <td style="text-align: right;">0.2542</td>
 <td style="text-align: right;">0.2979</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: left;">M1 biofísico</td>
-<td style="text-align: right;">0.7041</td>
-<td style="text-align: right;">0.1818</td>
-<td style="text-align: right;">0.2301</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Oriental</td>
@@ -2551,7 +2537,7 @@ Tabla 1: Validación temporal 2023 (caso-control 1:10). La selección se congel
 </div>
 </figure>
 </div>
-<p>La diferencia pareada M3 − M2 fue +0.0028 [+0.0001, +0.0054] ROC-AUC y +0.0089 [+0.0034, +0.0144] PR-AUC en el Chaco, y +0.0132 [+0.0097, +0.0169] y +0.0221 [+0.0166, +0.0272] en Oriental (bootstrap agrupado por fecha, B = 1 000). Con el margen preespecificado δ = 0.01, M3 se retiene en ambas regiones. En bloques espaciales de 2023, M2 fue el más robusto (0.6773/0.7470), por delante de M3 (0.6496/0.7277) y M1 (0.6456/0.7176). En celdas sin historia, M1 obtuvo 0.6650/0.7018, frente a 0.7677/0.7440 de M2 y 0.7626/0.7421 de M3; M1 se rechaza como fallback operativo. La arquitectura final es M3 para celdas con historia y M2 para celdas sin historia.</p>
+<p>La diferencia pareada M3 − M2 fue +0.0028 [+0.0001, +0.0054] ROC-AUC y +0.0089 [+0.0034, +0.0144] PR-AUC en el Chaco, y +0.0132 [+0.0097, +0.0169] y +0.0221 [+0.0166, +0.0272] en Oriental (bootstrap agrupado por fecha, B = 1 000). Con el margen preespecificado δ = 0.01, M3 se retiene en ambas regiones. En bloques espaciales de 2023, M2 fue el más robusto (0.6773/0.7470), por delante de M3 (0.6496/0.7277). M1 se evaluó como baseline diagnóstico y no superó a M2 en celdas sin historia; por eso M1 se rechaza como fallback operativo (Tablas S8 y S16 del suplemento). La arquitectura final es M3 para celdas con historia y M2 para celdas sin historia.</p>
 <p><a href="#tbl-test" class="quarto-xref">Tabla 2</a> reporta el test retrospectivo 2024–2025. M3 alcanza ROC-AUC 0.8021 en el Chaco y 0.7534 en la Región Oriental. La propagación alcanza 0.9039/0.7859. La precisión F0.5 caso-control es 32.82 %/30.13 % para ignición y 83.69 %/65.03 % para propagación. Estas son métricas a nivel de muestra; no son precisión operativa.</p>
 <div id="tbl-test" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -2753,7 +2739,7 @@ Tabla 3: Benchmark en el test retrospectivo 2024–2025. ΔROC es M3 menos la r
 </figure>
 </div>
 <p><a href="#fig-benchmark" class="quarto-xref">Figura 4</a> muestra las curvas ROC y de precisión–recall correspondientes. Los índices canónicos están cerca de la diagonal en el Chaco; en la Región Oriental también son débiles y no mejoran materialmente respecto a una línea base climatológica. El FWI completo tiene un ROC-AUC de 0.5173/0.5564 y el INPE de 0.5389/0.4990; ninguno es competitivo con M3 en las mismas fechas retrospectivas. El resultado no afirma que los índices sean universalmente inválidos, sino que su transferencia a este sistema subtropical no está respaldada. FWI e INPE son índices de peligro normalizados, por lo que su punto operativo aparente depende fuertemente del cutoff elegido en validación. En el Chaco, el FWI completo alcanza un recall alto solo con una precisión muy baja, mientras que el INPE es conservador en ambas regiones; ninguno de los dos comportamientos se traduce en un ranking competitivo. Los valores de PR-AUC están cerca de la línea base caso-control de 0.09, lo que significa que los índices añaden poca discriminación más allá del azar en estas fechas retrospectivas.</p>
-<p>La ablación controlada confirma que las variables socioecológicas mejoran el ranking, sobre todo en Oriental. Con la misma capacidad (45/60 rondas y 23/31 hojas), M1 alcanza 0.6421/0.6840, M2 0.7991/0.7406 y M3 0.8021/0.7534. La ganancia M3 − M2 es +0.0030/+0.0128 ROC-AUC y +0.0076/+0.0194 PR-AUC. En Chaco la precisión de M3 es 32.81 % frente a 33.27 % de M2; en Oriental es 30.13 % frente a 26.09 %. La ventaja no es uniforme y no se presenta como una mejora de precisión en ambas regiones. La tabla completa de ablación está en la Tabla S12 del suplemento. TreeSHAP identifica la distancia histórica, la fracción de bosque seco, la accesibilidad y la estacionalidad como los impulsores dominantes en el Chaco; en Oriental dominan la distancia histórica y la concentración antrópica local. La tabla y figura completas de SHAP están en la Tabla S13 y la Figura S1 del suplemento. Esto no establece causalidad, pero muestra que el modelo no depende de una sola variable meteorológica.</p>
+<p>La ablación controlada confirma que las variables socioecológicas mejoran el ranking, sobre todo en Oriental. Con la misma capacidad (45/60 rondas y 23/31 hojas), M2 alcanza 0.7991/0.7406 y M3 0.8021/0.7534; M1 es el más bajo en ambas regiones. La ganancia M3 − M2 es +0.0030/+0.0128 ROC-AUC y +0.0076/+0.0194 PR-AUC. En Chaco la precisión de M3 es 32.81 % frente a 33.27 % de M2; en Oriental es 30.13 % frente a 26.09 %. La ventaja no es uniforme y no se presenta como una mejora de precisión en ambas regiones. La tabla completa de ablación está en la Tabla S12 del suplemento. TreeSHAP identifica la distancia histórica, la fracción de bosque seco, la accesibilidad y la estacionalidad como los impulsores dominantes en el Chaco; en Oriental dominan la distancia histórica y la concentración antrópica local. La tabla y figura completas de SHAP están en la Tabla S13 y la Figura S1 del suplemento. Esto no establece causalidad, pero muestra que el modelo no depende de una sola variable meteorológica.</p>
 <div id="fig-benchmark" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-benchmark-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2767,11 +2753,11 @@ Figura 4: Curvas ROC y precisión–recall de M3 frente al FWI canadiense compl
 </section>
 <section id="generalización-temporal-y-espacial" class="level2">
 <h2 class="anchored" data-anchor-id="generalización-temporal-y-espacial">3.3 Generalización temporal y espacial</h2>
-<p>La ventaja de M3 es temporal, no espacial. En el holdout de bloques de 50 km con buffer de 20 km evaluado en 2023, M2 alcanza 0.6773 en el Chaco y 0.7470 en Oriental; M3 alcanza 0.6496 y 0.7277, y M1 0.6456 y 0.7176. M2 es el modelo más robusto en bloques no vistos. M3 cae desde 0.7821 en celdas retenidas a 0.6496 en holdout en el Chaco, y desde 0.7473 a 0.7277 en Oriental; M2 cae de 0.7832 a 0.6773 en Chaco pero mejora de 0.7365 a 0.7470 en Oriental. M1 es más estable, pero su nivel absoluto es menor. <a href="#tbl-spatial" class="quarto-xref">Tabla 4</a> reporta la comparación compacta; la tabla completa de bloques y el diseño están en la Tabla S8 del suplemento.</p>
+<p>La ventaja de M3 es temporal, no espacial. En el holdout de bloques de 50 km con buffer de 20 km evaluado en 2023, M2 alcanza 0.6773 en el Chaco y 0.7470 en Oriental, y M3 alcanza 0.6496 y 0.7277; M1 se reporta en la Tabla S8 del suplemento. M2 es el modelo más robusto en bloques no vistos. M3 cae desde 0.7821 en celdas retenidas a 0.6496 en holdout en el Chaco, y desde 0.7473 a 0.7277 en Oriental; M2 cae de 0.7832 a 0.6773 en Chaco pero mejora de 0.7365 a 0.7470 en Oriental. M1 es más estable, pero su nivel absoluto es menor (Tabla S8 del suplemento). <a href="#tbl-spatial" class="quarto-xref">Tabla 4</a> reporta la comparación compacta; la tabla completa de bloques y el diseño están en la Tabla S8 del suplemento.</p>
 <div id="tbl-spatial" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-spatial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla 4: Validación por bloques espaciales de desarrollo con bloques de 50 km y un buffer de 20 km, evaluada en 2023. Los valores retenidos son la referencia para celdas no excluidas del entrenamiento. Los resultados completos están en la Tabla S8 del suplemento.
+Tabla 4: Validación por bloques espaciales de desarrollo con bloques de 50 km y un buffer de 20 km, evaluada en 2023. Los valores retenidos son la referencia para celdas no excluidas del entrenamiento. Los resultados completos, incluido M1, están en la Tabla S8 del suplemento.
 </figcaption>
 <div aria-describedby="tbl-spatial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -2794,31 +2780,17 @@ Tabla 4: Validación por bloques espaciales de desarrollo con bloques de 50 km 
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: left;">M1 biofísico</td>
-<td style="text-align: right;">0.6280</td>
-<td style="text-align: right;">0.6456</td>
-<td style="text-align: right;">0.1668</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M2 base</td>
 <td style="text-align: right;">0.7832</td>
 <td style="text-align: right;">0.6773</td>
 <td style="text-align: right;">0.1760</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Chaco</td>
 <td style="text-align: left;">M3 híbrido</td>
 <td style="text-align: right;">0.7821</td>
 <td style="text-align: right;">0.6496</td>
 <td style="text-align: right;">0.1630</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Oriental</td>
-<td style="text-align: left;">M1 biofísico</td>
-<td style="text-align: right;">0.6899</td>
-<td style="text-align: right;">0.7176</td>
-<td style="text-align: right;">0.1574</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Oriental</td>
@@ -2839,8 +2811,8 @@ Tabla 4: Validación por bloques espaciales de desarrollo con bloques de 50 km 
 </div>
 </figure>
 </div>
-<p>El diseño espacial retiene 44 bloques y excluye un buffer de 20 km alrededor de las celdas holdout durante el entrenamiento; los priors se recalculan sin los incendios retenidos. La brecha entre el desempeño retenido y el de holdout mide memorización espacial. M3 muestra una caída fuerte en el Chaco y una caída menor en Oriental; M2 conserva la mejor discriminación absoluta en ambas regiones. El resultado no sostiene que M3 sea un extrapolador espacial, pero tampoco convierte a M1 en la mejor opción: en celdas sin historia, M1 obtiene 0.6650/0.7018, frente a 0.7677/0.7440 de M2 y 0.7626/0.7421 de M3. M1 es un baseline estable, no el fallback operativo. La arquitectura M3/M2 responde a esa evidencia.</p>
-<p>Con meteorología de t-1, M3 retiene 0.7831/0.7613 y M2 0.7818/0.7463; M1 alcanza 0.6342/0.6965. La pequeña caída de M3 muestra que los priors de recurrencia, no la meteorología del mismo día, dominan la señal híbrida. Por eso el sistema actual es un nowcast/hindcast; un sistema real de pronóstico a un día requeriría meteorología pronosticada. Los detalles de lead time están en la Tabla S9 del suplemento.</p>
+<p>El diseño espacial retiene 44 bloques y excluye un buffer de 20 km alrededor de las celdas holdout durante el entrenamiento; los priors se recalculan sin los incendios retenidos. La brecha entre el desempeño retenido y el de holdout mide memorización espacial. M3 muestra una caída fuerte en el Chaco y una caída menor en Oriental; M2 conserva la mejor discriminación absoluta en ambas regiones. El resultado no sostiene que M3 sea un extrapolador espacial, y tampoco convierte a M1 en la mejor opción: M1 fue un baseline estable pero inferior y se rechazó como fallback operativo. Los resultados completos de M1, espaciales y en celdas sin historia, están en las Tablas S8 y S16 del suplemento; la arquitectura M3/M2 responde a esa evidencia.</p>
+<p>Con meteorología de t-1, M3 retiene 0.7831/0.7613 y M2 0.7818/0.7463; M1 es inferior y se reporta en la Tabla S9 del suplemento. La pequeña caída de M3 muestra que los priors de recurrencia, no la meteorología del mismo día, dominan la señal híbrida. Por eso el sistema actual es un nowcast/hindcast; un sistema real de pronóstico a un día requeriría meteorología pronosticada. Los detalles de lead time están en la Tabla S9 del suplemento.</p>
 </section>
 <section id="utilidad-operativa" class="level2">
 <h2 class="anchored" data-anchor-id="utilidad-operativa">3.4 Utilidad operativa</h2>

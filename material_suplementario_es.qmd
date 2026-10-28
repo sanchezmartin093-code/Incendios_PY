@@ -22,7 +22,7 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.pdf`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S15 y Figuras S1–S3.  
+> **Archivo suplementario:** `material_suplementario.pdf` — Notas S1–S3, Tablas S1–S16 y Figuras S1–S3.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); v2.0.0).  
 > **Datos:** los datos procesados y las predicciones de test se archivan en Zenodo bajo CC BY 4.0 (DOI conceptual [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278); v2.0.0).
 
@@ -48,7 +48,7 @@ format:
 
 • **Nota S3:** Protocolo de evaluación y análisis ampliados.
 
-• **Tablas S1–S15:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, SHAP, cost-loss y auditoría de datos.
+• **Tablas S1–S16:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, SHAP, cost-loss y auditoría de datos.
 
 • **Figuras S1–S3:** SHAP, ablación y cost-loss.
 
@@ -506,7 +506,19 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 | Models | Propagation Chaco booster | present | OK |  |
 | Models | Propagation Oriental booster | present | OK |  |
 | Manifest | Pending hashes | 0 | OK |  |
-| Manifest | Rows | 44 | OK |  |
+| Manifest | Rows | 69 | OK |  |
+
+
+**Tabla S16.** Baseline biofísico M1 en validación 2023.
+
+| Región | Evaluación | ROC-AUC | PR-AUC | F0.5 |
+|:---|:---|---:|---:|---:|
+| Chaco | Temporal 2023, todas las celdas | 0.6354 | 0.1480 | 0.1762 |
+| Oriental | Temporal 2023, todas las celdas | 0.7041 | 0.1818 | 0.2301 |
+| Chaco | Celdas sin historia (`freq_hist_1km = 0`) | 0.6650 | 0.0841 | — |
+| Oriental | Celdas sin historia (`freq_hist_1km = 0`) | 0.7018 | 0.0740 | — |
+
+M1 es un baseline biofísico diagnóstico y no se usó operativamente. Los resultados de bloques espaciales están en la Tabla S8, los de lead time en la Tabla S9 y la ablación retrospectiva 2024–2025 en la Tabla S12.
 
 # Disponibilidad de datos {.unnumbered}
 

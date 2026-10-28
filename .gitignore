@@ -34,6 +34,7 @@ modelos/calibradores/*
 
 /.quarto/
 _output/
+dist/
 **/*.quarto_ipynb
 *_files/
 *.html.md

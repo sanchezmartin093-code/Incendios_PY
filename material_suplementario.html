@@ -2363,7 +2363,7 @@ window.Quarto = {
 
 <blockquote class="blockquote">
 <p><strong>Target journal:</strong> <em>Computers &amp; Geosciences</em> (Elsevier). <strong>Article type:</strong> research article. <strong>Peer review:</strong> single-anonymized.<br>
-<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S15 and Figures S1–S3.<br>
+<strong>Supplementary file:</strong> <code>material_suplementario.pdf</code> — Notes S1–S3, Tables S1–S16 and Figures S1–S3.<br>
 <strong>Code:</strong> <a href="https://github.com/sanchezmartin093-code/Incendios_PY">github.com/sanchezmartin093-code/Incendios_PY</a> (MIT License; code concept DOI <a href="https://doi.org/10.5281/zenodo.23675104">10.5281/zenodo.23675104</a>; v2.0.0).<br>
 <strong>Data:</strong> processed data and test predictions are archived in Zenodo under CC BY 4.0 (data concept DOI <a href="https://doi.org/10.5281/zenodo.23675278">10.5281/zenodo.23675278</a>; v2.0.0).</p>
 </blockquote>
@@ -2372,7 +2372,7 @@ window.Quarto = {
 <p>• <strong>Note S1:</strong> Data, D2 target construction, quality control and sampling.</p>
 <p>• <strong>Note S2:</strong> Bounded monotonic Platt calibration and hyperparameters.</p>
 <p>• <strong>Note S3:</strong> Evaluation protocol and extended analyses.</p>
-<p>• <strong>Tables S1–S15:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, SHAP, cost-loss and data audit.</p>
+<p>• <strong>Tables S1–S16:</strong> variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, SHAP, cost-loss and data audit.</p>
 <p>• <strong>Figures S1–S3:</strong> SHAP, ablation and cost-loss.</p>
 <hr>
 </section>
@@ -5753,12 +5753,62 @@ window.Quarto = {
 <tr class="odd">
 <td>Manifest</td>
 <td>Rows</td>
-<td style="text-align: right;">44</td>
+<td style="text-align: right;">69</td>
 <td>OK</td>
 <td></td>
 </tr>
 </tbody>
 </table>
+<p><strong>Table S16.</strong> M1 biophysical baseline on 2023 validation.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Region</th>
+<th style="text-align: left;">Evaluation</th>
+<th style="text-align: right;">ROC-AUC</th>
+<th style="text-align: right;">PR-AUC</th>
+<th style="text-align: right;">F0.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Temporal 2023, all cells</td>
+<td style="text-align: right;">0.6354</td>
+<td style="text-align: right;">0.1480</td>
+<td style="text-align: right;">0.1762</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Temporal 2023, all cells</td>
+<td style="text-align: right;">0.7041</td>
+<td style="text-align: right;">0.1818</td>
+<td style="text-align: right;">0.2301</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chaco</td>
+<td style="text-align: left;">Cells without history (<code>freq_hist_1km = 0</code>)</td>
+<td style="text-align: right;">0.6650</td>
+<td style="text-align: right;">0.0841</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oriental</td>
+<td style="text-align: left;">Cells without history (<code>freq_hist_1km = 0</code>)</td>
+<td style="text-align: right;">0.7018</td>
+<td style="text-align: right;">0.0740</td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<p>M1 is a diagnostic biophysical baseline and was not used operationally. Spatial block results are in Table S8, lead-time results in Table S9, and the retrospective 2024–2025 ablation in Table S12.</p>
 </section>
 <section id="data-availability" class="level1 unnumbered">
 <h1 class="unnumbered">Data availability</h1>
