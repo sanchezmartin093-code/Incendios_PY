@@ -1,0 +1,7 @@
+region,task,modelo,precision_pct,precision_wilson_low_pct,precision_wilson_high_pct,precision_boot_low_pct,precision_boot_high_pct,recall_pct,recall_wilson_low_pct,recall_wilson_high_pct,recall_boot_low_pct,recall_boot_high_pct,n_alerted_pop,n_pos_pop,n_bootstrap
+Chaco,ignicion,M3_ignicion_hibrida,0.082,0.08,0.084,0.075,0.088,27.304,26.62,28.0,26.16,28.56,5387538,16056,1000
+Chaco,ignicion,M2_ignicion_base,0.09,0.087,0.093,0.082,0.098,24.589,23.93,25.26,23.26,25.91,4396883,16056,1000
+Chaco,propagacion,M2_propagacion_tactica,9.667,9.557,9.778,9.087,10.316,50.652,50.22,51.08,49.01,52.02,274584,52405,1000
+Oriental,ignicion,M3_ignicion_hibrida,0.198,0.192,0.204,0.178,0.222,20.731,20.15,21.33,19.26,22.31,1902139,18176,1000
+Oriental,ignicion,M2_ignicion_base,0.166,0.161,0.171,0.149,0.184,22.106,21.51,22.72,20.42,23.86,2425580,18176,1000
+Oriental,propagacion,M2_propagacion_tactica,4.784,4.709,4.86,4.129,5.491,18.771,18.5,19.05,16.71,21.01,307101,78269,1000
