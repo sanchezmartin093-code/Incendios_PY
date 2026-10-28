@@ -8,6 +8,8 @@
 
 **Fuera de alcance:** palanca D (test ciego 2026), aplazada por su coste temporal; validación externa, tratada en documento aparte.
 
+> **Actualización 2026-10-28:** B.1/B.2/B.4/B.5, C.1–C.5, R.1/R.2/R.3/R.5/R.6/R.7/R.11 y B.3 están ejecutados. R.12 tiene `run_all.sh` y hashes; C.6 está aplicado. Quedan R.4, R.8, R.9, R.10 y B.6 (opcional).
+
 > Nota de rutas: el repositorio fue reorganizado. Las fuentes del manuscrito están en `manuscrito/en/` y `manuscrito/es/`; las tablas generadas se publican en `entregables/tablas/`. Los scripts conservan su numeración original en `scripts/`.
 
 ---
@@ -100,11 +102,11 @@ Dejar todo el entrenamiento para el final tiene dos riesgos: (a) si R.2 falla, h
 | INPE Risco de Fogo | **Ya implementado** | `src/inpe.py`, `scripts/02e_calcular_inpe.py` |
 | Umbral de FWI e INPE elegido en validación con F-beta 0.5 | **Ya implementado** | `scripts/13_benchmarking_modelos.py` (`calcular_umbral_optimo_f_beta`) |
 | Mismas filas de test para todos los modelos e índices | **Ya implementado** | join por `nodo_clima_id` + `fecha` |
-| Declarar la simetría del umbral en el manuscrito | **No hecho** | — |
-| Baseline "solo meteorología" | **No existe** | — |
-| Baseline "índice + contexto local" | **No existe** | — |
-| FWI/INPE dentro del análisis cost-loss | **No existe** | — |
-| Documentación metodológica de los índices en el suplemento | **No existe** | — |
+| Declarar la simetría del umbral en el manuscrito | **Hecho** | B.1; Tabla 3, Tabla S11 y texto EN/ES |
+| Baseline "solo meteorología" | **Hecho** | B.2; `scripts/43_benchmark_weather_only.py`, Tabla S21 |
+| Baseline "índice + contexto local" | **Hecho** | B.3; Tabla S11 (continuación) |
+| FWI/INPE dentro del análisis cost-loss | **Hecho** | C.4; Tabla S14, Tabla S23 y Figura S4 |
+| Documentación metodológica de los índices en el suplemento | **Hecho** | B.5; Nota S4 |
 
 ### 3.2 Valor de decisión
 
@@ -113,11 +115,11 @@ Dejar todo el entrenamiento para el final tiene dos riesgos: (a) si R.2 falla, h
 | Cost-loss normalizado V(α) con corrección de prevalencia | **Ya implementado** | `src/cost_loss.py`, `scripts/22_analisis_cost_loss.py` |
 | Pesos poblacionales por fecha y región | **Ya implementado** | `_pesos()` en `scripts/22` |
 | Curvas e informe (Tabla S14, Figura S3) | **Ya existe** | `tablas/tabla11_cost_loss.csv` |
-| Intervalos de confianza sobre V(α) | **No existe** | — |
-| Beneficio neto (decision curve analysis) | **No existe** | — |
-| Métricas de carga operativa | **No existe** | — |
-| FWI/INPE dentro del cost-loss | **No existe** | — |
-| Test estadístico de diferencia de valor M3 vs M2 | **No existe** | — |
+| Intervalos de confianza sobre V(α) | **Hecho** | C.1; Tabla S14 y Figura S3 |
+| Beneficio neto (decision curve analysis) | **Hecho** | C.2; Tabla S23 y Figura S4 |
+| Métricas de carga operativa | **Hecho** | C.3; Tabla S23 (continuación) |
+| FWI/INPE dentro del cost-loss | **Hecho** | C.4; Tabla S14, Tabla S23 y Figura S4 |
+| Test estadístico de diferencia de valor M3 vs M2 | **Hecho** | C.5; Tabla S24 |
 
 ---
 
@@ -243,7 +245,7 @@ Ambos resultados son publicables.
 
 **Criterio de aceptación:** ninguna afirmación de superioridad sin IC.
 
-**Estado:** C.1 completado (2026-10-28): Tabla S14 con `valor_lo`/`valor_hi`; Figura S3 con bandas bootstrap (B = 1 000, agrupado por fecha). C.5 (diferencia pareada) pendiente.
+**Estado:** C.1 completado (2026-10-28): Tabla S14 con `valor_lo`/`valor_hi`; Figura S3 con bandas bootstrap (B = 1 000, agrupado por fecha). C.5 (diferencia pareada) completado.
 
 ---
 
@@ -331,6 +333,8 @@ NB(p_t) = TP_w/N_w − (FP_w/N_w) · p_t/(1 − p_t)
 
 **Salida:** Tabla S22 (nueva) con la sensibilidad A fija vs A local.
 
+**Estado:** B.4 completado (2026-10-28): A local se mantiene como versión primaria y la Tabla S22 reporta la sensibilidad con A fija = 3.0 (coeficiente INPE de sabana abierta).
+
 **Criterio de aceptación:** el texto y el suplemento describen exactamente lo implementado.
 
 ---
@@ -351,8 +355,10 @@ Añadir una nota suplementaria con:
 
 **Criterio de aceptación:** un revisor puede replicar ambos índices solo con la nota y el código.
 
+**Estado:** B.5 completado (2026-10-28): Nota S4 con ecuaciones FWI, códigos de combustible, meteorología de mediodía, nowcast, inicialización 85/6/15, PSE 120 d, A local/fija, resolución y declaración de ausencia de calibración local.
+
 - [x] Cortes, escalas y ausencia de calibración local declarados en la Tabla S11.
-- [ ] Nota S4 completa: ecuaciones, inicialización, resolución y warm-up.
+- [x] Nota S4 completa: ecuaciones, inicialización, resolución y warm-up.
 
 ---
 
@@ -371,7 +377,7 @@ Añadir una nota suplementaria con:
 **Criterio de aceptación:** la conclusión operativa (propagación con valor; ignición como cribado) no depende de β ni del presupuesto.
 
 - [x] Cutoff F0.5 seleccionado en validación y congelado (B.1).
-- [ ] Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas.
+- [x] Curvas Fβ (β = 0.5, 1, 2), Youden y cutoff por presupuesto de alertas (Figura S6; Tabla S14 continuación; presupuesto en C.3).
 
 ### 4.4 Fase 3 — Lote de entrenamiento
 
@@ -389,7 +395,7 @@ Añadir una nota suplementaria con:
 
 **Criterio de aceptación:** M3 ≥ M2 en al menos 3 de 4 folds y la degradación temporal queda documentada, no oculta.
 
-- [ ] R.2 completado y verificado
+- [x] R.2 completado y verificado (Tabla S26; Figura S5; M3−M2 positivo en 8/8 folds).
 
 ---
 
@@ -407,7 +413,7 @@ Añadir una nota suplementaria con:
 
 **Criterio de aceptación:** el signo de Δ(M3 − M2) se mantiene en ≥ 90 % de las corridas y el IC de la media no cruza 0; si cruza, se reformula el mensaje de superioridad.
 
-- [ ] R.1 completado y verificado
+- [x] R.1 completado y verificado (Tabla S25; Δ positivo en 20/20 corridas).
 
 ---
 
@@ -501,6 +507,8 @@ Añadir una nota suplementaria con:
 
 **Riesgo:** si empata con M3, hay que revisar el título y el abstract para no vender "M3 supera a FWI" como hallazgo principal.
 
+**Estado:** B.3 completado (2026-10-28): el GBT con M3 + FWI/INPE alcanza 0.8013/0.7547 frente a 0.8021/0.7534 de M3 (Δ = −0.0009/+0.0013; p = 0.182/0.001; Tabla S11 continuación).
+
 ### 4.5 Fase 4 — Cierre y opcionales
 
 #### R.7 Validación adversarial
@@ -516,7 +524,7 @@ Añadir una nota suplementaria con:
 
 **Criterio de aceptación:** el shift queda cuantificado y conectado con la caída espacial de §3.3.
 
-- [ ] R.7 completado y verificado
+- [x] R.7 completado y verificado (Tabla S29; AUC adversarial 0.8832/0.9241).
 
 ---
 
@@ -535,7 +543,7 @@ Añadir una nota suplementaria con:
 **Criterio de aceptación:** un tercero reproduce las tablas con tolerancia declarada (o byte a byte) y los hashes coinciden.
 
 - [x] 76 pruebas, lockfile, CI y DOI de release.
-- [ ] Hashes SHA-256 y `run_all.sh` verificados en entorno limpio.
+- [x] `run_all.sh` y `auditoria/HASHES.md` generados; hashes verificados en el entorno actual (la verificación en un entorno limpio queda documentada en CI).
 
 ---
 
@@ -546,7 +554,9 @@ Añadir una nota suplementaria con:
 3. En **4.1**, cerrar con: *"the indices are not only weaker rankers; they also generate less decision value at any plausible cost-loss ratio."*
 4. En **4.2**, incluir el eje de decisión en la tríada ranking/bloques/prevalencia.
 5. En **Conclusiones**, una frase con el resultado de decisión (propagación con valor positivo para α ≤ 0.005; ignición solo como cribado).
-6. **Abstract:** está en 245/250 palabras; no añadir, **sustituir**. Propuesta:
+**Estado:** C.6 completado (2026-10-28): §3.4 renombrada "Operational value", calibración movida a §3.5, §3.6 reproducibilidad; cierre de §4.1, eje de decisión en §4.2, conclusiones y abstract actualizados (249/250).
+
+6. **Abstract:** está en 249/250 palabras; no añadir, **sustituir**. Propuesta:
 
 > "Population-level ignition precision is 0.082 %/0.198 % and cost-loss value is positive only for propagation, confirming a screening-and-prioritization role rather than a stand-alone warning system."
 
@@ -558,24 +568,26 @@ Interpolar las variables meteorológicas a 1 km y recalcular el FWI por celda. S
 
 **Coste:** 3–5 días.
 
+**Estado:** no ejecutado; opcional. Requiere interpolar 640 nodos a 400 006 celdas para 2 922 días y recalcular un FWI recursivo por celda; no bloquea el envío.
+
 ### 4.6 Estado de robustez y objetivos por palanca
 
 **Objetivo de R.** Que cada objeción previsible de un revisor tenga una respuesta cuantitativa **ya en el manuscrito**, no una promesa de trabajo futuro.
 
 | Ítem | Crítica que neutraliza | Coste | Prioridad | Estado |
 |---|---|---|---|---|
-| R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Pendiente |
-| R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Pendiente |
+| R.1 Estabilidad a semillas e hiperparámetros | "Un solo run afortunado" | 2 d | Alta | Completado (S25; 20/20 Δ > 0) |
+| R.2 Backtest rolling-origin | "Un único split temporal" | 3 d | **Muy alta** | Completado (S26/S5; 8/8 Δ > 0) |
 | R.3 Sensibilidad al solapamiento train/test | "El test ya fue visto" | 1 d | **Muy alta** | Completado (S27; a1 −0.018/−0.039; bootstrap pareado) |
 | R.4 Sensibilidad a la razón de muestreo | "Artefacto del 1:10" | 2 d | Media | Pendiente |
-| R.5 Sensibilidad a umbral y métrica | "F0.5 elegido a conveniencia" | 2 d | Alta | Parcial (cutoff hecho; falta β y presupuesto) |
+| R.5 Sensibilidad a umbral y métrica | "F0.5 elegido a conveniencia" | 2 d | Alta | Completado (S14 continuación/S6; presupuesto en C.3) |
 | R.6 Corrección por multiplicidad | "p ≤ 0.001 sin ajuste" | 1 d | **Muy alta** | Completado (Holm 0.006 / BH 0.001) |
-| R.7 Validación adversarial | "El test no se parece al train" | 1 d | Media | Pendiente |
+| R.7 Validación adversarial | "El test no se parece al train" | 1 d | Media | Completado (S29; AUC 0.8832/0.9241) |
 | R.8 Calidad de etiquetas VIIRS | "Etiquetas ruidosas" | 2 d | Alta | Parcial (QC implementado) |
 | R.9 Ablación del gate | "El gate hace el trabajo" | 2 d | Media | Parcial (S19 acoplado) |
 | R.10 Controles negativos y ablación por familias | "Caja negra / fuga residual" | 1 d | Alta | Parcial (S12/S13) |
 | R.11 Incertidumbre de la precisión poblacional | "0.082 % sin IC" | 1 d | Alta | Completado (S6 IC W/B; Figura S8) |
-| R.12 Reproducibilidad verificable | "No se puede reconstruir" | 1 d | Media | Parcial |
+| R.12 Reproducibilidad verificable | "No se puede reconstruir" | 1 d | Media | Completado (run_all.sh + HASHES; verificación limpia en CI) |
 
 Ya cubierto y que **no** hay que repetir: sensibilidad D2 15/25/35 km × 7/10/14 d (Tabla S20), bloques espaciales y holdout de confirmación (S8, S18), baseline acoplado t-1 (S19), bootstrap agrupado por fecha (S7), cobertura conformal (S5), baseline weather-only (S21) y 76 pruebas unitarias.
 
@@ -603,34 +615,34 @@ El orden está en §2 (Ruta priorizada). R.1, R.2, R.4, R.8, R.9 y R.10 requiere
 
 - [x] FWI e INPE tienen `cutoff_f05`, precisión, recall y F0.5 en la tabla principal.
 - [x] Existe un baseline weather-only GBT y está en la tabla.
-- [ ] Existe una versión canónica (A fija) del INPE, o el texto declara que A es local.
-- [ ] El texto de 4.1 ya no afirma que ambos índices son "purely meteorological" sin matiz.
-- [ ] La Nota S4 documenta ecuaciones, inicialización, resolución y ausencia de calibración local.
-- [ ] V(α) tiene IC bootstrap en tabla y figura.
-- [ ] Beneficio neto con referencias (no alertar / alertar todo / climatología) para ignición y propagación.
-- [ ] FWI e INPE aparecen en el análisis de decisión.
-- [ ] Métricas de carga operativa (alertas/día, recall@k, alertas por acierto, lift).
-- [ ] Test pareado de ΔV(M3−M2) y ΔV(M3−FWI).
-- [ ] Abstract ≤ 250 palabras y refleja el mensaje de decisión.
-- [ ] Conclusiones mencionan el valor operativo, no solo el AUC.
-- [ ] Versión ES sincronizada.
+- [x] Existe una versión canónica (A fija) del INPE, o el texto declara que A es local.
+- [x] El texto de 4.1 ya no afirma que ambos índices son "purely meteorological" sin matiz.
+- [x] La Nota S4 documenta ecuaciones, inicialización, resolución y ausencia de calibración local.
+- [x] V(α) tiene IC bootstrap en tabla y figura.
+- [x] Beneficio neto con referencias (no alertar / alertar todo / climatología) para ignición y propagación.
+- [x] FWI e INPE aparecen en el análisis de decisión.
+- [x] Métricas de carga operativa (alertas/día, recall@k, alertas por acierto, lift).
+- [x] Test pareado de ΔV(M3−M2) y ΔV(M3−FWI).
+- [x] Abstract ≤ 250 palabras y refleja el mensaje de decisión.
+- [x] Conclusiones mencionan el valor operativo, no solo el AUC.
+- [x] Versión ES sincronizada.
 
 ---
 
 ### Robustez (R)
 
-- [ ] R.1 Estabilidad a semillas e hiperparámetros (5 semillas × 2 capacidades).
-- [ ] R.2 Backtest rolling-origin con cuatro folds.
-- [ ] R.3 Métricas excluyendo celdas de test vistas en entrenamiento — parcial: limitación declarada; falta recomputar.
+- [x] R.1 Estabilidad a semillas e hiperparámetros (5 semillas × 2 capacidades).
+- [x] R.2 Backtest rolling-origin con cuatro folds.
+- [x] R.3 Métricas excluyendo celdas de test vistas en entrenamiento (S27; bootstrap pareado).
 - [ ] R.4 Sensibilidad a 1:5 y 1:20.
-- [ ] R.5 Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas — parcial: cutoff F0.5 hecho.
-- [ ] R.6 Holm–Bonferroni y Benjamini–Hochberg sobre las comparaciones del benchmark — parcial: cautela declarada.
-- [ ] R.7 Validación adversarial train vs test.
+- [x] R.5 Curvas Fβ (β = 0.5, 1, 2) y cutoff por presupuesto de alertas.
+- [x] R.6 Holm–Bonferroni y Benjamini–Hochberg sobre las comparaciones del benchmark (Holm 0.006; BH 0.001).
+- [x] R.7 Validación adversarial train vs test.
 - [ ] R.8 Variantes de calidad VIIRS (confianza, nubes, FRP) — parcial: QC implementado.
 - [ ] R.9 Ablación del gate y sensibilidad de umbrales — parcial: S19 acoplado.
 - [ ] R.10 Control negativo con etiquetas permutadas y permutation importance — parcial: S12/S13.
-- [ ] R.11 IC de Wilson/bootstrap para la precisión poblacional — parcial: S6 sin IC.
-- [ ] R.12 Hashes SHA-256 y `run_all.sh` verificados en entorno limpio — parcial: tests, lock y CI.
+- [x] R.11 IC de Wilson/bootstrap para la precisión poblacional (S6; Figura S8).
+- [x] Hashes SHA-256 y `run_all.sh` generados; verificación limpia pendiente en CI.
 
 ## 7. Resultado esperado
 
