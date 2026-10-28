@@ -657,6 +657,25 @@ Features (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `prec
 
 Intervals are 95 % bootstrap percentiles with 500 replicates resampling dates, not rows. Subsets change prevalence, so PR-AUC, precision, recall and F0.5 are not directly comparable across rows; ROC-AUC is the primary comparison. The unseen-cell subset is small and spatially biased, especially in Oriental, and is not a substitute for a blind spatial holdout. Propagation is not evaluated on the unseen-cell subset because it contains only 3 292/145 rows (115/2 positives). The no-history subset has lower prevalence (4.0–5.3 %), so the frozen cutoffs yield low recall there; this is a composition effect, not evidence of model failure.
 
+**Table S27 (continued).** Paired M3 − M2 ROC-AUC and PR-AUC differences by subset. Positive values favor M3. Intervals are 95 % paired bootstrap percentiles grouped by date (B = 1 000); p is two-sided and has a resolution of 0.001.
+
+<!-- tablaS27b:inicio -->
+
+| Region | Subset | n | n+ | ΔROC (M3 − M2) | 95% CI | p | ΔPR-AUC | 95% CI | p |
+|---|---|---:|---:|---:|---|---:|---:|---|---:|
+| Chaco | Full | 176616 | 16056 | +0.0030 | [+0.0014, +0.0046] | ≤0.001 | +0.0076 | [+0.0026, +0.0128] | 0.004 |
+| Chaco | Unseen cell | 23074 | 2115 | +0.0059 | [+0.0022, +0.0093] | 0.004 | +0.0152 | [+0.0048, +0.0260] | 0.012 |
+| Chaco | No train fire | 150696 | 11540 | +0.0022 | [+0.0005, +0.0038] | 0.008 | +0.0113 | [+0.0054, +0.0164] | 0.002 |
+| Chaco | No history | 132562 | 6619 | -0.0035 | [-0.0056, -0.0014] | 0.002 | -0.0019 | [-0.0060, +0.0024] | 0.380 |
+| Chaco | 2025 only | 75372 | 6852 | +0.0020 | [-0.0006, +0.0044] | 0.120 | +0.0094 | [+0.0022, +0.0161] | 0.014 |
+| Oriental | Full | 199936 | 18176 | +0.0128 | [+0.0105, +0.0149] | ≤0.001 | +0.0194 | [+0.0160, +0.0226] | ≤0.001 |
+| Oriental | Unseen cell | 9378 | 882 | +0.0059 | [-0.0027, +0.0147] | 0.174 | +0.0133 | [+0.0023, +0.0237] | 0.018 |
+| Oriental | No train fire | 154948 | 11049 | +0.0097 | [+0.0075, +0.0120] | ≤0.001 | +0.0139 | [+0.0109, +0.0171] | ≤0.001 |
+| Oriental | No history | 116022 | 5104 | +0.0101 | [+0.0066, +0.0134] | ≤0.001 | +0.0086 | [+0.0054, +0.0118] | ≤0.001 |
+| Oriental | 2025 only | 99429 | 9039 | +0.0088 | [+0.0058, +0.0118] | ≤0.001 | +0.0157 | [+0.0112, +0.0209] | ≤0.001 |
+
+<!-- tablaS27b:fin -->
+
 # Data availability {.unnumbered}
 
 Processed data, test predictions, trained models and derived tables are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`. The archived test targets and probabilities are sufficient to regenerate every table and figure in this supplement without downloading the raw multi-terabyte archive.
