@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S15 and Figures S1–S3.  
+> **Supplementary file:** `material_suplementario.pdf` — Notes S1–S3, Tables S1–S16 and Figures S1–S3.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); v2.0.0).  
 > **Data:** processed data and test predictions are archived in Zenodo under CC BY 4.0 (data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278); v2.0.0).
 
@@ -35,7 +35,7 @@ format:
 
 • **Note S3:** Evaluation protocol and extended analyses.
 
-• **Tables S1–S15:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, SHAP, cost-loss and data audit.
+• **Tables S1–S16:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, SHAP, cost-loss and data audit.
 
 • **Figures S1–S3:** SHAP, ablation and cost-loss.
 
@@ -493,7 +493,19 @@ $\alpha=C/L$ is the ratio of false-alarm cost to avoided loss; $V(\alpha)$ is th
 | Models | Propagation Chaco booster | present | OK |  |
 | Models | Propagation Oriental booster | present | OK |  |
 | Manifest | Pending hashes | 0 | OK |  |
-| Manifest | Rows | 44 | OK |  |
+| Manifest | Rows | 69 | OK |  |
+
+
+**Table S16.** M1 biophysical baseline on 2023 validation.
+
+| Region | Evaluation | ROC-AUC | PR-AUC | F0.5 |
+|:---|:---|---:|---:|---:|
+| Chaco | Temporal 2023, all cells | 0.6354 | 0.1480 | 0.1762 |
+| Oriental | Temporal 2023, all cells | 0.7041 | 0.1818 | 0.2301 |
+| Chaco | Cells without history (`freq_hist_1km = 0`) | 0.6650 | 0.0841 | — |
+| Oriental | Cells without history (`freq_hist_1km = 0`) | 0.7018 | 0.0740 | — |
+
+M1 is a diagnostic biophysical baseline and was not used operationally. Spatial block results are in Table S8, lead-time results in Table S9, and the retrospective 2024–2025 ablation in Table S12.
 
 # Data availability {.unnumbered}
 
