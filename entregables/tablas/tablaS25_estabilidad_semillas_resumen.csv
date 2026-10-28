@@ -1,0 +1,5 @@
+region,config,n_corridas,m3_roc_media,m3_roc_sd,m2_roc_media,m2_roc_sd,delta_media,delta_sd,delta_ic95,delta_min,delta_max,signo_positivo_pct
+Chaco,actual,5,0.8021,0.0004,0.7985,0.0011,0.0036,0.0009,0.0011,0.0029,0.0047,100.0
+Chaco,alta,5,0.8028,0.0003,0.7994,0.0009,0.0035,0.0007,0.0009,0.0029,0.0043,100.0
+Oriental,actual,5,0.7537,0.0003,0.7409,0.0002,0.0128,0.0002,0.0003,0.0124,0.013,100.0
+Oriental,alta,5,0.7545,0.0001,0.7417,0.0002,0.0128,0.0002,0.0003,0.0125,0.013,100.0

@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S3, Tables S1–S21, S23, S24 and S27 and Figures S1–S4 and S8.  
+> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S4, Tables S1–S27 and S29 and Figures S1–S6 and S8.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.0.1).  
 > **Data:** processed data and test predictions are available in the v2.0.1 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -35,9 +35,11 @@ format:
 
 • **Note S3:** Evaluation protocol and extended analyses.
 
-• **Tables S1–S21, S23, S24 and S27:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, a train/test overlap sensitivity and a net-benefit decision table, a paired decision-value test.
+• **Note S4:** Implementation of the FWI and INPE indices.
 
-• **Figures S1–S4 and S8:** SHAP, ablation, cost-loss, net benefit and alert-budget precision.
+• **Tables S1–S27 and S29:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest and an adversarial validation.
+
+• **Figures S1–S6 and S8:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity and alert-budget precision.
 
 ---
 
@@ -89,7 +91,156 @@ The harness is fixed before the test is opened. It contains five components:
 
 Bootstrap resampling is by date, not by row, because daily fire activity is strongly clustered. All cells from a sampled date are retained; this preserves within-day dependence. The spatial holdout removes an entire 50-km block plus a 20-km buffer, recomputes historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are ROC-AUC and PR-AUC; Brier score, expected calibration error, precision, recall, F0.5 and false positives are also reported. AUC intervals use 500 grouped bootstrap replicates; paired differences use 1 000. The six confirmatory comparisons are corrected with Holm–Bonferroni and Benjamini–Hochberg; all remain significant at α = 0.05. The bootstrap resolution is 0.001, so adjusted values at the floor are upper bounds.
 
-The full benchmark is in Table S11, paired significance in Table S7, the complete spatial block results in Table S8 and the lead-time results in Table S9. The controlled ablation is in Table S12 and Figure S2; SHAP is in Table S13 and Figure S1; population evaluation is in Table S6; conformal coverage is in Table S5; cost-loss is in Table S14 and Figure S3. The computational profile is in Table S4. All analyses use the frozen test rows archived with the code release.
+The full benchmark is in Table S11 and its continuation, paired significance in Table S7, the complete spatial block results in Table S8 and the lead-time results in Table S9. Seed/capacity stability, the rolling-origin backtest and adversarial validation are in Tables S25, S26 and S29 and Figure S5; threshold sensitivity is in Table S14 (continuation) and Figure S6. The controlled ablation is in Table S12 and Figure S2; SHAP is in Table S13 and Figure S1; population evaluation is in Table S6; conformal coverage is in Table S5; cost-loss is in Table S14 and Figure S3. The computational profile is in Table S4. All analyses use the frozen test rows archived with the code release.
+
+# Supplementary Note S4. Implementation of the FWI and INPE indices
+
+This note documents the two benchmark indices exactly as they are implemented. The full Canadian FWI is produced by `scripts/02d_calcular_fwi_completo.py` from `src/fwi.py`; the INPE Risco de Fogo by `scripts/02e_calcular_inpe.py` from `src/inpe.py`; the benchmark joins both to the 1-km grid by `nodo_clima_id` and `fecha` in `scripts/13_benchmarking_modelos.py`. Neither index was fitted to the fire labels.
+
+## S4.1 Canadian Fire Weather Index
+
+### Fuel codes
+
+The standard six-code system is implemented without a custom fuel type:
+
+- **FFMC (Fine Fuel Moisture Code):** moisture of surface litter and fine fuels (approximately the top 1–2 cm); scale 0–101.
+- **DMC (Duff Moisture Code):** moisture of the loosely compacted organic layer; medium-term drying.
+- **DC (Drought Code):** moisture of the deep, compacted organic layer; seasonal drought storage.
+- **BUI (Buildup Index):** fuel available for combustion, derived from DMC and DC.
+- **ISI (Initial Spread Index):** initial spread potential, derived from FFMC and wind.
+- **FWI (Fire Weather Index):** frontal fire intensity, derived from ISI and BUI.
+
+### Equations
+
+Let $F_t$, $D_t$ and $Q_t$ be FFMC, DMC and DC on day $t$; let $T$ be the 15:00 UTC temperature (°C), $H$ the corresponding relative humidity (%), $W$ the 10-m wind speed (km h$^{-1}$) and $r$ the 00–24 h rainfall (mm). The recursion is applied per node in chronological order.
+
+The fine-fuel moisture content is
+
+$$m_{t-1}=\frac{147.2(101-F_{t-1})}{59.5+F_{t-1}}.$$
+
+For $r>0.5$ mm, with $r_f=r-0.5$,
+
+$$m_0=m_{t-1}+42.5\,r_f\,e^{-100/(251-m_{t-1})}\left(1-e^{-6.93/r_f}\right)+\epsilon,$$
+
+where $\epsilon=0.0015(m_{t-1}-150)^2\sqrt{r_f}$ is the small correction term coded in `src/fwi.py`; $m_0$ is capped at 250. The equilibrium moisture contents are
+
+$$E_d=0.942H^{0.679}+11e^{(H-100)/10}+0.18(21.1-T)(1-e^{-0.115H}),$$
+
+$$E_w=0.614H^{0.753}+10e^{(H-100)/10}+0.18(21.1-T)(1-e^{-0.115H}).$$
+
+The drying and wetting rates are
+
+$$k_d=\left[0.424\left(1-\left(\frac{100-H}{100}\right)^{1.7}\right)+0.0694\sqrt{W}\left(1-\left(\frac{100-H}{100}\right)^8\right)\right]0.581e^{0.0365T},$$
+
+$$k_w=\left[0.424\left(1-\left(\frac{H}{100}\right)^{1.7}\right)+0.0694\sqrt{W}\left(1-\left(\frac{H}{100}\right)^8\right)\right]0.581e^{0.0365T}.$$
+
+The moisture content after one day is
+
+$$m_t=\begin{cases}E_d+(m_0-E_d)10^{-k_d}, & m_0<E_d,\\E_w+(m_0-E_w)10^{-k_w}, & m_0>E_w,\\m_0, & \text{otherwise,}\end{cases}$$
+
+and
+
+$$F_t=\operatorname{clip}\left(\frac{59.5(250-m_t)}{147.2+m_t},\,0,\,101\right).$$
+
+For DMC, when $r>1.5$ mm,
+
+$$r_e=0.92r-1.5,\qquad m_0=20+e^{5.6348-D_{t-1}/43.43},$$
+
+$$b=\begin{cases}100/(0.5+0.3D_{t-1}), & D_{t-1}\le33,\\14-1.3\ln D_{t-1}, & 33<D_{t-1}\le65,\\6.2\ln D_{t-1}-17.2, & D_{t-1}>65,\end{cases}$$
+
+$$m_r=m_0+\frac{1000r_e}{48.77+br_e},\qquad D'=244.72-43.43\ln(m_r-20),$$
+
+with $D'$ floored at zero; when $r\le1.5$ mm, $D'=D_{t-1}$. The daily update uses
+
+$$T_+=\max(T,-1.1),\qquad H_c=\operatorname{clip}(H,1,100),$$
+
+$$L_e=e^{2-0.2H_c/100},\qquad K=1.894(T_++1.1)(100-H_c)L_e10^{-6},\qquad D_t=D'10^{K}.$$
+
+For DC, when $r>2.8$ mm,
+
+$$r_d=0.83r-2.8,\qquad Q_0=800e^{-Q_{t-1}/400}+3.937r_d,$$
+
+with $Q_0$ capped at 800 and $Q'=400\ln(800/Q_0)$; otherwise $Q'=Q_{t-1}$. Then
+
+$$Q_t=Q'+0.5\max(T,-2.8).$$
+
+BUI is
+
+$$U_t=\begin{cases}0, & D_t\le0,\\\frac{0.8D_tQ_t}{D_t+0.4Q_t}, & D_t\le0.4Q_t,\\D_t-\left(1-\frac{0.8Q_t}{D_t+0.4Q_t}\right)\left[0.92+(0.0114D_t)^{1.7}\right], & \text{otherwise.}\end{cases}$$
+
+ISI is
+
+$$m=\frac{147.2(101-F_t)}{59.5+F_t},\qquad f_W=e^{0.05039W},$$
+
+$$f_F=91.9e^{-0.1386m}\left(1+\frac{m^{5.31}}{4.93\times10^7}\right),\qquad R_t=0.208f_Wf_F.$$
+
+Finally,
+
+$$f_D=\begin{cases}0.626U_t^{0.809}+2, & U_t\le80,\\\frac{1000}{25+108.64e^{-0.023U_t}}, & U_t>80,\end{cases}\qquad B_t=0.1R_tf_D,$$
+
+$$FWI_t=\begin{cases}e^{2.72(0.434\ln B_t)^{0.647}}, & B_t>1,\\B_t, & B_t\le1.\end{cases}$$
+
+### Meteorology, timing and resolution
+
+The 15:00 UTC fields (approximately local noon) are extracted from the ERA5-Land 3-hourly archive [@munoz2021era5land]: 2-m temperature, 2-m dew point, and the 10-m wind components $u_{10}$ and $v_{10}$. Relative humidity is derived from temperature and dew point with the Tetens saturation vapour pressure $e_s=0.61078e^{17.27T/(T+237.3)}$ and $H=100e_a/e_s$, clipped to 1–100 %. Wind speed is $W=3.6\sqrt{u_{10}^2+v_{10}^2}$ km h$^{-1}$. Rainfall is the 00–24 h total from the daily climate table.
+
+The FWI uses **same-day** meteorology, not $t-1$: the codes for day $t$ are driven by the 15:00 UTC fields and the rainfall of day $t$. This is a nowcast configuration. The lagged $t-1$ experiment used to quantify the lead-time gap is a separate analysis (Note S3) and does not enter the benchmark.
+
+The climate analysis uses a 0.25° node grid (640 nodes). Each node is matched to the nearest ERA5-Land pixel, and each 1-km² cell inherits one node through `nodo_clima_id`; the mapping is precomputed with a cKDTree. The full FWI series is stored in `fwi_completo_diario.parquet`. The `ffmc` and `isi` columns used as features by M1/M2/M3 are a separate daily approximation computed by `src/clima.py` from daily maximum temperature, VPD-derived relative humidity, daily maximum wind and daily rainfall; they are not the same series as the benchmark FWI.
+
+### Initialization and warm-up
+
+At the first day of each node series (1 January 2018) the codes are initialized as $F=85$, $D=6$ and $Q=15$. The recursion is then run continuously through 2025. No pre-2018 spin-up is available and no separate warm-up window is discarded: the 2018 calendar year is used only in the training split, so any initialization transient is confined to training. By the 2023 validation and the 2024–2025 test the codes have been iterated for at least five years, and the memory of the initial values is negligible.
+
+## S4.2 INPE Risco de Fogo (2019)
+
+The implementation follows the INPE 2019 version 11 formulation [@setzer2019]. The public product applies a correction for hotspots in the previous three days; that correction is deliberately omitted here because it would leak the ignition label. The benchmark therefore uses the weather-only formulation.
+
+### Dryness index (PSE)
+
+Let $r_j$ be daily rainfall and let
+
+$$R_k(t)=\sum_{j=t-k+1}^{t}r_j$$
+
+be the rainfall accumulated over the $k$ days ending on day $t$, with days before 1 January 2018 treated as zero. The PSE (período de secura; 0–105) is
+
+$$PSE_t=105\prod_{j=1}^{11}\exp\left[-\lambda_j\left(R_{k_j}(t)-R_{k_{j-1}}(t)\right)\right],$$
+
+with $R_0=0$, windows $k=(1,2,3,4,5,10,15,30,60,90,120)$ and coefficients
+
+$$\lambda=(0.14,0.07,0.04,0.03,0.02,0.01,0.008,0.004,0.002,0.001,0.0007).$$
+
+The 120-day window is left-truncated at the start of the 2018 series and is complete after 120 days. PSE is driven by same-day rainfall, not $t-1$.
+
+### Flammability constant and basic risk
+
+The primary specification uses a local, land-cover-weighted constant
+
+$$A=\frac{6.0f_p+3.0f_s+1.72f_{ds}+1.72f_{dh}+1.5f_{pa}}{f_p+f_s+f_{ds}+f_{dh}+f_{pa}},$$
+
+where $f_p$, $f_s$, $f_{ds}$, $f_{dh}$ and $f_{pa}$ are the MapBiomas percentages of pasture, savanna, dry forest, humid forest and palm [@mapbiomas2023]. If the denominator is zero, $A=0$. The basic risk is
+
+$$R_b=0.8\frac{1+\sin\left(\frac{A\,PSE_t}{120}\frac{\pi}{2}-\frac{\pi}{2}\right)}{2}.$$
+
+The local $A$ is the primary version; a fixed $A=3.0$ (the INPE open-savanna coefficient) is reported as a sensitivity in Table S22.
+
+### Observed risk and timing
+
+The observed risk is
+
+$$RF_t=\operatorname{clip}\left(R_bF_{UR}F_TF_{lat}F_{alt},\,0,\,1\right),$$
+
+with
+
+$$F_{UR}=1.3-0.006H_{min},\qquad F_T=0.4+0.02T_{max},$$
+
+$$F_{lat}=1+0.003|\phi|,\qquad F_{alt}=1+0.00003z,$$
+
+where $H_{min}$ and $T_{max}$ are the same-day daily minimum relative humidity and maximum temperature, $\phi$ is latitude and $z$ is elevation (m). The 1-km grid table does not carry elevation, so $F_{alt}=1$ in the benchmark. The INPE series is stored in `inpe_diario.parquet`; it uses the same-day daily fields and the same 0.25° node-to-cell mapping as the FWI. No $t-1$ lag is applied.
+
+## S4.3 Calibration and operating points
+
+**No local calibration was applied to either index.** The FWI remains on the Canadian index scale and INPE on a 0–1 risk scale; neither is a calibrated probability. For ignition in each region, the operating cutoff was selected on 2023 validation by maximizing F0.5 and then frozen for 2024–2025 (Tables S11 and S22). The local $A$ weighting is a land-cover parameterization, not a calibration to fire observations.
 
 ---
 
@@ -297,7 +448,7 @@ M1 = biophysical only; M2 = base ignition; M3 = multiscale socio-ecological hybr
 | Validation | Propagation | 75 706 | 757 060 | 1:10.00 |
 | Test | Propagation | 130 674 | 1 306 740 | 1:10.00 |
 
-The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline. FWI and INPE are normalized indices, not calibrated probabilities. The weather-only GBT uses the same learner, capacity and calibration as M1/M2/M3 but only the FWI information set; its full detail is in Table S21. All cutoffs, including those of FWI and INPE, were selected on the 2023 validation set by maximizing F0.5 and then frozen for the 2024–2025 test; neither index received local calibration. FWI is reported on the Canadian index scale (0.3029 in Chaco, 2.1509 in Oriental) and INPE on a 0–1 risk scale (0.8963 in Chaco, 0.0750 in Oriental).
+The full benchmark includes M2, propagation, FWI, INPE and the climatological baseline; its continuation adds a GBT with the M3 features plus both indices. FWI and INPE are normalized indices, not calibrated probabilities. The weather-only GBT uses the same learner, capacity and calibration as M1/M2/M3 but only the FWI information set; its full detail is in Table S21. All cutoffs, including those of FWI and INPE, were selected on the 2023 validation set by maximizing F0.5 and then frozen for the 2024–2025 test; neither index received local calibration. The INPE constant A is land-cover-weighted (local A); Table S22 repeats the benchmark with a fixed A = 3.0 and shows that the ranking conclusion is unchanged. FWI is reported on the Canadian index scale (0.3029 in Chaco, 2.1509 in Oriental) and INPE on a 0–1 risk scale (0.8963 in Chaco, 0.0750 in Oriental).
 
 **Table S11.** Full benchmark on the retrospective 2024–2025 test.
 
@@ -321,6 +472,13 @@ The full benchmark includes M2, propagation, FWI, INPE and the climatological ba
 | Oriental | propagacion | Línea Base Climatológica | 0.5000 | 0.0909 | 0.0826 | 0.0000 | 0.0000 | 0.0909 | 0.0000 | 0.0000 | 0.0000 | 0 |
 
 FWI = full Canadian Fire Weather Index; INPE = INPE Fire Risk; M2 = baseline ignition model in the ignition task and tactical propagation model in the propagation task; M3 = hybrid ignition model; Climatology = climatological baseline; Ign. = ignition; Prop. = propagation.
+
+**Table S11 (continued).** GBT with the M3 feature set plus full FWI and local INPE risk. ΔROC is this model minus M3, with a paired date-grouped bootstrap (B = 1 000). Positive values favour the augmented model.
+
+| Region | Model | ROC-AUC [95 % CI] | PR-AUC | Brier | BSS | ECE | Cutoff | Precision | Recall | F0.5 | FP | ΔROC vs M3 (p) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | M3 + FWI/INPE (contexto local) | 0.8013 [0.796 - 0.807] | 0.2864 | 0.0732 | 0.1146 | 0.0065 | 0.2495 | 0.3466 | 0.2758 | 0.3297 | 8,347 | -0.0009 (0.182) |
+| Oriental | M3 + FWI/INPE (contexto local) | 0.7547 [0.749 - 0.760] | 0.2359 | 0.0764 | 0.0760 | 0.0077 | 0.2084 | 0.2901 | 0.2075 | 0.2687 | 9,228 | +0.0013 (0.001) |
 
 **Table S12.** Controlled ablation of M1, M2 and M3 on the retrospective 2024–2025 test.
 
@@ -541,6 +699,29 @@ $\alpha=C/L$ is the ratio of false-alarm cost to avoided loss; $V(\alpha)$ is th
 
 ![**Figure S3.** Cost-loss curves with 95 % date-grouped bootstrap bands (B = 1 000). The propagation panel uses the full $\alpha$ range; the ignition panel is truncated at $\alpha=0.006$ because the decision value is zero or negligible at larger values. The figure complements Table S14.](../../entregables/figuras/supp_fig03_cost_loss.png){width="95%" fig-alt="Cost-loss curves by region and task"}
 
+**Table S14 (continued).** Threshold and metric sensitivity. Cutoffs for F0.5, F1, F2 and Youden are selected on 2023 validation; precision, recall and Fβ are computed on the 2024–2025 test. Figure S6 shows the validation curves.
+
+| Region | Task | Model | Criterion | Cutoff | Precision | Recall | F0.5 | F1 | F2 |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|
+| Chaco | ignicion | M3 | F0.5 | 0.2218 | 0.3281 | 0.3031 | 0.3228 | 0.3151 | 0.3078 |
+| Chaco | ignicion | M3 | F1 | 0.1649 | 0.2728 | 0.4936 | 0.2996 | 0.3514 | 0.4248 |
+| Chaco | ignicion | M3 | F2 | 0.0827 | 0.1824 | 0.8149 | 0.2159 | 0.2981 | 0.4812 |
+| Chaco | ignicion | M3 | Youden | 0.0827 | 0.1824 | 0.8149 | 0.2159 | 0.2981 | 0.4812 |
+| Oriental | ignicion | M3 | F0.5 | 0.2186 | 0.3013 | 0.1859 | 0.2680 | 0.2299 | 0.2013 |
+| Oriental | ignicion | M3 | F1 | 0.1484 | 0.2354 | 0.3903 | 0.2557 | 0.2937 | 0.3449 |
+| Oriental | ignicion | M3 | F2 | 0.0884 | 0.1733 | 0.6985 | 0.2040 | 0.2777 | 0.4349 |
+| Oriental | ignicion | M3 | Youden | 0.0884 | 0.1733 | 0.6985 | 0.2040 | 0.2777 | 0.4349 |
+| Chaco | propagacion | Propagation | F0.5 | 0.5467 | 0.8369 | 0.5240 | 0.7476 | 0.6445 | 0.5664 |
+| Chaco | propagacion | Propagation | F1 | 0.2649 | 0.7253 | 0.6068 | 0.6980 | 0.6608 | 0.6273 |
+| Chaco | propagacion | Propagation | F2 | 0.1091 | 0.5152 | 0.7019 | 0.5441 | 0.5942 | 0.6545 |
+| Chaco | propagacion | Propagation | Youden | 0.0856 | 0.4338 | 0.7380 | 0.4727 | 0.5464 | 0.6472 |
+| Oriental | propagacion | Propagation | F0.5 | 0.4320 | 0.6502 | 0.1985 | 0.4468 | 0.3041 | 0.2305 |
+| Oriental | propagacion | Propagation | F1 | 0.1863 | 0.4122 | 0.3459 | 0.3970 | 0.3761 | 0.3574 |
+| Oriental | propagacion | Propagation | F2 | 0.0853 | 0.2152 | 0.6318 | 0.2479 | 0.3211 | 0.4554 |
+| Oriental | propagacion | Propagation | Youden | 0.0828 | 0.2099 | 0.6456 | 0.2427 | 0.3168 | 0.4562 |
+
+![**Figure S6.** Validation precision, recall, F0.5, F1 and F2 versus cutoff for M3 ignition and the propagation model, by region. Vertical lines mark the F0.5, F1, F2 and Youden cutoffs; test metrics at those cutoffs are in Table S14 (continued).](../../entregables/figuras/supp_fig06_sensibilidad_umbral.png){width="95%" fig-alt="Threshold sensitivity curves"}
+
 ![**Figure S4.** Decision curve analysis: net benefit per 1 000 sampled cell-days as a function of the threshold probability $p_t$, computed on the case-control test sample. Ignition (0–0.30) and propagation (0–0.90) are shown separately by region. References are no alert (NB = 0), alert all and climatology. FWI and INPE are uncalibrated indices; for each $p_t$ their operating threshold was selected on 2023 validation to maximise net benefit and then frozen for the test. The y-axis is clipped at −20; the alert-all reference falls below it at high $p_t$.](../../entregables/figuras/supp_fig04_net_benefit.png){width="95%" fig-alt="Decision curve analysis by region and task"}
 
 ![**Figure S8.** Population precision as a function of the daily alert budget. Curves sweep the population-corrected score threshold and report weighted precision at the resulting number of alerts per day; diamonds mark the frozen operating point. Ignition panels include M3, M2 and the gated policy; propagation panels show the tactical model. The dashed line is the population prevalence.](../../entregables/figuras/supp_fig08_presupuesto_alertas.png){width="95%" fig-alt="Population precision versus daily alert budget by region and task"}
@@ -676,6 +857,19 @@ The full table with M1, M2 and the gated policy is in `tablas/tablaS20_sensibili
 | Oriental | 0.5645 [0.556–0.575] | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61905 | +0.1889 (≤0.001) |
 
 Features (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `precipitacion_mm`, `precipitacion_48h_mm`, `dias_secos_consecutivos`, `ffmc`, `isi`. BSS is relative to the 2018–2022 training prevalence. ΔROC is M3 minus the weather-only GBT, with a paired bootstrap grouped by date (B = 1 000). The full machine-readable table is `tablas/tablaS21_benchmark_weather_only.csv`.
+
+**Table S22.** Sensitivity of the INPE Fire Risk to the flammability constant A on the retrospective 2024–2025 test. The primary version uses the land-cover-weighted A from MapBiomas fractions (local A, cell-specific); the sensitivity version fixes A = 3.0, the INPE coefficient for open savanna, for every cell. Cutoffs were selected on 2023 validation by maximizing F0.5 and frozen for 2024–2025, so precision, recall and F0.5 refer to different operating points and are not directly comparable across rows. ΔROC is fixed A minus local A, with a paired date-grouped bootstrap (B = 1 000); positive values favour the fixed version. Both versions remain far below M3 (ROC-AUC 0.8021/0.7534; Table 4). In the test sample, local A averages 2.89 in Chaco and 3.71 in Oriental.
+
+<!-- tablaS22:inicio -->
+
+| Region | INPE version | A | ROC-AUC [95 % CI] | PR-AUC | Cutoff | Precision | Recall | F0.5 | FP | ΔROC vs local (p) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | Local (land cover) | cell | 0.5389 [0.529 - 0.549] | 0.1031 | 0.8963 | 0.1172 | 0.1257 | 0.1188 | 15,207 | — |
+| Chaco | Fixed A = 3.0 | 3.0 | 0.4979 [0.489 - 0.507] | 0.0883 | 0.0052 | 0.0913 | 0.9889 | 0.1115 | 158,080 | -0.0409 (0.001) |
+| Oriental | Local (land cover) | cell | 0.4990 [0.488 - 0.510] | 0.0908 | 0.0750 | 0.0924 | 0.7947 | 0.1123 | 141,802 | — |
+| Oriental | Fixed A = 3.0 | 3.0 | 0.5497 [0.540 - 0.561] | 0.1078 | 0.7653 | 0.1229 | 0.1163 | 0.1216 | 15,082 | +0.0508 (0.001) |
+
+<!-- tablaS22:fin -->
 
 **Table S23.** Net benefit per 1 000 sampled cell-days at selected threshold probabilities from the decision curve analysis (Figure S4), computed on the case-control test sample. References (no alert, alert all, climatology) are shown in the figure.
 
@@ -818,6 +1012,46 @@ Features (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `prec
 
 <!-- tablaS24:fin -->
 
+**Table S25.** Stability of M2 and M3 to random seed and capacity (5 seeds × 2 capacities per region). The high-capacity variant increases leaves and boosting rounds by 20 %. ΔROC is M3 − M2 within the same seed and capacity; the 95 % CI is a t interval across runs, and the last column is the fraction of runs with positive Δ.
+
+| Region | Capacity | Runs | M3 ROC (mean ± SD) | M2 ROC (mean ± SD) | ΔROC mean ± SD | 95 % CI | Range | Δ > 0 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | actual | 5 | 0.8021 ± 0.0004 | 0.7985 ± 0.0011 | +0.0036 ± 0.0009 | ±0.0011 | +0.0029 to +0.0047 | 100 % |
+| Chaco | alta | 5 | 0.8028 ± 0.0003 | 0.7994 ± 0.0009 | +0.0035 ± 0.0007 | ±0.0009 | +0.0029 to +0.0043 | 100 % |
+| Oriental | actual | 5 | 0.7537 ± 0.0003 | 0.7409 ± 0.0002 | +0.0128 ± 0.0002 | ±0.0003 | +0.0124 to +0.0130 | 100 % |
+| Oriental | alta | 5 | 0.7545 ± 0.0001 | 0.7417 ± 0.0002 | +0.0128 ± 0.0002 | ±0.0003 | +0.0125 to +0.0130 | 100 % |
+
+**Table S26.** Rolling-origin backtest. Each fold trains through Y−2, validates on Y−1 (cutoff and Platt calibration), and tests on Y. M1/M2/M3 are retrained in each fold; ΔROC is M3−M2 with a paired date-grouped bootstrap (B = 1 000). Figure S5 plots the fold trajectories.
+
+| Region | Fold | Model | ROC-AUC | PR-AUC | n train | n val | n test | Pos test | ΔROC M3−M2 (p) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | test_2022 | M1 | 0.6495 | 0.1455 | 288,376 | 110,275 | 100,111 | 9,101 | — |
+| Chaco | test_2022 | M2 | 0.7682 | 0.2314 | 288,376 | 110,275 | 100,111 | 9,101 | — |
+| Chaco | test_2022 | M3 | 0.7711 | 0.2404 | 288,376 | 110,275 | 100,111 | 9,101 | +0.0030 (0.032) |
+| Chaco | test_2023 | M1 | 0.6334 | 0.1469 | 398,651 | 100,111 | 97,383 | 8,853 | — |
+| Chaco | test_2023 | M2 | 0.7813 | 0.2456 | 398,651 | 100,111 | 97,383 | 8,853 | — |
+| Chaco | test_2023 | M3 | 0.7842 | 0.2531 | 398,651 | 100,111 | 97,383 | 8,853 | +0.0029 (0.082) |
+| Chaco | test_2024 | M1 | 0.6556 | 0.1700 | 498,762 | 97,383 | 101,244 | 9,204 | — |
+| Chaco | test_2024 | M2 | 0.7993 | 0.2764 | 498,762 | 97,383 | 101,244 | 9,204 | — |
+| Chaco | test_2024 | M3 | 0.8030 | 0.2820 | 498,762 | 97,383 | 101,244 | 9,204 | +0.0038 (0.004) |
+| Chaco | test_2025 | M1 | 0.6277 | 0.1424 | 596,145 | 101,244 | 75,372 | 6,852 | — |
+| Chaco | test_2025 | M2 | 0.8001 | 0.2820 | 596,145 | 101,244 | 75,372 | 6,852 | — |
+| Chaco | test_2025 | M3 | 0.8021 | 0.2926 | 596,145 | 101,244 | 75,372 | 6,852 | +0.0019 (0.148) |
+| Oriental | test_2022 | M1 | 0.6862 | 0.1694 | 305,426 | 106,480 | 93,313 | 8,483 | — |
+| Oriental | test_2022 | M2 | 0.7418 | 0.2218 | 305,426 | 106,480 | 93,313 | 8,483 | — |
+| Oriental | test_2022 | M3 | 0.7477 | 0.2310 | 305,426 | 106,480 | 93,313 | 8,483 | +0.0059 (0.006) |
+| Oriental | test_2023 | M1 | 0.7028 | 0.1792 | 411,906 | 93,313 | 91,124 | 8,284 | — |
+| Oriental | test_2023 | M2 | 0.7488 | 0.2223 | 411,906 | 93,313 | 91,124 | 8,284 | — |
+| Oriental | test_2023 | M3 | 0.7608 | 0.2405 | 411,906 | 93,313 | 91,124 | 8,284 | +0.0120 (0.001) |
+| Oriental | test_2024 | M1 | 0.6798 | 0.1615 | 505,219 | 91,124 | 100,507 | 9,137 | — |
+| Oriental | test_2024 | M2 | 0.7366 | 0.2095 | 505,219 | 91,124 | 100,507 | 9,137 | — |
+| Oriental | test_2024 | M3 | 0.7532 | 0.2316 | 505,219 | 91,124 | 100,507 | 9,137 | +0.0166 (0.001) |
+| Oriental | test_2025 | M1 | 0.6896 | 0.1728 | 596,343 | 100,507 | 99,429 | 9,039 | — |
+| Oriental | test_2025 | M2 | 0.7476 | 0.2236 | 596,343 | 100,507 | 99,429 | 9,039 | — |
+| Oriental | test_2025 | M3 | 0.7560 | 0.2396 | 596,343 | 100,507 | 99,429 | 9,039 | +0.0084 (0.001) |
+
+![**Figure S5.** Rolling-origin ROC-AUC by test year for M1, M2 and M3. Numbers next to M3 are ΔROC(M3−M2).](../../entregables/figuras/supp_fig05_rolling_origin.png){width="95%" fig-alt="Rolling-origin ROC-AUC by fold"}
+
 **Table S27.** Train/test overlap sensitivity on the retrospective 2024–2025 test. Metrics are recomputed with the frozen 2023 cutoffs on: the full test; cells never seen in training; cells without any fire detection in training; cells with `freq_hist_1km = 0`; and 2025 only. BSS uses the full-test prevalence of each region as the reference forecast, so the `full` rows reproduce Table 2. Δ is relative to the full test for the same model. Precision, recall and F0.5 are fractions at the frozen cutoff.
 
 <!-- tablaS27:inicio -->
@@ -892,6 +1126,38 @@ Intervals are 95 % bootstrap percentiles with 500 replicates resampling dates, n
 | Oriental | 2025 only | 99429 | 9039 | +0.0088 | [+0.0058, +0.0118] | ≤0.001 | +0.0157 | [+0.0112, +0.0209] | ≤0.001 |
 
 <!-- tablaS27b:fin -->
+
+**Table S29.** Adversarial validation between training (2018–2022) and test (2024–2025) rows using the M3 feature set. AUC is the mean of five stratified folds; the top features are ranked by mean LightGBM gain. High AUC indicates distribution shift, not model performance.
+
+| Region | Adversarial AUC (mean ± SD) |
+|---|---:|
+| Chaco | 0.8832 ± 0.0021 |
+| Oriental | 0.9241 ± 0.0019 |
+
+Top features by gain:
+
+| Region | Rank | Feature | Gain (%) |
+|---|---:|---|---:|
+| Chaco | 1 | `dia_del_anio` | 14.50 |
+| Chaco | 2 | `densidad_hist_25km` | 13.82 |
+| Chaco | 3 | `doy_sin` | 12.72 |
+| Chaco | 4 | `doy_cos` | 9.60 |
+| Chaco | 5 | `deficit_hidro_60d` | 7.50 |
+| Chaco | 6 | `temp_min_c` | 5.46 |
+| Chaco | 7 | `precipitacion_48h_mm` | 5.41 |
+| Chaco | 8 | `precipitacion_mm` | 4.17 |
+| Chaco | 9 | `dias_secos_consecutivos` | 3.08 |
+| Chaco | 10 | `dia_semana` | 2.65 |
+| Oriental | 1 | `dia_del_anio` | 14.35 |
+| Oriental | 2 | `doy_cos` | 13.90 |
+| Oriental | 3 | `deficit_hidro_60d` | 13.77 |
+| Oriental | 4 | `densidad_hist_25km` | 12.31 |
+| Oriental | 5 | `doy_sin` | 8.73 |
+| Oriental | 6 | `temp_min_c` | 4.58 |
+| Oriental | 7 | `precipitacion_48h_mm` | 4.42 |
+| Oriental | 8 | `pct_agricultura_anual` | 3.42 |
+| Oriental | 9 | `precipitacion_mm` | 2.83 |
+| Oriental | 10 | `mes` | 2.19 |
 
 # Data availability {.unnumbered}
 
