@@ -1,0 +1,5 @@
+region,setting,negative_control_auc
+Chaco,all features,0.6297
+Chaco,without historical,0.6276
+Oriental,all features,0.5138
+Oriental,without historical,0.5168

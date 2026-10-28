@@ -23,7 +23,7 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.docx`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S4, Tablas S1–S27 y S29 y Figuras S1–S6 y S8.  
+> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S4, Tablas S1–S32 y Figuras S1–S7 y S8.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.0.1 de GitHub).  
 > **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.0.1 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -51,9 +51,9 @@ format:
 
 • **Nota S4:** Implementación de los índices FWI e INPE.
 
-• **Tablas S1–S27 y S29:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad de A del INPE, una sensibilidad al solapamiento train/test, una tabla de beneficio neto, una prueba pareada de valor de decisión, estabilidad a semillas/capacidad, un backtest rolling-origin y una validación adversarial.
+• **Tablas S1–S32:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad de A del INPE, una sensibilidad al solapamiento train/test, una tabla de beneficio neto, una prueba pareada de valor de decisión, estabilidad a semillas/capacidad, un backtest rolling-origin, una validación adversarial, sensibilidades de gate y etiquetas, una sensibilidad de muestreo y un control negativo.
 
-• **Figuras S1–S6 y S8:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral y precisión por presupuesto de alertas.
+• **Figuras S1–S7 y S8:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral, importancia por permutación y precisión por presupuesto de alertas.
 
 ---
 
@@ -1141,6 +1141,23 @@ Los intervalos son percentiles bootstrap del 95 % con 500 réplicas que remuestr
 
 <!-- tablaS27b:fin -->
 
+**Tabla S28.** Sensibilidad a la razón de muestreo. La fila 1:5 submuestrea negativos de entrenamiento del muestreo 1:10 congelado; la fila 1:20 usa negativos independientes de un plan 20:1 generado desde el archivo candidato completo. Validación y test permanecen en 1:10 para que las métricas sean comparables. La precisión poblacional aplica la corrección por prevalencia.
+
+| Region | Ratio | Model | n train | Pos train | ROC-AUC | PR-AUC | Cutoff F0.5 | Population precision |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| Chaco | 1:10 (baseline) | M2 | 498,762 | 45,342 | 0.7991 | 0.2766 | 0.2071 | 0.000861 |
+| Chaco | 1:10 (baseline) | M3 | 498,762 | 45,342 | 0.8021 | 0.2842 | 0.2218 | 0.000775 |
+| Chaco | 1:5 | M2 | 272,052 | 45,342 | 0.7984 | 0.2747 | 0.2060 | 0.000814 |
+| Chaco | 1:5 | M3 | 272,052 | 45,342 | 0.8016 | 0.2822 | 0.2266 | 0.000766 |
+| Chaco | 1:20 (independientes) | M2 | 952,182 | 45,342 | 0.7836 | 0.2379 | 0.2105 | 0.000651 |
+| Chaco | 1:20 (independientes) | M3 | 952,182 | 45,342 | 0.7926 | 0.2617 | 0.2285 | 0.000718 |
+| Oriental | 1:10 (baseline) | M2 | 505,219 | 45,929 | 0.7406 | 0.2146 | 0.1983 | 0.001723 |
+| Oriental | 1:10 (baseline) | M3 | 505,219 | 45,929 | 0.7534 | 0.2340 | 0.2186 | 0.002098 |
+| Oriental | 1:5 | M2 | 275,574 | 45,929 | 0.7405 | 0.2141 | 0.1986 | 0.001695 |
+| Oriental | 1:5 | M3 | 275,574 | 45,929 | 0.7534 | 0.2330 | 0.2274 | 0.002106 |
+| Oriental | 1:20 (independientes) | M2 | 964,509 | 45,929 | 0.7402 | 0.2099 | 0.2005 | 0.001715 |
+| Oriental | 1:20 (independientes) | M3 | 964,509 | 45,929 | 0.7526 | 0.2362 | 0.2002 | 0.001950 |
+
 **Tabla S29.** Validación adversarial entre filas de entrenamiento (2018–2022) y test (2024–2025) usando el conjunto de variables de M3. El AUC es la media de cinco folds estratificados; las variables principales se ordenan por ganancia media de LightGBM. Un AUC alto indica cambio de distribución, no desempeño del modelo.
 
 | Region | Adversarial AUC (mean ± SD) |
@@ -1172,6 +1189,83 @@ Top features by gain:
 | Oriental | 8 | `pct_agricultura_anual` | 3.42 |
 | Oriental | 9 | `precipitacion_mm` | 2.83 |
 | Oriental | 10 | `mes` | 2.19 |
+
+**Tabla S30.** Variantes de calidad de etiquetas VIIRS. `high_confidence` conserva detecciones de confianza alta; `frp_ge_10` conserva detecciones con FRP ≥ 10 MW. Las variantes se aplican a las filas positivas del muestreo 1:10 congelado; los negativos no cambian. La variante de nubosidad < 40 % no se reporta: FIRMS no contiene una máscara de nubes y la descarga del proxy de nubosidad total ERA5 no completó en la cola del CDS. Es una sensibilidad de etiquetas, no una reconstrucción completa de D2.
+
+| Region | Variant | Model | Pos train | Pos test | Pos retained | ROC-AUC | PR-AUC | Precision | Recall |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | baseline | M2 | 45,342 | 16,056 | 1.000 | 0.7991 | 0.2766 | 0.3327 | 0.2726 |
+| Chaco | baseline | M3 | 45,342 | 16,056 | 1.000 | 0.8021 | 0.2842 | 0.3281 | 0.3031 |
+| Chaco | high_confidence | M2 | 5,849 | 1,957 | 0.122 | 0.8187 | 0.0701 | 0.1449 | 0.1119 |
+| Chaco | high_confidence | M3 | 5,849 | 1,957 | 0.122 | 0.8228 | 0.0719 | 0.1318 | 0.1124 |
+| Chaco | frp_ge_10 | M2 | 15,047 | 5,120 | 0.319 | 0.8096 | 0.1350 | 0.1904 | 0.2164 |
+| Chaco | frp_ge_10 | M3 | 15,047 | 5,120 | 0.319 | 0.8136 | 0.1404 | 0.2306 | 0.1658 |
+| Oriental | baseline | M2 | 45,929 | 18,176 | 1.000 | 0.7406 | 0.2146 | 0.2609 | 0.1959 |
+| Oriental | baseline | M3 | 45,929 | 18,176 | 1.000 | 0.7534 | 0.2340 | 0.3013 | 0.1859 |
+| Oriental | high_confidence | M2 | 2,935 | 1,178 | 0.065 | 0.7686 | 0.0220 | 0.0437 | 0.0365 |
+| Oriental | high_confidence | M3 | 2,935 | 1,178 | 0.065 | 0.7793 | 0.0246 | 0.0535 | 0.0416 |
+| Oriental | frp_ge_10 | M2 | 8,990 | 3,447 | 0.190 | 0.7654 | 0.0643 | 0.1194 | 0.0844 |
+| Oriental | frp_ge_10 | M3 | 8,990 | 3,447 | 0.190 | 0.7763 | 0.0688 | 0.1346 | 0.0702 |
+
+**Tabla S31.** Ablación del umbral del gate. El gate basal es VPD ≥ 0.8 kPa y lluvia 48 h < 10 mm; las variantes estrictas retienen 73–92 % de los positivos. La fila sin gate usa una muestra 1:10 independiente generada sin el filtro biofísico desde el archivo candidato completo. El FWI se evalúa en las mismas filas.
+
+| Region | Gate | Rows retained | Positives retained | M3 ROC | M2 ROC | FWI ROC | ΔROC M3−M2 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Chaco | gate 0.8/10 (baseline) | 1.000 | 1.000 | 0.8021 | 0.7991 | 0.5173 | +0.0030 |
+| Chaco | sin gate | 0.975 | 1.000 | 0.7924 | 0.7833 | 0.5105 | +0.0091 |
+| Chaco | gate 1.0/5 | 0.918 | 0.928 | 0.8026 | 0.7995 | 0.5140 | +0.0032 |
+| Chaco | gate 1.2/2 | 0.811 | 0.828 | 0.8052 | 0.8024 | 0.5096 | +0.0027 |
+| Oriental | gate 0.8/10 (baseline) | 1.000 | 1.000 | 0.7534 | 0.7406 | 0.5564 | +0.0128 |
+| Oriental | sin gate | 0.927 | 1.000 | 0.7510 | 0.7379 | 0.5457 | +0.0131 |
+| Oriental | gate 1.0/5 | 0.882 | 0.915 | 0.7527 | 0.7400 | 0.5444 | +0.0127 |
+| Oriental | gate 1.2/2 | 0.727 | 0.783 | 0.7548 | 0.7416 | 0.5342 | +0.0131 |
+
+**Tabla S32.** Control negativo y permutation importance. El control negativo reentrena M3 con etiquetas de entrenamiento permutadas; el AUC debería ser ~0.5. La importancia es el ΔROC medio al permutar cada variable o familia en el test (tres repeticiones). El AUC del control sigue por encima de 0.5 en el Chaco, por lo que el score no debe leerse causalmente; las variables históricas dominan en el Chaco, mientras que la información estática de celda y el solapamiento train/test son fuentes adicionales. La Figura S7 muestra el ranking individual.
+
+| Region | Setting | Negative-control AUC |
+|---|---|---:|
+| Chaco | all features | 0.6297 |
+| Chaco | without historical | 0.6276 |
+| Oriental | all features | 0.5138 |
+| Oriental | without historical | 0.5168 |
+
+| Region | Family | Features | ΔROC |
+|---|---|---:|---:|
+| Chaco | weather | 18 | 0.0034 |
+| Chaco | fuel | 11 | 0.0282 |
+| Chaco | anthropogenic | 7 | 0.0234 |
+| Chaco | historical | 2 | 0.1701 |
+| Chaco | calendar | 6 | 0.0018 |
+| Oriental | weather | 18 | 0.0128 |
+| Oriental | fuel | 11 | 0.0411 |
+| Oriental | anthropogenic | 7 | 0.0408 |
+| Oriental | historical | 3 | 0.0342 |
+| Oriental | calendar | 6 | 0.0022 |
+
+| Region | Feature | ΔROC |
+|---|---|---:|
+| Chaco | `dist_foco_hist_km` | 0.1698 |
+| Chaco | `presion_desmonte_vpd` | 0.0096 |
+| Chaco | `pct_bosque_seco` | 0.0079 |
+| Chaco | `dist_corredor_antropico_km` | 0.0078 |
+| Chaco | `focalizacion_antropica_local` | 0.0038 |
+| Chaco | `pct_desmonte_t1` | 0.0026 |
+| Chaco | `doy_cos` | 0.0016 |
+| Chaco | `precipitacion_mm` | 0.0010 |
+| Chaco | `riesgo_estero_seco` | 0.0007 |
+| Chaco | `swvl1_m3m3` | 0.0007 |
+| Oriental | `dist_foco_hist_km` | 0.0200 |
+| Oriental | `focalizacion_antropica_local` | 0.0164 |
+| Oriental | `dist_corredor_antropico_km` | 0.0060 |
+| Oriental | `pct_agricultura_anual` | 0.0059 |
+| Oriental | `freq_hist_1km` | 0.0048 |
+| Oriental | `pct_humedal_palmar` | 0.0042 |
+| Oriental | `riesgo_estero_seco` | 0.0038 |
+| Oriental | `presion_desmonte_vpd` | 0.0032 |
+| Oriental | `pct_sabana_pastizal` | 0.0016 |
+| Oriental | `ffmc` | 0.0013 |
+
+![**Figura S7.** Importancia por permutación de las variables de M3 en el test retrospectivo (ΔROC medio tras permutar, tres repeticiones), por región.](../../entregables/figuras/supp_fig07_permutation_importance.png){width="95%" fig-alt="Importancia por permutación por región"}
 
 # Disponibilidad de datos {.unnumbered}
 

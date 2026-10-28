@@ -6,6 +6,8 @@ SOTA philosophy:
 - Zero-overhead: Avoids unnecessary computation of vector polygons for massive tabular operations.
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 def coordenadas_a_cell_id(x_utm: float | np.ndarray, y_utm: float | np.ndarray, res_m: int = 1000) -> int | np.ndarray:

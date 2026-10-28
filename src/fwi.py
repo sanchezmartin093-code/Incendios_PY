@@ -7,6 +7,9 @@ Includes the calculation of:
 - Convective wind-dryness interaction
 """
 
+from __future__ import annotations
+
+
 import numpy as np
 
 def calcular_presion_vapor_saturacion(temperatura_c: float | np.ndarray) -> float | np.ndarray:

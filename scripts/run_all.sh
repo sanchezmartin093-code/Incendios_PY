@@ -47,6 +47,14 @@ if [[ "$STAGE" == "benchmark" || "$STAGE" == "all" ]]; then
   run_py scripts/55_contexto_local_indices.py
   run_py scripts/56_sensibilidad_umbral.py
   run_py scripts/57_validacion_adversarial.py
+  run_py scripts/60_control_negativo_permutacion.py
+  run_py scripts/61_ablacion_gate.py
+  run_py scripts/62_variantes_viirs.py
+  run_py scripts/63_sensibilidad_muestreo.py
+  run_py scripts/64_muestras_extra.py
+  run_py scripts/65_nubes_era5.py
+  run_py scripts/66_gate_sin_gate.py
+  run_py scripts/67_muestreo_1_20_real.py
 fi
 
 if [[ "$STAGE" == "docs" || "$STAGE" == "all" ]]; then
