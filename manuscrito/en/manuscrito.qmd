@@ -289,7 +289,7 @@ We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas, Hansen/UMD an
 - **Software required:** macOS 13+, Linux Ubuntu 22.04+, or Windows 11 with WSL2; Python 3.12+ with Polars, DuckDB, NumPy and the LightGBM C++ backend; pinned in `requirements-lock.txt`.
 - **Program language:** Python 3.12+.
 - **Program size:** 1.7 MB source tree (approximately 0.9 MB Python source); the processed benchmark archive is 11 GB.
-- **Availability and license:** Freely available under the MIT License at [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY). Code concept DOI: [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); data concept DOI: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Both concept DOIs resolve to the latest archived release (v2.1.0).
+- **Availability and license:** Freely available under the MIT License at [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY). Code concept DOI: [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); data concept DOI: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). The v2.1.0 source snapshot is the GitHub release; the concept DOIs identify the archived code and data series.
 - **User guide:** `docs/USER_GUIDE.md`; **tutorial:** `docs/TUTORIAL.md`.
 - **Tests:** 76 tests pass with `python -m pytest -q tests`.
 

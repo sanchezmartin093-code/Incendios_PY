@@ -7,35 +7,35 @@
 
 ## Archivos
 
-- [ ] `entregables/submission/manuscrito.docx`
-- [ ] `entregables/submission/material_suplementario.docx`
-- [ ] `entregables/submission/highlights.docx`
-- [ ] `entregables/submission/cover_letter.docx`
-- [ ] `entregables/submission/figuras_maestro.pdf`
-- [ ] `entregables/submission/tablas_maestro.xlsx`
+- [x] `entregables/submission/manuscrito.docx`
+- [x] `entregables/submission/material_suplementario.docx`
+- [x] `entregables/submission/highlights.docx`
+- [x] `entregables/submission/cover_letter.docx`
+- [x] `entregables/submission/figuras_maestro.pdf`
+- [x] `entregables/submission/tablas_maestro.xlsx`
 
 ## Metadatos
 
-- [ ] Título, afiliación, ORCID, e-mail y teléfono sin errores.
-- [ ] Keywords separadas por puntos medios.
-- [ ] CRediT antes de Funding.
-- [ ] Declaración de IA antes de References.
-- [ ] Funding y competing interests completos.
-- [ ] Concept DOI de código y datos incluidos.
-- [ ] Release v2.1.0 disponible en GitHub.
-- [ ] DOI conceptual resuelve a la versión más reciente depositada.
+- [x] Título, afiliación, ORCID, e-mail y teléfono sin errores.
+- [x] Keywords separadas por puntos medios.
+- [x] CRediT antes de Funding.
+- [x] Declaración de IA antes de References.
+- [x] Funding y competing interests completos.
+- [x] Concept DOI de código y datos incluidos.
+- [x] Release v2.1.0 disponible en GitHub.
+- [ ] Depositar v2.1.0 en Zenodo; actualmente el DOI conceptual resuelve a v2.0.1.
 
 ## Comprobaciones
 
-- [ ] `python3 scripts/70_verificar_envio.py` devuelve `check: OK`.
-- [ ] `python -m pytest -q tests` devuelve 76 tests.
-- [ ] `auditoria/HASHES.sha256` verifica sin errores.
-- [ ] Figura 4 contiene `Ignition` y `Propagation`.
-- [ ] Ecuaciones del suplemento conservan fracciones y sumatorias.
-- [ ] Tablas S6, S17 y S28 tienen la nota de precisión poblacional.
-- [ ] Separadores de miles uniformes con espacio.
-- [ ] Figuras maestras: 15 páginas y 15 marcadores.
-- [ ] Tablas maestras: 50 hojas, incluida `Indice`.
+- [x] `python3 scripts/70_verificar_envio.py` devuelve `check: OK`.
+- [x] `python -m pytest -q tests` devuelve 76 tests.
+- [x] `auditoria/HASHES.sha256` verifica sin errores.
+- [x] Figura 4 contiene `Ignition` y `Propagation`.
+- [x] Ecuaciones del suplemento conservan fracciones y sumatorias.
+- [x] Tablas S6, S17 y S28 tienen la nota de precisión poblacional.
+- [x] Separadores de miles uniformes con espacio.
+- [x] Figuras maestras: 15 páginas y 15 marcadores.
+- [x] Tablas maestras: 50 hojas, incluida `Indice`.
 
 ## Revisión humana pendiente
 
