@@ -1,0 +1,10 @@
+project:
+  type: default
+  output-dir: entregables
+  render:
+    - manuscrito/en/manuscrito_en.qmd
+    - manuscrito/en/material_suplementario_en.qmd
+    - manuscrito/en/cover_letter.qmd
+    - manuscrito/es/manuscrito.qmd
+    - manuscrito/es/material_suplementario.qmd
+    - manuscrito/es/title_page.qmd

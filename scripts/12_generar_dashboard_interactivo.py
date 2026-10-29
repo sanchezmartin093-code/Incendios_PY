@@ -1,6 +1,6 @@
 """
 Script 12: Interactive Early Warning Web Dashboard Generator (Leaflet + Chart.js).
-- Builds a standalone interactive web portal (standalone HTML): entregables/dashboard_alerta_interactivo.html
+- Builds a standalone interactive web portal (standalone HTML): entregables/web/dashboard_alerta_interactivo.html
 - Integrates:
   * Leaflet map with official departmental boundaries and visualization of critical hotspots.
   * Interactive circular markers colored by risk level with biophysical popups.
@@ -420,7 +420,7 @@ def generar_dashboard_interactivo(fecha: str | None = None) -> Path:
 </html>
 """
 
-    dir_out = ROOT_DIR / "entregables"
+    dir_out = ROOT_DIR / "entregables" / "web"
     dir_out.mkdir(parents=True, exist_ok=True)
     p_html = dir_out / "dashboard_alerta_interactivo.html"
     p_html.write_text(html_content, encoding="utf-8")

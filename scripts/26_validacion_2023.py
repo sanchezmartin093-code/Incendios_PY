@@ -4,7 +4,7 @@ Script 26: Fase 2 scientific selection evidence on 2023 validation only.
 This script never reads test_*.parquet or the confirmation holdout.
 
 Outputs:
-- auditoria/FASE2_VALIDACION_2023/predicciones_val_2023_<region>.parquet
+- auditoria/fase2_seleccion_modelo/FASE2_VALIDACION_2023/predicciones_val_2023_<region>.parquet
 - tablas/tabla10_validacion_2023.csv
 - tablas/tabla10_validacion_2023_fallback.csv
 - tablas/tabla10_validacion_2023_poblacional.csv
@@ -40,7 +40,7 @@ MODELOS = [
     ("M2_base", "ignicion"),
     ("M3_hibrido", "hibrido"),
 ]
-SALIDA = ROOT_DIR / "auditoria" / "FASE2_VALIDACION_2023"
+SALIDA = ROOT_DIR / "auditoria" / "fase2_seleccion_modelo" / "FASE2_VALIDACION_2023"
 
 
 def _metricas(y, p, cutoff, region, modelo, subset):

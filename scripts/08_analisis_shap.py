@@ -83,7 +83,7 @@ NOMBRES_LEGIBLES = {
 
 def ejecutar_analisis_shap():
     print("=" * 65)
-    print("ANÁLISIS DE INTERPRETABILIDAD CON TREESHAP (XAI)")
+    print("TREESHAP INTERPRETABILITY ANALYSIS (XAI)")
     print("=" * 65)
 
     p_val = DIR_PROCESSED / "targets_poblacionales" / "val_ignicion.parquet"
@@ -114,7 +114,7 @@ def ejecutar_analisis_shap():
         X_val, y_val, feats = preparar_matrices_xy(df_val, region, modo=modo)
 
         if len(X_val) == 0:
-            print(f"Sin muestras de validación para {region}")
+            print(f"No validation samples for {region}")
             continue
 
         # 1. Compute native TreeSHAP values in C++
@@ -136,7 +136,7 @@ def ejecutar_analisis_shap():
         rankings_totales.append(df_rank)
         datos_plot[region] = df_rank
 
-        print(f"Top 5 variables más influyentes en {region}:")
+        print(f"Top 5 most influential variables in {region}:")
         for idx, row in df_rank.head(5).iterrows():
             print(f" {row['ranking']}. {row['nombre_legible']}: {row['shap_importancia_media']:.4f}")
 
@@ -165,7 +165,7 @@ def ejecutar_analisis_shap():
         fig.savefig(p_png, dpi=300)
         fig.savefig(p_pdf)
         plt.close(fig)
-        print(f" ✓ Gráfico exportado: {p_png.name} y {p_pdf.name}")
+        print(f" ✓ Figure exported: {p_png.name} and {p_pdf.name}")
 
     # 4. Generate combined comparative Chaco vs. Oriental figure
     if len(datos_plot) == 2:
@@ -199,7 +199,7 @@ def ejecutar_analisis_shap():
         p_md = DIR_TABLAS / "tabla03_shap_ranking_variables.md"
         df_ranking_final.to_csv(p_csv, index=False)
 
-        md_str = "# Tabla 3. Ranking de Importancia de Variables por Ecorregión (TreeSHAP)\n\n"
+        md_str = "# Table 3. Variable Importance Ranking by Ecoregion (TreeSHAP)\n\n"
         md_str += df_ranking_final.to_markdown(index=False) + "\n"
         p_md.write_text(md_str, encoding="utf-8")
         print(f"✓ Tabla CSV exportada: {p_csv.name}")

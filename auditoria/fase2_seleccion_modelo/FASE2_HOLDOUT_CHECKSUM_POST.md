@@ -1,0 +1,8 @@
+# Checksums del holdout de confirmación (post)
+
+```text
+babe5d38e817d70d8780e00afd2814fa86adba0c46973748e898417fbb5dd85b  datos/processed/holdout_confirmacion/bloques.parquet
+22ede473dd8266aa6355ce146c858f783f0f195e3cefd6d6f1d71a2f9356a8fc  datos/processed/holdout_confirmacion/celdas_buffer.parquet
+0947d7c21c4e38f98a7aa07ced5a4a9485946f3edc17b8bc8a4e1a489b24bdc7  datos/processed/holdout_confirmacion/celdas_holdout.parquet
+9176fce198c0eb5d459c6fefc4413c7c4263574df2944ad37eb50d14d7f8523a  datos/processed/holdout_confirmacion/holdout_confirmacion.meta.json
+```

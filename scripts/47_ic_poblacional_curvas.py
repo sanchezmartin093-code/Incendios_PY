@@ -6,9 +6,9 @@
    (M3, M2, gated) y propagacion, y Figura S8.
 
 Salidas:
-- entregables/tablas/tablaS06b_ic_poblacional.csv
-- entregables/tablas/tablaS08_presupuesto_alertas.csv
-- entregables/figuras/supp_fig08_presupuesto_alertas.png|.pdf
+- entregables/fuentes/tablas/tablaS06b_ic_poblacional.csv
+- entregables/fuentes/tablas/tablaS08_presupuesto_alertas.csv
+- entregables/fuentes/figuras/supp_fig08_presupuesto_alertas.png|.pdf
 - Tabla S6 regenerada entre <!-- tablaS6:inicio/fin -->.
 """
 
@@ -364,8 +364,8 @@ def main():
 
     tabla = _tabla_s6(tab, ic)
     for q in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if q.exists():
             _splice(q, tabla, "tablaS6")

@@ -47,4 +47,8 @@ modelos/legacy_v1/
 ~$*.doc
 
 # Paquete generado para el sistema editorial
-entregables/submission/
+dist/submission/
+
+# Salidas anidadas de Quarto (usar scripts/render_manuscrito.sh para aplanar)
+entregables/manuscrito/
+entregables/entregables/

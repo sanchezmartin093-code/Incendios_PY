@@ -15,8 +15,8 @@ from docx.shared import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TARGETS = [
-    ROOT / "entregables" / "en" / "material_suplementario.docx",
-    ROOT / "entregables" / "es" / "material_suplementario_es.docx",
+    ROOT / "entregables" / "en" / "material_suplementario_en.docx",
+    ROOT / "entregables" / "es" / "material_suplementario.docx",
 ]
 TOTAL_WIDTH = 14688
 

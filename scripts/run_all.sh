@@ -58,9 +58,13 @@ if [[ "$STAGE" == "benchmark" || "$STAGE" == "all" ]]; then
 fi
 
 if [[ "$STAGE" == "docs" || "$STAGE" == "all" ]]; then
-  (cd manuscrito && quarto render)
-  run_py scripts/40_formatear_docx_cageo.py entregables/en/manuscrito.docx entregables/manuscrito.docx
+  log "bash scripts/render_manuscrito.sh"
+  bash scripts/render_manuscrito.sh
+  run_py scripts/40_formatear_docx_cageo.py entregables/en/manuscrito_en.docx entregables/en/manuscrito_en.docx
+  run_py scripts/41_formatear_suplementario_docx.py
   run_py scripts/59_generar_hashes.py
 fi
+
+run_py scripts/99_normalizar_formatos.py
 
 log "done: $STAGE"

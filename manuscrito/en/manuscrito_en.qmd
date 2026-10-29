@@ -1,0 +1,342 @@
+---
+title: "A reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco (2018–2025): D2 targets, M3/M2 inference, and an open benchmark against Canadian FWI and INPE"
+lang: en
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  sec-prefix: "Section"
+bibliography: ../assets/references.bib
+csl: ../assets/elsevier-harvard.csl
+format:
+  docx: default
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: false
+    embed-resources: true
+    theme:
+      light: cosmo
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    link-citations: true
+    smooth-scroll: true
+---
+
+**Martín Sánchez Insfrán**
+
+Independent Researcher, Asunción, Paraguay. ORCID: 0000-0003-4138-9668
+
+Corresponding author. E-mail: sanchez.martin093@gmail.com · Telephone: +595 971 907 727
+
+**ARTICLE INFO**
+
+**Keywords:** Wildfire nowcasting · GeoAI · Reproducibility · Spatial cross-validation · LightGBM · Gran Chaco
+
+**ABSTRACT**
+
+Wildfire machine learning often suffers from spatial leakage and the limited transferability of boreal fire-weather indices to subtropical biomes. For Paraguay's 1-km² Chaco–Oriental grid (2018–2025), we introduce D2, a computational target operator that formally separates primary ignition from tactical propagation, and a gated inference and evaluation framework that makes target construction, leakage control and model comparison explicit. D2 defines ignition as fire on day *t* with no fire within 25 km on day *t*−1 and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a day *t*−1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without day *t*−1 fire inputs, using M2 as a fallback for cells without history and M1 as a biophysical baseline. On 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental) versus 0.7817/0.7496 for M2. In 2023 spatial blocks, M2 is most robust (0.6773/0.7470); M1 does not beat M2 on cells without history. An independent confirmation holdout also retained M2 (0.6871/0.6621). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5059/0.5611 for the Canadian Forest Fire Weather Index (FWI) and 0.5266/0.4973 for the INPE Risco de Fogo; propagation reaches 0.9039/0.7859. Population-level ignition precision is 0.082 %/0.198 % (95 % CI 0.075–0.088/0.178–0.222), and decision value is concentrated in propagation, confirming a screening-and-prioritization role rather than a stand-alone warning system. The contribution is the open D2 operator, gated inference and evaluation harness, released as reproducible software.
+
+# 1. Introduction
+
+
+Vegetation fires in the South American Gran Chaco are a recurring threat to ecosystems, regional climate and public health [@flannigan2009; @jolly2015; @baumann2017]. The region combines some of the fastest agricultural frontiers in South America with prolonged dry seasons and extreme heat [@vallejos2015; @alvarado2018; @pivello2021]. Operational fire danger there is still largely based on fire-weather indices developed for temperate or tropical savanna systems: the Canadian Forest Fire Weather Index (FWI) [@vanwagner1987; @stocks1989; @sanmiguel2012] and the Instituto Nacional de Pesquisas Espaciais (INPE) Risco de Fogo [@setzer2019]. These indices are widely used, but they were not designed for the moisture-limited, fuel-limited and strongly anthropogenic ignition regime of the Dry Chaco.
+
+Machine learning has become a common alternative for fire susceptibility mapping [@jain2020review; @barmpoutis2020], typically with gradient-boosted trees [@ke2017lightgbm]. Two methodological problems limit the operational value of many published models. First, when spatial lags or *t*−1 fire variables enter the ignition layer, the model learns persistence rather than ignition; reported discrimination can be high while the model is unable to anticipate new ignitions [@roberts2017; @ploton2020; @tobler1970; @legendre1993; @dormann2007]. Second, fire-weather indices calibrated in boreal or temperate systems do not necessarily transfer to subtropical biomes, and their failure is rarely quantified on a common retrospective test. A reproducible benchmark is therefore needed not only to compare models, but to make the target definition, the leakage controls and the evaluation protocol explicit enough to be audited. The two tasks are also physically distinct: primary ignition is controlled by fine-fuel curing, atmospheric water demand and human land management, whereas tactical propagation is governed by thermal radiation and the proximity of active perimeters. Conflating both processes into a single binary label does not only introduce a statistical shortcut; it also mixes two different physical regimes that respond to different predictors.
+
+The operational context adds a third constraint: most agencies need a daily product that can run on commodity hardware, with transparent inputs and a documented failure mode. A model that cannot be reproduced or audited is difficult to adopt even when its aggregate score is high. The framework is therefore designed around explicit targets, a frozen test and a small, inspectable software stack.
+
+We address these methodological and operational constraints over the continuous 2018–2025 Visible Infrared Imaging Radiometer Suite (VIIRS) record (Suomi-NPP, NOAA-20 and NOAA-21) across a 1-km² national grid of Paraguay (400 006 cells) [@schroeder2014]. While keeping the underlying learner intentionally replaceable, we formalize four reusable computational contributions:
+
+- **D2 target operator.** A formal target contract that separates primary ignition from tactical propagation, prevents persistence from being mixed with ignition and makes leakage checks explicit.
+- **Gated M3/M2 inference.** A two-stage policy that combines biophysical screening with a recurrence-aware hybrid model (M3) where fire history exists and a historical-anchor fallback (M2) where it does not.
+- **Reproducible evaluation harness.** A unified protocol that integrates temporal holdout, spatial blocks, date-grouped bootstrap, lead-time analysis, conformal coverage and cost-loss evaluation.
+- **Open software and data.** A vectorized, zero-copy Polars/DuckDB pipeline with public code, archived DOIs and automated tests.
+
+The contribution is computational and infrastructural: D2 formalizes the target contract, gated inference defines the operational policy, and the software exposes that contract to other learners. The geoscientific contribution is a transferable, leakage-controlled benchmark: full FWI and INPE are tested under the same D2 protocol in the Gran Chaco, and the temporal versus spatial limits of the hybrid model are reported explicitly. The national case study is a testbed for data-scarce subtropical regions; we do not claim universal validity.
+
+The remainder of the paper is organized as follows. Section 2 defines the D2 operator, the biophysical gate, the decoupled inference architecture and the evaluation harness. Section 3 reports selection on 2023 validation, the retrospective 2024–2025 test, the benchmark against FWI and INPE, the spatial and temporal generalization analyses and the operational value. Section 4 discusses why canonical indices fail, what decoupling buys and where it fails, and the limitations of the study. Section 5 concludes.
+
+# 2. Computational framework
+
+The framework operates over the national 1-km² grid of Paraguay, divided into the Dry Chaco and Oriental Region (Figure 1). All target construction, inference and evaluation steps below use this domain.
+
+![Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid (EPSG:32721).](../../entregables/fuentes/figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
+
+## 2.1 D2 target operator
+
+The target operator D2 is applied to the national 1-km² grid and to all daily VIIRS observations from 2018 to 2025. For a cell *i* and day *t*:
+
+- **Primary ignition** is a fire at (*i*, *t*) when there is no fire within 25 km at *t*−1 and no fire in cell *i* during the previous 10 days.
+- **Tactical propagation** is a fire at (*i*, *t*) within 25 km of at least one fire at *t*−1.
+
+The two domains are disjoint. This prevents a model from obtaining high discrimination by learning “fire continues next to yesterday's fire” while being evaluated as an ignition model. The same operator is used for training, validation, test and alert generation. The complete sampling counts and spatial stratification are reported in Supplementary Note S1 and Table S10.
+
+The population is sampled at a 1:10 ratio per task and region. Training uses 2018–2022, validation uses 2023 and the test is the frozen 2024–2025 period. The ignition test contains 376 552 cell-days (34 232 positives) and the propagation test contains 1 437 414 cell-days (130 674 positives). The combined task-level test therefore has 1 813 966 cell-days. The sample is case-control; population denominators are kept separately and used for prior correction. The same test rows are used for every model and for FWI/INPE, so the comparison is paired by construction.
+
+Formally, let *F*~*t*~ be the set of cells with a thermal detection on day *t*. D2 ignition at cell *i* and day *t* requires *i* ∈ *F*~*t*~, no cell in *F*~*t*−1~ within 25 km of *i*, and no detection in cell *i* during the ten preceding days. D2 propagation requires *i* ∈ *F*~*t*~ and at least one cell in *F*~*t*−1~ within 25 km. Same-cell detections recurring within 2–10 days without an active neighbor within 25 km on day *t*−1—typically multi-day smoldering holdovers or cloud-obscured satellite omissions—are not assigned to either positive target set; they remain candidate negatives. This prevents holdover persistence from entering the ignition target. The 25-km threshold is a domain restriction, not a negative-sampling buffer; no 20-km buffer is applied to the test sample. The buffer is used only in the spatial block holdout described below.
+
+## 2.2 Biophysical gate and decoupled inference
+
+A first-stage gate removes cell-days with no combustible fuel, with vapor pressure deficit (VPD) below 0.8 kPa, or with 48-h rainfall of at least 10 mm. Gating is applied before feature construction; it reduces the inference space while retaining 97.17 % of thermal detections and removing 21.7 % of cell-days. These cutoffs are operational rather than a formal extinction model: cell-days with VPD < 0.8 kPa or ≥ 10 mm rainfall in 48 h are excluded as persistently humid or wet, while sufficiently cured fine fuels are retained. The gate is not used as a label filter: it only removes physically implausible candidates. A stricter gate and an independent ungated 1:10 sample are evaluated in Note S5.6 and Table S31; neither changes the model ranking. Water, consolidated urban surfaces and saturated fuels are therefore excluded from inference, but they remain part of the audit population used to compute retention.
+
+Two models share the gated space. M3 is a hybrid LightGBM model with weather, fuel, ecotone, anthropogenic priors and causal historical features. It contains no t-1 fire variable. M2 is a base LightGBM model with weather, fuel, ecotone and a historical anchor. In the operational layer, M3 is used for cells with observed fire history (`freq_hist_1km > 0`) and M2 is used as a fallback for cells without history; M1 remains a biophysical baseline. The propagation layer uses a separate model with a causal kernel at t-1: distance to the nearest active fire, fire counts within 25 km and accumulated fire radiative power (FRP). The architecture is summarized in @fig-framework.
+
+M1 uses 24 weather and fuel variables, M2 adds the ecotone and a 25-km historical anchor (35 variables), and M3 adds local density, annual-cycle and accessibility terms (44 variables in Chaco and 45 in Oriental). The feature families are deliberately separated: M3 receives no t-1 fire variable, whereas propagation receives only causal t-1 fire information. This separation makes the ablation interpretable and prevents the fallback from becoming a hidden persistence model. M3 groups meteorology (maximum and minimum temperature, thermal range, VPD, wind, 48-h rainfall, consecutive dry days, Fine Fuel Moisture Code (FFMC) and Initial Spread Index (ISI)), fuel fractions (pasture, savanna, dry forest, humid forest and wetland/palm), ecotone, civil calendar and burning season, accessibility corridors, local density at 5 and 10 km, and causal recurrence. M1 contains only the meteorological and fuel subsets. The feature lists are frozen in the code release. The fallback rule is evaluated on cells with `freq_hist_1km = 0`; M2 is the validated fallback and M1 is retained only as a diagnostic baseline.
+
+![Computational framework. (a) Daily 1-km² inputs (VIIRS 375 m, ERA5-Land 3-hourly, MapBiomas C2, Hansen GFC and causal historical priors) pass through a biophysical gate (`R48h` < 10 mm is 48-h rainfall; fuel = 1, VPD ≥ 0.8 kPa); the gate removes 21.7 % of cell-days but retains 97.17 % of thermal detections and is not a label filter. (b) D2 uses `N25(i,t−1)` for the set of cells within 25 km with fire at t−1 and `H10(i,t)` for any same-cell detection in the previous 10 d; the domains are disjoint. Same-cell 2–10 d recurrences without a t−1 neighbour remain candidate negatives. (c) The 1:10 case-control sample is used for ignition and population denominators are retained. M3 is used where `freq_hist_1km > 0` and M2 where it is 0; propagation uses a causal t−1 kernel. Probabilities are calibrated with a per-task monotonic Platt transform fitted on 2023 and frozen; the F0.5 cutoff is applied after prior correction. M1 (24 variables) is a diagnostic baseline and is not shown. (d) Evaluation uses a frozen temporal split (2018–2022/2023/2024–2025), 50-km blocks with a 20-km buffer, date-grouped bootstrap (500 AUC CI; 1,000 paired), cost-loss and open code/data. The 25-km radius is the D2 target; the 20-km buffer applies only to the spatial holdout. Endpoints are ROC-AUC, PR-AUC, Brier, ECE, conformal coverage, population precision/recall and lift; code/data, DOI and hashes are archived.](../../entregables/fuentes/figuras/fig01_framework_conceptual.png){#fig-framework width="100%"}
+
+Probabilities are calibrated with a monotonic bounded Platt transform. The monotonic constraint preserves the ranking of the tree ensemble while preventing the slope inversion that can occur under severe class imbalance [@platt1999; @niculescu2005]. The calibration is fitted on 2023 and frozen for the 2024–2025 test. Calibration details, including the monotonicity proof and the full hyperparameter table, are in Supplementary Note S2 and Table S2.
+
+The same calibration and cutoff logic is used for M1, M2, M3 and propagation. Cutoffs are selected on validation with an F0.5 (*β* = 0.5) criterion and then frozen. The operational alert applies the cutoff after prior correction, not before; otherwise the population prevalence would change the ranking threshold. This distinction is important because a cutoff that looks conservative on a 1:10 sample can be extremely permissive at population prevalence.
+
+## 2.3 Reproducible evaluation harness
+
+The evaluation harness is part of the computational contribution. It contains five components:
+
+1. A strictly temporal split: training 2018–2022, validation 2023, test 2024–2025.
+2. A spatial block holdout of 50 km with a 20-km buffer, used to separate temporal from spatial generalization.
+3. A paired bootstrap grouped by date (`B = 1 000`) for confidence intervals and differences against FWI and INPE.
+4. A lead-time evaluation using t-1 weather to quantify the nowcast-to-forecast gap.
+5. A population-level and cost-loss evaluation to move beyond case-control precision.
+
+The bootstrap resamples dates rather than rows, because daily fire activity is strongly temporally clustered. For each replicate, all cells from the sampled dates are retained; this preserves within-day dependence and gives more honest intervals than row-wise resampling.
+
+The same block structure is used for paired differences against FWI and INPE. The spatial holdout divides the country into 50-km blocks, removes an entire block and a 20-km buffer from training, recomputes the historical priors without the held-out fires and evaluates both held-in and held-out cells. The primary metrics are the area under the receiver operating characteristic curve (ROC-AUC) and precision–recall area under the curve (PR-AUC). We also report Brier score, expected calibration error, precision, recall, F0.5 and false positives at the validation cutoff. AUC confidence intervals use 500 grouped bootstrap replicates; paired model differences use 1 000 replicates. We define a pre-specified family of six confirmatory comparisons (four against FWI and INPE and two M3 − M2) and report Holm–Bonferroni and Benjamini–Hochberg adjusted p-values; all remain significant at α = 0.05 (Holm p = 0.006, BH p = 0.001). The bootstrap resolution is 0.001, so raw p-values at the floor are upper bounds. The protocol is applied without modifying the test set. The target operator, the list of test cell-days and the evaluation scripts are archived with the code release. The complete protocol is reported in Supplementary Note S3 and Tables S7–S14; the robustness protocol is in Supplementary Note S5.
+
+## 2.4 Data and implementation
+
+The grid contains 400 006 cells of 1 km² in Universal Transverse Mercator (UTM) zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21 [@schroeder2014]; ERA5-Land 3-hourly meteorology aggregated to daily values [@munoz2021era5land]; annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map [@mapbiomas2023]; Hansen Global Forest Change (GFC-2025 v1.13) tree-cover loss at t-1 and t-2 [@hansen2013]; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
+
+The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB [@raasveldt2019duckdb]. A spatial join of 50 000 points is shown only as a reference (Supplementary Table S4); the operational lookup avoids point-in-polygon at inference. The full inference pipeline processes 400 006 cells in 3.474 s with 2 212.9 MB peak RAM on ARM64; x86_64 was not measured. The per-stage profile is in Supplementary Table S4.
+
+Data quality checks are part of the pipeline: duplicate VIIRS overpasses are collapsed, `low` confidence detections are removed, daily precipitation is reconstructed from sub-daily increments and impossible values above 300 mm/day are rejected. ERA5-Land nodes are mapped to cells with a precomputed cKDTree. The processed archive contains the test targets, model probabilities, benchmark layers, sampling plan and trained artifacts, so the result tables can be regenerated without downloading the full raw archive. The complete data dictionary and checks are in Supplementary Note S1 and Table S15. The repository includes 76 unit tests, a pinned dependency file, a continuous-integration workflow and a public GitHub release. The test suite covers target definitions, VIIRS filtering, climate aggregation, monotonic calibration, metrics and the alert layer; it can run without downloading the raw archive. This separation between a reproducible evaluation package and the full raw-data pipeline is deliberate: reviewers can audit the tables without a multi-terabyte download, while the canonical scripts remain available for a full rebuild.
+
+
+
+# 3. Results
+
+## 3.1 Selection on 2023 validation and retrospective test
+
+Model selection used only the 2023 validation set and the 2023 development spatial holdout. The 2024–2025 test was not used to select the model, variables or thresholds. @tbl-val summarizes temporal validation.
+
+| Region | Model | ROC-AUC | PR-AUC | F0.5 |
+|:---|:---|---:|---:|---:|
+| Chaco | M2 base | 0.7817 | 0.2452 | 0.2933 |
+| Chaco | M3 hybrid | 0.7844 | 0.2542 | 0.2979 |
+| Oriental | M2 base | 0.7496 | 0.2221 | 0.2631 |
+| Oriental | M3 hybrid | 0.7628 | 0.2441 | 0.2875 |
+
+: 2023 temporal validation (1:10 case-control). Selection was frozen before the 2024–2025 test was evaluated. The M1 baseline is reported in Supplementary Table S16. {#tbl-val}
+
+The paired M3 − M2 difference was +0.0028 [+0.0001, +0.0054] ROC-AUC and +0.0089 [+0.0034, +0.0144] PR-AUC in Chaco, and +0.0132 [+0.0097, +0.0169] and +0.0221 [+0.0166, +0.0272] in Oriental (grouped-by-date bootstrap, B = 1 000). The pre-specified margin δ = 0.01 was met in Oriental for both ROC-AUC and PR-AUC, but not in Chaco: the Chaco gains were +0.0028 and +0.0089, below δ, although both intervals exclude zero. M3 is therefore not claimed to be superior to M2 in Chaco. The shared architecture uses M3 where fire history exists because the propagation component is the operational target; the Chaco ignition gain is incremental. In 2023 spatial blocks, M2 was the most robust model (0.6773/0.7470), ahead of M3 (0.6496/0.7277). M1 was evaluated as a diagnostic baseline and did not outperform M2 on cells without history; M1 is therefore rejected as the operational fallback (Supplementary Tables S8 and S16). The final architecture is M3 for cells with history and M2 for cells without history.
+
+@tbl-test reports the retrospective 2024–2025 test. M3 reaches ROC-AUC 0.8021 in Chaco and 0.7534 in Oriental. Propagation reaches 0.9039/0.7859. Case-control F0.5 precision is 32.82 %/30.13 % for ignition and 83.69 %/65.03 % for propagation. These are sample-level metrics; they are not operational precision. The actual gated M3/M2 policy is close to M3 but not uniformly better: in Chaco it slightly improves ROC-AUC while reducing precision; in Oriental it improves precision over M3 but reduces ROC-AUC. The full sample and population comparison is in Supplementary Table S17.
+
+| Region | Model | ROC-AUC [95 % CI] | PR-AUC | Precision (%) | Recall (%) | FP |
+|:---|:---|:---|---:|---:|---:|---:|
+| Chaco | M3 ignition | 0.8021 [0.797–0.807] | 0.2842 | 32.82 | 30.30 | 9 960 |
+| Chaco | M3/M2 gated | 0.8035 [0.799–0.809] | 0.2843 | 32.70 | 30.87 | 10 200 |
+| Chaco | M2 ignition | 0.7991 [0.794–0.805] | 0.2766 | 33.28 | 27.26 | 8 773 |
+| Chaco | Propagation | 0.9039 [0.899–0.909] | 0.6935 | 83.69 | 52.40 | 5 353 |
+| Oriental | M3 ignition | 0.7534 [0.747–0.759] | 0.2340 | 30.13 | 18.59 | 7 835 |
+| Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 7 811 |
+| Oriental | M2 ignition | 0.7406 [0.735–0.746] | 0.2146 | 26.09 | 19.59 | 10 075 |
+| Oriental | Propagation | 0.7859 [0.779–0.794] | 0.3752 | 65.03 | 19.84 | 8 351 |
+
+: Retrospective D2 test (2024–2025; 1 813 966 task cell-days in total: 376 552 ignition and 1 437 414 propagation). Precision and recall are case-control (9.09 % prevalence) at the F0.5 cutoff. The test was already observed and is not used for selection. FP = false positives; CI = confidence interval; F0.5 = F-beta with *β* = 0.5. Population metrics are in Supplementary Table S6. {#tbl-test}
+
+@fig-test shows the corresponding ROC and precision–recall curves for the hybrid ignition and propagation layers. The figure separates the two tasks and two regions, so the trade-off between the high discrimination of propagation and the much lower discrimination of ignition is visible without a second benchmark layer. The curves are descriptive; the operating points in @tbl-test are those used by the alert layer. Ignition ROC curves rise steeply only at relatively high false-positive rates, and the corresponding precision–recall curves remain close to the case-control baseline. Propagation curves are farther from the diagonal in both regions, especially in Chaco, consistent with the stronger event signal in that task. The visual gap between ROC-AUC and PR-AUC is expected at 9.09 % prevalence and reminds us that a high ROC-AUC can coexist with modest precision.
+
+Population-level ignition precision is 0.082 % (95 % bootstrap CI 0.075–0.088) in Chaco and 0.198 % (0.178–0.222) in Oriental; recall is 27.3 % (26.2–28.6) and 20.7 % (19.3–22.3). Propagation precision is 9.67 % (9.09–10.32) and 4.78 % (4.13–5.49). These are the operationally relevant values and are much lower than the case-control values. Relative to prevalence, ignition precision is about 5.3× and 4.8× above chance, while propagation precision is about 62× and 23× above chance. At population weighting, M2 slightly exceeds M3 in Chaco ROC-AUC (0.8078 vs. 0.8059) and precision (0.090 % vs. 0.082 %), whereas M3 leads in the Oriental Region (0.7627 vs. 0.7549). Absolute precision remains low; the model is therefore a prioritization and nowcast layer, not a stand-alone alert system. Figure S8 shows the precision–budget trade-off: at 100 alerts/day, M3 ignition precision is 0.21 %/0.66 % and propagation precision is 22.1 %/10.0 %, falling to 0.15 %/0.28 % and 5.1 %/3.3 % at 1 000 alerts/day.
+
+On the retrospective test, M3 does not uniformly dominate M2. In Chaco, M3 improves ROC-AUC and PR-AUC, but M2 has slightly higher precision and fewer false positives; in Oriental, M3 improves precision and reduces false positives, with lower recall. The gain is a trade-off, not a universal superiority. By year, M3 keeps ROC-AUC 0.8030/0.8011 in Chaco and 0.7532/0.7539 in Oriental for 2024/2025; propagation falls from 0.9069 to 0.8982 in Chaco and from 0.7911 to 0.7785 in Oriental. The 2024 evaluation uses the 2023 fuel map with lag 1, and 2025 uses 2023 with lag 2; metrics are therefore reported separately rather than as a single average.
+
+![ROC and precision–recall curves for the retrospective D2 test (2024–2025), by region and task. The ignition curves correspond to M3; propagation uses the causal t-1 layer.](../../entregables/fuentes/figuras/fig02_curvas_roc_pr_test.png){#fig-test width="100%"}
+
+
+## 3.2 Benchmark against FWI and INPE
+
+@tbl-benchmark compares M3 with full FWI and INPE on the same retrospective test. M3 exceeds FWI by ΔROC = +0.2963 in Chaco and +0.1922 in Oriental, and INPE by +0.2756 and +0.2561. All paired comparisons have raw p ≤ 0.001 with B = 1 000; Holm-adjusted p = 0.006 and BH-adjusted p = 0.001, so all six remain significant at α = 0.05. To keep the comparison symmetric, the FWI and INPE operating points were selected on the same 2023 validation split with the identical F0.5 rule applied to the models and then frozen for the retrospective test (@tbl-benchmark); the resulting cutoffs are 3.1285 and 0.0364 in Chaco and 20.4720 and 0.0596 in Oriental for FWI and INPE, respectively. The complete implementation, including fuel codes, initialization and same-day meteorology, is documented in Supplementary Note S4. The full benchmark, including M2 and propagation rows, is in Supplementary Table S11; the complete significance table is in Supplementary Table S7.
+
+| Region | Model | ROC-AUC | PR-AUC | ΔROC | p (raw) | Cutoff | Prec. (%) | Rec. (%) | F0.5 |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Chaco | M3 ignition | 0.8021 | 0.2842 | — | — | 0.2218 | 32.82 | 30.30 | 0.3228 |
+| Chaco | Full Canadian FWI | 0.5059 | 0.0897 | +0.2963 | ≤0.001 | 3.1285 | 9.25 | 95.73 | 0.1130 |
+| Chaco | INPE Risco de Fogo | 0.5266 | 0.0964 | +0.2756 | ≤0.001 | 0.0364 | 9.24 | 92.47 | 0.1126 |
+| Chaco | Weather-only GBT | 0.5512 | 0.1071 | +0.2509 | ≤0.001 | 0.1020 | 11.43 | 19.32 | 0.1245 |
+| Oriental | M3 ignition | 0.7534 | 0.2340 | — | — | 0.2186 | 30.13 | 18.59 | 0.2680 |
+| Oriental | Full Canadian FWI | 0.5611 | 0.1122 | +0.1922 | ≤0.001 | 20.4720 | 12.22 | 21.85 | 0.1340 |
+| Oriental | INPE Risco de Fogo | 0.4973 | 0.0902 | +0.2561 | ≤0.001 | 0.0596 | 9.24 | 82.56 | 0.1123 |
+| Oriental | Weather-only GBT | 0.5645 | 0.1077 | +0.1889 | ≤0.001 | 0.0975 | 11.08 | 42.44 | 0.1300 |
+| Chaco | Climatological baseline | 0.5000 | 0.0909 | +0.3021 | — | — | — | — | — |
+| Oriental | Climatological baseline | 0.5000 | 0.0909 | +0.2534 | — | — | — | — | — |
+
+: Benchmark on the retrospective 2024–2025 test. ΔROC is M3 minus the reference. Cutoffs for every row, including FWI and INPE, were selected on 2023 validation by maximizing F0.5 and then frozen for 2024–2025; precision and recall are case-control at that cutoff. FWI is on the Canadian index scale and INPE on a 0–1 risk scale, so cutoffs are not comparable across indices. The weather-only GBT is a LightGBM trained with the same capacity and calibration but restricted to the FWI information set. Dashes (—) indicate reference models or comparisons not evaluated by construction. The p column reports raw p-values; Holm-adjusted p is 0.006 for the six-test confirmatory family (Supplementary Table S7). The full table is Supplementary Table S11. {#tbl-benchmark}
+
+@fig-benchmark shows the corresponding ROC and precision–recall curves. The canonical indices are close to the diagonal in Chaco; in Oriental they are also weak and do not improve materially over a climatological baseline. Full FWI has ROC-AUC 0.5059/0.5611 and INPE 0.5266/0.4973; neither is competitive with M3 on the same retrospective dates. The result is not a claim that the indices are universally invalid, but that their transfer to this subtropical system is not supported. FWI and INPE are normalized danger indices, so their apparent operating point depends strongly on the cutoff chosen on validation. In Chaco, full FWI reaches high recall only at very low precision, while INPE is conservative in both regions; neither behavior translates into a competitive ranking. PR-AUC values are close to the 0.09 case-control baseline, which means that the indices add little discrimination beyond chance on these retrospective dates.
+
+Because the INPE implementation weights A by land-cover fractions (the primary specification), we repeated the benchmark with a fixed A = 3.0 (the INPE open-savanna coefficient, fixed a priori). The fixed version reaches ROC-AUC 0.4976/0.5497 versus 0.5266/0.4973 for local A (ΔROC = −0.0290/+0.0524; p = 0.001; Table S22). The sign of the difference is region-dependent, but both versions remain far below M3 (0.8021/0.7534), so the weak INPE performance is not an artifact of the local land-cover weighting. Combining the two indices with the full M3 feature set does not close the gap: the augmented GBT reaches ROC-AUC 0.8018/0.7548 versus 0.8021/0.7534 for M3 (Δ = −0.0003/+0.0015; p = 0.612/0.001; Table S11 continuation). Once fuel, accessibility and historical context are present, the indices add essentially no ranking information; in Oriental the small gain is statistically detectable but operationally negligible.
+
+The weather-only control isolates the source of the gap. A LightGBM trained with the same capacity, calibration and cutoff rule but restricted to the FWI information set (temperature, atmospheric demand, wind, rainfall, FFMC and ISI) reaches ROC-AUC 0.5512/0.5645 (Chaco/Oriental), only +0.0453/+0.0034 above full FWI and far below M3 (0.8021/0.7534; ΔROC = +0.2509/+0.1889, p ≤ 0.001). The failure of the canonical indices is therefore an information limitation rather than an artifact of their formulation or of the learner: without fuel, accessibility and anthropogenic priors, a modern gradient-boosted learner recovers essentially the same ceiling as the index. Full details are in Supplementary Table S21.
+
+The controlled ablation confirms that socio-ecological variables improve ranking, especially in Oriental. With the same capacity (45/60 rounds and 23/31 leaves), M2 reaches 0.7991/0.7406 and M3 0.8021/0.7534; M1 is the lowest in both regions. The M3 − M2 gain is +0.0030/+0.0128 ROC-AUC and +0.0076/+0.0194 PR-AUC. In Chaco, M3 precision is 32.82 % versus 33.28 % for M2; in Oriental it is 30.13 % versus 26.09 %. The advantage is not uniform and is not presented as a precision gain in both regions. The complete ablation table is Supplementary Table S12. TreeSHAP [@lundberg2020treeshap] ranks historical distance, dry-forest fraction, accessibility, deforestation×VPD pressure and seasonality highest in Chaco; in Oriental, historical distance, local focalization, annual agriculture and deforestation pressure dominate. The complete SHAP table and figure are Supplementary Table S13 and Supplementary Figure S1. This does not establish causality, but it shows that the model is not relying on a single weather variable.
+
+![ROC and precision–recall curves for M3 against full Canadian FWI, INPE and the weather-only GBT under D2.](../../entregables/fuentes/figuras/fig05_benchmarking_curvas_roc_pr.png){#fig-benchmark width="100%"}
+
+## 3.3 Temporal and spatial generalization
+
+The M3 advantage is temporal, not spatial. In the 50-km block holdout with a 20-km buffer evaluated in 2023, M2 reaches 0.6773 in Chaco and 0.7470 in Oriental, and M3 reaches 0.6496 and 0.7277; M1 is reported in Supplementary Table S8. M2 is the most robust model in unseen blocks. M3 falls from 0.7821 on held-in cells to 0.6496 in the Chaco holdout, and from 0.7473 to 0.7277 in Oriental; M2 falls from 0.7832 to 0.6773 in Chaco but improves from 0.7365 to 0.7470 in Oriental. M1 is more stable, but its absolute level is lower (Supplementary Table S8). @tbl-spatial reports the compact comparison; the full block table and design are in Supplementary Table S8.
+
+| Region | Model | Held-in ROC-AUC | Holdout ROC-AUC | Holdout PR-AUC |
+|:---|:---|---:|---:|---:|
+| Chaco | M2 base | 0.7832 | 0.6773 | 0.1760 |
+| Chaco | M3 hybrid | 0.7821 | 0.6496 | 0.1630 |
+| Oriental | M2 base | 0.7365 | 0.7470 | 0.1820 |
+| Oriental | M3 hybrid | 0.7473 | 0.7277 | 0.1608 |
+
+: Development spatial block validation with 50-km blocks and a 20-km buffer, evaluated in 2023. Held-in values are the reference for cells not excluded from training. Full results, including M1, are in Supplementary Table S8. {#tbl-spatial}
+
+The development spatial design retains 44 blocks and excludes a 20-km buffer around holdout cells during training; priors are recomputed without held-out fires. An independent confirmation holdout (31 blocks, 68 719 unique 1-km² cells; 16 579/14 551 sampled ignition cell-days in Chaco/Oriental), with models retrained without the confirmation blocks and their 20-km buffer, retained M2 as the best model: M2 0.6871/0.6621, M3 0.6757/0.6344 and M1 0.6435/0.6388 in Chaco/Oriental. The gated policy fell back to M2 in the confirmation cells. The result does not support M3 as a spatial extrapolator, and it does not make M1 the best option: M1 was a stable but lower baseline and was rejected as the operational fallback. Full development and confirmation results are in Supplementary Tables S8, S16 and S18; the M3/M2 architecture follows that evidence.
+
+**Temporal stability and D2 parameter sensitivity.** Because the test is temporal, 90.65 % of its cells also appear in training. Restricting to cells never seen in training (n = 23 074/9 378; 2 115/882 positives) lowers M3 ROC-AUC from 0.8021/0.7534 to 0.7841/0.7148 and M2 from 0.7991/0.7406 to 0.7781/0.7089, but the M3 > M2 ordering persists in ROC-AUC (+0.0059/+0.0059; paired bootstrap p = 0.004/0.174) and in PR-AUC (+0.0152/+0.0133; p = 0.012/0.018). Excluding cells with any fire in training keeps the ROC gap positive and resolved (p = 0.008/≤0.001); in 2025 the gap is positive but only resolved in Oriental (p = 0.120/≤0.001). In the no-history domain the sign reverses by region: M2 is ahead in Chaco (Δ = −0.0035, p = 0.002) and M3 in Oriental (Δ = +0.0101, p ≤ 0.001). The drop is modest, but the unseen-cell subset is small, spatially biased and not a substitute for a blind spatial holdout (Supplementary Table S27). The ROC-AUC increase in the no-train-fire subset is consistent with removing chronically burned cells that act as difficult negatives; because prevalence falls to 7.66 % in Chaco, PR-AUC and precision are not directly comparable across subsets.
+
+With t-1 weather, M3 retains 0.7831/0.7613 and M2 0.7818/0.7463; M1 is lower and is reported in Supplementary Table S9. The small M3 drop shows that recurrence priors, not same-day weather, dominate the hybrid signal. This is why the current system is a nowcast/hindcast; a real day-ahead system would require forecast weather. Lead-time details are in Supplementary Table S9. As a direct leakage comparator, a coupled model trained on the combined fire sample with t-1 fire inputs did not materially outperform the decoupled task architecture: 0.8862 vs 0.8868 ROC-AUC in Chaco and 0.7871 vs 0.7806 in Oriental. This comparator uses the same gated case-control sample, so it does not test removal of gating; it only shows that the coupled shortcut does not provide a large advantage on this sample (Supplementary Table S19).
+
+A full 3 × 3 D2 sensitivity (15/25/35 km × 7/10/14 d) regenerated the 1:10 sampling and retrained M1, M2 and M3 for every combination. M3 outperformed M2 in all nine combinations on both validation and test, with a positive M3 − M2 ROC-AUC of +0.004 to +0.016, and was the best test model in all nine; its range was 0.771–0.782 in 2023 and 0.785–0.797 in Chaco for 2024–2025, and 0.759–0.768 and 0.750–0.755 in Oriental. The 7-day window gave the highest ROC-AUC in every region × radius pair, and the radius effect was small: 35 km was slightly better in Chaco and 25 km in Oriental. The D2 conclusion is therefore not an artifact of the 25 km/10 d choice (Supplementary Table S20).
+
+A four-fold rolling-origin backtest retrained M1/M2/M3 with training through Y−2, validation on Y−1 and test on Y. The M3−M2 ROC-AUC difference was +0.0030/+0.0059 in 2022, +0.0029/+0.0120 in 2023, +0.0038/+0.0166 in 2024 and +0.0019/+0.0084 in 2025 (Chaco/Oriental); the corresponding p-values were 0.032/0.006, 0.082/0.001, 0.004/0.001 and 0.148/0.001. The sign was positive in all eight region-fold comparisons, and M1 remained below M2 in every fold (Table S26; Figure S5). The temporal ordering is therefore not an artifact of the single 2024–2025 split. Across 20 runs (five seeds × two capacities × two regions), the M3−M2 difference remained positive in every run, with mean differences of +0.0036/+0.0035 in Chaco and +0.0128/+0.0128 in Oriental for the current/high-capacity configurations (Table S25).
+
+**Distribution shift and negative controls.** Adversarial validation separates training (2018–2022) from test (2024–2025) rows with AUC 0.8832/0.9241 (Chaco/Oriental); day-of-year, seasonal harmonics, 25-km historical density and 60-day water deficit dominate the discriminator (Table S29). The shift is real and is not eliminated by the temporal design; it is why the spatial and all-cell results are reported separately. A permuted-label negative control reached AUC 0.6297/0.5138; removing historical features did not eliminate the excess (0.6276/0.5168), indicating residual cell-level association or feature leakage in Chaco (Table S32; Figure S7). This excess over 0.50 is consistent with spatial heterogeneity in baseline fire prevalence and with the 90.65 % cell overlap between training and test; it is not evidence of causal signal. The M3 score should therefore be read as a nowcast/prioritization signal, not a causal attribution.
+
+**Sampling, gating and label-quality robustness.** Three further sensitivities bound the result. Stricter gate thresholds (VPD ≥ 1.0/1.2 kPa and 48-h rainfall < 5/2 mm) retained 92–73 % of test positives and left M3 above M2 and FWI; removing the gate entirely (independent 1:10 sample) lowered M3 to 0.7924/0.7510 and M2 to 0.7833/0.7379, but M3 remained above M2 (+0.0091/+0.0131) and FWI (0.4988/0.5528; Table S31). Restricting labels to high-confidence detections retained 12.2 %/6.5 % of positives and raised ROC-AUC to 0.8228/0.7793, but precision–recall fell (0.0719/0.0246) because the retained subset has a different prevalence; FRP ≥ 10 MW retained 31.9 %/19.0 % and gave 0.8136/0.7763 (Table S30). The cloud-mask variant is unavailable. Sampling at 1:5 changed ROC-AUC by less than 0.001; the independent 1:20 sample lowered Chaco M3 ROC-AUC to 0.7926 and population precision by about 7 %, while Oriental remained stable (0.7526), and M3 stayed above M2 in both regions (Table S28).
+
+**External spatial validation.** External spatial validation in Boquerón, after excluding the department and a 25-km buffer and recomputing priors, reproduced the M2/M3 discrimination (ROC-AUC 0.8104/0.8120; PR-AUC 0.2440/0.2505) but not a significant M3−M2 gain (+0.0016; p = 0.254). FWI was below chance (0.4708) and INPE reached 0.5817 (Table S33; Figure S9). Population precision was 0.0891 %/0.0678 % for M2/M3, with recall 16.2 %/27.1 %; M3 trades precision for recall. The M3−M2 difference was +0.0039 (p = 0.010) with a 20-km buffer, +0.0016 (p = 0.254) with 25 km and +0.0020 (p = 0.206) with 30 km (Table S33b), so the hybrid advantage is not robust to the buffer. The ranking transports spatially, but the operational preference for M3 over M2 does not.
+
+## 3.4 Operational value
+
+The cost-loss analysis is sobering for ignition: in Chaco, M3 and M2 are indistinguishable at every α (paired ΔV intervals include zero), and the M2 point estimate is marginally higher at the optimum (0.373 vs 0.372). In Oriental, M3 exceeds M2 for α = 0.0002–0.005. Against FWI, M3 has positive decision value for α = 0.0001–0.001 in Chaco and 0.0001–0.005 in Oriental (paired intervals exclude zero; Supplementary Table S24). The propagation layer does show value near *α* = 0.002: V = 0.628 [0.608–0.646] in Chaco and 0.399 [0.371–0.419] in Oriental, with intervals excluding zero. The full cost-loss table and curves, including 95 % date-grouped bootstrap bands (B = 1 000), are in Supplementary Table S14 and Supplementary Figure S3. The operational product therefore prioritizes propagation and uses ignition as a screening layer: the ignition layer adds decision value over FWI at low α but not over M2 in Chaco.
+
+Decision curve analysis on the case-control sample (Figure S4; Table S23) reproduces the ordering: at $p_t = 0.10$, M3 yields 37.6/29.4 net detections per 1 000 sampled cell-days, M2 37.7/27.3, M1 13.5/19.9 and FWI −0.01/4.1 (Chaco/Oriental); the propagation model remains positive up to $p_t \approx 0.7$. Because net benefit is computed on the case-control sample, it complements the population-weighted decision value in Table S14.
+
+Operationally (Table S23), at the frozen ignition cutoff M3 issues 8 238/3 073 alerts per day in Chaco/Oriental with population precision 0.082/0.198 % (1 227/504 alerts per hit; lift 5.3×/4.8×). A budget of 100 alerts/day raises ignition precision only to 0.21/0.66 % (recall 0.86/2.24 %), confirming that ignition is a screening layer. Propagation needs 10.3/20.9 alerts per hit (lift 62×/23×) at 452/525 alerts/day; at 100/day its precision is 22.1/10.0 % and recall 25.7/7.5 %. The α that maximizes V(α) is 0.0001–0.0005 for ignition and 0.002 for propagation. The F0.5 cutoff is not uniquely privileged. Selecting cutoffs by F1, F2 or Youden changes the operating point but not the conclusion (Table S14 continuation; Figure S6). For M3 ignition in Chaco, precision/recall move from 0.328/0.303 at F0.5 to 0.273/0.494 at F1 and 0.182/0.815 at F2; in Oriental they move from 0.301/0.186 to 0.235/0.390 and 0.173/0.699. Propagation remains the stronger layer: Chaco precision/recall is 0.837/0.524 at F0.5 and 0.515/0.702 at F2; Oriental 0.650/0.199 and 0.215/0.632. The screening/propagation ranking is therefore robust to the threshold criterion.
+
+At their frozen F0.5 operating points, FWI has positive decision value only at α = 0.0001 in Chaco (V = 0.070) and α = 0.0005 in Oriental (V = 0.077); INPE is non-positive at every α (V ≤ 0). Even in that narrow window, FWI remains far below M3 (0.372/0.313). Allowing the indices their best validation threshold at each α leaves the ranking unchanged (Table S24). The AUC advantage of M3 therefore translates into decision value against the indices, but not uniformly against M2.
+
+Cost-loss is defined as the expected value of issuing an alert when the cost of a false alarm is *C* and the loss avoided by a true alert is *L*; the ratio *α* = *C*/*L* is varied from 0 to 0.5. This is a deliberately simple decision model, not an estimate of agency budgets. It is useful because it exposes the regime in which a probabilistic layer has value. For ignition, the curves are almost flat near zero; for propagation, the value is concentrated at small *α*. The result supports the operational choice of prioritizing propagation and treating ignition as a screening layer.
+
+@fig-map shows an example national alert map. Cells are classified as low, moderate or high; the product is generated from the same frozen test pipeline. The map is illustrative of the output format, not an institutional forecast. It is a communication layer built from the same frozen probabilities and cutoffs; it inherits the calibration and prevalence assumptions of the underlying model. The map should therefore be read together with the population precision in @tbl-test and the spatial limitation in @tbl-spatial, not as a stand-alone warning product.
+
+The conspicuous ring of high alerts in northern Alto Paraguay is the 25-km t-1 propagation footprint around the Chovoreca fire front, not an independent ignition prediction.
+
+![Illustrative national 1-km² alert map for 2024-09-09, showing the spatial distribution of low, moderate and high alert cells.](../../entregables/fuentes/figuras/fig03_mapa_riesgo_operativo_nacional.png){#fig-map width="80%"}
+
+## 3.5 Calibration
+
+Expected calibration error for M3 is 0.0082/0.0082 in Chaco/Oriental (Table S11), and conformal coverage is empirical: 90.17 %/90.31 % for a nominal 90 % level and 95.32 %/94.79 % for 95 %. These values are close to nominal but do not constitute a formal guarantee under temporal shift. The result is still useful because it shows that the calibration layer is not grossly overconfident. The full empirical conformal coverage table is in Supplementary Table S5, and expected calibration errors for the benchmark models are in Supplementary Table S11.
+
+## 3.6 Reproducibility checks
+
+The code and data releases are part of the result. The repository contains the target operator, the frozen evaluation scripts, the trained boosters and calibrators, the generated tables and a pinned environment. A clean-environment run of the 76 unit tests covers target construction, VIIRS filtering, climate aggregation, monotonic calibration, metrics and alert routing. The data archive contains the test targets and model probabilities, so the main tables can be regenerated without the raw multi-terabyte archive. The full raw-data pipeline remains available for a complete rebuild.
+
+Two practical checks are worth reporting. First, the test split is frozen and the cutoff is selected on validation; no test row is used for model selection. Second, the calibration and conformal layers are fitted before the test and never updated. These checks do not eliminate distribution shift, but they remove the most common sources of optimistic bias. The tables in this manuscript are regenerated from the repository and correspond to release v2.1.0; the code and data concept DOIs are reported in the Code and Data Availability sections.
+
+# 4. Discussion
+
+## 4.1 Why canonical indices fail
+
+Full FWI and INPE are weak in both regions. The Chaco is moisture-limited and fuel-limited at the same time: fine fuels cure quickly under high VPD, but ignition depends on human access, pasture management and fire history. A single index cannot represent that interaction. The Canadian FWI was originally designed for boreal conifer stands, and two of its three fuel-moisture codes (the Duff Moisture Code and the Drought Code) explicitly model the slow drying and rain recharge of loosely and deeply compacted organic layers over days to weeks [@vanwagner1987; @flannigan2016]. In the semi-arid Chaco, the load-bearing fuels are fine grassy and shrub fuels that respond within hours to atmospheric demand, while the spatial pattern of ignition is governed by land-management and access-related sources. FWI is purely meteorological; the INPE formulation used here incorporates land-cover fractions, yet neither carries the fine-scale anthropogenic and accessibility information that dominates ignition in the Chaco, and their ranking skill collapses toward chance under a decoupled D2 evaluation. In the Oriental Region, the signal is more anthropogenic and less dependent on same-day weather. These results do not imply that FWI or INPE are useless globally; they show that their transfer to this subtropical system is not supported by the retrospective test. These indices are not only weaker rankers; wherever either remains positive, they also generate less decision value than M3 (Table S14).
+
+The regional asymmetry is informative. In the Chaco, the dominant land-cover contrast is between dry forest, pastures and natural grasslands; fire is often a management tool in a matrix with high fuel connectivity. In the Oriental Region, the landscape is wetter and more fragmented, and ignition is tightly coupled to roads, farms and the agricultural calendar. The same hybrid architecture therefore operates under different pyrogeographic regimes, and the SHAP rankings reflect that difference: dry-forest fraction is important in the Chaco, while local anthropic concentration is more important in Oriental. A model with a single set of regional weights would blur this contrast.
+
+The weak FWI/INPE performance also has a practical implication: switching to a “better index” is not sufficient. The input representation, the target definition and the evaluation design matter as much as the learner. The benchmark therefore compares the complete computational pipeline, not only the model class.
+
+## 4.2 What decoupling buys and where it fails
+
+Decoupling produces a useful diagnostic. M3 is a strong temporal nowcast for cells with history, but its advantage disappears in unseen spatial blocks. M2 is the most robust model in those blocks and also outperforms M1 on cells without history, so it replaces M1 as the fallback. This is a double result: the operational layer should not present M3 as a spatial extrapolator, and it should not retain a biophysical fallback that 2023 validation does not support.
+
+The D2 operator is also a guard against leakage. Without it, a model can mix persistence and ignition and obtain impressive but non-operational metrics. The combination of D2, a no-*t*−1 ignition layer and a spatial block holdout is the main methodological contribution. A permuted-label negative control sharpens this point. Retraining M3 on shuffled training labels yields AUC 0.6297/0.5138, and removing the historical features does not eliminate the excess (0.6276/0.5168). A leakage-free control should be near 0.5. The excess in Chaco therefore indicates residual cell-level or feature information—not proof that the headline ranking is wrong, but a clear reason to avoid a causal reading and to audit the historical priors and static cell descriptors. The control is reported in Table S32 and Figure S7. It also explains why a single aggregate score is not enough: the same model can be strong on held-in cells, weak on held-out blocks and weak at population prevalence, and each of these results answers a different question. Reporting the three views separately is more informative than selecting the most favorable one. A fourth view, decision value, asks whether the ranking survives a cost-loss ratio; it is the view that determines operational use.
+
+From a software perspective, the relevant advance is not the size of the model but the auditability of the path from raw observations to a map. A single integer cell identifier, deterministic joins, frozen prevalence metadata and a pinned environment make the pipeline reproducible on a laptop. The comparison with a GeoPandas spatial join is included only to show why the integer lookup matters at national scale; it is not a benchmark of GIS libraries. The open code and data DOIs allow independent re-execution of the main tables and replacement of the model with another learner.
+
+The framework is also intentionally bounded. It does not include a new neural architecture, a data-assimilation scheme or a full fire-spread simulator. Its contribution is to make a difficult applied problem comparable and reproducible. Gradient-boosted trees were retained not as a claim of architectural superiority but because they allow explicit physical monotonicity constraints and full national inference on commodity CPUs (Section 2.4), which is the operational constraint this study targets. That is a narrower claim than a new algorithm, but it is the claim that the evidence supports.
+
+A second lesson is that benchmark design changes the conclusion. If the test had been a random split, M3 would have looked stronger; if the ignition layer had included *t*−1 fire density, it would have looked stronger still. The spatial block and D2 target make those shortcuts visible. The negative result defines the baseline that future work must beat without leakage.
+
+## 4.3 Implications for computational geoscience
+
+The framework suggests a practical division of labor for geoscientific machine learning. The learner can be replaced; the target operator, the leakage controls and the evaluation harness should not. In this sense, the contribution is a computational protocol and software infrastructure, not a new learner. That distinction matters for computational geoscience because it makes the contribution reusable beyond Paraguay: another team can keep the D2 logic, substitute local fuel and weather layers, and compare its model on the same kind of retrospective test.
+
+The framework also makes failure explicit. A model that is excellent on held-in cells but poor on spatial blocks is not a universal model, and a model that is only competitive on a case-control sample is not an operational system. Reporting both views is more useful than reporting a single high AUC. This is the main methodological lesson of the study, and it generalizes beyond fire: any geoscientific pipeline that combines spatial priors, temporal targets and rare events needs the same separation between ranking skill, calibration and operational prevalence.
+
+## 4.4 Limitations
+
+Several limitations bound the interpretation of this study:
+
+- **Data and observational constraints.** The study covers two macro-regions of Paraguay and includes only an exploratory cross-country test in Formosa; that test did not meet the pre-registered transport threshold and is not a full multi-country validation. Fuel characterization relies on the annual MapBiomas Collection 2 series (2017–2023) joined by prior year, so 2024 uses the 2023 map with a one-year lag and 2025 extrapolates it with a two-year lag. Active-fire targets depend on VIIRS detections, which can miss sub-canopy or cloud-obscured fires in the absence of an explicit observation model, while ERA5-Land inputs (0.25°, 3-hourly) may smooth local intra-day VPD and wind peaks.
+- **Statistical and generalization limits.** Although D2 sensitivity across 15/25/35-km radii and 7/10/14-day windows confirmed that model rankings are stable under full retraining (Supplementary Table S20), the 2024–2025 test is retrospective rather than blind and shares 90.65 % of its active cells with the training period through temporal overlap; restricting to cells never seen in training reduces M3 ROC-AUC by 0.018/0.039 but keeps a positive M3 > M2 gap in ROC-AUC and PR-AUC, although the ROC gap is not resolved in Oriental (Supplementary Table S27). Adversarial validation reaches AUC 0.8832/0.9241, confirming that the temporal shift is substantial and driven mainly by seasonal and historical-density features (Table S29). A permuted-label control remains above chance in Chaco (0.63), so residual cell-level or historical signal cannot be excluded; the score is a nowcasting signal, not a causal attribution. M3 loses its predictive advantage in unseen spatial blocks, which requires M2 as the operational fallback, while M1 remains an insufficient baseline. The Boquerón test is within Paraguay and provides derived population metrics; the Formosa cross-country pilot was exploratory, used a different climate source (CDS/Hargreaves) and did not meet the transport threshold, so M3's small gain there is not evidence of cross-country superiority. Conformal coverage (90.17 %/90.31 % at the 90 % level) is empirical rather than formally guaranteed under temporal shift; and the coupled *t*−1 comparator (Supplementary Table S19) was evaluated on the same gated case-control sample, so it does not test removal of the biophysical gate.
+- **Operational and software scope.** Because the pipeline uses observed meteorology up to day *t*, it functions as a nowcast/hindcast rather than a day-ahead forecast supported by numerical weather prediction. Population-level ignition precision is very low (0.082 %/0.198 %; 95 % CI 0.075–0.088/0.178–0.222), cost-loss shows no clear M3 advantage over M2 for ignition, and the alert layers have not yet been evaluated prospectively with an operational agency. Finally, transferring the pipeline to another country would require rebuilding the 1-km² grid, the historical priors and the prevalence metadata, and the pinned dependency lock records exact package versions without platform-specific wheel hashes (documented in the code repository).
+
+# 5. Conclusions
+
+We presented a reproducible computational framework for decoupled wildfire ignition and propagation benchmarking in the Gran Chaco and Oriental Region of Paraguay. The D2 target operator separates primary ignition from multi-day persistence, the gated M3/M2 architecture pairs a recurrence-aware temporal nowcast with a spatially robust fallback, and the evaluation harness makes every comparison auditable. On 2023 validation, M3 reached a ROC-AUC of 0.7844/0.7628 (Chaco/Oriental), whereas M2 proved most robust across both development (0.6773/0.7470) and independent confirmation spatial blocks (0.6871/0.6621; Supplementary Table S18), justifying the replacement of the biophysical baseline M1 as the operational fallback.
+
+On the retrospective 2024–2025 test, M3 substantially outperformed the full Canadian FWI (0.8021/0.7534 vs. 0.5059/0.5611) and the INPE Risco de Fogo (0.5266/0.4973), and decoupling did not sacrifice discrimination relative to a coupled *t*−1 baseline (Supplementary Table S19). Nevertheless, population-level ignition precision remains low (0.082 %/0.198 %; 95 % CI 0.075–0.088/0.178–0.222) and the hybrid advantage is strictly temporal rather than spatial. Decision-curve and cost-loss analyses locate the operational gain in propagation (V = 0.63/0.40 at α = 0.002) and in ignition only as a low-α screening layer, positioning the system as an operational screening and prioritization tool rather than a stand-alone warning system.
+
+A permuted-label control remains above chance in Chaco (0.63), so this ranking is a nowcasting signal rather than a causal attribution. An external leave-one-department-out test in Boquerón reproduced the M2/M3 discrimination (0.8104/0.8120) but not a significant M3−M2 gain (+0.0016, p = 0.254); FWI remained below chance (0.4708) and INPE reached 0.5817. Ultimately, the main contribution of this work is not a single susceptibility map but an open, auditable protocol—archived with public code and data—that shows where a geoscientific model holds, where it fails and how to extend the benchmark to other subtropical regions and to day-ahead weather forecasts.
+
+# Data availability
+
+Processed data, test predictions, trained models and derived tables are archived in the v2.0.1 data release (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB) at [github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1](https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1) under CC BY 4.0 and are indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). The v2.1.0 code and tabular artifacts are in the v2.1.0 GitHub release and in `tablas_maestro.xlsx`. Raw NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC and geoBoundaries data are obtained from their original providers under their own terms and are documented with SHA-256 hashes in `fuentes/MANIFIESTO_DATOS_v3.csv`.
+
+# Acknowledgments
+
+We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas, Hansen/UMD and geoBoundaries for open data. The author is responsible for all interpretations and errors.
+
+# Computer Code Availability
+
+- **Name of code:** `Incendios_PY` (v2.1.0)
+- **Developer and contact address:** Martín Sánchez Insfrán, Independent Researcher, Asunción, Paraguay.
+- **Telephone:** +595 971 907 727
+- **E-mail:** sanchez.martin093@gmail.com
+- **Year first available:** 2026
+- **Hardware required:** x86_64 or ARM64 CPU; minimum 8 GB RAM.
+- **Software required:** macOS 13+, Linux Ubuntu 22.04+, or Windows 11 with WSL2; Python 3.12+ with Polars, DuckDB, NumPy and the LightGBM C++ backend; pinned in `requirements-lock.txt`.
+- **Program language:** Python 3.12+.
+- **Program size:** 1.7 MB source tree (approximately 0.9 MB Python source); the public data asset is 1.18 GB compressed; the full working archive is 11 GB.
+- **Availability and license:** Freely available under the MIT License at [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY). Code concept DOI: [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); data concept DOI: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). The v2.1.0 source snapshot is the GitHub release; the concept DOIs identify the archived code and data series.
+- **User guide:** `docs/MANUAL_USUARIO_Y_TUTORIAL.md`; **tutorial:** `docs/MANUAL_USUARIO_Y_TUTORIAL.md`.
+- **Tests:** 76 tests pass with `python -m pytest -q tests`.
+
+
+**Authorship contribution statement**
+
+Martín Sánchez Insfrán: conceptualization, methodology, software, data curation, formal analysis, validation, visualization, writing—original draft, writing—review and editing, project administration.
+
+# Funding
+
+This research received no specific grant from public, commercial or not-for-profit funding agencies.
+
+# Competing interests
+
+The author declares no competing financial or non-financial interests.
+
+# Generative AI declaration
+
+During the preparation of this work the author used Google Gemini for language editing and code assistance. After using this tool/service, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+
+# References {.unnumbered}
+::: {#refs}
+:::
+
+# List of Figures {.unnumbered}
+
+Figure 1: Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid (EPSG:32721).
+
+Figure 2: Computational framework. (a) Multisource 1-km² ingestion and biophysical gate; (b) D2 target operator; (c) decoupled M3/M2 ignition and t−1 propagation; (d) temporal, spatial, bootstrap and cost-loss evaluation. M1 is a diagnostic baseline; the 20-km buffer applies only to the spatial holdout.
+
+Figure 3: ROC and precision–recall curves for the retrospective D2 test (2024–2025), by region and task. The ignition curves correspond to M3; propagation uses the causal t-1 layer.
+
+Figure 4: ROC and precision–recall curves for M3 against full Canadian FWI, INPE and the weather-only GBT under D2.
+
+Figure 5: Illustrative national 1-km² alert map for 2024-09-09, showing the spatial distribution of low, moderate and high alert cells.

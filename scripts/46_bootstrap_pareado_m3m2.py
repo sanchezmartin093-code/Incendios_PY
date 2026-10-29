@@ -5,7 +5,7 @@ un bootstrap pareado agrupado por fecha (B = 1000) y reporta la diferencia
 observada, su IC del 95 % y el p bilateral para ROC-AUC y PR-AUC.
 
 Salidas:
-- entregables/tablas/tablaS27b_bootstrap_pareado_m3m2.csv
+- entregables/fuentes/tablas/tablaS27b_bootstrap_pareado_m3m2.csv
 - bloque insertado entre <!-- tablaS27b:inicio/fin --> en los suplementos.
 """
 
@@ -188,8 +188,8 @@ def main():
         encoding="utf-8",
     )
     for q in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if q.exists():
             _splice(q, md)

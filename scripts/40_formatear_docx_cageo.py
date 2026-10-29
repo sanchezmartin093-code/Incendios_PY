@@ -3,8 +3,8 @@
 
 Uso:
     python scripts/40_formatear_docx_cageo.py \
-        entregables/manuscrito.docx \
-        entregables/manuscrito_cageo.docx
+        entregables/en/manuscrito_en.docx \
+        entregables/en/manuscrito_en.docx
 """
 from __future__ import annotations
 
@@ -393,8 +393,8 @@ def anonymize(doc):
                 "Data version DOI: provided on the title page\n"
                 "Code concept DOI: provided on the title page\n"
                 "Data concept DOI: provided on the title page\n"
-                "User guide: docs/USER_GUIDE.md\n"
-                "Tutorial: docs/TUTORIAL.md\n"
+                "User guide: docs/MANUAL_USUARIO_Y_TUTORIAL.md\n"
+                "Tutorial: docs/MANUAL_USUARIO_Y_TUTORIAL.md\n"
                 "Tests: 76 tests pass with python -m pytest -q tests.",
             )
         elif p.text.startswith("Martín Sánchez Insfrán: conceptualization"):
@@ -659,7 +659,7 @@ def main(in_path: str, out_path: str):
     normalize_ooxml_order(doc)
 
     doc.save(out_path)
-    figdir = Path("entregables/figuras")
+    figdir = Path("entregables/fuentes/figuras")
     replace_media(out_path, {
         "word/media/rId10.png": str(figdir / "fig01_macro_regiones_cobertura.png"),
         "word/media/rId15.png": str(figdir / "fig01_framework_conceptual.png"),

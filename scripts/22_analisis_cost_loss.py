@@ -71,7 +71,7 @@ def main():
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     df.to_csv(DIR_TABLAS / "tabla11_cost_loss.csv", index=False)
     (DIR_TABLAS / "tabla11_cost_loss.md").write_text(
-        "# Tabla 11. Análisis cost-loss poblacional\n\n" + df.to_markdown(index=False) + "\n",
+        "# Table 11. Population-level cost-loss analysis\n\n" + df.to_markdown(index=False) + "\n",
         encoding="utf-8",
     )
 

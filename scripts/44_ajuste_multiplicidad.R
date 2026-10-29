@@ -1,16 +1,16 @@
 #!/usr/bin/env Rscript
 # R.6: Holm-Bonferroni y Benjamini-Hochberg sobre las pruebas confirmatorias.
 #
-# Entrada : entregables/tablas/tabla10_significancia_pareada.csv
-# Salidas : entregables/tablas/tabla10_significancia_pareada_ajustada.csv
-#           entregables/tablas/tablaS07_significancia_ajustada.md
+# Entrada : entregables/fuentes/tablas/tabla10_significancia_pareada.csv
+# Salidas : entregables/fuentes/tablas/tabla10_significancia_pareada_ajustada.csv
+#           entregables/fuentes/tablas/tablaS07_significancia_ajustada.md
 #           Tabla S7 insertada entre marcadores en los dos suplementos.
 #
 # Uso: Rscript scripts/44_ajuste_multiplicidad.R [raiz_del_repositorio]
 
 args <- commandArgs(trailingOnly = TRUE)
 root <- if (length(args) >= 1L) normalizePath(args[[1]]) else normalizePath(".")
-dir_tab <- file.path(root, "entregables", "tablas")
+dir_tab <- file.path(root, "entregables", "fuentes", "tablas")
 
 entrada    <- file.path(dir_tab, "tabla10_significancia_pareada.csv")
 salida_csv <- file.path(dir_tab, "tabla10_significancia_pareada_ajustada.csv")
@@ -69,8 +69,8 @@ splice <- function(path, bloque) {
              path, useBytes = TRUE)
 }
 
-qmds <- c(file.path(root, "manuscrito", "en", "material_suplementario.qmd"),
-          file.path(root, "manuscrito", "es", "material_suplementario_es.qmd"))
+qmds <- c(file.path(root, "manuscrito", "en", "material_suplementario_en.qmd"),
+          file.path(root, "manuscrito", "es", "material_suplementario.qmd"))
 for (q in qmds) {
   if (file.exists(q)) splice(q, c(enc, fil))
 }
