@@ -263,7 +263,8 @@ def ejecutar_estudio_ablacion():
                     x["pct_humedal_palmar"].to_numpy(),
                 )
             ])
-            rb = 0.8 * (1 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+            madurez = np.clip(a * x["pse"].to_numpy() / 120.0, 0.0, 2.0)
+            rb = 0.8 * (1 + np.sin(madurez * (np.pi / 2) - (np.pi / 2))) / 2
             fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
             ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4
             flat = 1 + np.abs(x["lat"].to_numpy()) * 0.003

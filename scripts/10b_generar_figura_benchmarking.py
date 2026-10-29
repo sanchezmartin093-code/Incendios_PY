@@ -72,10 +72,11 @@ def main():
                 axes[fila, 1].plot(rec, prec, color=colores[region], linestyle=ls, linewidth=1.2, label=f"{nombre} ({ap:.3f})")
 
         axes[fila, 0].plot([0, 1], [0, 1], color="grey", linestyle=":", linewidth=1)
-        axes[fila, 0].set_title(f"ROC — {task.title()}", fontsize=7.5, fontweight="bold")
+        task_label = "Ignition" if task == "ignicion" else "Propagation"
+        axes[fila, 0].set_title(f"ROC — {task_label}", fontsize=7.5, fontweight="bold")
         axes[fila, 0].set_xlabel("False positive rate", fontsize=7)
         axes[fila, 0].set_ylabel("True positive rate", fontsize=7)
-        axes[fila, 1].set_title(f"Precision–recall — {task.title()}", fontsize=7.5, fontweight="bold")
+        axes[fila, 1].set_title(f"Precision–recall — {task_label}", fontsize=7.5, fontweight="bold")
         axes[fila, 1].set_xlabel("Recall", fontsize=7)
         axes[fila, 1].set_ylabel("Precision", fontsize=7)
 

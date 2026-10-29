@@ -47,6 +47,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
   exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
 - Public release: **v2.1.0** (2026-10-28): <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.1.0>.
+- Submission checklist: [`docs/CHECKLIST_ENVIO.md`](docs/CHECKLIST_ENVIO.md).
 
 ## Installation
 
@@ -198,8 +199,8 @@ prioritisation tool, not a stand-alone early-warning system.
 
 ### Benchmarking and robustness
 
-- Full Canadian FWI: ROC-AUC 0.5173/0.5564 for ignition in Chaco/Oriental.
-- INPE Risco de Fogo: 0.5389/0.4990.
+- Full Canadian FWI: ROC-AUC 0.5059/0.5611 for ignition in Chaco/Oriental.
+- INPE Risco de Fogo: 0.5266/0.4973.
 - Grouped-by-date paired bootstrap: all main comparisons against FWI/INPE have
   `p ≤ 0.001` (`B = 1,000`).
 - Spatial block holdout 2023 (50 km blocks, 20 km buffer): M1 0.6456/0.7176,

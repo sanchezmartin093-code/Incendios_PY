@@ -12,6 +12,11 @@ from __future__ import annotations
 
 import numpy as np
 
+# Effective day-length factors for DMC and day-length factors for DC at 20°S
+# (Van Wagner & Pickett, 1985; cffdrs tables for -10 > latitude >= -30).
+LE_DMC_20S = (10.1, 9.6, 9.1, 8.5, 8.1, 7.8, 7.9, 8.3, 8.9, 9.4, 9.9, 10.2)
+LF_DC_20S = (6.4, 5.0, 2.4, 0.4, -1.6, -1.6, -1.6, -1.6, -1.6, 0.9, 3.8, 5.8)
+
 def calcular_presion_vapor_saturacion(temperatura_c: float | np.ndarray) -> float | np.ndarray:
     """
     Calculates the saturation vapor pressure (es) in kPa using the Tetens equation.
@@ -98,44 +103,49 @@ def calcular_dmc(
     wind_kmh: float,
     precip_mm: float,
     dmc_prev: float = 6.0,
+    mes: int = 9,
 ) -> float:
-    """Duff Moisture Code (DMC) with drying and rain recharge."""
+    """Duff Moisture Code (DMC) with the standard 20°S day-length factor."""
     dmc = float(dmc_prev)
     if precip_mm > 1.5:
-        re = 0.92 * precip_mm - 1.5
-        mo = 20.0 + np.exp(5.6348 - dmc / 43.43)
+        # Standard net rain and rain recharge (Van Wagner & Pickett, 1985).
+        rw = max(0.92 * float(precip_mm) - 1.27, 0.0)
+        wmi = 20.0 + 280.0 / np.exp(0.023 * dmc)
         if dmc <= 33.0:
             b = 100.0 / (0.5 + 0.3 * dmc)
         elif dmc <= 65.0:
             b = 14.0 - 1.3 * np.log(dmc)
         else:
             b = 6.2 * np.log(dmc) - 17.2
-        mr = mo + 1000.0 * re / (48.77 + b * re)
-        dmc = 244.72 - 43.43 * np.log(max(mr - 20.0, 1e-6))
-        dmc = max(dmc, 0.0)
+        wmr = wmi + 1000.0 * rw / (48.77 + b * rw)
+        pr = 43.43 * (5.6348 - np.log(max(wmr - 20.0, 1e-6)))
+        dmc = max(pr, 0.0)
 
     t = max(float(temp_c), -1.1)
     rh = float(np.clip(rh_pct, 1.0, 100.0))
-    le = np.exp(2.0 - 0.2 * rh / 100.0)
-    k = 1.894 * (t + 1.1) * (100.0 - rh) * le * 1e-6
-    return float(max(dmc * (10.0 ** k), 0.0))
+    le = LE_DMC_20S[(int(mes) - 1) % 12]
+    rk = 1.894 * (t + 1.1) * (100.0 - rh) * le * 1e-4
+    return float(max(dmc + rk, 0.0))
 
 
 def calcular_dc(
     temp_c: float,
     precip_mm: float,
     dc_prev: float = 15.0,
+    mes: int = 9,
 ) -> float:
-    """Drought Code (DC) with recharge and drying."""
+    """Drought Code (DC) with the standard 20°S day-length factor."""
     dc = float(dc_prev)
     if precip_mm > 2.8:
-        rd = 0.83 * precip_mm - 2.8
-        q = 800.0 * np.exp(-dc / 400.0) + 3.937 * rd
-        q = min(q, 800.0)
-        dc = max(400.0 * np.log(800.0 / max(q, 1e-6)), 0.0)
-    dc += 0.5 * max(float(temp_c), -2.8)
-    return float(max(dc, 0.0))
-
+        rd = max(0.83 * float(precip_mm) - 1.27, 0.0)
+        smi = 800.0 * np.exp(-dc / 400.0)
+        dr = max(dc - 400.0 * np.log(1.0 + 3.937 * rd / smi), 0.0)
+    else:
+        dr = dc
+    t = max(float(temp_c), -2.8)
+    lf = LF_DC_20S[(int(mes) - 1) % 12]
+    pe = max((0.36 * (t + 2.8) + lf) / 2.0, 0.0)
+    return float(max(dr + pe, 0.0))
 
 def calcular_bui(dmc: float, dc: float) -> float:
     """Buildup Index (BUI)."""

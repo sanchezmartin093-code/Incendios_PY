@@ -152,7 +152,7 @@ def set_cell_width(cell, width_twips: int):
 def fix_captions(doc):
     for p in iter_paragraphs(doc):
         txt = p.text.strip()
-        if not re.match(r"^(Figure|Table)[\s\u00A0]*\d+:", txt):
+        if not re.match(r"^(Figure|Fig\.?|Table)[\s\u00A0]*\d+:", txt):
             continue
         pPrs = p._p.findall(qn("w:pPr"))
         if len(pPrs) > 1:
@@ -206,28 +206,15 @@ def set_section_format(doc):
     section.header_distance = Inches(0.5)
     section.footer_distance = Inches(0.5)
 
-    # Footer with PAGE field
+    # Footer following the CAGEO template
     footer = section.footer
     footer.is_linked_to_previous = False
     fp = footer.paragraphs[0]
     for r in list(fp.runs):
         r._element.getparent().remove(r._element)
     fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = fp.add_run()
+    run = fp.add_run("Sánchez Insfrán: Preprint submitted to Elsevier")
     set_run_font(run, size=10, color=BLACK)
-    fld_begin = OxmlElement("w:fldChar")
-    fld_begin.set(qn("w:fldCharType"), "begin")
-    instr = OxmlElement("w:instrText")
-    instr.set(qn("xml:space"), "preserve")
-    instr.text = " PAGE "
-    fld_sep = OxmlElement("w:fldChar")
-    fld_sep.set(qn("w:fldCharType"), "separate")
-    txt = OxmlElement("w:t")
-    txt.text = "1"
-    fld_end = OxmlElement("w:fldChar")
-    fld_end.set(qn("w:fldCharType"), "end")
-    for el in (fld_begin, instr, fld_sep, txt, fld_end):
-        run._r.append(el)
 
     sectPr = section._sectPr
     for tag in ("w:lnNumType", "w:pgNumType"):
@@ -480,8 +467,8 @@ def normalize_ooxml_order(doc):
 
 def main(in_path: str, out_path: str):
     doc = Document(in_path)
-    doc.core_properties.author = ""
-    doc.core_properties.last_modified_by = ""
+    doc.core_properties.author = "Martín Sánchez Insfrán"
+    doc.core_properties.last_modified_by = "Martín Sánchez Insfrán"
     doc.core_properties.comments = ""
 
     # 1. Quitar fecha y nota interna del manuscrito
@@ -491,20 +478,20 @@ def main(in_path: str, out_path: str):
             p._element.getparent().remove(p._element)
 
     # 2. Estilos
-    set_style_font(doc.styles["Normal"], size=12, color=BLACK)
+    set_style_font(doc.styles["Normal"], size=10, color=BLACK)
     set_style_paragraph(doc.styles["Normal"], line=2.0, before=0, after=0)
 
     for name in ("Body Text", "First Paragraph", "Compact", "Block Text"):
         st = doc.styles[name]
-        set_style_font(st, size=12, color=BLACK)
+        set_style_font(st, size=10, color=BLACK)
         set_style_paragraph(st, line=2.0, before=0, after=0)
 
     h1 = doc.styles["Heading 1"]
-    set_style_font(h1, size=12, bold=True, color=BLACK)
+    set_style_font(h1, size=10, bold=True, color=BLACK)
     set_style_paragraph(h1, line=2.0, before=12, after=6, keep_next=True)
 
     h2 = doc.styles["Heading 2"]
-    set_style_font(h2, size=12, bold=True, color=BLACK)
+    set_style_font(h2, size=10, bold=True, color=BLACK)
     set_style_paragraph(h2, line=2.0, before=10, after=4, keep_next=True)
 
     title = doc.styles["Title"]
@@ -513,7 +500,7 @@ def main(in_path: str, out_path: str):
                         align=WD_ALIGN_PARAGRAPH.CENTER)
 
     subtitle = doc.styles["Subtitle"]
-    set_style_font(subtitle, size=12, italic=True, color=BLACK)
+    set_style_font(subtitle, size=10, italic=True, color=BLACK)
     set_style_paragraph(subtitle, line=2.0, before=0, after=6,
                         align=WD_ALIGN_PARAGRAPH.CENTER)
 
@@ -523,13 +510,13 @@ def main(in_path: str, out_path: str):
         set_style_paragraph(st, line=1.0, before=6, after=6)
 
     bib = doc.styles["Bibliography"]
-    set_style_font(bib, size=12, color=BLACK)
+    set_style_font(bib, size=10, color=BLACK)
     set_style_paragraph(bib, line=2.0, before=0, after=0, left=0.5, hanging=0.5)
 
     for name in ("Abstract", "Abstract Title", "Date", "Author"):
         if name in [s.name for s in doc.styles]:
             st = doc.styles[name]
-            set_style_font(st, size=12, color=BLACK)
+            set_style_font(st, size=10, color=BLACK)
 
     # 3. Sección, líneas y paginación
     set_section_format(doc)
@@ -538,8 +525,7 @@ def main(in_path: str, out_path: str):
     fix_captions(doc)
     format_tables(doc)
 
-    # 5. Contenido: anonimato y consistencia
-    anonymize(doc)
+    # 5. Contenido: consistencia (autor identificado; revisión single-anonymized)
 
     replacements = [
         ("7. Acknowledgements", "Acknowledgments"),

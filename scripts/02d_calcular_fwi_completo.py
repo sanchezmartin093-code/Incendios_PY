@@ -110,11 +110,12 @@ def main():
                 r["temp_mediodia_c"], r["rh_mediodia_pct"],
                 r["viento_mediodia_kmh"], r["precipitacion_mm"], ffmc,
             )
+            mes = int(r["fecha"][5:7])
             dmc = calcular_dmc(
                 r["temp_mediodia_c"], r["rh_mediodia_pct"],
-                r["viento_mediodia_kmh"], r["precipitacion_mm"], dmc,
+                r["viento_mediodia_kmh"], r["precipitacion_mm"], dmc, mes=mes,
             )
-            dc = calcular_dc(r["temp_mediodia_c"], r["precipitacion_mm"], dc)
+            dc = calcular_dc(r["temp_mediodia_c"], r["precipitacion_mm"], dc, mes=mes)
             bui = calcular_bui(dmc, dc)
             isi = calcular_isi(r["viento_mediodia_kmh"], ffmc)
             fwi = calcular_fwi(isi, bui)

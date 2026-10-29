@@ -62,7 +62,7 @@ def _a_local(x: pl.DataFrame) -> np.ndarray:
 
 def _inpe(x: pl.DataFrame, a: np.ndarray) -> np.ndarray:
     rb = 0.8 * (
-        1.0 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2.0) - (np.pi / 2.0))
+        1.0 + np.sin(np.clip(a * x["pse"].to_numpy() / 120.0, 0.0, 2.0) * (np.pi / 2.0) - (np.pi / 2.0))
     ) / 2.0
     fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
     ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4

@@ -44,7 +44,7 @@ hashes, in `fuentes/MANIFIESTO_DATOS_v3.csv`:
 - Hansen GFC-2025 v1.13 tree-cover loss;
 - geoBoundaries ADM0/ADM1 boundaries.
 
-The v2.0.1 processed archive contains the targets, model probabilities,
+The v2.1.0 processed archive contains the targets, model probabilities,
 benchmarks, models, calibrators, thresholds, prevalence metadata, tables and the
 exact environment needed to regenerate the main tables without the raw archive.
 
@@ -62,13 +62,13 @@ Main generated locations:
 | Supplementary DOCX/HTML | `entregables/` |
 | Compiled figure PDF | `entregables/figuras_maestro.pdf` |
 | Compiled table workbook | `entregables/tablas_maestro.xlsx` |
-| Operational artifact bundle | `dist/operativo_v2.0.1/` |
+| Operational artifact bundle | `dist/operativo_v2.1.0/` |
 
 ## 5. Typical use cases
 
 ### 5.1 Reproduce an evaluation table from the frozen archive
 
-1. Download `Incendios_PY_data_v2.0.1.zip` from the v2.0.1 GitHub release.
+1. Download `Incendios_PY_data_v2.1.0.zip` from the v2.1.0 GitHub release.
 2. Place its `datos/processed/` content next to the repository or point the
    scripts to that path.
 3. Run, for example:
@@ -135,7 +135,7 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
 ## 7. Troubleshooting
 
 - `FileNotFoundError` for a model or threshold: run the corresponding training
-  script or restore the v2.0.1 data archive.
+  script or restore the v2.1.0 data archive.
 - `ValueError` for D2 partitions: run `scripts/00_validar_datos.py` and inspect
   `entregables/tablas/tabla00_validacion_datos.csv`.
 - CDS/FIRMS access errors: raw acquisition is outside the frozen evaluation
@@ -144,6 +144,7 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
 
 ## 8. Citation
 
-Cite the code version DOI `10.5281/zenodo.23718675`, the data version DOI
-`10.5281/zenodo.23718676` and the manuscript. Concept DOIs are also available in
+Cite the code concept DOI `10.5281/zenodo.23675104`, the data concept DOI
+`10.5281/zenodo.23675278` and the manuscript. Both concept DOIs resolve to the
+latest archived release (v2.1.0); the identifiers are also available in
 `CITATION.cff`.

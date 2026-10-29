@@ -2,7 +2,7 @@
 
 **Fecha de Actualización:** 28 de Octubre de 2026  
 **Autor:** Martín Sánchez Insfrán  
-**Repositorio Base:** `Incendios_PY` (v2.0.1) & Ecosistema de Ciencia Cuantitativa en Paraguay (`paraguay-en-datos`, `Homicidios_PY`, `Calor_PY`).
+**Repositorio Base:** `Incendios_PY` (v2.1.0) & Ecosistema de Ciencia Cuantitativa en Paraguay (`paraguay-en-datos`, `Homicidios_PY`, `Calor_PY`).
 
 ---
 
@@ -49,7 +49,7 @@ flowchart TD
 | Componente | Qué hace | Consumo de Tokens / Costo |
 | :--- | :--- | :--- |
 | **Google Cloud (Vertex AI + TPUs vía TRC)** | Trabajo pesado: Ingesta satelital diaria, auditoría visual de plumas de humo e incandescencia en falso color SWIR, entrenamiento tensorial masivo. | Se absorbe con los **$2.000 USD de Google for Startups** y el programa gratuito de **Google TRC**. |
-| **Tu Computadora (Mac)** | Ejecuta scripts locales en Python (v2.0.1), gestiona la base analítica en DuckDB/Polars y compila manuscritos en Quarto (`quarto render`). | **0 tokens.** Cómputo local nativo de alto rendimiento. |
+| **Tu Computadora (Mac)** | Ejecuta scripts locales en Python (v2.1.0), gestiona la base analítica en DuckDB/Polars y compila manuscritos en Quarto (`quarto render`). | **0 tokens.** Cómputo local nativo de alto rendimiento. |
 | **Antigravity (Chat / Agente)** | Arquitectura de código, refactorización, redacción científica por secciones y control de calidad metodológico para *Computers & Geosciences*. | **Cuota de Antigravity optimizada** (usando Gemini 3.8 Flash para máxima eficiencia). |
 
 ---
