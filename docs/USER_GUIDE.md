@@ -146,5 +146,5 @@ The check compares the 100 frozen artifacts against `auditoria/FASE5_CANDIDATO_C
 
 Cite the code concept DOI `10.5281/zenodo.23675104`, the data concept DOI
 `10.5281/zenodo.23675278` and the manuscript. Both concept DOIs resolve to the
-latest archived release (v2.1.0); the identifiers are also available in
-`CITATION.cff`.
+v2.1.0 GitHub release; the identifiers are also available in `CITATION.cff`.
+The Zenodo concept DOIs identify the archived code and data series.
