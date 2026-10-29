@@ -1,8 +1,8 @@
 # Auditoría de hashes SHA-256
 
-- Generado: 2026-10-29T11:56:14
-- Commit: `5c27ea136f10374d705b42f94f796b010da33309`
-- Archivos: 345
+- Generado: 2026-10-29T12:02:01
+- Commit: `13b346fae7fe3664bf5edc9cf495d0442fa98b24`
+- Archivos: 346
 
 | Archivo | SHA-256 |
 |---|---|
@@ -32,9 +32,9 @@
 | `auditoria/G0/resultados_g0.json` | `b4b69be99ff2cd1536899ac3240477ea13fbeab8bec9ab76e9e9005fd6bf1b03` |
 | `auditoria/G0/sensibilidad_armonizacion_g0.csv` | `12c8708d04d63549224fa2aa0e0e689eb7d084f5a9d5a4f67239ea43597d6cc6` |
 | `auditoria/G0/sensibilidad_buffer_g0.csv` | `4e054e370c802b42d559415e7a8a45b39d301b01f44f699ab3492c7f3a932c65` |
-| `cover_letter.qmd` | `e32dbd813423c0c9f32cc1dfa20faab68c83c9f9bab1fd9b44b1217daed9f0e4` |
+| `cover_letter.qmd` | `0f817aaf0df1b18e52756a13e48b66d56c7f8fa5d48f10d8792de8dca0521bd0` |
 | `docs/ADR_AUDITORIA.md` | `3744e29bf8f802cc5dac23e4d001403530b5c3667dc372bef35752306bfdf047` |
-| `docs/CHECKLIST_ENVIO.md` | `94a3ba9d4c94f8df8b120b50ccd42ccd1d71c518dfface4464971dffd3dd5af6` |
+| `docs/CHECKLIST_ENVIO.md` | `ed9305c97f83ebd977b41b58f111f83cde50c12a03c5d1e3be4d5ef998716f0d` |
 | `docs/G0_PROTOCOLO.md` | `06c4af93d4d89bc5a1cee81a09fa3fe735f3205060ec42f17a196a48fbfbfba0` |
 | `docs/IDEAS.md` | `8af4a0aee12b51e54f0dc2688553c0d2fa9b9c9076684b07dcad20c5669c035e` |
 | `docs/PROTOCOLO_BENCHMARKING.md` | `696a4086acddb6be04ca7bd4af6dda1fce95fc9a1025e5509f88a650803f57d9` |
@@ -43,8 +43,8 @@
 | `docs/arquitectura_flujo_sincronizado.md` | `56596b532b11b1eb8d2f892a35c58dcec36bbecdbdb05578c1f6f56296f8d2e2` |
 | `docs/plan_mejoras_benchmark_decision.md` | `5749247e5ab86f7bddb4f027e382b756be6367a02dc5ac2196438fb2439962d8` |
 | `docs/plan_postulacion_subvenciones.md` | `119a76471712f1d7df263adc316059f96a6076ea6de1b6bc58c1261e80e99c55` |
-| `entregables/cover_letter.docx` | `d8abab4fe0d2efe44a38d6a0fc759cdbceb4c945d5649de203d69e3cd882bcad` |
-| `entregables/cover_letter.html` | `121dbb8071fcdb33cadfa0156a1e828bc2d1cf8f980e4d704a412e9623f43a24` |
+| `entregables/cover_letter.docx` | `3b473481431add531876700ca102c8fa137c47b906376ce530ffecafb758cb4c` |
+| `entregables/cover_letter.html` | `7cecf6d7635aeb68839b7812ccab8419bc2de31f1fa64eb8793d947094585f6d` |
 | `entregables/dashboard_alerta_interactivo.html` | `a30b60a2cd074cee0deffe58b1fe2e9822ce46c502c0bb627efe0d6da8a4b982` |
 | `entregables/figuras/fig01_arquitectura_impacto_nature.pdf` | `31da6a38ae7278f9b5db146cf19564e3289ab082c38e693f13af5e1d4fd85efb` |
 | `entregables/figuras/fig01_arquitectura_impacto_nature.png` | `07bed0a42c5e5af24e4738afb4dbb369102ca8cb54cea13156577180877e8ea4` |
@@ -101,8 +101,8 @@
 | `entregables/manuscrito.html` | `77a01488952473a6dda68afb9e5f71e5d2e7afc72e76a32c91eef3952e2c3e47` |
 | `entregables/manuscrito_es.docx` | `e8dbcce29ae1b6c35752370c739a36524ea8fcbd570062db371df5b5fc89f78f` |
 | `entregables/manuscrito_es.html` | `e190554ec7fe4f5f556550d39f01727479c754e7ff06a6d45612cd1dd0fb50e6` |
-| `entregables/material_suplementario.docx` | `31e877e9806a33c9ae3d7698edd0ffb36a958144348935fa0838eecf0626c7f2` |
-| `entregables/material_suplementario.html` | `06149e9e7eae87126f918804738ff1feb37ac826c516c88cbd18451305955f95` |
+| `entregables/material_suplementario.docx` | `6a730c7c41325f3696b7a16b46439f5d125f0c27809bc79b6426356735e117dc` |
+| `entregables/material_suplementario.html` | `454181beb3a2bc892c4c6a565f86e832978866c8f59a5a34fa173a35f75ea20d` |
 | `entregables/material_suplementario_es.docx` | `01032fccf838038a3da5ed13b7e6d38dabbb575993fe29e4a61d632fa5d968d8` |
 | `entregables/material_suplementario_es.html` | `bfff5554963743e6d4c5e345165cf82c297bda6b9eca874c310ee19281eb919d` |
 | `entregables/material_suplementario_navegable.docx` | `9a7ee5d09319ed738c6fa3c9e766cc2c5a43101e387450309e926a3a7805a5cd` |
@@ -224,7 +224,7 @@
 | `entregables/tablas/tablaS4_perfil_computacional.md` | `cc86b1dc3a1d3b843401971bdb09dff0d576699335f5749a4a12932c6fc1ef04` |
 | `entregables/tablas/tablaS5_prediccion_conforme.csv` | `c4d82a7a6ba11e30cfda27b3dc53ece7bc31a554494dae39fbf5472bea411c34` |
 | `entregables/tablas/tablaS5_prediccion_conforme.md` | `16edb27324261d04e6448e8abcb48578e7c053a0011d7152e4b7c22b11b50c54` |
-| `entregables/tablas_maestro.xlsx` | `3698c6b89fccf9cf05bfb9aa265d0760bf1547bf287deda74d556cdb9771794b` |
+| `entregables/tablas_maestro.xlsx` | `a423fbf8738913d9bb180d1b2a09fd8d879440e755f577ea3055b42d8201feb7` |
 | `entregables/title_page.docx` | `17fbddcbff81a05f8f5036fa79f068e70ebfa84bab46cbfa22d3a21e45f2a298` |
 | `entregables/title_page.html` | `feee9af86fcda0473ea6bbd5d4514f2a101f2c02f5bdbc72c146cf3ba150717c` |
 | `highlights.md` | `6db3b59d92f3ccd3595150881c958d4509805ac486aef4bbede9875972bdd9f9` |
@@ -232,7 +232,7 @@
 | `manuscrito/assets/elsevier-harvard.csl` | `71e5cbd5906f4c1a03f0772a3d8b014ac06fe3f87a848397b94c66139003568c` |
 | `manuscrito/assets/references.bib` | `d65698eb3393e8dc87b2f1c830bc7c3dd081d8b7adf8912b7285df2419ee99ab` |
 | `manuscrito/en/manuscrito.qmd` | `d4f49390bd4e5b1e03d97456691e592e01c86902068ce71a2c330fdc621dd5a5` |
-| `manuscrito/en/material_suplementario.qmd` | `8d99a5f7544278f89edbd066810c876b72bdd7b6e62222785bad28aadf1bae05` |
+| `manuscrito/en/material_suplementario.qmd` | `a693541c300e024bf3754eab7aa74992bd8cc7065978d5d27959c103329d454a` |
 | `manuscrito/es/manuscrito_es.qmd` | `1e46287051dfe9fb7071b66f2701a0f2b1077a918766d01642cddfdb755f68a3` |
 | `manuscrito/es/material_suplementario_es.qmd` | `1ea5b863843c5b70cd533228a2cb45d50c75699580621b807e2ee443c46f7556` |
 | `requirements-lock.txt` | `dab3b46dac1f64b8cf94ea7b4e5cc997907a3ed20ca5b25aba65c0ba0beb6977` |
@@ -292,7 +292,7 @@
 | `scripts/38_coupled_baseline.py` | `e40253269e9c4132066387430918164cade9397f5aaa43cc769a4dc6c7347682` |
 | `scripts/39_sensibilidad_d2.py` | `da29ee4e8f5876211657f0c43e35b6c5628940ada93295dd242f6cb914aa7b43` |
 | `scripts/40_formatear_docx_cageo.py` | `868a201345d066d8c3de55d355fb705506c5eca508fc4dfaa2d887a040f6a2c1` |
-| `scripts/41_formatear_suplementario_docx.py` | `3d76502efa695c4fd89709c524fb3c4d45573f28d2baf1060cc344feba12e5a6` |
+| `scripts/41_formatear_suplementario_docx.py` | `387f2569ee58fc45116649fe0d752f1cfb0c34b44961328b7d45980319b9fe7e` |
 | `scripts/43_benchmark_weather_only.py` | `766c4e77d972f53109879c2436ba44610db75d35d646f03316fcead597e98fab` |
 | `scripts/45_metricas_sin_solapamiento.py` | `6fec622c66aa3f700f4bcef0559b285bc3b937bb1da55309ec35619836e4a33d` |
 | `scripts/46_bootstrap_pareado_m3m2.py` | `f50923f4fed36e669ac435cc4ee30a02e7f396638e2cecafbe63499769492f97` |
@@ -328,8 +328,9 @@
 | `scripts/69g_entrenar_evaluar_g0.py` | `c53d766094e05ace78946e0d6dc77cbed4b218659675c7902e6cf41199e45d1c` |
 | `scripts/69h_sensibilidad_g0.py` | `ae395816cd943941ea893e5ce013867f024acce2fc60f88d7b2a24cb82929382` |
 | `scripts/69i_sensibilidad_buffer_g0.py` | `3282a4c75308881de3a554645a8604e174335f2dc3193eb33ce109098e72e6cb` |
-| `scripts/70_verificar_envio.py` | `23c3fd7c875cc09c420c77898490371e978e093de6e4a09c16e2f898b26cd2a0` |
+| `scripts/70_verificar_envio.py` | `252bde1b42947edfa229bf6775cf21d88b0af45a0c1eebd5b283d8f7549be8f8` |
 | `scripts/71_indice_suplementario.py` | `847972505f2cb014a97672e97cd1d10d7d7bccaed86eef7e98785b76592f4bf9` |
+| `scripts/71_preparar_submission.py` | `4ea7f9badfdc55639f34052d0d9ab5384121d49dca00c4b1fd6c2e077dbbbc38` |
 | `scripts/fig01_contract.py` | `97c61d99bca6e315b1cf132368613463d7806cdc4ffa07cbb22784f43e482998` |
 | `src/__init__.py` | `efd54d37a0c2d1e59c2560ff196564e40100907906c65b3ad8d8f82d628bc27c` |
 | `src/alerta.py` | `645947c580a4f93ad5d9fc2ae11f5c8a347cb1994324b9e1143c0228f10f6643` |
