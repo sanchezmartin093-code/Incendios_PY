@@ -41,7 +41,7 @@ E-mail: sanchez.martin093@gmail.com · ORCID: 0000-0003-4138-9668
 
 • **Tables S1–S34c:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest, an adversarial validation, gate and label sensitivities, a sampling-ratio sensitivity and a negative control, an external spatial validation in Boquerón and an exploratory cross-country validation in Formosa and its classic FWI/INPE benchmark.
 
-• **Figures S1–S11:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance, external validation, alert-budget precision, the Formosa cross-country ROC/PR curves and the study-domain map.
+• **Figures S1–S10:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance, external validation, alert-budget precision and the Formosa cross-country ROC/PR curves.
 
 ---
 
@@ -1381,8 +1381,6 @@ Classic indices were far weaker than either learned model. FWI reached ROC-AUC 0
 ![**Figure S9.** External validation in Boquerón: ROC and precision–recall curves for M2, M3, FWI and INPE on 2024–2025.](../../entregables/figuras/supp_fig09_external_boqueron.png){width="90%" fig-alt="External validation in Boquerón"}
 
 ![**Figure S10.** External cross-country validation in Formosa. ROC and precision–recall curves for G0-C in 2024 (left) and 2025 (right). M2 (blue) and M3 (orange) use frozen Chaco boosters with local Platt recalibration. The test is case-control (1:10), not population-weighted.](../../entregables/figuras/supp_fig10_external_formosa.png)
-
-![**Figure S11.** Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid (EPSG:32721).](../../entregables/figuras/fig01_macro_regiones_cobertura.png){width="80%"}
 
 # Data availability {.unnumbered}
 

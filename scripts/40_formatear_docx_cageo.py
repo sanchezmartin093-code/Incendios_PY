@@ -661,7 +661,7 @@ def main(in_path: str, out_path: str):
     doc.save(out_path)
     figdir = Path("entregables/figuras")
     replace_media(out_path, {
-        "word/media/rId9.png": str(figdir / "graphical_abstract.png"),
+        "word/media/rId10.png": str(figdir / "fig01_macro_regiones_cobertura.png"),
         "word/media/rId15.png": str(figdir / "fig01_framework_conceptual.png"),
         "word/media/rId25.png": str(figdir / "fig02_curvas_roc_pr_test.png"),
         "word/media/rId31.png": str(figdir / "fig05_benchmarking_curvas_roc_pr.png"),

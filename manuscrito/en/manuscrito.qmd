@@ -37,8 +37,6 @@ Corresponding author. E-mail: sanchez.martin093@gmail.com · Telephone: +595 971
 
 Wildfire machine learning often suffers from spatial leakage and the limited transferability of boreal fire-weather indices to subtropical biomes. For Paraguay's 1-km² Chaco–Oriental grid (2018–2025), we introduce D2, a computational target operator that formally separates primary ignition from tactical propagation, and a gated inference and evaluation framework that makes target construction, leakage control and model comparison explicit. D2 defines ignition as fire on day *t* with no fire within 25 km on day *t*−1 and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a day *t*−1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without day *t*−1 fire inputs, using M2 as a fallback for cells without history and M1 as a biophysical baseline. On 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental) versus 0.7817/0.7496 for M2. In 2023 spatial blocks, M2 is most robust (0.6773/0.7470); M1 does not beat M2 on cells without history. An independent confirmation holdout also retained M2 (0.6871/0.6621). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5059/0.5611 for the Canadian Forest Fire Weather Index (FWI) and 0.5266/0.4973 for the INPE Risco de Fogo; propagation reaches 0.9039/0.7859. Population-level ignition precision is 0.082 %/0.198 % (95 % CI 0.075–0.088/0.178–0.222), and decision value is concentrated in propagation, confirming a screening-and-prioritization role rather than a stand-alone warning system. The contribution is the open D2 operator, gated inference and evaluation harness, released as reproducible software.
 
-![Graphical abstract. Temporal skill is not spatial skill: M3 provides a temporal ignition nowcast, M2 remains the fallback in unseen blocks, and decision value is concentrated in propagation. Figure 2 details the computational framework.](../../entregables/figuras/graphical_abstract.png){#fig-graphical width="100%"}
-
 # 1. Introduction
 
 
@@ -60,6 +58,10 @@ The novelty is computational and infrastructural rather than algorithmic: D2 for
 The remainder of the paper is organized as follows. Section 2 defines the D2 operator, the biophysical gate, the decoupled inference architecture and the evaluation harness. Section 3 reports selection on 2023 validation, the retrospective 2024–2025 test, the benchmark against FWI and INPE, the spatial and temporal generalization analyses and the operational value. Section 4 discusses why canonical indices fail, what decoupling buys and where it fails, and the limitations of the study. Section 5 concludes.
 
 # 2. Computational framework
+
+The framework operates over the national 1-km² grid of Paraguay, divided into the Dry Chaco and Oriental Region (Figure 1). All target construction, inference and evaluation steps below use this domain.
+
+![Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid (EPSG:32721).](../../entregables/figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
 
 ## 2.1 D2 target operator
 
@@ -104,7 +106,7 @@ The bootstrap resamples dates rather than rows, because daily fire activity is s
 
 The grid contains 400 006 cells of 1 km² in Universal Transverse Mercator (UTM) zone 21S. Daily inputs are VIIRS 375 m active fire detections from Suomi-NPP, NOAA-20 and NOAA-21 [@schroeder2014]; ERA5-Land 3-hourly meteorology aggregated to daily values [@munoz2021era5land]; annual MapBiomas Collection 2 maps (2017–2023), joined to each row with the prior-year map [@mapbiomas2023]; Hansen Global Forest Change (GFC-2025 v1.13) tree-cover loss at t-1 and t-2 [@hansen2013]; and causal historical priors built with a monthly cutoff and a rolling three-year window. Raw data are public but are not redistributed; processed data and trained models are archived with a DOI.
 
-The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB [@raasveldt2019duckdb]. A spatial join of 50 000 points is shown only as a reference (Supplementary Table S4); the operational lookup avoids point-in-polygon at inference. The full inference pipeline processes 400 006 cells in 3.474 s with 2 212.9 MB peak RAM on ARM64; x86_64 was not measured. The study domain and regional split are shown in Supplementary Figure S11; the per-stage profile is in Supplementary Table S4.
+The pipeline uses a deterministic integer `cell_id`, a NumPy lookup in O(1), and columnar joins in Polars and DuckDB [@raasveldt2019duckdb]. A spatial join of 50 000 points is shown only as a reference (Supplementary Table S4); the operational lookup avoids point-in-polygon at inference. The full inference pipeline processes 400 006 cells in 3.474 s with 2 212.9 MB peak RAM on ARM64; x86_64 was not measured. The per-stage profile is in Supplementary Table S4.
 
 Data quality checks are part of the pipeline: duplicate VIIRS overpasses are collapsed, `low` confidence detections are removed, daily precipitation is reconstructed from sub-daily increments and impossible values above 300 mm/day are rejected. ERA5-Land nodes are mapped to cells with a precomputed cKDTree. The processed archive contains the test targets, model probabilities, benchmark layers, sampling plan and trained artifacts, so the result tables can be regenerated without downloading the full raw archive. The complete data dictionary and checks are in Supplementary Note S1 and Table S15. The repository includes 76 unit tests, a pinned dependency file, a continuous-integration workflow and a public GitHub release. The test suite covers target definitions, VIIRS filtering, climate aggregation, monotonic calibration, metrics and the alert layer; it can run without downloading the raw archive. This separation between a reproducible evaluation package and the full raw-data pipeline is deliberate: reviewers can audit the tables without a multi-terabyte download, while the canonical scripts remain available for a full rebuild.
 
@@ -319,7 +321,7 @@ During the preparation of this work the author used Google Gemini for language e
 
 # List of Figures {.unnumbered}
 
-Figure 1: Graphical abstract. Temporal skill is not spatial skill: temporal ignition nowcast, M2 fallback in unseen blocks and decision value in propagation.
+Figure 1: Study domain and regional split: Dry Chaco (west) and Oriental Region (east) over the national 1-km² grid (EPSG:32721).
 
 Figure 2: Computational framework. (a) Multisource 1-km² ingestion and biophysical gate; (b) D2 target operator; (c) decoupled M3/M2 ignition and t−1 propagation; (d) temporal, spatial, bootstrap and cost-loss evaluation. M1 is a diagnostic baseline; the 20-km buffer applies only to the spatial holdout.
 

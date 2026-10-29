@@ -22,6 +22,7 @@
 - [x] Declaración de IA antes de References.
 - [x] Funding y competing interests completos.
 - [x] Concept DOI de código y datos incluidos.
+- [x] Graphical abstract como archivo separado; no numerado en el cuerpo.
 - [x] Release de código v2.1.0 disponible en GitHub.
 - [x] Asset de datos v2.0.1 disponible en GitHub (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB).
 - [ ] Depositar el código v2.1.0 en Zenodo; el DOI conceptual de código resuelve a v2.0.1.
@@ -35,7 +36,7 @@
 - [x] Ecuaciones del suplemento conservan fracciones y sumatorias.
 - [x] Tablas S6, S17 y S28 tienen la nota de precisión poblacional.
 - [x] Separadores de miles uniformes con espacio.
-- [x] Figuras maestras: 16 páginas y 16 marcadores.
+- [x] Figuras maestras: 15 páginas y 15 marcadores.
 - [x] Tablas maestras: 50 hojas, incluida `Indice`.
 - [x] Table 3 y tablas S6/S8/S27/S28 legibles tras el formateo DOCX.
 
