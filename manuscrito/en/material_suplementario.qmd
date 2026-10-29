@@ -23,7 +23,7 @@ format:
 ---
 
 > **Target journal:** *Computers & Geosciences* (Elsevier). **Article type:** research article. **Peer review:** single-anonymized.  
-> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S5, Tables S1–S33 and Figures S1–S9.  
+> **Supplementary file:** `material_suplementario.docx` / `.html` — Notes S1–S5, Tables S1–S34c and Figures S1–S10.  
 > **Code:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (MIT License; code concept DOI [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); GitHub release v2.1.0).  
 > **Data:** processed data and test predictions are available in the v2.1.0 GitHub release under CC BY 4.0 and indexed by the data concept DOI [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
@@ -39,9 +39,9 @@ format:
 
 • **Note S5:** Robustness analyses.
 
-• **Tables S1–S33:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest, an adversarial validation, gate and label sensitivities, a sampling-ratio sensitivity and a negative control and an external spatial validation in Boquerón.
+• **Tables S1–S34c:** variable dictionary, hyperparameters, departmental results, computational profile, conformal coverage, population evaluation, paired significance, spatial blocks, lead time, sampling, full benchmark, ablation, M1 baseline, gated policy, confirmation holdout, coupled baseline, D2 sensitivity, SHAP, cost-loss, data audit, a weather-only baseline, an INPE A sensitivity, a train/test overlap sensitivity, a net-benefit decision table, a paired decision-value test, seed/capacity stability, a rolling-origin backtest, an adversarial validation, gate and label sensitivities, a sampling-ratio sensitivity and a negative control, an external spatial validation in Boquerón and an exploratory cross-country validation in Formosa and its classic FWI/INPE benchmark.
 
-• **Figures S1–S9:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance, external validation and alert-budget precision.
+• **Figures S1–S10:** SHAP, ablation, cost-loss, net benefit, rolling-origin, threshold sensitivity, permutation importance, external validation, alert-budget precision and the Formosa cross-country ROC/PR curves.
 
 ---
 
@@ -1317,6 +1317,60 @@ Top features by gain:
 ## S5.10 External spatial validation in Boquerón
 
 The leave-one-department-out pilot excluded Boquerón and a 25-km buffer from training and validation. Causal historical priors were recomputed with `excluir_cell_ids` for the excluded cells. M2 and M3 were retrained with the operational capacity; calibration and the F0.5 cutoff used 2023 rows outside the excluded area. FWI and INPE cutoffs were selected on the same 2023 rows. Evaluation used the 2024–2025 Boquerón rows (66,845 sampled rows; 5,038 positives). Metrics are reported both case-control and population-weighted; the latter use department-level D2 counts reconstructed from the full candidate archive because `conteos_poblacionales_d2.parquet` stores denominators by region. The buffer sensitivity uses 20, 25 and 30 km (Table S33b). This is a spatial external validation within Paraguay, not a cross-country validation.
+
+## S5.11 Cross-country validation in Formosa (G0)
+
+G0-Formosa was designed as a pre-registered, conditional cross-country test of the frozen M2/M3-Chaco system. The domain contains 75,236 cells of 1 km² (75,229 km²). The case-control test has 68,959 rows and 6,269 positive D2 ignition cell-days (2024: 3,429; 2025: 2,840); the 1:10 sampling matches the Paraguay design. M2/M3 boosters were frozen for G0-Z, and G0-C recalibrated Platt scaling and the F0.5 cutoff on Formosa 2023 only. G0-R retrained both models on Paraguay plus Formosa 2018–2022 and evaluated 2024–2025.
+
+The primary soil/land-cover harmonization (H-A) maps MapBiomas Argentina classes 3/4/6 to `pct_bosque_seco`, 9 to plantation, 11/73 to wetland, 10/12/63/66/77 to savanna, 15 to pasture, 18/19/36 to agriculture and 22/24/25/26/33/34 to non-combustible. Class 6 (flooded forest) is 22.3 % of the area and 42.9 % of VIIRS detections. H-B (class 6 → wetland) and H-C (mask cells with ≥50 % class 6) are sensitivities. The crosswalk is archived in `auditoria/G0/crosswalk_mapbiomas_argentina.csv`.
+
+In 2024, M2/M3 reached ROC-AUC 0.7133/0.7245 and PR-AUC 0.1839/0.1943; the paired M3−M2 ΔROC was +0.0112 (95 % CI +0.0065–+0.0155). In 2025, M2/M3 reached 0.7050/0.7112 and 0.1735/0.1716, with ΔROC +0.0062 (95 % CI −0.0001–+0.0129). G0-C reduced ECE to 0.0078–0.0153, but the local cutoff lowered M3's F0.5 in 2025. Neither arm reached the pre-registered transport threshold of ROC-AUC > 0.75. G0-R improved M3 ROC-AUC only to 0.7275/0.7150 and did not remove the 2025 uncertainty. H-B was essentially unchanged (M3 0.7256/0.7127); H-C raised M3 to 0.7616/0.7357 but removed 22 % of the area, 43 % of detections and 32.5 % of positive cell-days. These results therefore indicate limited, conditional transport, not a successful cross-country replication or a demonstration that M3 is superior to M2.
+
+Two limitations bound the run. First, 19 of 44 M3 features exceed PSI > 0.2 or KS > 0.1 between Formosa and Paraguay-Chaco; the largest shifts are pasture fraction (PSI 1.18), pasture-burning pressure (1.03), forest–agriculture edge (0.51), ecotone index (0.47), minimum temperature (0.25) and 25-km historical density (0.24). Formosa has almost no pasture (median 0 %), whereas the Paraguay-Chaco training distribution is pasture-rich. Second, Open-Meteo was quota-limited during the run, so the climate used CDS precipitation and Hargreaves ET0 rather than the Open-Meteo correction used in Paraguay; this source difference is a sensitivity still to be repeated. An aggregate cross-check against MapBiomas Chaco C5 2023 showed a maximum class-share difference of 5.2 pp (class 6: +4.7 pp), but a pixel-level kappa was not possible because C5 is only available as a Google Earth Engine asset in this environment. A 60-point visual pilot agreed in 53/60 cases (88.3 %); the full 300-point audit remains pending. These results should therefore be read as an exploratory stress test, not as a certified external validation.
+
+**Table S34.** G0-C external validation in Formosa (case-control, 1:10). M2/M3 are frozen Chaco boosters with Platt recalibration and cutoff selected on Formosa 2023. ΔROC is M3−M2 with a paired date-block bootstrap (1,000 replicates). Population precision is not reported because no approved Formosa population denominator was available.
+
+| Year | Model | ROC-AUC | PR-AUC | Brier | ECE | Cutoff | Precision | Recall | F0.5 | ΔROC M3−M2 (95 % CI; p) |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2024 | M2 | 0.7133 | 0.1839 | 0.0788 | 0.0078 | 0.1869 | 0.2112 | 0.1665 | 0.2005 | — |
+| 2024 | M3 | 0.7245 | 0.1943 | 0.0783 | 0.0106 | 0.2046 | 0.2347 | 0.1385 | 0.2061 | +0.0112 (+0.0065–+0.0155; p<0.001) |
+| 2025 | M2 | 0.7050 | 0.1735 | 0.0793 | 0.0129 | 0.1869 | 0.2203 | 0.1187 | 0.1881 | — |
+| 2025 | M3 | 0.7112 | 0.1716 | 0.0794 | 0.0153 | 0.2046 | 0.2016 | 0.0806 | 0.1551 | +0.0062 (-0.0001–+0.0129; p=0.052) |
+| pooled | M2 | 0.7094 | 0.1788 | 0.0790 | 0.0100 | 0.1869 | 0.2145 | 0.1448 | 0.1957 | — |
+| pooled | M3 | 0.7184 | 0.1836 | 0.0788 | 0.0125 | 0.2046 | 0.2228 | 0.1123 | 0.1862 | +0.0090 (+0.0050–+0.0128; p<0.001) |
+
+**Table S34b.** G0 arms and mandatory sensitivities. ROC-AUC is shown as M2/M3. H-C is not comparable to the primary result because it removes 22 % of the area, 43 % of detections and 32.5 % of positive cell-days. Buffer sensitivity varies the t−1 fire buffer used by the D2 sampling plan.
+
+| Arm / variant | 2024 M2 / M3 ROC | 2025 M2 / M3 ROC | Note |
+|---|---:|---:|---|
+| G0-Z | 0.7133 / 0.7245 | 0.7050 / 0.7112 | frozen |
+| G0-C | 0.7133 / 0.7245 | 0.7050 / 0.7112 | local recalibration |
+| G0-R | 0.7178 / 0.7275 | 0.7144 / 0.7150 | PY+Formosa retrain |
+| H-B (class 6 → wetland) | 0.7170 / 0.7256 | 0.7066 / 0.7127 | sensitivity |
+| H-C (mask class 6 ≥50 %) | 0.7508 / 0.7616 | 0.7324 / 0.7357 | removes 22 % area, 43 % detections, 33 % positives |
+| t−1 buffer 20 km | 0.7058 / 0.7173 | 0.6967 / 0.7041 | G0-C |
+| t−1 buffer 30 km | 0.7148 / 0.7251 | 0.7014 / 0.7111 | G0-C |
+
+**Table S34c.** Classic benchmarks in Formosa (case-control, 1:10). The Canadian FWI and the INPE Fire Risk were computed from the same Formosa ERA5-Land climate and H-A fuel fractions. Their cutoffs were selected on Formosa 2023 by maximizing F0.5 and frozen for 2024–2025, exactly as for G0-C. They are indices, not calibrated probabilities, so Brier and ECE are not reported. The M2/M3 rows are G0-C.
+
+| Year | Model | ROC-AUC | PR-AUC | Precision | Recall | F0.5 | Cutoff |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 2024 | M2 | 0.7133 | 0.1839 | 0.2112 | 0.1665 | 0.2005 | 0.1869 |
+| 2025 | M2 | 0.7050 | 0.1735 | 0.2203 | 0.1187 | 0.1881 | 0.1869 |
+| pooled | M2 | 0.7094 | 0.1788 | 0.2145 | 0.1448 | 0.1957 | 0.1869 |
+| 2024 | M3 | 0.7245 | 0.1943 | 0.2347 | 0.1385 | 0.2061 | 0.2046 |
+| 2025 | M3 | 0.7112 | 0.1716 | 0.2016 | 0.0806 | 0.1551 | 0.2046 |
+| pooled | M3 | 0.7184 | 0.1836 | 0.2228 | 0.1123 | 0.1862 | 0.2046 |
+| 2024 | FWI | 0.4984 | 0.0926 | 0.0988 | 0.1519 | 0.1062 | 6.5303 |
+| 2025 | FWI | 0.5197 | 0.0957 | 0.1005 | 0.1056 | 0.1015 | 6.5303 |
+| pooled | FWI | 0.5079 | 0.0937 | 0.0994 | 0.1310 | 0.1044 | 6.5303 |
+| 2024 | INPE | 0.4658 | 0.0838 | 0.0883 | 0.8454 | 0.1076 | 0.0486 |
+| 2025 | INPE | 0.4644 | 0.0844 | 0.0891 | 0.7842 | 0.1083 | 0.0486 |
+| pooled | INPE | 0.4656 | 0.0842 | 0.0886 | 0.8177 | 0.1079 | 0.0486 |
+
+Classic indices were far weaker than either learned model. FWI reached ROC-AUC 0.498 in 2024 and 0.520 in 2025; INPE reached 0.466 and 0.464. Their PR-AUC was 0.084–0.096, below the 0.17–0.19 of M2/M3, and their F0.5 was 0.10–0.11 versus 0.19–0.21. INPE obtained high recall only by alerting almost everything (precision ≈0.09). Thus M2/M3 clearly outperform the Canadian and Brazilian indices in Formosa, but the learned models still do not reach the 0.75 transport threshold. The classic comparison does not rescue the cross-country claim; it only shows that the trained models remain the best available ranking in this domain.
+
+![External cross-country validation in Formosa. ROC and precision–recall curves for G0-C in 2024 (left) and 2025 (right). M2 (blue) and M3 (orange) use frozen Chaco boosters with local Platt recalibration. The test is case-control (1:10), not population-weighted.](../../entregables/figuras/supp_fig10_external_formosa.png){#fig-supp10}
 
 # Data availability {.unnumbered}
 

@@ -1,0 +1,25 @@
+source_collection,code,label_es,label_en,target_feature,primary_rule,sensitivity_rule,notes
+MapBiomas Argentina C3,3,Bosques cerrados,Closed forest,pct_bosque_seco,1.0,,Bosque estructural
+MapBiomas Argentina C3,4,Bosques abiertos,Open forest,pct_bosque_seco,1.0,,Bosque estructural
+MapBiomas Argentina C3,6,Bosques inundables,Flooded forest,pct_bosque_seco,1.0,H-B pct_humedal_palmar; H-C mask >=50%,Consistente con el mapeo de Paraguay C2 en Chaco
+MapBiomas Argentina C3,9,Silvicultura,Forest plantation,pct_plantacion_forestal,1.0,,
+MapBiomas Argentina C3,10,Vegetación natural herbácea y arbustiva,Natural herbaceous and shrub vegetation,pct_sabana_pastizal,1.0,,
+MapBiomas Argentina C3,11,Herbáceas inundables,Flooded grassland,pct_humedal_palmar,1.0,,
+MapBiomas Argentina C3,12,Herbáceas,Grassland,pct_sabana_pastizal,1.0,,
+MapBiomas Argentina C3,15,Pastura,Pasture,pct_pastura_ganadera,1.0,,
+MapBiomas Argentina C3,18,Agricultura,Agriculture,pct_agricultura_anual,1.0,,
+MapBiomas Argentina C3,19,Cultivos temporarios,Temporary crops,pct_agricultura_anual,1.0,,
+MapBiomas Argentina C3,21,Mosaico de usos,Mosaic of agriculture and pasture,pct_pastura_ganadera,1.0,50/50 pasture/agriculture sensitivity,Clase ausente o marginal en Formosa
+MapBiomas Argentina C3,22,Área sin vegetación,Non-vegetated area,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,24,Áreas urbanas,Urban areas,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,25,Otras áreas no vegetadas,Other non-vegetated areas,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,26,Cuerpo de agua,Water body,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,33,Ríos lagunas lagos y océano,River lake or ocean,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,34,Glaciares y nieve perenne,Glaciers and perennial snow,pct_no_combustible,1.0,,
+MapBiomas Argentina C3,36,Cultivos perennes,Perennial crops,pct_agricultura_anual,1.0,,
+MapBiomas Argentina C3,63,Mosaicos de arbustos y herbáceas,Shrub and herbaceous mosaics,pct_sabana_pastizal,1.0,H-C mask >=20%,Clase no presente en Paraguay C2
+MapBiomas Argentina C3,66,Arbustales cerrados,Closed shrublands,pct_sabana_pastizal,1.0,H-C mask >=20%,Clase no presente en Paraguay C2
+MapBiomas Argentina C3,73,Turberas,Peatland,pct_humedal_palmar,1.0,,
+MapBiomas Argentina C3,77,Arbustales abiertos,Open shrublands,pct_sabana_pastizal,1.0,H-C mask >=20%,Clase no presente en Paraguay C2
+MapBiomas Argentina C3,27,No observado,Not observed,missing,exclude,,Excluir del denominador
+MapBiomas Argentina C3,14,Agropecuario,Agricultural and livestock area,missing,use only if no leaf class,,Evitar doble conteo con 15/18/19/36
