@@ -22,7 +22,7 @@ Dear Editors-in-Chief,
 
 Please find enclosed my original research manuscript entitled **"A Reproducible Computational Framework for Decoupled Wildfire Ignition and Propagation Benchmarking in the Gran Chaco (2018–2025): D2 Targets, M3/M2 Inference and an Open Benchmark Against Canadian FWI and INPE"**, which I submit for consideration as a **Research Paper** in *Computers & Geosciences*.
 
-The manuscript presents an auditable computational protocol and reproducible software infrastructure, rather than a regional machine-learning case study. Its central contribution is the formal D2 target operator, the gated M3/M2 inference policy and the open evaluation harness; the learner is deliberately replaceable.
+The manuscript presents an auditable computational protocol and reproducible software infrastructure. Its central contribution is the formal D2 target operator, the gated M3/M2 inference policy and the open evaluation harness; the learner is deliberately replaceable.
 
 ### Motivation and Core Scientific Novelty
 Operational wildfire forecasting in geoscience machine learning frequently suffers from two pervasive methodological pathologies:
@@ -35,10 +35,10 @@ To address these challenges, I introduce `Incendios_PY`, an open-source computat
 My work sits precisely at the convergence of **Computer Science Applications** and **Earth and Planetary Sciences**. The computational contribution is the D2 target operator, the gated M3/M2 inference policy and a reusable evaluation harness, released as documented software. The learner is replaceable; the novelty lies in the computational contract.
 
 * **High-Performance Columnar Computational Pipeline:** By integrating Apache Arrow, DuckDB, and Polars, the inference engine processes the entire national territory (400 006 km²) in **~3.47 seconds** on a standard ARM64 machine (~2.21 GB peak RAM), demonstrating that national early-warning systems do not require prohibitive cloud infrastructure.
-* **Physics-Guided Machine Learning (PGML):** The framework enforces structural monotonic constraints within LightGBM (+1 for atmospheric dryness and wind pressure, −1 for antecedent rainfall and distance), mathematically preventing counterintuitive artifacts.
+* **Physics-Guided Machine Learning (PGML):** The framework enforces structural monotonic constraints within LightGBM (+1 for atmospheric dryness and wind pressure, −1 for antecedent rainfall and distance), constraining monotonic responses and reducing counterintuitive artifacts.
 * **Spatial and Temporal Control:** The study uses the **D2 target definition** (no t-1 fire within 25 km; no same-cell fire in 10 days) and multi-year out-of-time test partitions (2024–2025). The framework also implements a **50-km spatial block holdout with a 20-km buffer**. Priors are causal (monthly cutoff, rolling 3-year window).
 * **Software Engineering and Reproducibility Standards:** The framework is packaged with a complete automated test suite of **76 unit tests** (`tests/`) running in ≈1 minute, verifying algebraic invariants, physical monotonicity, conformal coverage, and spatial KD-Tree queries. All code and workflows are versioned from raw ingestion (`scripts/00_...`) to release and validation outputs (`scripts/34_...`) under the permissive MIT License.
-* **Quantitative International Benchmarking:** In retrospective temporal testing over 1 813 966 D2 cell-days during 2024–2025, the hybrid ignition layer M3 achieves a ROC-AUC of **0.8021** in the Gran Chaco and **0.7534** in the Oriental Region, versus **0.5059 / 0.5611** for the full Canadian FWI and **0.5266 / 0.4973** for the INPE. Case-control F0.5 precision is 32.82 % / 30.13 %; after correction to population prevalence (~0.015 % / 0.041 %), operational precision is 0.082 % / 0.198 %. Tactical propagation achieves ROC-AUC **0.9039** (Chaco) and population precision 9.67 %. The 2023 validation selected M3 for temporal nowcasting and M2 as the operational fallback; M1 was rejected as a fallback. These corrected metrics are the honest operational benchmark.
+* **Quantitative International Benchmarking:** In retrospective temporal testing over 1 813 966 D2 cell-days during 2024–2025, the hybrid ignition layer M3 achieves a ROC-AUC of **0.8021** in the Gran Chaco and **0.7534** in the Oriental Region, versus **0.5059 / 0.5611** for the full Canadian FWI and **0.5266 / 0.4973** for the INPE. Case-control F0.5 precision is 32.82 % / 30.13 %; after correction to population prevalence (~0.015 % / 0.041 %), operational precision is 0.082 % / 0.198 %. Tactical propagation achieves ROC-AUC **0.9039** (Chaco) and population precision 9.67 %. The 2023 validation selected M3 for temporal nowcasting and M2 as the operational fallback; M1 was rejected as a fallback. These population-adjusted metrics define the operational benchmark.
 
 ### Mandatory Declarations
 - This manuscript has not been published previously, is not under consideration for publication elsewhere, and its publication has been approved by the author.
@@ -49,8 +49,8 @@ Thank you very much for your time, consideration, and editorial guidance.
 
 Sincerely,
 
-**Martín Sánchez Insfrán, MD**  
-Independent Researcher / Surgeon  
+**Martín Sánchez Insfrán**  
+Independent Researcher  
 Asunción, Republic of Paraguay  
 ORCID: [0000-0003-4138-9668](https://orcid.org/0000-0003-4138-9668)  
 Email: `sanchez.martin093@gmail.com`  
