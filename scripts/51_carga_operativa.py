@@ -228,8 +228,8 @@ def _tabla(df):
         "# Table S23 (continued). Operational load\n\n" + bloque + "\n", encoding="utf-8"
     )
     for path in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if path.exists():
             _splice(path, bloque, "tablaS23b")

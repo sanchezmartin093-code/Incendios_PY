@@ -14,7 +14,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-JSON_PATH = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.json"
+JSON_PATH = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_CHECKSUMS.json"
 
 
 def git(*args: str) -> str:

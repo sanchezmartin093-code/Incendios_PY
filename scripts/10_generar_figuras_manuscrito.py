@@ -49,7 +49,7 @@ def generar_todas_las_figuras():
 
     path_adm1 = DIR_RAW / "vector" / "paraguay_adm1_departamentos.geojson"
     if not path_adm1.exists():
-        print(f"Límites vectoriales no encontrados en {path_adm1}")
+        print(f"Vector boundaries not found in {path_adm1}")
         return
 
     gdf_deptos = gpd.read_file(path_adm1)
@@ -205,7 +205,7 @@ def generar_todas_las_figuras():
         plt.close(fig)
         print(" ✓ Fig 03 guardada en PNG y PDF.")
 
-    print("\n✓ Proceso de generación de figuras del manuscrito completado con éxito.")
+    print("\nManuscript figure generation completed successfully.")
 
 if __name__ == "__main__":
     generar_todas_las_figuras()

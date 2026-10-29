@@ -9,8 +9,8 @@ region y alpha, y reporta el IC 95 % percentil. Regenera la Tabla S14 y la
 Figura S3 con bandas.
 
 Salidas:
-- entregables/tablas/tabla11_cost_loss.csv (valor_lo, valor_hi)
-- entregables/figuras/supp_fig03_cost_loss.png|.pdf
+- entregables/fuentes/tablas/tabla11_cost_loss.csv (valor_lo, valor_hi)
+- entregables/fuentes/figuras/supp_fig03_cost_loss.png|.pdf
 - Tabla S14 insertada entre <!-- tablaS14:inicio/fin -->.
 """
 
@@ -302,8 +302,8 @@ def _tabla_s14(df):
         encoding="utf-8",
     )
     for path in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if path.exists():
             _splice(path, bloque, "tablaS14")

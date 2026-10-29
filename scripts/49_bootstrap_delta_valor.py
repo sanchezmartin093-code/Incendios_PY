@@ -9,7 +9,7 @@ Remuestrea fechas (B = 1000) y calcula V(M3), V(M2) y V(FWI) en cada replica
 para obtener Delta V, IC 95 % y p bilateral.
 
 Salidas:
-- entregables/tablas/tablaS24_delta_valor.csv|.md
+- entregables/fuentes/tablas/tablaS24_delta_valor.csv|.md
 - Tabla S24 insertada entre <!-- tablaS24:inicio/fin -->.
 """
 
@@ -262,8 +262,8 @@ def _tabla_s24(df):
         encoding="utf-8",
     )
     for path in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if path.exists():
             _splice(path, bloque, "tablaS24")

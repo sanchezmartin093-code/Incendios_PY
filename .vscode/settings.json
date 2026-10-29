@@ -1,0 +1,18 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "README.md": "CITATION.cff, .zenodo.json, LICENSE",
+    "pyproject.toml": "requirements.txt, requirements-lock.txt",
+    "Makefile": "_quarto.yml",
+    "manuscrito.qmd": "material_suplementario.qmd, title_page.qmd",
+    "manuscrito_en.qmd": "material_suplementario_en.qmd, cover_letter.qmd, highlights.md"
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.quarto": true,
+    ".venv": true,
+    "dist": true
+  }
+}

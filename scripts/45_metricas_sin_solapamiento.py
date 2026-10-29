@@ -15,8 +15,8 @@ de modo que la fila `full` reproduce la Tabla 2 y los subconjuntos son
 comparables entre si.
 
 Salidas:
-- entregables/tablas/tablaS27_metricas_sin_solapamiento.csv
-- entregables/tablas/tablaS27_metricas_sin_solapamiento.md
+- entregables/fuentes/tablas/tablaS27_metricas_sin_solapamiento.csv
+- entregables/fuentes/tablas/tablaS27_metricas_sin_solapamiento.md
 - insercion de la tabla entre los marcadores <!-- tablaS27:inicio/fin -->
   de los dos suplementos.
 """
@@ -320,8 +320,8 @@ def main():
     )
 
     for q in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if q.exists():
             _splice(q, md)

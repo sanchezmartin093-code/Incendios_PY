@@ -28,7 +28,7 @@ def crear_figura_impacto(
     output_pdf: Path | None = None
 ):
     print("=" * 65)
-    print("GENERANDO FIGURA CIENTÍFICA (LAYOUT CORREGIDO: FLECHAS HORIZONTALES Y SIN CORTES)")
+    print("GENERATING SCIENTIFIC FIGURE (CORRECTED LAYOUT: HORIZONTAL ARROWS, NO CLIPPING)")
     print("=" * 65)
 
     # 1. Load real cartographic and test data
@@ -37,18 +37,18 @@ def crear_figura_impacto(
     path_adm1 = dir_vector / "paraguay_adm1_departamentos.geojson"
     path_preds = ROOT_DIR / "datos" / "processed" / "evaluacion_test_ignicion.parquet"
 
-    print("Cargando capas vectoriales soberanas...")
+    print("Loading sovereign vector layers...")
     adm0 = gpd.read_file(path_adm0)
     adm1 = gpd.read_file(path_adm1)
 
     df_test = None
     if path_preds.exists():
         df_test = pl.read_parquet(path_preds)
-        print(f"Predicciones de prueba cargadas: {len(df_test):,} registros.")
+        print(f"Loaded test predictions: {len(df_test):,} records.")
 
     # Dynamic metrics from the generated tables (avoids hardcoded KPIs).
     def _tabla(nombre: str) -> pd.DataFrame | None:
-        ruta = ROOT_DIR / "entregables" / "tablas" / nombre
+        ruta = ROOT_DIR / "entregables" / "fuentes" / "tablas" / nombre
         return pd.read_csv(ruta) if ruta.exists() else None
 
     t04 = _tabla("tabla04_benchmarking_internacional.csv")
@@ -387,17 +387,17 @@ def crear_figura_impacto(
     # Save as PNG (300 DPI) and vector PDF
     output_png.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_png, dpi=300, facecolor=fig.get_facecolor(), edgecolor="none", bbox_inches="tight")
-    print(f"✓ Figura PNG (300 DPI) guardada en: {output_png}")
+    print(f"PNG figure (300 DPI) saved to: {output_png}")
 
     if output_pdf:
         plt.savefig(output_pdf, format="pdf", facecolor=fig.get_facecolor(), edgecolor="none", bbox_inches="tight")
-        print(f"✓ Figura PDF vectorial guardada en: {output_pdf}")
+        print(f"Vector PDF figure saved to: {output_pdf}")
 
     plt.close(fig)
     print("=" * 65)
 
 if __name__ == "__main__":
-    out_dir = ROOT_DIR / "entregables" / "figuras"
+    out_dir = ROOT_DIR / "entregables" / "fuentes" / "figuras"
     png_path = out_dir / "fig01_arquitectura_impacto_nature.png"
     pdf_path = out_dir / "fig01_arquitectura_impacto_nature.pdf"
     crear_figura_impacto(png_path, pdf_path)

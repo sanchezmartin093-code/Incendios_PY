@@ -24,7 +24,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 
 > **Documentation status.** Main results below are the Phase 2 selection and
 > retrospective test. Model selection used 2023 validation only; 2024–2025 is
-> retrospective and was not used for selection. See `auditoria/FASE2_DECISION_MODELO.md`.
+> retrospective and was not used for selection. See `auditoria/fase2_seleccion_modelo/FASE2_DECISION_MODELO.md`.
 
 - Data: `dataset_unificado_candidatos` annual-fuel build, 8 annual partitions,
   915,561,114 candidate cell-days, 867,430 fire cell-days, 397,448 cells.
@@ -45,7 +45,7 @@ Propagation is evaluated only in the `t-1` fire domain.
 - Alerts: M3 with M2 fallback; propagation restricted to the `t-1` domain.
 - Tests: **76 pass** (pytest; 2 warnings).
 - CI: exact version pins in `requirements-lock.txt`; wheel hashes are a documented
-  exception (`auditoria/FASE2_0_LOCK_EXCEPTION.md`).
+  exception (`auditoria/fase2_seleccion_modelo/FASE2_0_LOCK_EXCEPTION.md`).
 - Public release: **v2.1.0** (2026-10-28): <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.1.0>.
 - Submission checklist: [`docs/CHECKLIST_ENVIO.md`](docs/CHECKLIST_ENVIO.md).
 
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 ```
 
 For an exact environment, use the pinned versions in `requirements-lock.txt`.
-The lock does not include wheel hashes; see `auditoria/FASE2_0_LOCK_EXCEPTION.md`.
+The lock does not include wheel hashes; see `auditoria/fase2_seleccion_modelo/FASE2_0_LOCK_EXCEPTION.md`.
 
 Core dependencies include Python 3.12+, Polars, DuckDB, PyArrow, GeoPandas,
 Rasterio, Xarray, LightGBM, scikit-learn, SHAP, Matplotlib and CDS API. GDAL/GEOS
@@ -77,11 +77,18 @@ Run the test suite:
 python -m pytest -q tests
 ```
 
+The same tasks are also available through the `Makefile`:
+
+```bash
+make test      # pytest
+make render    # manuscript + supplement DOCX/HTML
+make verify    # checksums, hashes and submission package
+```
+
 The full data pipeline requires the raw NASA FIRMS, ERA5-Land, MapBiomas, Hansen GFC and
 administrative boundary inputs documented in `fuentes/MANIFIESTO_DATOS_v3.csv`.
 
-See `docs/USER_GUIDE.md` for inputs, outputs, options and troubleshooting, and
-`docs/TUTORIAL.md` for a minimal reproduction example.
+See `docs/MANUAL_USUARIO_Y_TUTORIAL.md` for inputs, outputs, options, troubleshooting and a minimal reproduction example.
 
 The minimal operational artifact bundle (M3, M2 fallback, propagation,
 calibrators, thresholds and D2 prevalences) can be rebuilt with:
@@ -215,7 +222,9 @@ prioritisation tool, not a stand-alone early-warning system.
 
 ```text
 Incendios_PY/
-├── scripts/                 # pipeline 00–24, including 05b/05c/05d and 10b
+├── Makefile                 # orchestration: test, data, eval, render, submission
+├── _quarto.yml              # Quarto project configuration
+├── scripts/                 # pipeline 00–72, run_all.sh and render_manuscrito.sh
 ├── src/                     # ingestion, features, targets, models, metrics, alerts
 ├── tests/                   # 76 unit tests
 ├── datos/
@@ -223,17 +232,22 @@ Incendios_PY/
 │   ├── processed/           # grid, climate, hotspots, dataset, targets
 │   └── outputs/             # alerts, bulletins, GeoTIFF
 ├── modelos/                 # boosters and calibrators (not versioned)
-├── docs/                    # user guide, tutorial, audit notes and protocol
-├── manuscrito/              # Quarto sources (self-contained project)
-│   ├── _quarto.yml
+├── docs/
+│   ├── ADR_AUDITORIA.md
+│   ├── CHECKLIST_ENVIO.md
+│   ├── HISTORIAL_PLANES.md
+│   ├── MANUAL_USUARIO_Y_TUTORIAL.md
+│   └── PROTOCOLOS_METODOLOGICOS.md
+├── manuscrito/              # editorial sources
 │   ├── assets/              # bibliography, CSL, DOCX reference
-│   ├── en/                  # English manuscript and supplement
-│   └── es/                  # Spanish manuscript and supplement
-├── entregables/             # final DOCX/HTML and compiled figures/tables
-│   ├── figuras/             # figure sources
-│   ├── tablas/              # generated main and supplementary tables
-│   ├── figuras_maestro.pdf  # all final figures, one page per figure
-│   └── tablas_maestro.xlsx  # all final tables, one sheet per table
+│   ├── en/                  # manuscrito_en, suplementario_en, cover_letter, highlights
+│   └── es/                  # manuscrito, suplementario, title_page
+├── entregables/
+│   ├── en/                  # English DOCX submission package
+│   ├── es/                  # Spanish DOCX reading version
+│   ├── maestros/            # figuras_maestro.pdf, tablas_maestro.xlsx, graphical_abstract.png
+│   ├── fuentes/             # figuras/ and tablas/ sources
+│   └── web/                 # HTML previews and interactive dashboard
 └── fuentes/MANIFIESTO_DATOS_v3.csv
 ```
 
@@ -254,7 +268,7 @@ The consolidated datasets, hashes and byte sizes are listed in
 `fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, archived in the v2.0.1 data release asset (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB), and indexed by the data concept DOI.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
-where permitted; see `LICENSE-DATA`. Third-party raw data retain their original
+where permitted; see `LICENSE`. Third-party raw data retain their original
 licenses and terms.
 
 ## Code and data availability

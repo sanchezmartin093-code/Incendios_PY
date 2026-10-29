@@ -16,12 +16,12 @@ from openpyxl.utils import get_column_letter
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-MANUSCRIPT = ROOT / "manuscrito" / "en" / "manuscrito.qmd"
-SUPPLEMENT = ROOT / "manuscrito" / "en" / "material_suplementario.qmd"
-MAIN_DOCX = ROOT / "entregables" / "manuscrito.docx"
-SUPP_DOCX = ROOT / "entregables" / "material_suplementario.docx"
-FIGURES_PDF = ROOT / "entregables" / "figuras_maestro.pdf"
-TABLES_XLSX = ROOT / "entregables" / "tablas_maestro.xlsx"
+MANUSCRIPT = ROOT / "manuscrito" / "en" / "manuscrito_en.qmd"
+SUPPLEMENT = ROOT / "manuscrito" / "en" / "material_suplementario_en.qmd"
+MAIN_DOCX = ROOT / "entregables" / "en" / "manuscrito_en.docx"
+SUPP_DOCX = ROOT / "entregables" / "en" / "material_suplementario_en.docx"
+FIGURES_PDF = ROOT / "entregables" / "maestros" / "figuras_maestro.pdf"
+TABLES_XLSX = ROOT / "entregables" / "maestros" / "tablas_maestro.xlsx"
 ARIAL = Path("/System/Library/Fonts/Supplemental/Arial.ttf")
 ARIAL_BOLD = Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")
 
@@ -227,12 +227,12 @@ def _style_sheet(ws, caption: str, rows: list[list[str]], source: str) -> None:
 def build_tables() -> None:
     wb = Workbook()
     index = wb.active
-    index.title = "Indice"
+    index.title = "Index"
     index.sheet_view.showGridLines = False
     index.merge_cells("A1:G1")
     index["A1"] = "Master tables | Incendios_PY v2.1.0"
     index["A1"].font = Font(bold=True, size=14)
-    headers = ["Hoja", "Tabla", "Título", "Fuente", "Filas", "Columnas"]
+    headers = ["Sheet", "Table", "Title", "Source", "Rows", "Columns"]
     for col, value in enumerate(headers, 1):
         cell = index.cell(row=3, column=col, value=value)
         cell.font = Font(bold=True, color="FFFFFF")

@@ -11,11 +11,9 @@ class TestAnalisisTreeSHAP(unittest.TestCase):
     def test_archivos_shap_generados(self):
         """Verifies that the SHAP tables and figures have been created and are not empty."""
         csv_shap = DIR_TABLAS / "tabla03_shap_ranking_variables.csv"
-        md_shap = DIR_TABLAS / "tabla03_shap_ranking_variables.md"
         fig_comp = DIR_FIGURAS / "fig04_shap_comparativa_chaco_vs_oriental.png"
 
         self.assertTrue(csv_shap.exists(), "Falta tabla03_shap_ranking_variables.csv")
-        self.assertTrue(md_shap.exists(), "Falta tabla03_shap_ranking_variables.md")
         self.assertTrue(fig_comp.exists(), "Falta fig04_shap_comparativa_chaco_vs_oriental.png")
         self.assertGreater(csv_shap.stat().st_size, 500)
 

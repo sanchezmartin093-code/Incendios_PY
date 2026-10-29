@@ -11,8 +11,8 @@ from docx.oxml.ns import qn
 from docx.shared import Pt
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "entregables" / "material_suplementario.docx"
-TARGET = ROOT / "entregables" / "material_suplementario_navegable.docx"
+SOURCE = ROOT / "entregables" / "en" / "material_suplementario_en.docx"
+TARGET = ROOT / "entregables" / "en" / "material_suplementario_navegable.docx"
 
 
 def _bookmark_id(document: Document) -> int:

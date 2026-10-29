@@ -69,36 +69,36 @@ FEATURES_ANTROPICO_MULTIESCALA = [
     "interaccion_acceso_vpd"
 ]
 
-NOMBRES_LEGIBLES_HIBRIDO = {
-    "dist_foco_hist_km": "Distancia a Ignición Histórica (km)",
-    "densidad_hist_25km": "Densidad Macro de Ignición (25 km)",
-    "densidad_hist_10km": "Densidad Meso de Ignición Antrópica (10 km)",
-    "densidad_hist_5km": "Densidad Local de Ignición Antrópica (5 km)",
-    "freq_hist_1km": "Recurrencia Crónica en Celda (1 km²)",
-    "dist_corredor_antropico_km": "Distancia a Corredor Antrópico Activo (km)",
-    "focalizacion_antropica_local": "Índice de Focalización Local (5km / 25km)",
-    "interaccion_acceso_vpd": "Sinergia Accesibilidad × VPD",
-    "presion_quema_pastura": "Presión de Quema en Pasturas (Pastura × VPD × Mes)",
-    "temporada_quema_ganadera": "Ventana de Quema Agroganadera (Ago–Oct)",
-    "doy_sin": "Armónico Estacional Seno (DOY)",
-    "doy_cos": "Armónico Estacional Coseno (DOY)",
-    "potencial_viento_cuadratico": "Presión Dinámica del Viento (v²)",
-    "ffmc": "Humedad Combustible Fino (FFMC)",
-    "isi": "Índice Propagación Inicial (ISI)",
-    "temp_max_c": "Temperatura Máxima (°C)",
-    "temp_min_c": "Temperatura Mínima (°C)",
-    "rafaga_max_kmh": "Ráfaga Máxima de Viento (km/h)",
-    "viento_max_kmh": "Velocidad de Viento Máx (km/h)",
-    "precipitacion_48h_mm": "Precipitación Acumulada 48h (mm)",
-    "rango_termico_diario": "Amplitud Térmica Diaria (°C)",
-    "deficit_hidrico_acumulado": "Déficit Hídrico Acumulado (VPD × CDD)",
-    "pct_pastura": "Fracción de Pastura Cultivada (%)",
-    "pct_bosque_seco": "Fracción de Bosque Seco Chaqueño (%)",
-    "pct_bosque_humedo": "Fracción de Bosque Atlántico (%)",
-    "dia_semana": "Día de la Semana",
-    "dia_del_anio": "Día Ordinal del Año (DOY)",
-    "pct_humedal_palmar": "Fracción de Palmar/Humedal (%)",
-    "precipitacion_mm": "Precipitación Diaria (mm)"
+HYBRID_READABLE_NAMES = {
+    "dist_foco_hist_km": "Distance to Historical Ignition (km)",
+    "densidad_hist_25km": "Macro Ignition Density (25 km)",
+    "densidad_hist_10km": "Meso Anthropogenic Ignition Density (10 km)",
+    "densidad_hist_5km": "Local Anthropogenic Ignition Density (5 km)",
+    "freq_hist_1km": "Chronic Cell Recurrence (1 km²)",
+    "dist_corredor_antropico_km": "Distance to Active Anthropogenic Corridor (km)",
+    "focalizacion_antropica_local": "Local Focusing Index (5 km / 25 km)",
+    "interaccion_acceso_vpd": "Accessibility × VPD Synergy",
+    "presion_quema_pastura": "Pasture Burning Pressure (Pasture × VPD × Month)",
+    "temporada_quema_ganadera": "Agro-Livestock Burning Window (Aug–Oct)",
+    "doy_sin": "Seasonal Harmonic Sine (DOY)",
+    "doy_cos": "Seasonal Harmonic Cosine (DOY)",
+    "potencial_viento_cuadratico": "Wind Dynamic Pressure (v²)",
+    "ffmc": "Fine Fuel Moisture (FFMC)",
+    "isi": "Initial Spread Index (ISI)",
+    "temp_max_c": "Maximum Temperature (°C)",
+    "temp_min_c": "Minimum Temperature (°C)",
+    "rafaga_max_kmh": "Maximum Wind Gust (km/h)",
+    "viento_max_kmh": "Maximum Wind Speed (km/h)",
+    "precipitacion_48h_mm": "Accumulated 48-h Precipitation (mm)",
+    "rango_termico_diario": "Daily Thermal Amplitude (°C)",
+    "deficit_hidrico_acumulado": "Accumulated Water Deficit (VPD × CDD)",
+    "pct_pastura": "Cultivated Pasture Fraction (%)",
+    "pct_bosque_seco": "Dry Chaco Forest Fraction (%)",
+    "pct_bosque_humedo": "Atlantic Forest Fraction (%)",
+    "dia_semana": "Day of Week",
+    "dia_del_anio": "Ordinal Day of Year (DOY)",
+    "pct_humedal_palmar": "Palm/Wetland Fraction (%)",
+    "precipitacion_mm": "Daily Precipitation (mm)"
 }
 
 def construir_features_socioecologicas(
@@ -122,7 +122,7 @@ def construir_features_socioecologicas(
 
 def ejecutar_estudio_ablacion():
     print("=" * 75)
-    print("ESTUDIO DE ABLACIÓN: BIOFÍSICO PURO vs. HÍBRIDO SOCIO-ECOLÓGICO vs. BENCHMARK")
+    print("ABLATION STUDY: PURE BIOPHYSICAL vs. SOCIO-ECOLOGICAL HYBRID vs. BENCHMARK")
     print("=" * 75)
 
     dir_targets = DIR_PROCESSED / "targets_poblacionales"
@@ -131,7 +131,7 @@ def ejecutar_estudio_ablacion():
     df_test = pl.read_parquet(dir_targets / "test_ignicion.parquet")
     df_grilla = pl.read_parquet(DIR_PROCESSED / "grilla_nacional_1km.parquet")
 
-    print("1. Construyendo variables socio-ecológicas multiescala (Anti-Leakage)...")
+    print("1. Building multiscale socio-ecological features (anti-leakage)...")
     tr_h, va_h, te_h = construir_features_socioecologicas(df_train, df_val, df_test, df_grilla)
 
     DIR_TABLAS.mkdir(parents=True, exist_ok=True)
@@ -144,7 +144,7 @@ def ejecutar_estudio_ablacion():
     curvas_reg = {}
 
     for region in ["Chaco", "Oriental"]:
-        print(f"\n--- PROCESANDO REGIÓN: {region.upper()} ---")
+        print(f"\n--- PROCESSING REGION: {region.upper()} ---")
         tr_r = tr_h.filter(pl.col("region") == region)
         va_r = va_h.filter(pl.col("region") == region)
         te_r = te_h.filter(pl.col("region") == region)
@@ -235,7 +235,7 @@ def ejecutar_estudio_ablacion():
         df_shap_reg = pd.DataFrame({
             "region": region,
             "feature": feats_m3,
-            "nombre_legible": [NOMBRES_LEGIBLES_HIBRIDO.get(f, f) for f in feats_m3],
+            "nombre_legible": [HYBRID_READABLE_NAMES.get(f, f) for f in feats_m3],
             "shap_media": imp_m3
         }).sort_values("shap_media", ascending=False).reset_index(drop=True)
         df_shap_reg["ranking"] = df_shap_reg.index + 1
@@ -289,7 +289,7 @@ def ejecutar_estudio_ablacion():
         for nom, n_f, p_vec, cut, col, ls in evaluados:
             auc = float(roc_auc_score(y_te, p_vec))
             pr_auc = float(average_precision_score(y_te, p_vec))
-            es_prob = nom.startswith("M") or "Híbrido" in nom
+            es_prob = nom.startswith("M") or "Hybrid" in nom
             if es_prob:
                 bs = float(brier_score_loss(y_te, p_vec))
                 bss = float(1.0 - (bs / (bs_clim + 1e-9)))
@@ -328,14 +328,14 @@ def ejecutar_estudio_ablacion():
     df_ab = pd.DataFrame(filas_ablacion)
     df_ab.to_csv(DIR_TABLAS / "tabla05_ablacion_hibrido_socioecologico.csv", index=False)
     (DIR_TABLAS / "tabla05_ablacion_hibrido_socioecologico.md").write_text(
-        "# Tabla 5. Estudio de Ablación: Modelo Biofísico Puro vs. Híbrido Socio-Ecológico y Benchmarks\n\n" + df_ab.to_markdown(index=False) + "\n",
+        "# Table 5. Ablation Study: Pure Biophysical vs. Socio-Ecological Hybrid Model and Benchmarks\n\n" + df_ab.to_markdown(index=False) + "\n",
         encoding="utf-8"
     )
 
     df_sh = pd.concat(rankings_shap, ignore_index=True)
     df_sh.to_csv(DIR_TABLAS / "tabla06_shap_modelo_hibrido.csv", index=False)
     (DIR_TABLAS / "tabla06_shap_modelo_hibrido.md").write_text(
-        "# Tabla 6. Top 10 Drivers en el Modelo Híbrido Socio-Ecológico (TreeSHAP)\n\n" + df_sh.to_markdown(index=False) + "\n",
+        "# Table 6. Top 10 Drivers in the Socio-Ecological Hybrid Model (TreeSHAP)\n\n" + df_sh.to_markdown(index=False) + "\n",
         encoding="utf-8"
     )
 
@@ -367,7 +367,7 @@ def ejecutar_estudio_ablacion():
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.png", dpi=300)
     fig.savefig(DIR_FIGURAS / "fig07_ablacion_biofisico_vs_hibrido.pdf")
     plt.close(fig)
-    print("\n✓ Estudio de ablación finalizado y artefactos exportados.")
+    print("\nAblation study completed and artifacts exported.")
 
 if __name__ == "__main__":
     ejecutar_estudio_ablacion()

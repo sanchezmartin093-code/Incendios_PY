@@ -7,13 +7,13 @@
 
 ## Archivos
 
-- [x] `entregables/submission/manuscrito.docx`
-- [x] `entregables/submission/material_suplementario.docx`
-- [x] `entregables/submission/highlights.docx`
-- [x] `entregables/submission/cover_letter.docx`
-- [x] `entregables/submission/figuras_maestro.pdf`
-- [x] `entregables/submission/tablas_maestro.xlsx`
-- [x] `entregables/submission/figures/` con 15 figuras individuales
+- [x] `dist/submission/manuscrito.docx`
+- [x] `dist/submission/material_suplementario.docx`
+- [x] `dist/submission/highlights.docx`
+- [x] `dist/submission/cover_letter.docx`
+- [x] `dist/submission/figuras_maestro.pdf`
+- [x] `dist/submission/tablas_maestro.xlsx`
+- [x] `dist/submission/figures/` con 15 figuras individuales
 
 ## Metadatos
 
@@ -39,7 +39,7 @@
 - [x] Separadores de miles uniformes con espacio.
 - [x] Figuras maestras: 15 páginas y 15 marcadores.
 - [x] Figuras individuales: Figure_1–Figure_5 y Figure_S1–Figure_S10.
-- [x] Tablas maestras: 50 hojas, incluida `Indice`.
+- [x] Tablas maestras: 50 sheets, including `Index`.
 - [x] Table 3 y tablas S6/S8/S27/S28 legibles tras el formateo DOCX.
 
 ## Revisión humana pendiente

@@ -10,8 +10,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-CSV_PATH = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.csv"
-JSON_PATH = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.json"
+CSV_PATH = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_CHECKSUMS.csv"
+JSON_PATH = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_CHECKSUMS.json"
 TRACE_PATH = ROOT / "scripts" / "33_verificar_trazabilidad_git.py"
 
 

@@ -174,8 +174,8 @@ def _md(df: pd.DataFrame):
         encoding="utf-8",
     )
     for path in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if path.exists():
             _splice(path, bloque, "tablaS22")

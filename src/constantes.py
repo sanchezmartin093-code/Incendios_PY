@@ -11,8 +11,12 @@ DIR_RAW = DIR_DATOS / "raw"
 DIR_PROCESSED = DIR_DATOS / "processed"
 DIR_OUTPUTS = DIR_DATOS / "outputs"
 DIR_MODELOS = ROOT_DIR / "modelos"
-DIR_FIGURAS = ROOT_DIR / "entregables" / "figuras"
-DIR_TABLAS = ROOT_DIR / "entregables" / "tablas"
+DIR_FIGURAS = ROOT_DIR / "entregables" / "fuentes" / "figuras"
+DIR_TABLAS = ROOT_DIR / "entregables" / "fuentes" / "tablas"
+DIR_MAESTROS = ROOT_DIR / "entregables" / "maestros"
+DIR_ENTREGABLES_EN = ROOT_DIR / "entregables" / "en"
+DIR_ENTREGABLES_ES = ROOT_DIR / "entregables" / "es"
+DIR_WEB = ROOT_DIR / "entregables" / "web"
 
 # Coordinate Reference Systems (CRS)
 CRS_GEOGRAFICO = "EPSG:4326"       # WGS84 for satellite ingestion and APIs

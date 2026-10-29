@@ -18,7 +18,7 @@ Outputs:
   * modelos/calibradores/calibrador_weatheronly_{region}.joblib
   * modelos/calibradores/umbrales_weatheronly_{region}.json
   * datos/processed/evaluacion_test_weather_only.parquet
-  * entregables/tablas/tablaS21_benchmark_weather_only.csv / .md
+  * entregables/fuentes/tablas/tablaS21_benchmark_weather_only.csv / .md
 """
 
 from __future__ import annotations

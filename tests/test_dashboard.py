@@ -13,7 +13,7 @@ class TestDashboardInteractivo(unittest.TestCase):
         mod = importlib.import_module("scripts.12_generar_dashboard_interactivo")
         generar_dashboard_interactivo = mod.generar_dashboard_interactivo
 
-        p_html = ROOT_DIR / "entregables" / "dashboard_alerta_interactivo.html"
+        p_html = ROOT_DIR / "entregables" / "web" / "dashboard_alerta_interactivo.html"
         res = generar_dashboard_interactivo()
         self.assertTrue(res.exists())
         self.assertEqual(res, p_html)

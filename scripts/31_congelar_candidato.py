@@ -21,9 +21,9 @@ import platform
 import subprocess
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_CSV = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.csv"
-OUT_JSON = ROOT / "auditoria" / "FASE5_CANDIDATO_CHECKSUMS.json"
-OUT_ARCHIVE = ROOT / "auditoria" / "FASE5_CANDIDATO_GIT_ARCHIVE.sha256"
+OUT_CSV = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_CHECKSUMS.csv"
+OUT_JSON = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_CHECKSUMS.json"
+OUT_ARCHIVE = ROOT / "auditoria" / "fase5_candidato_final" / "FASE5_CANDIDATO_GIT_ARCHIVE.sha256"
 
 REGIONES_MODELO = ("chaco", "oriental")
 MODOS_MODELO = ("hibrido", "ignicion", "propagacion", "m1")
@@ -83,22 +83,22 @@ def collect_paths() -> list[tuple[str, Path, str]]:
     add("models", "modelos/calibradores/prevalencias_poblacionales_d2.json")
 
     # Selection and decision evidence
-    add("selection", "entregables/tablas/tabla10_validacion_2023*.csv")
-    add("selection", "entregables/tablas/tabla10_comparaciones_*.csv")
-    add("selection", "entregables/tablas/tabla08b_*.csv")
-    add("selection", "entregables/tablas/tabla02_*.csv")
-    add("selection", "entregables/tablas/tabla04_*.csv")
-    add("selection", "entregables/tablas/tabla05_*.csv")
-    add("selection", "entregables/tablas/tabla07_*.csv")
-    add("selection", "entregables/tablas/tabla09_*.csv")
-    add("decision", "auditoria/FASE2_DECISION_MODELO.md")
-    add("decision", "auditoria/FASE2_DECISION_MODELO.json")
-    add("decision", "auditoria/FASE2_PROTOCOLO_SELECCION.md")
-    add("decision", "auditoria/FASE2_AUDITORIA_MODELOS.md")
-    add("decision", "auditoria/FASE2_DATASET_MANIFEST.json")
-    add("decision", "auditoria/FASE2_HOLDOUT_META.json")
-    add("decision", "auditoria/FASE2_CLIMA_PROVENANCE.csv")
-    add("decision", "auditoria/FASE2_REPRO_BUILD_CHECK.txt")
+    add("selection", "entregables/fuentes/tablas/tabla10_validacion_2023*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla10_comparaciones_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla08b_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla02_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla04_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla05_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla07_*.csv")
+    add("selection", "entregables/fuentes/tablas/tabla09_*.csv")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_DECISION_MODELO.md")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_DECISION_MODELO.json")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_PROTOCOLO_SELECCION.md")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_AUDITORIA_MODELOS.md")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_DATASET_MANIFEST.json")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_HOLDOUT_META.json")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_CLIMA_PROVENANCE.csv")
+    add("decision", "auditoria/fase2_seleccion_modelo/FASE2_REPRO_BUILD_CHECK.md")
 
     # Code contract and environment
     add("code", "scripts/31_congelar_candidato.py")

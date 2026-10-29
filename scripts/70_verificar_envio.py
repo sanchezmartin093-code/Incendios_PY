@@ -9,16 +9,16 @@ import fitz
 import openpyxl
 
 ROOT = Path(__file__).resolve().parent.parent
-MAIN = ROOT / "manuscrito" / "en" / "manuscrito.qmd"
-SUPP = ROOT / "manuscrito" / "en" / "material_suplementario.qmd"
-HIGHLIGHTS = ROOT / "highlights.md"
+MAIN = ROOT / "manuscrito" / "en" / "manuscrito_en.qmd"
+SUPP = ROOT / "manuscrito" / "en" / "material_suplementario_en.qmd"
+HIGHLIGHTS = ROOT / "manuscrito" / "en" / "highlights.md"
 OUTPUTS = [
-    ROOT / "entregables" / "manuscrito.docx",
-    ROOT / "entregables" / "material_suplementario.docx",
-    ROOT / "entregables" / "highlights.docx",
-    ROOT / "entregables" / "cover_letter.docx",
-    ROOT / "entregables" / "figuras_maestro.pdf",
-    ROOT / "entregables" / "tablas_maestro.xlsx",
+    ROOT / "entregables" / "en" / "manuscrito_en.docx",
+    ROOT / "entregables" / "en" / "material_suplementario_en.docx",
+    ROOT / "entregables" / "en" / "highlights.docx",
+    ROOT / "entregables" / "en" / "cover_letter.docx",
+    ROOT / "entregables" / "maestros" / "figuras_maestro.pdf",
+    ROOT / "entregables" / "maestros" / "tablas_maestro.xlsx",
 ]
 
 
@@ -30,7 +30,7 @@ def _check_qmd(path: Path) -> list[str]:
     errors = [f"{path.name}: referencia sin destino @{item}" for item in missing]
     for image in re.findall(r"!\[.*?\]\((.*?)\)", text):
         if not (path.parent / image).resolve().exists():
-            errors.append(f"{path.name}: imagen ausente {image}")
+            errors.append(f"{path.name}: missing image {image}")
     return errors
 
 
@@ -49,17 +49,17 @@ def main() -> int:
     abstract = main_text.split("**ABSTRACT**", 1)[1].split("# 1. Introduction", 1)[0]
     words = len(re.sub(r"[*_`$]", "", abstract).split())
     if not 200 <= words <= 300:
-        errors.append(f"abstract: {words} palabras")
+        errors.append(f"abstract: {words} words")
     if "reliability diagram" in main_text:
         errors.append("manuscrito: referencia a reliability diagram inexistente")
 
     supp_text = SUPP.read_text(encoding="utf-8")
     if "Figures S1–S10" not in supp_text:
-        errors.append("suplemento: el índice no incluye Figures S1–S10")
+        errors.append("supplement: index does not include Figures S1–S10")
     if re.search(r"Table (?:10|4)\b", supp_text):
-        errors.append("suplemento: referencia huérfana a Table 10/Table 4")
+        errors.append("supplement: orphan reference to Table 10/Table 4")
     if "vapour" in supp_text.lower():
-        errors.append("suplemento: ortografía británica vapour")
+        errors.append("supplement: British spelling vapour")
 
     highlights = []
     for line in HIGHLIGHTS.read_text(encoding="utf-8").splitlines():
@@ -67,37 +67,37 @@ def main() -> int:
         if line and not line.startswith("#"):
             highlights.append(line)
     if not 3 <= len(highlights) <= 5:
-        errors.append(f"highlights: {len(highlights)} viñetas")
+        errors.append(f"highlights: {len(highlights)} bullets")
     for item in highlights:
         if len(item) > 85:
             errors.append(f"highlights: {len(item)} caracteres: {item[:40]}")
 
     for output in OUTPUTS:
         if not output.exists():
-            errors.append(f"salida ausente: {output.relative_to(ROOT)}")
+            errors.append(f"missing output: {output.relative_to(ROOT)}")
 
-    sub_fig = ROOT / "entregables" / "submission" / "figures"
-    expected = [f"Figure_{i}.pdf" for i in range(1, 6)]
-    expected += ["Figure_S1.png"] + [f"Figure_S{i}.pdf" for i in range(2, 11)]
+    sub_fig = ROOT / "dist" / "submission" / "figures"
+    expected = [f"Figure_{i}.png" for i in range(1, 6)]
+    expected += [f"Figure_S{i}.png" for i in range(1, 11)]
     for name in expected:
         path = sub_fig / name
         if not path.exists():
-            errors.append(f"figura individual ausente: {path.relative_to(ROOT)}")
+            errors.append(f"missing individual figure: {path.relative_to(ROOT)}")
 
-    figures = fitz.open(ROOT / "entregables" / "figuras_maestro.pdf")
+    figures = fitz.open(ROOT / "entregables" / "maestros" / "figuras_maestro.pdf")
     if figures.page_count != 15 or len(figures.get_toc()) != 15:
-        errors.append(f"figuras_maestro: {figures.page_count} páginas, {len(figures.get_toc())} marcadores")
+        errors.append(f"figuras_maestro: {figures.page_count} pages, {len(figures.get_toc())} bookmarks")
     figures.close()
 
-    workbook = openpyxl.load_workbook(ROOT / "entregables" / "tablas_maestro.xlsx", read_only=True)
-    if "Indice" not in workbook.sheetnames or len(workbook.sheetnames) != 50:
-        errors.append(f"tablas_maestro: {len(workbook.sheetnames)} hojas")
+    workbook = openpyxl.load_workbook(ROOT / "entregables" / "maestros" / "tablas_maestro.xlsx", read_only=True)
+    if "Index" not in workbook.sheetnames or len(workbook.sheetnames) != 50:
+        errors.append(f"tablas_maestro: {len(workbook.sheetnames)} sheets")
     workbook.close()
 
-    print(f"abstract: {words} palabras")
-    print(f"highlights: {len(highlights)} viñetas")
-    print(f"figuras_maestro: {fitz.open(ROOT / 'entregables' / 'figuras_maestro.pdf').page_count} páginas")
-    print(f"tablas_maestro: {len(openpyxl.load_workbook(ROOT / 'entregables' / 'tablas_maestro.xlsx', read_only=True).sheetnames)} hojas")
+    print(f"abstract: {words} words")
+    print(f"highlights: {len(highlights)} bullets")
+    print(f"figuras_maestro: {fitz.open(ROOT / 'entregables' / 'maestros' / 'figuras_maestro.pdf').page_count} pages")
+    print(f"tablas_maestro: {len(openpyxl.load_workbook(ROOT / 'entregables' / 'maestros' / 'tablas_maestro.xlsx', read_only=True).sheetnames)} sheets")
     if errors:
         for error in errors:
             print("ERROR:", error)

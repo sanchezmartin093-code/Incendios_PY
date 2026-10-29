@@ -1,6 +1,6 @@
 """G0-Formosa: MapBiomas Argentina C3 to 1-km fuel fractions.
 
-The crosswalk is H-A from `auditoria/G0/crosswalk_mapbiomas_argentina.csv`.
+The crosswalk is H-A from `auditoria/g0_externa/crosswalk_mapbiomas_argentina.csv`.
 Class 6 is assigned to forest (same operational rule used for Paraguay C2 in
 the Chaco); its fraction is preserved separately for H-B/H-C sensitivities.
 """
@@ -163,7 +163,7 @@ def main() -> None:
     out.write_parquet(OUT / "combustible_formosa_anual.parquet", compression="zstd")
     meta = {
         "fuente": "MapBiomas Argentina Colección 3",
-        "crosswalk": "H-A (auditoria/G0/crosswalk_mapbiomas_argentina.csv)",
+        "crosswalk": "H-A (auditoria/g0_externa/crosswalk_mapbiomas_argentina.csv)",
         "anio_fila": [2018, 2025],
         "anio_mapa": [2017, 2024],
         "filas": out.height,

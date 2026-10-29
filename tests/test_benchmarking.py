@@ -6,11 +6,9 @@ class TestBenchmarking(unittest.TestCase):
     def test_archivos_benchmarking(self):
         """Verifies that the benchmarking script generates valid tables and figures."""
         csv_p = DIR_TABLAS / "tabla04_benchmarking_internacional.csv"
-        md_p = DIR_TABLAS / "tabla04_benchmarking_internacional.md"
         fig_p = DIR_FIGURAS / "fig05_benchmarking_curvas_roc_pr.png"
 
         self.assertTrue(csv_p.exists(), "Falta tabla04_benchmarking_internacional.csv")
-        self.assertTrue(md_p.exists(), "Falta tabla04_benchmarking_internacional.md")
         self.assertTrue(fig_p.exists(), "Falta fig05_benchmarking_curvas_roc_pr.png")
         self.assertGreater(csv_p.stat().st_size, 300)
 

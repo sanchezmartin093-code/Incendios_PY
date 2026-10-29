@@ -6,8 +6,8 @@ no son probabilidades: para cada p_t se elige en validacion 2023 el umbral del
 indice que maximiza NB y se congela para el test.
 
 Salidas:
-- entregables/tablas/tablaS23_net_benefit.csv
-- entregables/figuras/supp_fig04_net_benefit.png|.pdf
+- entregables/fuentes/tablas/tablaS23_net_benefit.csv
+- entregables/fuentes/figuras/supp_fig04_net_benefit.png|.pdf
 - Tabla S23 compacta insertada entre <!-- tablaS23:inicio/fin -->.
 """
 
@@ -280,8 +280,8 @@ def _tabla_s23(df):
         encoding="utf-8",
     )
     for path in (
-        ROOT_DIR / "manuscrito" / "en" / "material_suplementario.qmd",
-        ROOT_DIR / "manuscrito" / "es" / "material_suplementario_es.qmd",
+        ROOT_DIR / "manuscrito" / "en" / "material_suplementario_en.qmd",
+        ROOT_DIR / "manuscrito" / "es" / "material_suplementario.qmd",
     ):
         if path.exists():
             _splice(path, bloque, "tablaS23")
