@@ -35,8 +35,6 @@ La predicción de incendios con aprendizaje automático suele sufrir fugas espac
 
 **Palabras clave:** Nowcasting de incendios; GeoAI; reproducibilidad; validación espacial; LightGBM; Gran Chaco.
 
-![Resumen gráfico. La habilidad temporal no es habilidad espacial: M3 ofrece un nowcast temporal de ignición, M2 sigue siendo el fallback en bloques no vistos y el valor de decisión se concentra en la propagación. La Figura 2 detalla el marco computacional.](../../entregables/figuras/graphical_abstract.png){#fig-graphical width="100%"}
-
 # 1. Introducción
 
 
@@ -58,6 +56,10 @@ La novedad es computacional e infraestructural más que algorítmica: D2 formali
 El resto del artículo se organiza como sigue. La Sección 2 define el operador D2, el gate biofísico, la arquitectura de inferencia desacoplada y el arnés de evaluación. La Sección 3 reporta la selección en validación 2023, el test retrospectivo 2024–2025, el benchmark frente a FWI e INPE, los análisis de generalización espacial y temporal y el valor operativo. La Sección 4 discute por qué fallan los índices canónicos, qué aporta el desacoplamiento y dónde falla, y las limitaciones del estudio. La Sección 5 concluye.
 
 # 2. Marco computacional
+
+El marco opera sobre la grilla nacional de 1 km² de Paraguay, dividida en el Chaco Seco y la Región Oriental (Figura 1). Todos los pasos de construcción de objetivos, inferencia y evaluación usan este dominio.
+
+![Dominio de estudio y división regional: Chaco Seco (oeste) y Región Oriental (este) sobre la grilla nacional de 1 km² (EPSG:32721).](../../entregables/figuras/fig01_macro_regiones_cobertura.png){#fig-area width="80%"}
 
 ## 2.1 Operador de objetivos D2
 
@@ -102,7 +104,7 @@ El bootstrap remuestrea fechas en lugar de filas, porque la actividad diaria de 
 
 La grilla contiene 400 006 celdas de 1 km² en la zona UTM 21S. Los insumos diarios son detecciones de fuego activo VIIRS de 375 m de Suomi-NPP, NOAA-20 y NOAA-21 [@schroeder2014]; meteorología ERA5-Land de 3 horas agregada a valores diarios [@munoz2021era5land]; mapas anuales de MapBiomas Colección 2 (2017–2023), unidos a cada fila con el mapa del año previo [@mapbiomas2023]; pérdida de cobertura arbórea Hansen GFC-2025 v1.13 en t-1 y t-2 [@hansen2013]; y priors históricos causales construidos con un corte mensual y una ventana móvil de tres años. Los datos crudos son públicos pero no se redistribuyen; los datos procesados y los modelos entrenados se archivan con un DOI.
 
-El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB [@raasveldt2019duckdb]. Un spatial join de 50 000 puntos se muestra solo como referencia (Tabla S4 del suplemento); la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo de inferencia procesa 400 006 celdas en 3.474 s con 2 212.9 MB de RAM pico en ARM64; x86_64 no se midió. El dominio de estudio y la división regional se muestran en la Figura S11 del material suplementario; el perfil por etapa está en la Tabla S4 del suplemento.
+El pipeline usa un `cell_id` entero determinista, una búsqueda NumPy en O(1) y joins columnares en Polars y DuckDB [@raasveldt2019duckdb]. Un spatial join de 50 000 puntos se muestra solo como referencia (Tabla S4 del suplemento); la búsqueda operativa evita el point-in-polygon en inferencia. El pipeline completo de inferencia procesa 400 006 celdas en 3.474 s con 2 212.9 MB de RAM pico en ARM64; x86_64 no se midió. El perfil por etapa está en la Tabla S4 del suplemento.
 
 Las comprobaciones de calidad de datos son parte del pipeline: se colapsan sobrepasos VIIRS duplicados, se eliminan detecciones de confianza `low`, se reconstruye la precipitación diaria a partir de incrementos subdiarios y se rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land se mapean a celdas con un cKDTree precomputado. El archivo procesado contiene los objetivos de test, las probabilidades del modelo, las capas de benchmark, el plan de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin descargar el archivo crudo completo. El diccionario de datos y las comprobaciones están en la Nota complementaria S1 y la Tabla S15. El repositorio incluye 76 pruebas unitarias, un archivo de dependencias fijadas, un flujo de integración continua y un release público en GitHub. La suite de pruebas cubre definiciones de objetivos, filtrado VIIRS, agregación climática, calibración monótona, métricas y la capa de alerta; puede ejecutarse sin descargar el archivo crudo. Esta separación entre un paquete de evaluación reproducible y el pipeline completo de datos crudos es deliberada: los revisores pueden auditar las tablas sin una descarga de varios terabytes, mientras los scripts canónicos siguen disponibles para una reconstrucción completa.
 
