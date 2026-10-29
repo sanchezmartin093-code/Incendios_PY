@@ -1,7 +1,7 @@
 # Auditoría de hashes SHA-256
 
-- Generado: 2026-10-28T23:26:56
-- Commit: `abb0b3e40f768f5612ab1e53cb1c8c184be9128d (working tree with uncommitted changes)`
+- Generado: 2026-10-28T23:27:35
+- Commit: `051e980b470e4ef6fd9dafb2a9355e6027a65fb9`
 - Archivos: 336
 
 | Archivo | SHA-256 |
@@ -34,7 +34,7 @@
 | `auditoria/G0/sensibilidad_buffer_g0.csv` | `4e054e370c802b42d559415e7a8a45b39d301b01f44f699ab3492c7f3a932c65` |
 | `cover_letter.qmd` | `0ce44fbb4657c24d1d3579e30bbfcba380c06c99e338bfb7c8036429fda5345a` |
 | `docs/ADR_AUDITORIA.md` | `3744e29bf8f802cc5dac23e4d001403530b5c3667dc372bef35752306bfdf047` |
-| `docs/CHECKLIST_ENVIO.md` | `32290c39557723f4489789917204cdb75540ceca819fc766c2ee06446cdc18f3` |
+| `docs/CHECKLIST_ENVIO.md` | `63dbeccd1ef544a444c9bbc728d0293d496b6b3ec7fee8ed7d9461e01025f56e` |
 | `docs/G0_PROTOCOLO.md` | `06c4af93d4d89bc5a1cee81a09fa3fe735f3205060ec42f17a196a48fbfbfba0` |
 | `docs/IDEAS.md` | `8af4a0aee12b51e54f0dc2688553c0d2fa9b9c9076684b07dcad20c5669c035e` |
 | `docs/PROTOCOLO_BENCHMARKING.md` | `696a4086acddb6be04ca7bd4af6dda1fce95fc9a1025e5509f88a650803f57d9` |
@@ -42,7 +42,7 @@
 | `docs/USER_GUIDE.md` | `c84c79b73c9210d3a6f38fc5f432532794ab00bbb7924ddaecb3c7a73a4aaaee` |
 | `docs/arquitectura_flujo_sincronizado.md` | `56596b532b11b1eb8d2f892a35c58dcec36bbecdbdb05578c1f6f56296f8d2e2` |
 | `docs/plan_mejoras_benchmark_decision.md` | `b159b5e8a022a7b2146ff44cde0dbdc479b16b358dbb9ecfdb989144c8c0208f` |
-| `docs/plan_postulacion_subvenciones.md` | `ed975f06c7bda72e3dc93ef263af59a0d3c17dd20410fce67fbb5bd8ea1aa138` |
+| `docs/plan_postulacion_subvenciones.md` | `4e95c27be1a34716fdf5cb2896190f29e959a528fcf2d19906717354aaf26db2` |
 | `entregables/cover_letter.docx` | `7211f243ec1d57c79baf80ac47abe3621d4f11f192cdc1474d85794fb6c959f5` |
 | `entregables/cover_letter.html` | `df98cde7a78c6c2cbdff58b4c0eadd197df58d1e95e2b526b4114f24f32ed97f` |
 | `entregables/dashboard_alerta_interactivo.html` | `a30b60a2cd074cee0deffe58b1fe2e9822ce46c502c0bb627efe0d6da8a4b982` |
