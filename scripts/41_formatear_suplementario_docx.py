@@ -143,7 +143,7 @@ def _format(path: Path) -> None:
     for table in doc.tables:
         _format_table(table)
     doc.save(path)
-    print(f"{path.relative_to(ROOT)}: {len(doc.tables)} tablas")
+    print(f"{path.resolve().relative_to(ROOT)}: {len(doc.tables)} tablas")
 
 
 def main(argv: list[str]) -> int:

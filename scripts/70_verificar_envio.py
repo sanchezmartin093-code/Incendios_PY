@@ -76,6 +76,14 @@ def main() -> int:
         if not output.exists():
             errors.append(f"salida ausente: {output.relative_to(ROOT)}")
 
+    sub_fig = ROOT / "entregables" / "submission" / "figures"
+    expected = [f"Figure_{i}.pdf" for i in range(1, 6)]
+    expected += ["Figure_S1.png"] + [f"Figure_S{i}.pdf" for i in range(2, 11)]
+    for name in expected:
+        path = sub_fig / name
+        if not path.exists():
+            errors.append(f"figura individual ausente: {path.relative_to(ROOT)}")
+
     figures = fitz.open(ROOT / "entregables" / "figuras_maestro.pdf")
     if figures.page_count != 15 or len(figures.get_toc()) != 15:
         errors.append(f"figuras_maestro: {figures.page_count} páginas, {len(figures.get_toc())} marcadores")

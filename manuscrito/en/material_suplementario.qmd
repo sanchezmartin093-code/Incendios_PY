@@ -1397,7 +1397,7 @@ Processed data, test predictions, trained models and derived tables are archived
 - **Software required:** macOS 13+, Linux Ubuntu 22.04+, or Windows 11 with WSL2; Python 3.12+ with Polars, DuckDB, NumPy and the LightGBM C++ backend; pinned in `requirements-lock.txt`.
 - **Program language:** Python 3.12+.
 - **Program size:** 1.7 MB source tree (approximately 0.9 MB Python source); the public data asset is 1.18 GB compressed; the full working archive is 11 GB.
-- **Availability and license:** Freely available under the MIT License at [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY). Code concept DOI: [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); data concept DOI: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Version DOI for v2.1.0 is assigned on Zenodo deposition.
+- **Availability and license:** Freely available under the MIT License at [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY). Code concept DOI: [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); data concept DOI: [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). The v2.1.0 source snapshot is the GitHub release; the Zenodo concept DOI currently resolves to v2.0.1.
 - **Tests:** 76 tests pass with `python -m pytest -q tests`.
 
 # References {.unnumbered}
