@@ -41,4 +41,4 @@
 
 - [ ] Abrir los DOCX en Microsoft Word y revisar ecuaciones, tablas anchas y saltos de página.
 - [ ] Confirmar que el sistema editorial acepta los DOCX y los maestros como archivos complementarios.
-- [ ] Confirmar el DOI de versión en Zenodo si el depósito automático lo genera.
+- [ ] Depositar v2.1.0 manualmente en Zenodo; el depósito automático no generó un DOI de versión.

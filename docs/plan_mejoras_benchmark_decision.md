@@ -113,7 +113,7 @@ Se ejecutaron R.10, R.9 y R.4; R.8 quedó completo en confianza alta/FRP y la va
 
 **No repetir:** R.1–R.12, E.1 y G0 ya están hechos y documentados. G0 es exploratorio: H4/H6 y clima Open-Meteo quedan pendientes.
 
-**Cierre documental (2026-10-28):** Nota S5 con los protocolos de robustez; control negativo discutido en §4.2; metadatos de release v2.1.0 con DOI conceptuales; `auditoria/HASHES.md` regenerado (223 archivos, árbol de trabajo). El DOI de versión v2.1.0 se asigna al depositar en Zenodo.
+**Cierre documental (2026-10-28):** Nota S5 con los protocolos de robustez; control negativo discutido en §4.2; metadatos de release v2.1.0 con DOI conceptuales; `auditoria/HASHES.md` regenerado (223 archivos, árbol de trabajo). El depósito manual de v2.1.0 en Zenodo queda pendiente; los DOI conceptuales siguen activos.
 
 ---
 

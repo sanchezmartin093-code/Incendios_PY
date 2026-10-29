@@ -78,7 +78,7 @@ El repositorio en su versión **v2.1.0** ya cumple con creces los criterios de e
 `https://github.com/sanchezmartin093-code/Incendios_PY`
 
 **Publication Plans / Open Science Commitment:**
-> *We have completed the core computational benchmark and prepared a full research manuscript targeted for 'Computers & Geosciences' (Elsevier). All codebase, zero-copy pipelines, deterministic evaluation scripts, and model artifacts are released publicly under the MIT Open Source License (Release v2.1.0, Zenodo DOI archived).*
+> *We have completed the core computational benchmark and prepared a full research manuscript targeted for 'Computers & Geosciences' (Elsevier). All codebase, zero-copy pipelines, deterministic evaluation scripts, and model artifacts are released publicly under the MIT Open Source License (Release v2.1.0, Zenodo concept DOI).*
 
 **Technical Description of the Problem:**
 > *Wildfires in South America (specifically the Paraguayan Chaco and Pantanal transition zones) have reached extreme severity. Incendios_PY models daily ignition and contagion across a national grid of 397,448 spatial cells at 1 km² resolution over an 8-year multi-sensor baseline (2018–2025; 915,561,114 candidate cell-days and 892,533 fire detections).*
