@@ -7,6 +7,7 @@ from pathlib import Path
 
 import fitz
 from docx import Document
+from docx.oxml.ns import qn
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 from openpyxl import Workbook
@@ -27,7 +28,24 @@ ARIAL_BOLD = Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")
 
 def _plain(text: str) -> str:
     text = re.sub(r"!\[(.*?)\]\(.*?\)", r"\1", text)
-    text = text.replace("**", "").replace("$", "").replace("`", "")
+    text = text.replace("**", "").replace("`", "")
+    for old, new in (
+        (r"\alpha", "α"),
+        (r"\beta", "β"),
+        (r"\Delta", "Δ"),
+        (r"\approx", "≈"),
+        (r"\geq", "≥"),
+        (r"\leq", "≤"),
+        (r"\times", "×"),
+        (r"\pm", "±"),
+        (r"\to", "→"),
+        (r"\cdot", "·"),
+        (r"\%", "%"),
+        (r"\,", " "),
+        (r"\;", " "),
+    ):
+        text = text.replace(old, new)
+    text = text.replace("$", "")
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
@@ -105,8 +123,16 @@ def _row_values(table: Table) -> list[list[str]]:
     return rows
 
 
-def _caption_from_paragraph(text: str) -> str:
-    return re.sub(r"\s+", " ", text.replace("\xa0", " ")).strip()
+def _paragraph_text_math(paragraph: Paragraph) -> str:
+    parts: list[str] = []
+    for node in paragraph._p.iter():
+        if node.tag in {qn("w:t"), qn("m:t")} and node.text:
+            parts.append(node.text)
+    return "".join(parts)
+
+
+def _caption_from_paragraph(paragraph: Paragraph) -> str:
+    return re.sub(r"\s+", " ", _paragraph_text_math(paragraph).replace("\xa0", " ")).strip()
 
 
 def _table_caption(text: str) -> str:
@@ -128,7 +154,7 @@ def _main_tables() -> list[tuple[str, list[list[str]]]]:
     for table in doc.tables:
         if not table.cell(0, 0).paragraphs:
             continue
-        caption = _caption_from_paragraph(table.cell(0, 0).paragraphs[0].text)
+        caption = _caption_from_paragraph(table.cell(0, 0).paragraphs[0])
         if not caption.startswith("Table "):
             continue
         nested = table.cell(0, 0).tables
@@ -144,7 +170,7 @@ def _supplement_tables() -> list[tuple[str, list[list[str]]]]:
     caption = ""
     for child in doc.element.body.iterchildren():
         if child.tag.endswith("}p"):
-            text = _caption_from_paragraph(Paragraph(child, doc).text)
+            text = _caption_from_paragraph(Paragraph(child, doc))
             if text.startswith("Table S"):
                 caption = text
         elif child.tag.endswith("}tbl"):

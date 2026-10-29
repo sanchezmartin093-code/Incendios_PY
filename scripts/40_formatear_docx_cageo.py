@@ -239,8 +239,26 @@ def set_section_format(doc):
 def format_tables(doc):
     for table in iter_tables(doc):
         nrows = len(table.rows)
-        ncols = len(table.columns)
+        ncols = len(table.rows[0].cells) if table.rows else 0
         if nrows <= 1 and ncols <= 1:
+            if table.rows and table.cell(0, 0).tables:
+                wrapper = table._tbl
+                wrapper_pr = wrapper.tblPr
+                for el in wrapper_pr.findall(qn("w:tblW")):
+                    wrapper_pr.remove(el)
+                wrapper_w = OxmlElement("w:tblW")
+                wrapper_w.set(qn("w:type"), "pct")
+                wrapper_w.set(qn("w:w"), "5000")
+                wrapper_pr.insert_element_before(
+                    wrapper_w, "w:jc", "w:tblCellSpacing", "w:tblInd",
+                    "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar",
+                    "w:tblLook", "w:tblCaption", "w:tblDescription",
+                )
+                wrapper_grid = wrapper.tblGrid
+                wrapper_cols = wrapper_grid.findall(qn("w:gridCol"))
+                if wrapper_cols:
+                    wrapper_cols[0].set(qn("w:w"), "9360")
+                set_cell_width(table.cell(0, 0), 9360)
             continue  # wrapper de figura/caption
 
         # Ancho total 6.5 in = 9360 twips
@@ -264,7 +282,7 @@ def format_tables(doc):
         # Reparto de columnas
         header = [c.text.strip() for c in table.rows[0].cells]
         if ncols == 10 and any("ΔROC" in h for h in header) and any("Cutoff" in h for h in header):
-            widths = [936, 2146, 835, 749, 893, 691, 835, 835, 749, 691]
+            widths = [700, 1950, 950, 800, 1050, 800, 900, 750, 750, 710]
         elif ncols == 7 and "FP" in header:
             widths = [1224, 1728, 2232, 1080, 1152, 1080, 864]
         elif ncols == 6 and any("ΔROC" in h for h in header):
@@ -278,8 +296,16 @@ def format_tables(doc):
 
         grid = tbl.tblGrid
         cols = grid.findall(qn("w:gridCol"))
-        for col, w in zip(cols, widths):
-            col.set(qn("w:w"), str(w))
+        if len(cols) != ncols:
+            for col in list(cols):
+                grid.remove(col)
+            for w in widths:
+                col = OxmlElement("w:gridCol")
+                col.set(qn("w:w"), str(w))
+                grid.append(col)
+        else:
+            for col, w in zip(cols, widths):
+                col.set(qn("w:w"), str(w))
         for row in table.rows:
             for idx, cell in enumerate(row.cells):
                 if idx < len(widths):
@@ -312,15 +338,28 @@ def format_tables(doc):
                 trPr.insert_element_before(OxmlElement("w:tblHeader"), "w:tblCellSpacing",
                                            "w:jc", "w:hidden")
 
-        # Texto de tabla: TNR 9, interlineado simple
+        if ncols >= 9:
+            for el in tblPr.findall(qn("w:tblCellMar")):
+                tblPr.remove(el)
+            mar = OxmlElement("w:tblCellMar")
+            for side in ("top", "left", "bottom", "right"):
+                el = OxmlElement(f"w:{side}")
+                el.set(qn("w:w"), "36" if side in ("left", "right") else "0")
+                el.set(qn("w:type"), "dxa")
+                mar.append(el)
+            tblPr.insert_element_before(mar, "w:tblLook", "w:tblCaption", "w:tblDescription")
+
+        # Texto de tabla: TNR 9, interlineado simple; 8 pt en tablas anchas
+        table_size = 8 if ncols >= 9 else 9
         for ridx, row in enumerate(table.rows):
             for cell in row.cells:
                 for p in cell.paragraphs:
                     p.paragraph_format.line_spacing = 1.0
                     p.paragraph_format.space_before = Pt(0)
                     p.paragraph_format.space_after = Pt(0)
+                    p.paragraph_format.keep_with_next = ridx < len(table.rows) - 1
                     for run in p.runs:
-                        set_run_font(run, size=9, color=BLACK,
+                        set_run_font(run, size=table_size, color=BLACK,
                                      bold=True if ridx == 0 else None)
 
 
@@ -622,11 +661,11 @@ def main(in_path: str, out_path: str):
     doc.save(out_path)
     figdir = Path("entregables/figuras")
     replace_media(out_path, {
-        "word/media/rId12.png": str(figdir / "fig01_framework_conceptual.png"),
-        "word/media/rId18.png": str(figdir / "fig01_macro_regiones_cobertura.png"),
-        "word/media/rId26.png": str(figdir / "fig02_curvas_roc_pr_test.png"),
-        "word/media/rId32.png": str(figdir / "fig05_benchmarking_curvas_roc_pr.png"),
-        "word/media/rId39.png": str(figdir / "fig03_mapa_riesgo_operativo_nacional.png"),
+        "word/media/rId9.png": str(figdir / "graphical_abstract.png"),
+        "word/media/rId15.png": str(figdir / "fig01_framework_conceptual.png"),
+        "word/media/rId25.png": str(figdir / "fig02_curvas_roc_pr_test.png"),
+        "word/media/rId31.png": str(figdir / "fig05_benchmarking_curvas_roc_pr.png"),
+        "word/media/rId38.png": str(figdir / "fig03_mapa_riesgo_operativo_nacional.png"),
     })
     print(f"Guardado: {out_path}")
 

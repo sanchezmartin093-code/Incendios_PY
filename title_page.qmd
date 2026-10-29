@@ -102,7 +102,7 @@ Wildfire machine learning often suffers from spatial leakage and the limited tra
 - **Lenguaje de Programación:** Python (con extensiones vectorizadas en C++ y Rust).
 - **Disponibilidad y Licencia:** Código abierto bajo Licencia MIT.
 - **Repositorio Oficial:** [https://github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY)
-- **Versión del release:** 2.0.1 (2026-10-28)
+- **Versión del release:** 2.1.0 (2026-10-28)
 - **DOI conceptual del Código:** [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104)
 - **DOI conceptual de los Datos:** [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)
 
@@ -113,7 +113,7 @@ Todos los conjuntos de datos primarios utilizados son de acceso público interna
 3. **Cobertura vegetal y biomas:** objetivo MapBiomas Chaco y Bosque Atlántico; se usan mapas anuales de MapBiomas Colección 2 (2017–2023), unidos por año previo.
 4. **Pérdida de cobertura arbórea:** Hansen Global Forest Change GFC-2025 v1.13 ([earthenginepartners.appspot.com](https://storage.googleapis.com/earthenginepartners-hansen/GFC-2025-v1.13/)).
 5. **Límites cartográficos nacionales:** Marco geoBoundaries ADM0 y ADM1 ([geoboundaries.org](https://www.geoboundaries.org/)).  
-Los datasets consolidados y procesados no se versionan en git; se documentan con hashes en `fuentes/MANIFIESTO_DATOS_v3.csv` y están disponibles en el release v2.1.0 de GitHub bajo licencia CC BY 4.0, además del DOI conceptual de datos ([10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)).
+Los datasets consolidados y procesados no se versionan en git; se documentan con hashes en `fuentes/MANIFIESTO_DATOS_v3.csv` y están archivados en el asset de datos v2.0.1 (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB) bajo licencia CC BY 4.0, además del DOI conceptual de datos ([10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278)).
 
 ### C. Financiamiento / Funding
 Esta investigación fue realizada como un desarrollo de investigación independiente y de acceso abierto autofinanciado por el autor. No se recibieron subvenciones específicas de organismos del sector público, comercial o sin fines de lucro.

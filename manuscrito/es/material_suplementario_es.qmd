@@ -23,9 +23,9 @@ format:
 > **Versión de lectura en español.** Este documento traduce la prosa, los títulos, los epígrafes y las notas. Los datos de las tablas, las figuras, las cifras y los nombres de variables se conservan idénticos a la versión de envío en inglés (`material_suplementario.docx`).
 >
 > **Revista objetivo:** *Computers & Geosciences* (Elsevier). **Tipo de artículo:** artículo de investigación. **Revisión por pares:** simple anonimizada.  
-> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S5, Tablas S1–S34c y Figuras S1–S10.  
+> **Archivo suplementario:** `material_suplementario.docx` / `.html` — Notas S1–S5, Tablas S1–S34c y Figuras S1–S11.  
 > **Código:** [github.com/sanchezmartin093-code/Incendios_PY](https://github.com/sanchezmartin093-code/Incendios_PY) (Licencia MIT; DOI conceptual del código [10.5281/zenodo.23675104](https://doi.org/10.5281/zenodo.23675104); release v2.1.0 de GitHub).  
-> **Datos:** los datos procesados y las predicciones de test están disponibles en el release v2.1.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
+> **Datos:** los datos procesados y las predicciones de test están archivados en el asset de datos v2.0.1 (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB) del release <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1> bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278).
 
 ```{=html}
 <style>
@@ -55,7 +55,7 @@ format:
 
 • **Tablas S1–S34c:** diccionario de variables, hiperparámetros, resultados departamentales, perfil computacional, cobertura conformal, evaluación poblacional, significancia pareada, bloques espaciales, lead time, muestreo, benchmark completo, ablación, baseline M1, política gated, holdout de confirmación, baseline acoplado, sensibilidad D2, SHAP, cost-loss, auditoría de datos, una línea base solo meteorología, una sensibilidad de A del INPE, una sensibilidad al solapamiento train/test, una tabla de beneficio neto, una prueba pareada de valor de decisión, estabilidad a semillas/capacidad, un backtest rolling-origin, una validación adversarial, sensibilidades de gate y etiquetas, una sensibilidad de muestreo y un control negativo, una validación espacial externa en Boquerón y una validación exploratoria entre países en Formosa y su benchmark clásico FWI/INPE.
 
-• **Figuras S1–S10:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral, importancia por permutación, validación externa, precisión por presupuesto de alertas y curvas ROC/PR de Formosa.
+• **Figuras S1–S11:** SHAP, ablación, cost-loss, beneficio neto, rolling-origin, sensibilidad al umbral, importancia por permutación, validación externa, precisión por presupuesto de alertas, curvas ROC/PR de Formosa y el mapa de dominio y división regional.
 
 ---
 
@@ -1388,9 +1388,11 @@ Los índices clásicos fueron mucho más débiles que cualquiera de los modelos 
 
 ![**Figura S10.** Validación externa entre países en Formosa. Curvas ROC y precisión–recall para G0-C en 2024 (izquierda) y 2025 (derecha). M2 (azul) y M3 (naranja) usan boosters Chaco congelados con recalibración Platt local. El test es caso-control (1:10), no ponderado por población.](../../entregables/figuras/supp_fig10_external_formosa.png)
 
+![**Figura S11.** Dominio de estudio y división regional: Chaco Seco (oeste) y Región Oriental (este) sobre la grilla nacional de 1 km² (EPSG:32721).](../../entregables/figuras/fig01_macro_regiones_cobertura.png){width="80%"}
+
 # Disponibilidad de datos {.unnumbered}
 
-Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están disponibles en el release v2.1.0 de GitHub bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
+Los datos procesados, las predicciones de test, los modelos entrenados y las tablas derivadas están archivados en el asset de datos v2.0.1 (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB) del release <https://github.com/sanchezmartin093-code/Incendios_PY/releases/tag/v2.0.1> bajo CC BY 4.0 y se indexan bajo el DOI conceptual de datos [10.5281/zenodo.23675278](https://doi.org/10.5281/zenodo.23675278). El código v2.1.0 y los artefactos tabulares están en el release v2.1.0 de GitHub y en `tablas_maestro.xlsx`. Los datos crudos de NASA FIRMS, ERA5-Land/CDS, MapBiomas, Hansen GFC y geoBoundaries se obtienen de sus proveedores originales bajo sus propios términos y están documentados con hashes SHA-256 en `fuentes/MANIFIESTO_DATOS_v3.csv`. Los objetivos de test y las probabilidades archivadas son suficientes para regenerar cada tabla y figura de este suplemento sin descargar el archivo crudo de varios terabytes.
 
 # Disponibilidad del código informático {.unnumbered}
 

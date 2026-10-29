@@ -251,7 +251,7 @@ Raw datasets are public but are not redistributed in this repository:
 5. **geoBoundaries** ADM0/ADM1 boundaries: <https://www.geoboundaries.org/>
 
 The consolidated datasets, hashes and byte sizes are listed in
-`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, available in the v2.1.0 GitHub release, and indexed by the data concept DOI.
+`fuentes/MANIFIESTO_DATOS_v3.csv`. Processed data and trained models are documented in this manifest, archived in the v2.0.1 data release asset (`Incendios_PY_data_v2.0.1.zip`, 1.18 GB), and indexed by the data concept DOI.
 
 Code is released under the MIT License. Derived data are released under CC BY 4.0
 where permitted; see `LICENSE-DATA`. Third-party raw data retain their original

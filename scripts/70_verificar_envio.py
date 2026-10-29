@@ -40,6 +40,10 @@ def main() -> int:
         errors.extend(_check_qmd(path))
 
     main_text = MAIN.read_text(encoding="utf-8")
+    if "Incendios_PY_data_v2.0.1.zip" not in main_text:
+        errors.append("manuscrito: falta el asset de datos v2.0.1")
+    if "Incendios_PY_data_v2.1.0.zip" in main_text:
+        errors.append("manuscrito: referencia a un asset de datos v2.1.0 inexistente")
     abstract = main_text.split("**ABSTRACT**", 1)[1].split("# 1. Introduction", 1)[0]
     words = len(re.sub(r"[*_`$]", "", abstract).split())
     if not 200 <= words <= 300:
@@ -48,6 +52,8 @@ def main() -> int:
         errors.append("manuscrito: referencia a reliability diagram inexistente")
 
     supp_text = SUPP.read_text(encoding="utf-8")
+    if "Figures S1–S11" not in supp_text:
+        errors.append("suplemento: el índice no incluye Figures S1–S11")
     if re.search(r"Table (?:10|4)\b", supp_text):
         errors.append("suplemento: referencia huérfana a Table 10/Table 4")
     if "vapour" in supp_text.lower():
@@ -69,7 +75,7 @@ def main() -> int:
             errors.append(f"salida ausente: {output.relative_to(ROOT)}")
 
     figures = fitz.open(ROOT / "entregables" / "figuras_maestro.pdf")
-    if figures.page_count != 15 or len(figures.get_toc()) != 15:
+    if figures.page_count != 16 or len(figures.get_toc()) != 16:
         errors.append(f"figuras_maestro: {figures.page_count} páginas, {len(figures.get_toc())} marcadores")
     figures.close()
 
