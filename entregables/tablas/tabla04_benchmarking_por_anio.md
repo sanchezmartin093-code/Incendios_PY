@@ -6,10 +6,10 @@
 | Oriental | ignicion    | Incendios_PY (Ignición Híbrida M3) |        2025 |          2 |  99429 |    9039 |    0.7539 |   0.2377 |      0.3189 |   0.1678 |      0.2702 |               3240 |
 | Oriental | ignicion    | Incendios_PY (Ignición Base M2)    |        2024 |          1 | 100507 |    9137 |    0.7366 |   0.2095 |      0.2441 |   0.2085 |      0.236  |               5899 |
 | Oriental | ignicion    | Incendios_PY (Ignición Base M2)    |        2025 |          2 |  99429 |    9039 |    0.7451 |   0.222  |      0.2836 |   0.1829 |      0.2554 |               4176 |
-| Oriental | ignicion    | Canadian FWI completo              |        2024 |          1 | 100507 |    9137 |    0.5675 |   0.1115 |      0.1109 |   0.4302 |      0.1302 |              31514 |
-| Oriental | ignicion    | Canadian FWI completo              |        2025 |          2 |  99429 |    9039 |    0.5467 |   0.1005 |      0.1038 |   0.349  |      0.1207 |              27252 |
-| Oriental | ignicion    | INPE Risco de Fogo                 |        2024 |          1 | 100507 |    9137 |    0.515  |   0.096  |      0.0936 |   0.8237 |      0.1138 |              72869 |
-| Oriental | ignicion    | INPE Risco de Fogo                 |        2025 |          2 |  99429 |    9039 |    0.4831 |   0.0859 |      0.0912 |   0.7655 |      0.1107 |              68933 |
+| Oriental | ignicion    | Canadian FWI completo              |        2024 |          1 | 100507 |    9137 |    0.5794 |   0.1181 |      0.1293 |   0.2637 |      0.144  |              16216 |
+| Oriental | ignicion    | Canadian FWI completo              |        2025 |          2 |  99429 |    9039 |    0.5453 |   0.106  |      0.1126 |   0.1728 |      0.121  |              12310 |
+| Oriental | ignicion    | INPE Risco de Fogo                 |        2024 |          1 | 100507 |    9137 |    0.5119 |   0.0949 |      0.0934 |   0.8507 |      0.1136 |              75477 |
+| Oriental | ignicion    | INPE Risco de Fogo                 |        2025 |          2 |  99429 |    9039 |    0.4825 |   0.0854 |      0.0913 |   0.8002 |      0.111  |              71962 |
 | Oriental | ignicion    | Línea Base Climatológica           |        2024 |          1 | 100507 |    9137 |    0.5    |   0.0909 |      0.0909 |   1      |      0.1111 |              91370 |
 | Oriental | ignicion    | Línea Base Climatológica           |        2025 |          2 |  99429 |    9039 |    0.5    |   0.0909 |      0.0909 |   1      |      0.1111 |              90390 |
 | Oriental | propagacion | Incendios_PY (Propagación Táctica) |        2024 |          1 | 514162 |   46742 |    0.7911 |   0.3872 |      0.6459 |   0.2125 |      0.4587 |               5444 |
@@ -20,10 +20,10 @@
 | Chaco    | ignicion    | Incendios_PY (Ignición Híbrida M3) |        2025 |          2 |  75372 |    6852 |    0.8011 |   0.2874 |      0.3306 |   0.2904 |      0.3217 |               4030 |
 | Chaco    | ignicion    | Incendios_PY (Ignición Base M2)    |        2024 |          1 | 101244 |    9204 |    0.7993 |   0.2764 |      0.3227 |   0.2831 |      0.3139 |               5470 |
 | Chaco    | ignicion    | Incendios_PY (Ignición Base M2)    |        2025 |          2 |  75372 |    6852 |    0.7991 |   0.278  |      0.3489 |   0.2583 |      0.326  |               3303 |
-| Chaco    | ignicion    | Canadian FWI completo              |        2024 |          1 | 101244 |    9204 |    0.5139 |   0.0964 |      0.0924 |   0.9665 |      0.1128 |              87393 |
-| Chaco    | ignicion    | Canadian FWI completo              |        2025 |          2 |  75372 |    6852 |    0.5216 |   0.095  |      0.0934 |   0.9532 |      0.1139 |              63414 |
-| Chaco    | ignicion    | INPE Risco de Fogo                 |        2024 |          1 | 101244 |    9204 |    0.55   |   0.1059 |      0.12   |   0.137  |      0.1231 |               9244 |
-| Chaco    | ignicion    | INPE Risco de Fogo                 |        2025 |          2 |  75372 |    6852 |    0.5233 |   0.0992 |      0.1128 |   0.1106 |      0.1123 |               5963 |
+| Chaco    | ignicion    | Canadian FWI completo              |        2024 |          1 | 101244 |    9204 |    0.5069 |   0.0896 |      0.0921 |   0.9662 |      0.1124 |              87680 |
+| Chaco    | ignicion    | Canadian FWI completo              |        2025 |          2 |  75372 |    6852 |    0.5046 |   0.0896 |      0.0932 |   0.9453 |      0.1137 |              63025 |
+| Chaco    | ignicion    | INPE Risco de Fogo                 |        2024 |          1 | 101244 |    9204 |    0.5356 |   0.0979 |      0.0927 |   0.9271 |      0.113  |              83562 |
+| Chaco    | ignicion    | INPE Risco de Fogo                 |        2025 |          2 |  75372 |    6852 |    0.5138 |   0.0942 |      0.0919 |   0.9215 |      0.1121 |              62356 |
 | Chaco    | ignicion    | Línea Base Climatológica           |        2024 |          1 | 101244 |    9204 |    0.5    |   0.0909 |      0.0909 |   1      |      0.1111 |              92040 |
 | Chaco    | ignicion    | Línea Base Climatológica           |        2025 |          2 |  75372 |    6852 |    0.5    |   0.0909 |      0.0909 |   1      |      0.1111 |              68520 |
 | Chaco    | propagacion | Incendios_PY (Propagación Táctica) |        2024 |          1 | 412401 |   37491 |    0.9069 |   0.6937 |      0.8242 |   0.53   |      0.7418 |               4238 |

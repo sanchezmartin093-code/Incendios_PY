@@ -24,7 +24,7 @@ from sklearn.metrics import (
 )
 
 from src.constantes import DIR_PROCESSED, DIR_MODELOS, DIR_TABLAS
-from src.inpe import constante_a_desde_fracciones, riesgo_basico
+from src.inpe import constante_a_desde_fracciones, riesgo_basico, riesgo_basico_vectorizado
 from src.metricas import (
     bootstrap_diferencia_roc,
     calcular_bootstrap_ci_roc,
@@ -70,7 +70,7 @@ def _benchmarks(df_val, df_test, region, target_col):
                 x["pct_humedal_palmar"].to_numpy(),
             )
         ])
-        rb = 0.8 * (1 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+        rb = riesgo_basico_vectorizado(x["pse"].to_numpy(), a)
         fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
         ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4
         flat = 1 + np.abs(x["lat"].to_numpy()) * 0.003

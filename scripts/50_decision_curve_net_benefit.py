@@ -96,7 +96,8 @@ def _indices(df):
             out["pct_humedal_palmar"].to_numpy(),
         )
     ])
-    rb = 0.8 * (1 + np.sin((a * out["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+    madurez = np.clip(a * out["pse"].to_numpy() / 120.0, 0.0, 2.0)
+    rb = 0.8 * (1 + np.sin(madurez * (np.pi / 2) - (np.pi / 2))) / 2
     fur = -0.006 * out["rh_min_pct"].to_numpy() + 1.3
     ft = 0.02 * out["temp_max_c"].to_numpy() + 0.4
     flat = 1 + np.abs(out["lat"].to_numpy()) * 0.003

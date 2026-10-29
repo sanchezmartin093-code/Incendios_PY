@@ -137,7 +137,8 @@ def _join_indices(df):
     f = x.select(COBERTURA).to_numpy().astype(float)
     total = f.sum(axis=1)
     a = np.divide(f @ PESOS, total, out=np.zeros(len(x)), where=total > 0)
-    rb = 0.8 * (1.0 + np.sin((a * x["pse"].to_numpy() / 120.0) * (np.pi / 2.0) - (np.pi / 2.0))) / 2.0
+    madurez = np.clip(a * x["pse"].to_numpy() / 120.0, 0.0, 2.0)
+    rb = 0.8 * (1.0 + np.sin(madurez * (np.pi / 2.0) - (np.pi / 2.0))) / 2.0
     fur = -0.006 * x["rh_min_pct"].to_numpy() + 1.3
     ft = 0.02 * x["temp_max_c"].to_numpy() + 0.4
     flat = 1.0 + np.abs(x["lat"].to_numpy()) * 0.003

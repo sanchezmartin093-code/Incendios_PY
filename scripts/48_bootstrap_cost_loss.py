@@ -2,8 +2,8 @@
 
 Remuestrea fechas (no filas), B = 1000
 CUTOFFS = {
-    ("FWI", "Chaco"): 0.3029, ("FWI", "Oriental"): 2.1509,
-    ("INPE", "Chaco"): 0.8963, ("INPE", "Oriental"): 0.0750,
+    ("FWI", "Chaco"): 3.1285, ("FWI", "Oriental"): 20.4720,
+    ("INPE", "Chaco"): 0.0364, ("INPE", "Oriental"): 0.0596,
 }, recalcula V(alpha) para cada modelo,
 region y alpha, y reporta el IC 95 % percentil. Regenera la Tabla S14 y la
 Figura S3 con bandas.
@@ -42,8 +42,8 @@ ALPHAS = np.array([0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01,
                    0.02, 0.03, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50])
 B = 1000
 CUTOFFS = {
-    ("FWI", "Chaco"): 0.3029, ("FWI", "Oriental"): 2.1509,
-    ("INPE", "Chaco"): 0.8963, ("INPE", "Oriental"): 0.0750,
+    ("FWI", "Chaco"): 3.1285, ("FWI", "Oriental"): 20.4720,
+    ("INPE", "Chaco"): 0.0364, ("INPE", "Oriental"): 0.0596,
 }
 
 
@@ -119,7 +119,8 @@ def _indices(base):
             out["pct_humedal_palmar"].to_numpy(),
         )
     ])
-    rb = 0.8 * (1 + np.sin((a * out["pse"].to_numpy() / 120.0) * (np.pi / 2) - (np.pi / 2))) / 2
+    madurez = np.clip(a * out["pse"].to_numpy() / 120.0, 0.0, 2.0)
+    rb = 0.8 * (1 + np.sin(madurez * (np.pi / 2) - (np.pi / 2))) / 2
     fur = -0.006 * out["rh_min_pct"].to_numpy() + 1.3
     ft = 0.02 * out["temp_max_c"].to_numpy() + 0.4
     flat = 1 + np.abs(out["lat"].to_numpy()) * 0.003

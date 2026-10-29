@@ -40,9 +40,17 @@ def pse_desde_lluvia_diaria(precip_mm: np.ndarray, ventana_max: int = 120) -> np
 
 
 def riesgo_basico(pse: float, constante_a: float) -> float:
-    """Sinusoidal Basic Fire Risk (0 to 0.8)."""
-    x = (float(constante_a) * float(pse) / 120.0) * (np.pi / 2.0) - (np.pi / 2.0)
+    """Sinusoidal Basic Fire Risk (0 to 0.8), saturated at PSE = 240/A."""
+    madurez = np.clip(float(constante_a) * float(pse) / 120.0, 0.0, 2.0)
+    x = madurez * (np.pi / 2.0) - (np.pi / 2.0)
     return float(0.8 * (1.0 + np.sin(x)) / 2.0)
+
+
+def riesgo_basico_vectorizado(pse: np.ndarray, constante_a: np.ndarray) -> np.ndarray:
+    """Vectorized Basic Fire Risk with the same saturation at +pi/2."""
+    madurez = np.clip(np.asarray(constante_a, dtype=float) * np.asarray(pse, dtype=float) / 120.0, 0.0, 2.0)
+    x = madurez * (np.pi / 2.0) - (np.pi / 2.0)
+    return 0.8 * (1.0 + np.sin(x)) / 2.0
 
 
 def constante_a_desde_fracciones(

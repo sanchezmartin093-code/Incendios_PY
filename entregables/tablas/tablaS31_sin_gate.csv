@@ -1,3 +1,3 @@
 region,variant,retention_rows,retention_pos,n_train,n_test,m3_roc,m2_roc,fwi_roc,delta_m3_m2
-Chaco,sin gate,0.975,1.0,487934,172126,0.7924,0.7833,0.5105,0.0091
-Oriental,sin gate,0.927,1.0,465775,185301,0.751,0.7379,0.5457,0.0131
+Chaco,sin gate,0.975,1.0,487934,172126,0.7924,0.7833,0.4988,0.0091
+Oriental,sin gate,0.927,1.0,465775,185301,0.751,0.7379,0.5528,0.0131

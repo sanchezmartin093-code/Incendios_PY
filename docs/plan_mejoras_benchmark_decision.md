@@ -105,7 +105,7 @@ Se ejecutaron R.10, R.9 y R.4; R.8 quedó completo en confianza alta/FRP y la va
 | 3 | **R.8** Variantes de calidad VIIRS | Parcial: alta confianza y FRP completos; nubes no completada (cola CDS) | Alta confianza retiene 12.2 %/6.5 % y sube ROC a 0.8228/0.7793; FRP ≥ 10 retiene 31.9 %/19.0 %. La nubosidad < 40 % se está calculando con tcc ERA5 15 UTC como proxy, no con FIRMS. Tabla S30. |
 | 4 | **R.4** Sensibilidad 1:5 y 1:20 | Completado | 1:5 estable; 1:20 con negativos independientes baja Chaco M3 a 0.7926 (precisión poblacional −7 %) y deja Oriental en 0.7526. Tabla S28. |
 | 5 | **R.12** Verificación limpia | Completado | Python 3.12 + lock: 76 tests OK; hashes OK. `auditoria/R12_VERIFICACION_ENTORNO_LIMPIO.md`. |
-| 6 | **E.1** Validación externa Boquerón | Completado | Leave-one-department-out + buffer 25 km; M2/M3 0.8104/0.8120; M3−M2 +0.0016 (p=0.254); FWI 0.4719; INPE 0.5845; precisión poblacional M2/M3 0.0891/0.0678 %; buffer 20/25/30 km (p=0.010/0.254/0.206). Tabla S33/S33b; Figura S9. |
+| 6 | **E.1** Validación externa Boquerón | Completado | Leave-one-department-out + buffer 25 km; M2/M3 0.8104/0.8120; M3−M2 +0.0016 (p=0.254); FWI 0.4708; INPE 0.5817; precisión poblacional M2/M3 0.0891/0.0678 %; buffer 20/25/30 km (p=0.010/0.254/0.206). Tabla S33/S33b; Figura S9. |
 | 7 | **G0** Validación externa Formosa | Completado, exploratorio | Cross-country condicional; G0-C M2/M3 ROC 0.7133/0.7245 (2024), 0.7050/0.7112 (2025); ΔROC +0.0112/+0.0062; no alcanza umbral 0.75; G0-R no mejora; H-C eleva AUC pero elimina 43 % de detecciones (32.5 % de positivos); FWI/INPE 0.50/0.47 (M2/M3 claramente mejores). Tablas S34/S34b/S34c; Figura S10. |
 | 7 | **B.6** FWI a 1 km | Opcional, no ejecutado | No resuelve el shift temporal; coste 3–5 días. |
 

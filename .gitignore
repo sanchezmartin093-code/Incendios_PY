@@ -45,3 +45,6 @@ modelos/legacy_v1/
 .~lock.*#
 ~$*.docx
 ~$*.doc
+
+# Paquete generado para el sistema editorial
+entregables/submission/

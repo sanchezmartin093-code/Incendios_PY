@@ -79,6 +79,7 @@ def main():
     for ax, (region, task) in zip(axes.ravel(), paneles):
         modelo = "M3" if task == "ignicion" else "Propagation"
         modo = "hibrido" if task == "ignicion" else "propagacion"
+        task_label = "Ignition" if task == "ignicion" else "Propagation"
         _, _, yv, pv, yt, pt = _pred(region, task, modo)
         curva = _curva(yv, pv, rejilla)
         ax.plot(curva[:, 0], curva[:, 2], label="Recall", color="#1f77b4")
@@ -91,7 +92,7 @@ def main():
             ax.axvline(cut, color=color, lw=0.8, alpha=0.7)
             m = _metricas(yt, pt, cut)
             filas.append({
-                "region": region, "task": task, "model": modelo,
+                "region": region, "task": task_label.lower(), "model": modelo,
                 "criterion": f"F{beta:g}", "cutoff": round(float(cut), 4),
                 "precision": round(m["precision"], 4), "recall": round(m["recall"], 4),
                 "f05": round(m["f05"], 4), "f1": round(m["f1"], 4), "f2": round(m["f2"], 4),
@@ -100,12 +101,12 @@ def main():
         ax.axvline(cut, color="black", lw=0.8, ls="--", alpha=0.7)
         m = _metricas(yt, pt, cut)
         filas.append({
-            "region": region, "task": task, "model": modelo,
+            "region": region, "task": task_label.lower(), "model": modelo,
             "criterion": "Youden", "cutoff": round(float(cut), 4),
             "precision": round(m["precision"], 4), "recall": round(m["recall"], 4),
             "f05": round(m["f05"], 4), "f1": round(m["f1"], 4), "f2": round(m["f2"], 4),
         })
-        ax.set_title(f"{region} — {task}")
+        ax.set_title(f"{region} — {task_label}")
         ax.set_xlabel("Cutoff")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1.02)
