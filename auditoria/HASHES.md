@@ -1,7 +1,7 @@
 # Auditoría de hashes SHA-256
 
-- Generado: 2026-10-28T21:04:46
-- Commit: `e219289b3244819623227a2519e0d53a3633ac38`
+- Generado: 2026-10-28T21:08:50
+- Commit: `ae51d39c2946fafcc1e607fd757e8a4dc3376ea3 (working tree with uncommitted changes)`
 - Archivos: 318
 
 | Archivo | SHA-256 |
@@ -82,13 +82,13 @@
 | `entregables/figuras/supp_fig10_external_formosa.pdf` | `99bd7742bfd556f3667626e9ea83e8d7504543fc2d1ac850265248cb674a24a6` |
 | `entregables/figuras/supp_fig10_external_formosa.png` | `6a1e4ff7e2e9e4b861d17e53e0c4219e89e9b91fcedc86b9359bdf0205c7af60` |
 | `entregables/highlights.docx` | `d803343d6b8832dcf5a6910676cc0706b8067b3df1e74223655eb5247a255da2` |
-| `entregables/manuscrito.docx` | `ce8b3da2ecbef0b79580f482f6cf6f5ef23974d0cb0766f316f6eb6496000f37` |
-| `entregables/manuscrito.html` | `ff871599b78aa639ec3654ddbe51570f59739d9da67729b9f4e5e185330d4586` |
-| `entregables/manuscrito_es.docx` | `e334804af3e30487badf1bc1cecbd177091aca1322ade2ec4541fbbea0bb5ef6` |
-| `entregables/manuscrito_es.html` | `3e3ed577c03c99cf983e7f92d5d9ba86908f6bdc20d44e27088203223ec21a2f` |
-| `entregables/material_suplementario.docx` | `9c4d32f4f7ed8f40873ff5edb9124b1000760265f8879cf927be6b2d764dc9ae` |
+| `entregables/manuscrito.docx` | `ac0eda2e631492ad7479423fc287800c28551cdc8641e3711cad2cf4a1f184b3` |
+| `entregables/manuscrito.html` | `d640959faa3daa9205017aa996c3a5bad21fda354b4cf7eada6bdcad44c10d5e` |
+| `entregables/manuscrito_es.docx` | `c2aac9587387c7cd7f7d9369a954b0543df3a0468fc88722ef203d4ffc4ef858` |
+| `entregables/manuscrito_es.html` | `f258fa83ce85fd09505bc8d6905819dd5272a741210361e92bf7f21a2601b5d3` |
+| `entregables/material_suplementario.docx` | `601475d3d62773fd7c0204468be6115591091aa80708991c8f9bcedbc779c3d2` |
 | `entregables/material_suplementario.html` | `5a473210b03f0420c521a90351e2d472d94f3a4b77a87482bbfeef1e984bbae1` |
-| `entregables/material_suplementario_es.docx` | `ad73b9903707f02b2af9fe49473704f5bec4cac170be817aacf6aa07f8fa2119` |
+| `entregables/material_suplementario_es.docx` | `41966c23acc534b327a075663d46a0a76a95538d08f3ece2255bf4ceb765da8f` |
 | `entregables/material_suplementario_es.html` | `ce2cc3af9fef1e40f66428b64128389956f4c01ea8982c854c6ca26a761f1140` |
 | `entregables/tablas/tabla00_validacion_datos.csv` | `6b7d9e1c62e7a41f4839a36885868dbea900cf73e81b1cacc81f17fc36f0597c` |
 | `entregables/tablas/tabla00_validacion_datos.md` | `6443d62597ea4e62bc80531eaee37e3f6f277628a067435ebf3c85f72893c893` |
@@ -210,9 +210,9 @@
 | `entregables/tablas/tablaS5_prediccion_conforme.md` | `16edb27324261d04e6448e8abcb48578e7c053a0011d7152e4b7c22b11b50c54` |
 | `entregables/title_page.docx` | `fad147c25696a82fc2f60091cfbb7b4a77a8950106255688c75a54fe15f09d77` |
 | `entregables/title_page.html` | `00bf9bb4fda470eef626be5bdc7127450fff01ff9e28d95e59ca11e6e834ebaa` |
-| `manuscrito/en/manuscrito.qmd` | `b30aa1c9239a28094aa62ff96bf06cf7e83de0880501e0efdcd8d9f985780175` |
+| `manuscrito/en/manuscrito.qmd` | `1a8fe62337841b772ff168b3506c811722d2124c687687e048aef78c0824fbc4` |
 | `manuscrito/en/material_suplementario.qmd` | `5d7f6abbb8ebdcab5a302c0670dfc66cfca7b9c2db8a8faadd64205631c47e03` |
-| `manuscrito/es/manuscrito_es.qmd` | `0bc8eeb240450475752df87666b45d5ed8502726d4acd1c8debc2b4091ca6c62` |
+| `manuscrito/es/manuscrito_es.qmd` | `ce08067e6f0e1acd8a8289ac9587a0553bbae7e93f9d873a331e89a094f65163` |
 | `manuscrito/es/material_suplementario_es.qmd` | `2266b2aee6ea526ea1a643a428f0a0e0998b3ced4a3d44f28a6af561571f4142` |
 | `requirements-lock.txt` | `dab3b46dac1f64b8cf94ea7b4e5cc997907a3ed20ca5b25aba65c0ba0beb6977` |
 | `scripts/00_generar_grilla_nacional.py` | `dd1c31e8a2dec10a408e7041cb256283685a2825b861c7de24559830d57084ea` |
