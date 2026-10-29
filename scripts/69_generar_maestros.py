@@ -12,6 +12,7 @@ from docx.text.paragraph import Paragraph
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 MANUSCRIPT = ROOT / "manuscrito" / "en" / "manuscrito.qmd"
@@ -58,16 +59,29 @@ def build_figures() -> None:
         page.insert_font(fontname="F0", fontfile=str(ARIAL))
         page.insert_font(fontname="F1", fontfile=str(ARIAL_BOLD))
         page.insert_text((40, 34), caption.split(".")[0] + ".", fontsize=9, fontname="F1")
-        image_rect = fitz.Rect(40, 48, 555, 720)
-        page.insert_image(image_rect, filename=str(image), keep_proportion=True)
-        page.insert_textbox(
-            fitz.Rect(40, 730, 555, 812),
-            caption,
-            fontsize=8.5,
-            fontname="F0",
-            lineheight=1.15,
-            align=0,
+        with Image.open(image) as img:
+            iw, ih = img.size
+        area = fitz.Rect(40, 48, 555, 700)
+        scale = min(area.width / iw, area.height / ih)
+        iw, ih = iw * scale, ih * scale
+        image_rect = fitz.Rect(
+            area.x0 + (area.width - iw) / 2,
+            area.y0 + (area.height - ih) / 2,
+            area.x0 + (area.width + iw) / 2,
+            area.y0 + (area.height + ih) / 2,
         )
+        page.insert_image(image_rect, filename=str(image), keep_proportion=True)
+        caption_rect = fitz.Rect(40, 704, 555, 812)
+        for font_size in (8.2, 7.8, 7.4, 7.0, 6.6, 6.2):
+            if page.insert_textbox(
+                caption_rect,
+                caption,
+                fontsize=font_size,
+                fontname="F0",
+                lineheight=1.12,
+                align=0,
+            ) >= 0:
+                break
         page.insert_text(
             (40, 826),
             "Master figures | Incendios_PY v2.1.0",

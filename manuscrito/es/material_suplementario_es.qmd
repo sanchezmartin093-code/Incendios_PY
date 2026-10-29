@@ -67,7 +67,7 @@ $$\mathcal{D}_{\text{filtered}} = \left\{ f \in \mathcal{D}_{\text{raw}} \mid \t
 
 El máximo de escaneo observado en la ventana de estudio fue 0.8 km, por lo que la regla no eliminó registros, pero permanece activa para ventanas orbitales con ángulos de visión mayores. Los sobrepasos duplicados en la misma fecha civil se consolidan por celda de 1 km², conservando `num_focos_dia`, `max_frp_dia` y `sum_frp_dia`.
 
-D2 separa la ignición primaria de la propagación táctica. Sea $F_t$ el conjunto de celdas con una detección térmica en el día $t$. La ignición D2 en la celda $i$ y el día $t$ requiere (i) $i \in F_t$, (ii) ninguna celda en $F_{t-1}$ a menos de 25 km y (iii) ninguna detección en la celda $i$ durante los 10 días previos. La propagación D2 requiere $i \in F_t$ y al menos una celda en $F_{t-1}$ a menos de 25 km. Los dos conjuntos de objetivos son disjuntos. El umbral de 25 km define el dominio del objetivo y no es un buffer de muestreo negativo; no se aplica un buffer de 20 km al conjunto de test. El buffer de 20 km se usa solo en el holdout de bloques espaciales.
+D2 separa la ignición primaria de la propagación táctica. Sea $F_t$ el conjunto de celdas con una detección térmica en el día $t$. La ignición D2 en la celda $i$ y el día $t$ requiere (i) $i \in F_t$, (ii) ninguna celda en $F_{t-1}$ a menos de 25 km y (iii) ninguna detección en la celda $i$ durante los 10 días previos. La propagación D2 requiere $i \in F_t$ y al menos una celda en $F_{t-1}$ a menos de 25 km. Las detecciones recurrentes en la misma celda dentro de 2–10 días sin un vecino activo a menos de 25 km el día $t-1$ —típicamente brasas latentes multidiarias u omisiones satelitales por nubosidad— no se asignan a ninguno de los conjuntos positivos; permanecen como negativas candidatas, lo que evita que la persistencia de brasas contamine el objetivo de ignición. Los dos conjuntos de objetivos son disjuntos. El umbral de 25 km define el dominio del objetivo y no es un buffer de muestreo negativo; no se aplica un buffer de 20 km al conjunto de test. El buffer de 20 km se usa solo en el holdout de bloques espaciales.
 
 La muestra caso-control se extrae a 1:10 por tarea y región. El entrenamiento usa 2018–2022, la validación usa 2023 y el test es el período congelado 2024–2025. Los denominadores poblacionales se mantienen por separado y se usan para la corrección de prior. Las mismas filas de test se usan para cada modelo, FWI e INPE, por lo que las comparaciones son pareadas. Los conteos de muestreo y las proporciones de clase están en la Tabla S10. El diccionario de variables está en la Tabla S1; el registro completo de auditoría está en la Tabla S15.
 
@@ -168,7 +168,7 @@ $$m_r=m_0+\frac{1000r_e}{48.77+br_e},\qquad D'=43.43(5.6348-\ln(m_r-20)),$$
 
 con $D'$ limitado inferiormente a cero; cuando $r\le1.5$ mm, $D'=D_{t-1}$. La actualización diaria usa
 
-$$T_+=\max(T,-1.1),\qquad H_c=\operatorname{clip}(H,1,100),$$
+$$T_+=\max(T,-1.1),\qquad H_c=\operatorname{clip}(H,1 100),$$
 
 $$K=1.894(T_++1.1)(100-H_c)L_e10^{-4},\qquad D_t=D'+K,$$
 
@@ -224,7 +224,7 @@ la lluvia acumulada en los $k$ días que terminan en $t$, con los días anterior
 
 $$PSE_t=105\prod_{j=1}^{11}\exp\left[-\lambda_j\left(R_{k_j}(t)-R_{k_{j-1}}(t)\right)\right],$$
 
-con $R_0=0$, ventanas $k=(1,2,3,4,5,10,15,30,60,90,120)$ y coeficientes
+con $R_0=0$, ventanas $k=(1,2,3,4,5,10,15,30,60,90 120)$ y coeficientes
 
 $$\lambda=(0.14,0.07,0.04,0.03,0.02,0.01,0.008,0.004,0.002,0.001,0.0007).$$
 
@@ -280,9 +280,9 @@ Para la ignición M3 y el modelo de propagación, los cortes se seleccionaron en
 
 Se entrenó un clasificador LightGBM para separar filas de entrenamiento (2018–2022) de test (2024–2025) usando el conjunto de variables de M3. Se usaron cinco folds estratificados, 100 rondas, 31 hojas, learning rate 0.05 e importancia por ganancia. El AUC reportado es la media entre folds; las variables principales se ordenan por ganancia media. El AUC adversarial mide cambio de distribución y no es una métrica de desempeño del modelo de fuego (Tabla S29).
 
-## S5.5 Control negativo y permutation importance
+## S5.5 Control negativo e importancia por permutación
 
-El control negativo reentrena M3 tras permutar aleatoriamente las etiquetas de entrenamiento, manteniendo las variables y las etiquetas de validación. Un pipeline correctamente especificado y sin fuga debería dar un AUC cercano a 0.5. El control se repitió con y sin las variables históricas (`dist_foco_hist_km`, `densidad_hist_25km`, `freq_hist_1km`). La importancia por permutación barre cada variable, o cada familia, en las filas de test y registra la caída media de ROC-AUC en tres repeticiones. Las familias son meteorología, combustible, antropogénicas, históricas y calendario. Los resultados están en la Tabla S32 y la Figura S7. Un AUC superior a 0.5 en el control indica información residual de celda o de variables; es un diagnóstico de lo que el score puede y no puede sostener, no un sustituto del ranking principal.
+El control negativo reentrena M3 tras permutar aleatoriamente las etiquetas de entrenamiento, manteniendo las variables y las etiquetas de validación; cada valor reportado usa una permutación fija de las filas de entrenamiento (`semilla = 123`), con las etiquetas de validación sin cambios. Un pipeline correctamente especificado y sin fuga debería dar un AUC cercano a 0.5. El control se repitió con y sin las variables históricas (`dist_foco_hist_km`, `densidad_hist_25km`, `freq_hist_1km`). La importancia por permutación barre cada variable, o cada familia, en las filas de test y registra la caída media de ROC-AUC en tres repeticiones. Las familias son meteorología, combustible, antropogénicas, históricas y calendario. Los resultados están en la Tabla S32 y la Figura S7. Un AUC superior a 0.5 en el control indica información residual de celda o de variables; es un diagnóstico de lo que el score puede y no puede sostener, no un sustituto del ranking principal.
 
 ## S5.6 Umbrales del gate y muestra sin gate
 
@@ -306,7 +306,7 @@ La grilla de 1 km² es la unidad de modelado. Las fracciones de combustible prov
 
 **Tabla S1.** Diccionario de variables y papel físico de los predictores.
 
-| Variable | Description | Source | Role |
+| Variable | Descripción | Fuente | Rol |
 |----------------------------|--------------------------------------|--------------|--------------------|
 | temp_max_c | Daily maximum temperature at 2 m (°C) | ERA5-Land | Ignition and propagation |
 | temp_min_c | Daily minimum temperature at 2 m (°C) | ERA5-Land | Ignition and propagation |
@@ -384,7 +384,7 @@ Los valores fueron generados por `scripts/14_auditoria_suplementaria.py`.
 
 **Tabla S3.** Desempeño en el test D2 por departamento.
 
-| Department | Region | Sovereign cells | Test samples | Test fires | Ignition ROC-AUC | Propagation ROC-AUC | Tactical precision |
+| Departamento | Región | Sovereign cells | Test samples | Test fires | Ignition ROC-AUC | Propagation ROC-AUC | Tactical precision |
 |--------------|----------|-----------:|-----------:|---------:|-----------:|-----------:|------------:|
 | SAN PEDRO | Oriental | 20 854 | 22 859 | 2 763 | 0.7150 | 0.7590 | 60.7 % |
 | CONCEPCIÓN | Oriental | 18 523 | 24 486 | 2 022 | 0.7050 | 0.8110 | 74.3 % |
@@ -422,7 +422,7 @@ El perfil se midió en macOS ARM64; x86_64 no se midió. La fila de point-in-pol
 
 **Tabla S5.** Cobertura conformal empírica. Estos valores no constituyen una garantía formal bajo cambio temporal.
 
-| Region | $\hat{q}_{90}$ | Coverage 90 (%) | $\hat{q}_{95}$ | Coverage 95 (%) |
+| Región | $\hat{q}_{90}$ | Coverage 90 (%) | $\hat{q}_{95}$ | Coverage 95 (%) |
 |--------------|---------------:|-----------------:|---------------:|-----------------:|
 | Chaco | 0.3552 | 90.17 % | 0.8394 | 95.32 % |
 | Oriental | 0.3583 | 90.31 % | 0.8637 | 94.79 % |
@@ -433,14 +433,14 @@ Las métricas poblacionales aplican corrección de prior desde la muestra caso-c
 
 <!-- tablaS6:inicio -->
 
-| Region | Task | Model | Pop. prevalence | Sample prevalence | Pop. cutoff | ROC-AUC | PR-AUC | Precision (%) [W; B] | Recall (%) [W; B] | F0.5 | Brier | BSS | ECE | Pop. N | Pop. positives |
+| Región | Tarea | Modelo | Prevalencia poblacional | Prevalencia muestral | Corte poblacional | ROC-AUC | PR-AUC | Precisión (%) [W; B] | Recall (%) [W; B] | F0.5 | Brier | BSS | ECE | N poblacional | Positivos poblacionales |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | ignicion | M3_ignicion_hibrida | 0.000153 | 0.090909 | 0.000467 | 0.8059 | 0.0009 | 0.082 [0.080–0.084; 0.075–0.088] | 27.304 [26.62–28.00; 26.16–28.56] | 0.0010 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
-| Chaco | ignicion | M2_ignicion_base | 0.000153 | 0.090909 | 0.000428 | 0.8078 | 0.0007 | 0.090 [0.087–0.093; 0.082–0.098] | 24.589 [23.93–25.26; 23.26–25.91] | 0.0011 | 0.000153 | 0.0003 | 0.0000 | 104976526 | 16056 |
-| Chaco | propagacion | M2_propagacion_tactica | 0.001553 | 0.090909 | 0.022388 | 0.9088 | 0.1270 | 9.667 [9.557–9.778; 9.087–10.316] | 50.652 [50.22–51.08; 49.01–52.02] | 0.1153 | 0.001447 | 0.0666 | 0.0002 | 33748163 | 52405 |
-| Oriental | ignicion | M3_ignicion_hibrida | 0.000414 | 0.090909 | 0.001084 | 0.7627 | 0.0019 | 0.198 [0.192–0.204; 0.178–0.222] | 20.731 [20.15–21.33; 19.26–22.31] | 0.0025 | 0.000414 | 0.0005 | 0.0001 | 43887357 | 18176 |
-| Oriental | ignicion | M2_ignicion_base | 0.000414 | 0.090909 | 0.000959 | 0.7549 | 0.0015 | 0.166 [0.161–0.171; 0.149–0.184] | 22.106 [21.51–22.72; 20.42–23.86] | 0.0021 | 0.000414 | 0.0005 | 0.0000 | 43887357 | 18176 |
-| Oriental | propagacion | M2_propagacion_tactica | 0.002102 | 0.090909 | 0.017575 | 0.7963 | 0.0287 | 4.784 [4.709–4.860; 4.129–5.491] | 18.771 [18.50–19.05; 16.71–21.01] | 0.0562 | 0.002069 | 0.0135 | 0.0004 | 37235186 | 78269 |
+| Chaco | ignicion | M3_ignicion_hibrida | 0.000153 | 0.090909 | 0.000467 | 0.8059 | 0.0009 | 0.082 [0.080–0.084; 0.075–0.088] | 27.304 [26.62–28.00; 26.16–28.56] | 0.0010 | 0.000153 | 0.0003 | 0.0000 | 104 976 526 | 16 056 |
+| Chaco | ignicion | M2_ignicion_base | 0.000153 | 0.090909 | 0.000428 | 0.8078 | 0.0007 | 0.090 [0.087–0.093; 0.082–0.098] | 24.589 [23.93–25.26; 23.26–25.91] | 0.0011 | 0.000153 | 0.0003 | 0.0000 | 104 976 526 | 16 056 |
+| Chaco | propagacion | M2_propagacion_tactica | 0.001553 | 0.090909 | 0.022388 | 0.9088 | 0.1270 | 9.667 [9.557–9.778; 9.087–10.316] | 50.652 [50.22–51.08; 49.01–52.02] | 0.1153 | 0.001447 | 0.0666 | 0.0002 | 33 748 163 | 52 405 |
+| Oriental | ignicion | M3_ignicion_hibrida | 0.000414 | 0.090909 | 0.001084 | 0.7627 | 0.0019 | 0.198 [0.192–0.204; 0.178–0.222] | 20.731 [20.15–21.33; 19.26–22.31] | 0.0025 | 0.000414 | 0.0005 | 0.0001 | 43 887 357 | 18 176 |
+| Oriental | ignicion | M2_ignicion_base | 0.000414 | 0.090909 | 0.000959 | 0.7549 | 0.0015 | 0.166 [0.161–0.171; 0.149–0.184] | 22.106 [21.51–22.72; 20.42–23.86] | 0.0021 | 0.000414 | 0.0005 | 0.0000 | 43 887 357 | 18 176 |
+| Oriental | propagacion | M2_propagacion_tactica | 0.002102 | 0.090909 | 0.017575 | 0.7963 | 0.0287 | 4.784 [4.709–4.860; 4.129–5.491] | 18.771 [18.50–19.05; 16.71–21.01] | 0.0562 | 0.002069 | 0.0135 | 0.0004 | 37 235 186 | 78 269 |
 
 <!-- tablaS6:fin -->
 
@@ -450,54 +450,54 @@ Ign. = ignition; Prop. = propagation. M2 is the baseline ignition model in the i
 
 <!-- tablaS7:inicio -->
 
-| Region | Task | Comparison | ΔROC | p raw | p Holm | p BH | B |
+| Región | Tarea | Comparison | ΔROC | p raw | p Holm | p BH | B |
 |---|---|---|---|---|---|---|---|
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.1922 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2561 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0128 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.2963 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2756 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0030 | ≤0.001 | 0.0060 | 0.0010 | 1000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.1922 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2561 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0128 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Canadian FWI completo | 0.2963 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs INPE Risco de Fogo | 0.2756 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) vs Incendios_PY (Ignición Base M2) | 0.0030 | ≤0.001 | 0.0060 | 0.0010 | 1 000 |
 
 <!-- tablaS7:fin -->
 
-The family is pre-specified as the six confirmatory comparisons. With B = 1,000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.
+The family is pre-specified as the six confirmatory comparisons. With B = 1 000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.
 
 **Tabla S8.** Resultados completos de bloques espaciales de desarrollo 2023.
 
-| Region | Model | Split | n | n positive | Prevalence | ROC-AUC | PR-AUC | Brier | BSS | ECE | Precision | Recall | F0.5 | FP | FN |
+| Región | Modelo | Partición | n | n positive | Prevalence | ROC-AUC | PR-AUC | Brier | BSS | ECE | Precisión | Recall | F0.5 | FP | FN |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | M1_biofisico | holdout_espacial_2023 | 19304 | 1758 | 0.091069 | 0.6456 | 0.1668 | 0.0806 | 0.0259 | 0.0065 | 0.1680 | 0.2685 | 0.1816 | 2337 | 1286 |
-| Chaco | M1_biofisico | heldin_referencia_2023 | 78079 | 7095 | 0.090870 | 0.6280 | 0.1429 | 0.0812 | 0.0176 | 0.0031 | 0.1611 | 0.2280 | 0.1712 | 8423 | 5477 |
-| Chaco | M2_base | holdout_espacial_2023 | 19304 | 1758 | 0.091069 | 0.6773 | 0.1760 | 0.0843 | -0.0183 | 0.0589 | 0.4828 | 0.0080 | 0.0374 | 15 | 1744 |
-| Chaco | M2_base | heldin_referencia_2023 | 78079 | 7095 | 0.090870 | 0.7832 | 0.2526 | 0.0748 | 0.0942 | 0.0049 | 0.3344 | 0.2148 | 0.3009 | 3033 | 5571 |
-| Chaco | M3_hibrido | holdout_espacial_2023 | 19304 | 1758 | 0.091069 | 0.6496 | 0.1630 | 0.0849 | -0.0262 | 0.0606 | 0.4286 | 0.0085 | 0.0395 | 20 | 1743 |
-| Chaco | M3_hibrido | heldin_referencia_2023 | 78079 | 7095 | 0.090870 | 0.7821 | 0.2511 | 0.0596 | 0.0926 | 0.0051 | 0.2761 | 0.3326 | 0.2858 | 6189 | 4735 |
-| Oriental | M1_biofisico | holdout_espacial_2023 | 25961 | 1998 | 0.076962 | 0.7176 | 0.1574 | 0.0683 | 0.0386 | 0.0123 | 0.1867 | 0.1957 | 0.1885 | 1703 | 1607 |
-| Oriental | M1_biofisico | heldin_referencia_2023 | 65163 | 6286 | 0.096466 | 0.6899 | 0.1857 | 0.0835 | 0.0423 | 0.0009 | 0.2430 | 0.2140 | 0.2366 | 4190 | 4941 |
-| Oriental | M2_base | holdout_espacial_2023 | 25961 | 1998 | 0.076962 | 0.7470 | 0.1820 | 0.0701 | 0.0137 | 0.0392 | 0.4286 | 0.0015 | 0.0074 | 4 | 1995 |
-| Oriental | M2_base | heldin_referencia_2023 | 65163 | 6286 | 0.096466 | 0.7365 | 0.2231 | 0.0814 | 0.0659 | 0.0066 | 0.2628 | 0.2719 | 0.2646 | 4794 | 4577 |
-| Oriental | M3_hibrido | holdout_espacial_2023 | 25961 | 1998 | 0.076962 | 0.7277 | 0.1608 | 0.0716 | -0.0075 | 0.0474 | 0.3750 | 0.0015 | 0.0074 | 5 | 1995 |
-| Oriental | M3_hibrido | heldin_referencia_2023 | 65163 | 6286 | 0.096466 | 0.7473 | 0.2384 | 0.0806 | 0.0757 | 0.0048 | 0.3087 | 0.2151 | 0.2840 | 3028 | 4934 |
+| Chaco | M1_biofisico | holdout_espacial_2023 | 19 304 | 1 758 | 0.091069 | 0.6456 | 0.1668 | 0.0806 | 0.0259 | 0.0065 | 0.1680 | 0.2685 | 0.1816 | 2 337 | 1 286 |
+| Chaco | M1_biofisico | heldin_referencia_2023 | 78 079 | 7 095 | 0.090870 | 0.6280 | 0.1429 | 0.0812 | 0.0176 | 0.0031 | 0.1611 | 0.2280 | 0.1712 | 8 423 | 5 477 |
+| Chaco | M2_base | holdout_espacial_2023 | 19 304 | 1 758 | 0.091069 | 0.6773 | 0.1760 | 0.0843 | -0.0183 | 0.0589 | 0.4828 | 0.0080 | 0.0374 | 15 | 1 744 |
+| Chaco | M2_base | heldin_referencia_2023 | 78 079 | 7 095 | 0.090870 | 0.7832 | 0.2526 | 0.0748 | 0.0942 | 0.0049 | 0.3344 | 0.2148 | 0.3009 | 3 033 | 5 571 |
+| Chaco | M3_hibrido | holdout_espacial_2023 | 19 304 | 1 758 | 0.091069 | 0.6496 | 0.1630 | 0.0849 | -0.0262 | 0.0606 | 0.4286 | 0.0085 | 0.0395 | 20 | 1 743 |
+| Chaco | M3_hibrido | heldin_referencia_2023 | 78 079 | 7 095 | 0.090870 | 0.7821 | 0.2511 | 0.0596 | 0.0926 | 0.0051 | 0.2761 | 0.3326 | 0.2858 | 6 189 | 4 735 |
+| Oriental | M1_biofisico | holdout_espacial_2023 | 25 961 | 1 998 | 0.076962 | 0.7176 | 0.1574 | 0.0683 | 0.0386 | 0.0123 | 0.1867 | 0.1957 | 0.1885 | 1 703 | 1 607 |
+| Oriental | M1_biofisico | heldin_referencia_2023 | 65 163 | 6 286 | 0.096466 | 0.6899 | 0.1857 | 0.0835 | 0.0423 | 0.0009 | 0.2430 | 0.2140 | 0.2366 | 4 190 | 4 941 |
+| Oriental | M2_base | holdout_espacial_2023 | 25 961 | 1 998 | 0.076962 | 0.7470 | 0.1820 | 0.0701 | 0.0137 | 0.0392 | 0.4286 | 0.0015 | 0.0074 | 4 | 1 995 |
+| Oriental | M2_base | heldin_referencia_2023 | 65 163 | 6 286 | 0.096466 | 0.7365 | 0.2231 | 0.0814 | 0.0659 | 0.0066 | 0.2628 | 0.2719 | 0.2646 | 4 794 | 4 577 |
+| Oriental | M3_hibrido | holdout_espacial_2023 | 25 961 | 1 998 | 0.076962 | 0.7277 | 0.1608 | 0.0716 | -0.0075 | 0.0474 | 0.3750 | 0.0015 | 0.0074 | 5 | 1 995 |
+| Oriental | M3_hibrido | heldin_referencia_2023 | 65 163 | 6 286 | 0.096466 | 0.7473 | 0.2384 | 0.0806 | 0.0757 | 0.0048 | 0.3087 | 0.2151 | 0.2840 | 3 028 | 4 934 |
 
 M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid. Holdout = 50-km spatial block; Held-in = reference cells not excluded from training. The confirmation holdout is evaluated separately in Table S18.
 
 **Tabla S9.** Evaluación con meteorología de t-1 (anticipación de 24 h) en validación 2023.
 
-| Region | Model | n | n positive | ROC-AUC | PR-AUC | Brier | BSS | ECE | Cutoff F0.5 | Precision | Recall | F0.5 |
+| Región | Modelo | n | n positive | ROC-AUC | PR-AUC | Brier | BSS | ECE | Corte F0.5 | Precisión | Recall | F0.5 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | M1_biofisico_t1 | 97383 | 8853 | 0.6342 | 0.1467 | 0.0810 | 0.0201 | 0.0032 | 0.129195 | 0.1749 | 0.1799 | 0.1759 |
-| Chaco | M2_base_t1 | 97383 | 8853 | 0.7818 | 0.2444 | 0.0752 | 0.0902 | 0.0066 | 0.197253 | 0.2834 | 0.3063 | 0.2877 |
-| Chaco | M3_hibrido_t1 | 97383 | 8853 | 0.7831 | 0.2523 | 0.0749 | 0.0940 | 0.0039 | 0.219858 | 0.2935 | 0.2913 | 0.2931 |
-| Oriental | M1_biofisico_t1 | 91124 | 8284 | 0.6965 | 0.1765 | 0.0792 | 0.0412 | 0.0017 | 0.157237 | 0.2093 | 0.2703 | 0.2192 |
-| Oriental | M2_base_t1 | 91124 | 8284 | 0.7463 | 0.2167 | 0.0770 | 0.0677 | 0.0056 | 0.193621 | 0.2586 | 0.2572 | 0.2583 |
-| Oriental | M3_hibrido_t1 | 91124 | 8284 | 0.7613 | 0.2384 | 0.0759 | 0.0810 | 0.0038 | 0.213015 | 0.2852 | 0.2646 | 0.2808 |
+| Chaco | M1_biofisico_t1 | 97 383 | 8 853 | 0.6342 | 0.1467 | 0.0810 | 0.0201 | 0.0032 | 0.129195 | 0.1749 | 0.1799 | 0.1759 |
+| Chaco | M2_base_t1 | 97 383 | 8 853 | 0.7818 | 0.2444 | 0.0752 | 0.0902 | 0.0066 | 0.197253 | 0.2834 | 0.3063 | 0.2877 |
+| Chaco | M3_hibrido_t1 | 97 383 | 8 853 | 0.7831 | 0.2523 | 0.0749 | 0.0940 | 0.0039 | 0.219858 | 0.2935 | 0.2913 | 0.2931 |
+| Oriental | M1_biofisico_t1 | 91 124 | 8 284 | 0.6965 | 0.1765 | 0.0792 | 0.0412 | 0.0017 | 0.157237 | 0.2093 | 0.2703 | 0.2192 |
+| Oriental | M2_base_t1 | 91 124 | 8 284 | 0.7463 | 0.2167 | 0.0770 | 0.0677 | 0.0056 | 0.193621 | 0.2586 | 0.2572 | 0.2583 |
+| Oriental | M3_hibrido_t1 | 91 124 | 8 284 | 0.7613 | 0.2384 | 0.0759 | 0.0810 | 0.0038 | 0.213015 | 0.2852 | 0.2646 | 0.2808 |
 
 M1 = biophysical only; M2 = base ignition; M3 = multiscale socio-ecological hybrid; t-1 = previous-day weather.
 
 **Tabla S10.** Conteos de muestreo D2 y proporciones de clase.
 
-| Partition | Task | Positives | Negatives | Ratio |
+| Partition | Tarea | Positives | Negatives | Ratio |
 |----------------|----------------|---------------------:|-----------------------:|---------------------:|
 | Train | Ignition | 91 271 | 912 710 | 1:10.00 |
 | Validation | Ignition | 17 137 | 171 370 | 1:10.00 |
@@ -510,54 +510,54 @@ El benchmark completo incluye M2, propagación, FWI, INPE y la línea base clima
 
 **Tabla S11.** Benchmark completo en el test retrospectivo 2024–2025.
 
-| Region | Task | Model | ROC-AUC | PR-AUC | Brier | BSS | ECE | Cutoff | Precision | Recall | F0.5 | FP |
+| Región | Tarea | Modelo | ROC-AUC | PR-AUC | Brier | BSS | ECE | Corte | Precisión | Recall | F0.5 | FP |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) | 0.8021 | 0.2842 | 0.0733 | 0.1131 | 0.0082 | 0.2218 | 0.3282 | 0.3030 | 0.3228 | 9960 |
-| Chaco | ignicion | Incendios_PY (Ignición Base M2) | 0.7991 | 0.2766 | 0.0737 | 0.1083 | 0.0104 | 0.2071 | 0.3328 | 0.2725 | 0.3187 | 8773 |
-| Chaco | ignicion | Canadian FWI completo | 0.5059 | 0.0897 | — | — | — | 3.1285 | 0.0925 | 0.9573 | 0.1130 | 150705 |
-| Chaco | ignicion | INPE Risco de Fogo | 0.5266 | 0.0964 | — | — | — | 0.0364 | 0.0924 | 0.9247 | 0.1126 | 145918 |
-| Chaco | ignicion | Weather-only GBT | 0.5512 | 0.1071 | 0.0824 | 0.0025 | 0.0013 | 0.1020 | 0.1143 | 0.1932 | 0.1245 | 24036 |
+| Chaco | ignicion | Incendios_PY (Ignición Híbrida M3) | 0.8021 | 0.2842 | 0.0733 | 0.1131 | 0.0082 | 0.2218 | 0.3282 | 0.3030 | 0.3228 | 9 960 |
+| Chaco | ignicion | Incendios_PY (Ignición Base M2) | 0.7991 | 0.2766 | 0.0737 | 0.1083 | 0.0104 | 0.2071 | 0.3328 | 0.2725 | 0.3187 | 8 773 |
+| Chaco | ignicion | Canadian FWI completo | 0.5059 | 0.0897 | — | — | — | 3.1285 | 0.0925 | 0.9573 | 0.1130 | 150 705 |
+| Chaco | ignicion | INPE Risco de Fogo | 0.5266 | 0.0964 | — | — | — | 0.0364 | 0.0924 | 0.9247 | 0.1126 | 145 918 |
+| Chaco | ignicion | Weather-only GBT | 0.5512 | 0.1071 | 0.0824 | 0.0025 | 0.0013 | 0.1020 | 0.1143 | 0.1932 | 0.1245 | 24 036 |
 | Chaco | ignicion | Línea Base Climatológica | 0.5000 | 0.0909 | 0.0826 | 0.0000 | 0.0000 | 0.0909 | 0.0000 | 0.0000 | 0.0000 | 0 |
-| Chaco | propagacion | Incendios_PY (Propagación Táctica) | 0.9039 | 0.6935 | 0.0442 | 0.4656 | 0.0086 | 0.5467 | 0.8369 | 0.5240 | 0.7476 | 5353 |
+| Chaco | propagacion | Incendios_PY (Propagación Táctica) | 0.9039 | 0.6935 | 0.0442 | 0.4656 | 0.0086 | 0.5467 | 0.8369 | 0.5240 | 0.7476 | 5 353 |
 | Chaco | propagacion | Línea Base Climatológica | 0.5000 | 0.0909 | 0.0826 | 0.0000 | 0.0000 | 0.0909 | 0.0000 | 0.0000 | 0.0000 | 0 |
-| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) | 0.7534 | 0.2340 | 0.0765 | 0.0748 | 0.0082 | 0.2186 | 0.3013 | 0.1859 | 0.2680 | 7835 |
-| Oriental | ignicion | Incendios_PY (Ignición Base M2) | 0.7406 | 0.2146 | 0.0774 | 0.0640 | 0.0070 | 0.1983 | 0.2610 | 0.1958 | 0.2447 | 10075 |
-| Oriental | ignicion | Canadian FWI completo | 0.5611 | 0.1122 | — | — | — | 20.4720 | 0.1222 | 0.2185 | 0.1340 | 28526 |
-| Oriental | ignicion | INPE Risco de Fogo | 0.4973 | 0.0902 | — | — | — | 0.0596 | 0.0924 | 0.8256 | 0.1123 | 147439 |
-| Oriental | ignicion | Weather-only GBT | 0.5645 | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61905 |
+| Oriental | ignicion | Incendios_PY (Ignición Híbrida M3) | 0.7534 | 0.2340 | 0.0765 | 0.0748 | 0.0082 | 0.2186 | 0.3013 | 0.1859 | 0.2680 | 7 835 |
+| Oriental | ignicion | Incendios_PY (Ignición Base M2) | 0.7406 | 0.2146 | 0.0774 | 0.0640 | 0.0070 | 0.1983 | 0.2610 | 0.1958 | 0.2447 | 10 075 |
+| Oriental | ignicion | Canadian FWI completo | 0.5611 | 0.1122 | — | — | — | 20.4720 | 0.1222 | 0.2185 | 0.1340 | 28 526 |
+| Oriental | ignicion | INPE Risco de Fogo | 0.4973 | 0.0902 | — | — | — | 0.0596 | 0.0924 | 0.8256 | 0.1123 | 147 439 |
+| Oriental | ignicion | Weather-only GBT | 0.5645 | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61 905 |
 | Oriental | ignicion | Línea Base Climatológica | 0.5000 | 0.0909 | 0.0826 | 0.0000 | 0.0000 | 0.0909 | 0.0000 | 0.0000 | 0.0000 | 0 |
-| Oriental | propagacion | Incendios_PY (Propagación Táctica) | 0.7859 | 0.3752 | 0.0691 | 0.1633 | 0.0092 | 0.4320 | 0.6503 | 0.1984 | 0.4468 | 8351 |
+| Oriental | propagacion | Incendios_PY (Propagación Táctica) | 0.7859 | 0.3752 | 0.0691 | 0.1633 | 0.0092 | 0.4320 | 0.6503 | 0.1984 | 0.4468 | 8 351 |
 | Oriental | propagacion | Línea Base Climatológica | 0.5000 | 0.0909 | 0.0826 | 0.0000 | 0.0000 | 0.0909 | 0.0000 | 0.0000 | 0.0000 | 0 |
 
 FWI = full Canadian Fire Weather Index; INPE = INPE Fire Risk; M2 = baseline ignition model in the ignition task and tactical propagation model in the propagation task; M3 = hybrid ignition model; Climatology = climatological baseline; Ign. = ignition; Prop. = propagation.
 
 **Tabla S11 (continuación).** GBT con el conjunto de variables de M3 más el FWI completo y el riesgo INPE local. ΔROC es este modelo menos M3, con bootstrap pareado agrupado por fecha (B = 1 000). Los valores positivos favorecen al modelo aumentado.
 
-| Region | Model | ROC-AUC [95 % CI] | PR-AUC | Brier | BSS | ECE | Cutoff | Precision | Recall | F0.5 | FP | ΔROC vs M3 (p) |
+| Región | Modelo | ROC-AUC [95 % CI] | PR-AUC | Brier | BSS | ECE | Corte | Precisión | Recall | F0.5 | FP | ΔROC vs M3 (p) |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Chaco | M3 + FWI/INPE (contexto local) | 0.8018 [0.796 - 0.807] | 0.2862 | 0.0731 | 0.1153 | 0.0059 | 0.2642 | 0.3702 | 0.2352 | 0.3320 | 6,425 | -0.0003 (0.612) |
-| Oriental | M3 + FWI/INPE (contexto local) | 0.7548 [0.749 - 0.760] | 0.2360 | 0.0764 | 0.0760 | 0.0079 | 0.2185 | 0.3038 | 0.1890 | 0.2709 | 7,870 | +0.0015 (0.001) |
+| Chaco | M3 + FWI/INPE (contexto local) | 0.8018 [0.796 - 0.807] | 0.2862 | 0.0731 | 0.1153 | 0.0059 | 0.2642 | 0.3702 | 0.2352 | 0.3320 | 6 425 | -0.0003 (0.612) |
+| Oriental | M3 + FWI/INPE (contexto local) | 0.7548 [0.749 - 0.760] | 0.2360 | 0.0764 | 0.0760 | 0.0079 | 0.2185 | 0.3038 | 0.1890 | 0.2709 | 7 870 | +0.0015 (0.001) |
 
-**Tabla S12.** Ablación controlada de M1, M2 y M3 en el test retrospectivo 2024–2025.
+**Tabla S12.** Ablación controlada de M1, M2 y M3 en el test retrospectivo 2024–2025. Los modelos se reentrenaron para esta ablación; las pequeñas diferencias con las Tablas 2 y 3 reflejan corridas de entrenamiento independientes.
 
-| Region | Architecture | Variables | ROC-AUC | PR-AUC | Brier | BSS | ECE | Precision (%) | Recall (%) | F0.5 | FP |
+| Región | Architecture | Variables | ROC-AUC | PR-AUC | Brier | BSS | ECE | Precisión (%) | Recall (%) | F0.5 | FP |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | M3: multiscale socio-ecological hybrid | 44 | 0.8021 | 0.2842 | 0.0733 | 0.1131 | 0.0082 | 32.81 | 30.31 | 0.3228 | 9963 |
-| Chaco | M2: macro-anchor ignition (v1) | 35 | 0.7991 | 0.2766 | 0.0737 | 0.1083 | 0.0104 | 33.27 | 27.26 | 0.3187 | 8778 |
-| Chaco | M1: biophysical only (no anthropic) | 24 | 0.6421 | 0.1574 | 0.0806 | 0.0250 | 0.0045 | 17.78 | 18.22 | 0.1787 | 13525 |
-| Chaco | Benchmark: full Canadian FWI | 6 | 0.5059 | 0.0897 | — | — | — | 9.25 | 95.73 | 0.1130 | 150705 |
-| Chaco | Benchmark: INPE Fire Risk | 7 | 0.5266 | 0.0964 | — | — | — | 9.24 | 92.47 | 0.1126 | 145918 |
-| Oriental | M3: multiscale socio-ecological hybrid | 45 | 0.7534 | 0.2340 | 0.0765 | 0.0748 | 0.0082 | 30.13 | 18.59 | 0.2680 | 7835 |
-| Oriental | M2: macro-anchor ignition (v1) | 35 | 0.7406 | 0.2146 | 0.0774 | 0.0640 | 0.0070 | 26.09 | 19.59 | 0.2447 | 10085 |
-| Oriental | M1: biophysical only (no anthropic) | 24 | 0.6840 | 0.1660 | 0.0798 | 0.0345 | 0.0052 | 19.17 | 24.63 | 0.2006 | 18876 |
-| Oriental | Benchmark: full Canadian FWI | 6 | 0.5611 | 0.1122 | — | — | — | 12.22 | 21.85 | 0.1340 | 28526 |
-| Oriental | Benchmark: INPE Fire Risk | 7 | 0.4973 | 0.0902 | — | — | — | 9.24 | 82.56 | 0.1123 | 147439 |
+| Chaco | M3: multiscale socio-ecological hybrid | 44 | 0.8021 | 0.2842 | 0.0733 | 0.1131 | 0.0082 | 32.81 | 30.31 | 0.3228 | 9 963 |
+| Chaco | M2: macro-anchor ignition (v1) | 35 | 0.7991 | 0.2766 | 0.0737 | 0.1083 | 0.0104 | 33.27 | 27.26 | 0.3187 | 8 778 |
+| Chaco | M1: biophysical only (no anthropic) | 24 | 0.6421 | 0.1574 | 0.0806 | 0.0250 | 0.0045 | 17.78 | 18.22 | 0.1787 | 13 525 |
+| Chaco | Benchmark: full Canadian FWI | 6 | 0.5059 | 0.0897 | — | — | — | 9.25 | 95.73 | 0.1130 | 150 705 |
+| Chaco | Benchmark: INPE Fire Risk | 7 | 0.5266 | 0.0964 | — | — | — | 9.24 | 92.47 | 0.1126 | 145 918 |
+| Oriental | M3: multiscale socio-ecological hybrid | 45 | 0.7534 | 0.2340 | 0.0765 | 0.0748 | 0.0082 | 30.13 | 18.59 | 0.2680 | 7 835 |
+| Oriental | M2: macro-anchor ignition (v1) | 35 | 0.7406 | 0.2146 | 0.0774 | 0.0640 | 0.0070 | 26.09 | 19.59 | 0.2447 | 10 085 |
+| Oriental | M1: biophysical only (no anthropic) | 24 | 0.6840 | 0.1660 | 0.0798 | 0.0345 | 0.0052 | 19.17 | 24.63 | 0.2006 | 18 876 |
+| Oriental | Benchmark: full Canadian FWI | 6 | 0.5611 | 0.1122 | — | — | — | 12.22 | 21.85 | 0.1340 | 28 526 |
+| Oriental | Benchmark: INPE Fire Risk | 7 | 0.4973 | 0.0902 | — | — | — | 9.24 | 82.56 | 0.1123 | 147 439 |
 
 M1 = biophysical only; M2 = macro-anchor baseline; M3 = multiscale socio-ecological hybrid; FWI = full Canadian Fire Weather Index; INPE = INPE Fire Risk. Feature counts are 24 (M1), 35 (M2), and 44/45 (M3 Chaco/Oriental).
 
 **Tabla S13.** Valores medios absolutos de TreeSHAP para el modelo híbrido de ignición.
 
-| Region | Feature | Description | Mean abs. SHAP | Rank |
+| Región | Feature | Description | Mean abs. SHAP | Rank |
 |---|---|---|---:|---:|
 | Chaco | `dist_foco_hist_km` | Distance to historical fire (km) | 0.488547 | 1 |
 | Chaco | `pct_bosque_seco` | Dry Chaco forest (%) | 0.138441 | 2 |
@@ -588,7 +588,7 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 
 <!-- tablaS14:inicio -->
 
-| Region | Task | Model | α | V(α) | V low | V high | TP rate | FP rate | FN rate | Prevalence |
+| Región | Tarea | Modelo | α | V(α) | V low | V high | TP rate | FP rate | FN rate | Prevalence |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Chaco | Ign. | M3 | 0.0001 | 0.371968 | 0.355026 | 0.388001 | 0.000135 | 0.449056 | 0.000018 | 0.000153 |
 | Chaco | Ign. | M3 | 0.0002 | 0.371293 | 0.346042 | 0.394553 | 0.000104 | 0.238459 | 0.000048 | 0.000153 |
@@ -759,7 +759,7 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 
 **Tabla S14 (continuación).** Sensibilidad al umbral y a la métrica. Los cortes F0.5, F1, F2 y Youden se seleccionan en la validación de 2023; precisión, recall y Fβ se calculan en el test 2024–2025. La Figura S6 muestra las curvas de validación.
 
-| Region | Task | Model | Criterion | Cutoff | Precision | Recall | F0.5 | F1 | F2 |
+| Región | Tarea | Modelo | Criterion | Corte | Precisión | Recall | F0.5 | F1 | F2 |
 |---|---|---|---|---:|---:|---:|---:|---:|---:|
 | Chaco | ignicion | M3 | F0.5 | 0.2218 | 0.3281 | 0.3031 | 0.3228 | 0.3151 | 0.3078 |
 | Chaco | ignicion | M3 | F1 | 0.1649 | 0.2728 | 0.4936 | 0.2996 | 0.3514 | 0.4248 |
@@ -805,7 +805,7 @@ $\alpha=C/L$ es la relación entre el costo de falsa alarma y la pérdida evitad
 | FIRMS | Last date | 2026-01-04 | WARN | May exceed the climate window. |
 | Raw FIRMS | Detections | 3 685 836 | OK |  |
 | Raw FIRMS | Maximum scan (km) | 0.8 | WARN | The Bow-Tie filter retains records when maximum scan ≤1.5 km. |
-| Raw FIRMS | Detections with type != 0 | 5319 | WARN | Type was not filtered; review industrial/offshore sources. |
+| Raw FIRMS | Detections with type != 0 | 5 319 | WARN | Type was not filtered; review industrial/offshore sources. |
 | Unified dataset | Rows | 915 561 114 | OK |  |
 | Unified dataset | Fires | 867 430 | OK |  |
 | Unified dataset | Prevalence | 0.000947 | OK |  |
@@ -850,7 +850,7 @@ M1 es un baseline biofísico diagnóstico y no se usó operativamente. Los resul
 | Chaco | M3/M2 gated | 0.8035 [0.799–0.809] | 0.2843 | 32.70 | 30.87 | 0.3232 | 10 200 |
 | Oriental | M3/M2 gated | 0.7502 [0.744–0.756] | 0.2327 | 30.15 | 18.55 | 0.2679 | 7 811 |
 
-Métricas poblacionales tras corrección de prior: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precisión 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precisión 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 muestra / 0.000436 población; Oriental 0.2186 muestra / 0.001158 población.
+Métricas poblacionales tras corrección de prior: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precisión 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precisión 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 muestra / 0.000436 población; Oriental 0.2186 muestra / 0.001158 población. Los valores de precisión poblacional anteriores se proyectan en el corte muestral; la Tabla S6 usa cortes recalculados a prevalencia poblacional, lo que explica las pequeñas diferencias.
 
 
 **Tabla S18.** Holdout espacial independiente de confirmación en 2023. Los modelos se reentrenaron excluyendo los 31 bloques de confirmación y su buffer de 20 km; el cutoff se seleccionó en celdas held-in de 2023 y se aplicó una vez a las celdas de confirmación.
@@ -885,47 +885,47 @@ Es un comparador para la discusión de fuga, no un modelo operativo. Como ambos 
 
 | R (km) | W (d) | Región | n 2023 | Pos 2023 | ROC 2023 | PR 2023 | n 2024–25 | Pos 2024–25 | ROC 2024–25 | PR 2024–25 |
 |---:|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 15 | 7 | Chaco | 139,139 | 12,649 | 0.7824 | 0.2499 | 250,470 | 22,770 | 0.7893 | 0.2667 |
-| 15 | 7 | Oriental | 168,630 | 15,330 | 0.7630 | 0.2491 | 358,952 | 32,632 | 0.7525 | 0.2384 |
-| 15 | 10 | Chaco | 135,300 | 12,300 | 0.7803 | 0.2458 | 243,518 | 22,138 | 0.7877 | 0.2638 |
-| 15 | 10 | Oriental | 165,891 | 15,081 | 0.7613 | 0.2464 | 353,650 | 32,150 | 0.7515 | 0.2341 |
-| 15 | 14 | Chaco | 131,549 | 11,959 | 0.7774 | 0.2406 | 236,368 | 21,488 | 0.7854 | 0.2572 |
-| 15 | 14 | Oriental | 162,569 | 14,779 | 0.7592 | 0.2402 | 347,204 | 31,564 | 0.7501 | 0.2312 |
-| 25 | 7 | Chaco | 100,408 | 9,128 | 0.7783 | 0.2417 | 181,852 | 16,532 | 0.7933 | 0.2658 |
-| 25 | 7 | Oriental | 92,884 | 8,444 | 0.7664 | 0.2555 | 202,928 | 18,448 | 0.7548 | 0.2420 |
-| 25 | 10 | Chaco | 97,383 | 8,853 | 0.7763 | 0.2422 | 176,616 | 16,056 | 0.7923 | 0.2600 |
-| 25 | 10 | Oriental | 91,124 | 8,284 | 0.7622 | 0.2433 | 199,936 | 18,176 | 0.7526 | 0.2360 |
-| 25 | 14 | Chaco | 94,468 | 8,588 | 0.7735 | 0.2379 | 171,281 | 15,571 | 0.7906 | 0.2550 |
-| 25 | 14 | Oriental | 89,430 | 8,130 | 0.7608 | 0.2410 | 196,053 | 17,823 | 0.7505 | 0.2317 |
-| 35 | 7 | Chaco | 73,051 | 6,641 | 0.7764 | 0.2428 | 130,449 | 11,859 | 0.7974 | 0.2672 |
-| 35 | 7 | Oriental | 59,488 | 5,408 | 0.7676 | 0.2513 | 127,446 | 11,586 | 0.7531 | 0.2447 |
-| 35 | 10 | Chaco | 70,598 | 6,418 | 0.7734 | 0.2361 | 126,357 | 11,487 | 0.7949 | 0.2612 |
-| 35 | 10 | Oriental | 58,234 | 5,294 | 0.7634 | 0.2445 | 125,510 | 11,410 | 0.7523 | 0.2406 |
-| 35 | 14 | Chaco | 68,420 | 6,220 | 0.7710 | 0.2342 | 122,386 | 11,126 | 0.7936 | 0.2548 |
-| 35 | 14 | Oriental | 57,068 | 5,188 | 0.7616 | 0.2434 | 123,068 | 11,188 | 0.7499 | 0.2376 |
+| 15 | 7 | Chaco | 139 139 | 12 649 | 0.7824 | 0.2499 | 250 470 | 22 770 | 0.7893 | 0.2667 |
+| 15 | 7 | Oriental | 168 630 | 15 330 | 0.7630 | 0.2491 | 358 952 | 32 632 | 0.7525 | 0.2384 |
+| 15 | 10 | Chaco | 135 300 | 12 300 | 0.7803 | 0.2458 | 243 518 | 22 138 | 0.7877 | 0.2638 |
+| 15 | 10 | Oriental | 165 891 | 15 081 | 0.7613 | 0.2464 | 353 650 | 32 150 | 0.7515 | 0.2341 |
+| 15 | 14 | Chaco | 131 549 | 11 959 | 0.7774 | 0.2406 | 236 368 | 21 488 | 0.7854 | 0.2572 |
+| 15 | 14 | Oriental | 162 569 | 14 779 | 0.7592 | 0.2402 | 347 204 | 31 564 | 0.7501 | 0.2312 |
+| 25 | 7 | Chaco | 100 408 | 9 128 | 0.7783 | 0.2417 | 181 852 | 16 532 | 0.7933 | 0.2658 |
+| 25 | 7 | Oriental | 92 884 | 8 444 | 0.7664 | 0.2555 | 202 928 | 18 448 | 0.7548 | 0.2420 |
+| 25 | 10 | Chaco | 97 383 | 8 853 | 0.7763 | 0.2422 | 176 616 | 16 056 | 0.7923 | 0.2600 |
+| 25 | 10 | Oriental | 91 124 | 8 284 | 0.7622 | 0.2433 | 199 936 | 18 176 | 0.7526 | 0.2360 |
+| 25 | 14 | Chaco | 94 468 | 8 588 | 0.7735 | 0.2379 | 171 281 | 15 571 | 0.7906 | 0.2550 |
+| 25 | 14 | Oriental | 89 430 | 8 130 | 0.7608 | 0.2410 | 196 053 | 17 823 | 0.7505 | 0.2317 |
+| 35 | 7 | Chaco | 73 051 | 6 641 | 0.7764 | 0.2428 | 130 449 | 11 859 | 0.7974 | 0.2672 |
+| 35 | 7 | Oriental | 59 488 | 5 408 | 0.7676 | 0.2513 | 127 446 | 11 586 | 0.7531 | 0.2447 |
+| 35 | 10 | Chaco | 70 598 | 6 418 | 0.7734 | 0.2361 | 126 357 | 11 487 | 0.7949 | 0.2612 |
+| 35 | 10 | Oriental | 58 234 | 5 294 | 0.7634 | 0.2445 | 125 510 | 11 410 | 0.7523 | 0.2406 |
+| 35 | 14 | Chaco | 68 420 | 6 220 | 0.7710 | 0.2342 | 122 386 | 11 126 | 0.7936 | 0.2548 |
+| 35 | 14 | Oriental | 57 068 | 5 188 | 0.7616 | 0.2434 | 123 068 | 11 188 | 0.7499 | 0.2376 |
 
 
-La tabla completa con M1, M2 y la política gated está en `tablas/tablaS20_sensibilidad_d2.csv`. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 10 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.
+La tabla completa con M1, M2 y la política gated está en `tablas/tablaS20_sensibilidad_d2.csv`. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 2 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.
 
 **Tabla S21.** Línea base GBT solo meteorología en el test retrospectivo 2024–2025. El modelo usa el mismo aprendiz, capacidad, restricciones monótonas y calibración de Platt monótona que M1/M2/M3, pero solo el conjunto de información disponible para el FWI canadiense.
 
-| Region | ROC-AUC [95 % CI] | PR-AUC | Brier | BSS | ECE | Cutoff | Precision | Recall | F0.5 | FP | ΔROC vs M3 (p) |
+| Región | ROC-AUC [95 % CI] | PR-AUC | Brier | BSS | ECE | Corte | Precisión | Recall | F0.5 | FP | ΔROC vs M3 (p) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | 0.5512 [0.542–0.560] | 0.1071 | 0.0824 | 0.0025 | 0.0013 | 0.1020 | 0.1143 | 0.1932 | 0.1245 | 24036 | +0.2509 (≤0.001) |
-| Oriental | 0.5645 [0.556–0.575] | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61905 | +0.1889 (≤0.001) |
+| Chaco | 0.5512 [0.542–0.560] | 0.1071 | 0.0824 | 0.0025 | 0.0013 | 0.1020 | 0.1143 | 0.1932 | 0.1245 | 24 036 | +0.2509 (≤0.001) |
+| Oriental | 0.5645 [0.556–0.575] | 0.1077 | 0.0823 | 0.0042 | 0.0013 | 0.0975 | 0.1108 | 0.4244 | 0.1300 | 61 905 | +0.1889 (≤0.001) |
 
 Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `precipitacion_mm`, `precipitacion_48h_mm`, `dias_secos_consecutivos`, `ffmc`, `isi`. El BSS es relativo a la prevalencia de entrenamiento 2018–2022. ΔROC es M3 menos el GBT solo meteorología, con bootstrap pareado agrupado por fecha (B = 1 000). La tabla legible por máquina está en `tablas/tablaS21_benchmark_weather_only.csv`.
 
-**Tabla S22.** Sensibilidad del INPE Risco de Fogo a la constante de flamabilidad A en el test retrospectivo 2024–2025. La versión primaria usa A ponderada por las fracciones de cobertura de MapBiomas (A local, específica por celda); la versión de sensibilidad fija A = 3.0, el coeficiente INPE de sabana abierta, para todas las celdas. Los cortes se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para 2024–2025, por lo que precisión, recall y F0.5 corresponden a puntos operativos distintos y no son directamente comparables entre filas. ΔROC es A fija menos A local, con bootstrap pareado agrupado por fecha (B = 1 000); los valores positivos favorecen la versión fija. Ambas versiones quedan muy por debajo de M3 (ROC-AUC 0.8021/0.7534; Tabla 4). En la muestra de test, la A local promedia 2.89 en el Chaco y 3.71 en Oriental.
+**Tabla S22.** Sensibilidad del INPE Risco de Fogo a la constante de flamabilidad A en el test retrospectivo 2024–2025. La versión primaria usa A ponderada por las fracciones de cobertura de MapBiomas (A local, específica por celda); la versión de sensibilidad fija A = 3.0, el coeficiente INPE de sabana abierta, para todas las celdas. Los cortes se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para 2024–2025, por lo que precisión, recall y F0.5 corresponden a puntos operativos distintos y no son directamente comparables entre filas. ΔROC es A fija menos A local, con bootstrap pareado agrupado por fecha (B = 1 000); los valores positivos favorecen la versión fija. Ambas versiones quedan muy por debajo de M3 (ROC-AUC 0.8021/0.7534; Tabla 2). En la muestra de test, la A local promedia 2.89 en el Chaco y 3.71 en Oriental.
 
 <!-- tablaS22:inicio -->
 
-| Region | INPE version | A | ROC-AUC [95 % CI] | PR-AUC | Cutoff | Precision | Recall | F0.5 | FP | ΔROC vs local (p) |
+| Región | Versión INPE | A | ROC-AUC [95 % CI] | PR-AUC | Corte | Precisión | Recall | F0.5 | FP | ΔROC vs local (p) |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Chaco | Local (land cover) | cell | 0.5266 [0.515 - 0.538] | 0.0964 | 0.0364 | 0.0924 | 0.9247 | 0.1126 | 145,918 | — |
-| Chaco | Fixed A = 3.0 | 3.0 | 0.4976 [0.488 - 0.507] | 0.0881 | 0.0052 | 0.0913 | 0.9889 | 0.1115 | 158,080 | -0.0290 (0.001) |
-| Oriental | Local (land cover) | cell | 0.4973 [0.486 - 0.508] | 0.0902 | 0.0596 | 0.0924 | 0.8256 | 0.1123 | 147,439 | — |
-| Oriental | Fixed A = 3.0 | 3.0 | 0.5497 [0.540 - 0.561] | 0.1078 | 0.7653 | 0.1229 | 0.1163 | 0.1216 | 15,082 | +0.0524 (0.001) |
+| Chaco | Local (land cover) | cell | 0.5266 [0.515 - 0.538] | 0.0964 | 0.0364 | 0.0924 | 0.9247 | 0.1126 | 145 918 | — |
+| Chaco | Fixed A = 3.0 | 3.0 | 0.4976 [0.488 - 0.507] | 0.0881 | 0.0052 | 0.0913 | 0.9889 | 0.1115 | 158 080 | -0.0290 (0.001) |
+| Oriental | Local (land cover) | cell | 0.4973 [0.486 - 0.508] | 0.0902 | 0.0596 | 0.0924 | 0.8256 | 0.1123 | 147 439 | — |
+| Oriental | Fixed A = 3.0 | 3.0 | 0.5497 [0.540 - 0.561] | 0.1078 | 0.7653 | 0.1229 | 0.1163 | 0.1216 | 15 082 | +0.0524 (0.001) |
 
 <!-- tablaS22:fin -->
 
@@ -933,7 +933,7 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 <!-- tablaS23:inicio -->
 
-| Region | Task | Model | $p_t$ | NB per 1 000 |
+| Región | Tarea | Modelo | $p_t$ | NB per 1 000 |
 |---|---|---|---:|---:|
 | Chaco | ignicion | M1 | 0.05 | 45.888 |
 | Chaco | ignicion | M2 | 0.05 | 59.032 |
@@ -984,7 +984,7 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 <!-- tablaS23b:inicio -->
 
-| Region | Model | Alerts/day | Prec. (op.) % | Rec. (op.) % | Alerts/hit | Lift | R@10 | R@50 | R@100 | P@10 | P@50 | P@100 | α* |
+| Región | Modelo | Alerts/day | Prec. (op.) % | Rec. (op.) % | Alerts/hit | Lift | R@10 | R@50 | R@100 | P@10 | P@50 | P@100 | α* |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Chaco | M3 | 8237.8 | 0.082 | 27.35 | 1226.7 | 5.3 | 0.118 | 0.517 | 0.859 | 0.28 | 0.25 | 0.21 | 0.0001 |
 | Chaco | M2 | 6723.1 | 0.090 | 24.60 | 1113.4 | 5.9 | 0.100 | 0.480 | 0.884 | 0.24 | 0.23 | 0.22 | 0.0001 |
@@ -1001,7 +1001,7 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 <!-- tablaS24:inicio -->
 
-| Region | Comparison | α | V(M3) | V(ref) | ΔV | 95% CI | p | CI excludes 0 |
+| Región | Comparison | α | V(M3) | V(ref) | ΔV | 95% CI | p | CI excludes 0 |
 |---|---|---:|---:|---:|---:|---|---:|---|
 | Chaco | M3 - M2 | 0.0001 | 0.3720 | 0.3731 | -0.0011 | [-0.0051, +0.0030] | 0.584 | no |
 | Chaco | M3 - M2 | 0.0002 | 0.3713 | 0.3694 | +0.0019 | [-0.0050, +0.0090] | 0.598 | no |
@@ -1072,7 +1072,7 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 **Tabla S25.** Estabilidad de M2 y M3 a la semilla y la capacidad (5 semillas × 2 capacidades por región). La variante de capacidad alta aumenta hojas y rondas en 20 %. ΔROC es M3 − M2 dentro de la misma semilla y capacidad; el IC del 95 % es un intervalo t entre corridas, y la última columna es la fracción de corridas con Δ positivo.
 
-| Region | Capacity | Runs | M3 ROC (mean ± SD) | M2 ROC (mean ± SD) | ΔROC mean ± SD | 95 % CI | Range | Δ > 0 |
+| Región | Capacity | Runs | M3 ROC (mean ± SD) | M2 ROC (mean ± SD) | ΔROC mean ± SD | 95 % CI | Range | Δ > 0 |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | Chaco | actual | 5 | 0.8021 ± 0.0004 | 0.7985 ± 0.0011 | +0.0036 ± 0.0009 | ±0.0011 | +0.0029 to +0.0047 | 100 % |
 | Chaco | alta | 5 | 0.8028 ± 0.0003 | 0.7994 ± 0.0009 | +0.0035 ± 0.0007 | ±0.0009 | +0.0029 to +0.0043 | 100 % |
@@ -1081,32 +1081,32 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 **Tabla S26.** Backtest rolling-origin. Cada fold entrena hasta Y−2, valida en Y−1 (cutoff y calibración de Platt) y testea en Y. M1/M2/M3 se reentrenan en cada fold; ΔROC es M3−M2 con bootstrap pareado agrupado por fecha (B = 1 000). La Figura S5 muestra las trayectorias por fold.
 
-| Region | Fold | Model | ROC-AUC | PR-AUC | n train | n val | n test | Pos test | ΔROC M3−M2 (p) |
+| Región | Fold | Modelo | ROC-AUC | PR-AUC | n train | n val | n test | Pos test | ΔROC M3−M2 (p) |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|
-| Chaco | test_2022 | M1 | 0.6495 | 0.1455 | 288,376 | 110,275 | 100,111 | 9,101 | — |
-| Chaco | test_2022 | M2 | 0.7682 | 0.2314 | 288,376 | 110,275 | 100,111 | 9,101 | — |
-| Chaco | test_2022 | M3 | 0.7711 | 0.2404 | 288,376 | 110,275 | 100,111 | 9,101 | +0.0030 (0.032) |
-| Chaco | test_2023 | M1 | 0.6334 | 0.1469 | 398,651 | 100,111 | 97,383 | 8,853 | — |
-| Chaco | test_2023 | M2 | 0.7813 | 0.2456 | 398,651 | 100,111 | 97,383 | 8,853 | — |
-| Chaco | test_2023 | M3 | 0.7842 | 0.2531 | 398,651 | 100,111 | 97,383 | 8,853 | +0.0029 (0.082) |
-| Chaco | test_2024 | M1 | 0.6556 | 0.1700 | 498,762 | 97,383 | 101,244 | 9,204 | — |
-| Chaco | test_2024 | M2 | 0.7993 | 0.2764 | 498,762 | 97,383 | 101,244 | 9,204 | — |
-| Chaco | test_2024 | M3 | 0.8030 | 0.2820 | 498,762 | 97,383 | 101,244 | 9,204 | +0.0038 (0.004) |
-| Chaco | test_2025 | M1 | 0.6277 | 0.1424 | 596,145 | 101,244 | 75,372 | 6,852 | — |
-| Chaco | test_2025 | M2 | 0.8001 | 0.2820 | 596,145 | 101,244 | 75,372 | 6,852 | — |
-| Chaco | test_2025 | M3 | 0.8021 | 0.2926 | 596,145 | 101,244 | 75,372 | 6,852 | +0.0019 (0.148) |
-| Oriental | test_2022 | M1 | 0.6862 | 0.1694 | 305,426 | 106,480 | 93,313 | 8,483 | — |
-| Oriental | test_2022 | M2 | 0.7418 | 0.2218 | 305,426 | 106,480 | 93,313 | 8,483 | — |
-| Oriental | test_2022 | M3 | 0.7477 | 0.2310 | 305,426 | 106,480 | 93,313 | 8,483 | +0.0059 (0.006) |
-| Oriental | test_2023 | M1 | 0.7028 | 0.1792 | 411,906 | 93,313 | 91,124 | 8,284 | — |
-| Oriental | test_2023 | M2 | 0.7488 | 0.2223 | 411,906 | 93,313 | 91,124 | 8,284 | — |
-| Oriental | test_2023 | M3 | 0.7608 | 0.2405 | 411,906 | 93,313 | 91,124 | 8,284 | +0.0120 (0.001) |
-| Oriental | test_2024 | M1 | 0.6798 | 0.1615 | 505,219 | 91,124 | 100,507 | 9,137 | — |
-| Oriental | test_2024 | M2 | 0.7366 | 0.2095 | 505,219 | 91,124 | 100,507 | 9,137 | — |
-| Oriental | test_2024 | M3 | 0.7532 | 0.2316 | 505,219 | 91,124 | 100,507 | 9,137 | +0.0166 (0.001) |
-| Oriental | test_2025 | M1 | 0.6896 | 0.1728 | 596,343 | 100,507 | 99,429 | 9,039 | — |
-| Oriental | test_2025 | M2 | 0.7476 | 0.2236 | 596,343 | 100,507 | 99,429 | 9,039 | — |
-| Oriental | test_2025 | M3 | 0.7560 | 0.2396 | 596,343 | 100,507 | 99,429 | 9,039 | +0.0084 (0.001) |
+| Chaco | test_2022 | M1 | 0.6495 | 0.1455 | 288 376 | 110 275 | 100 111 | 9 101 | — |
+| Chaco | test_2022 | M2 | 0.7682 | 0.2314 | 288 376 | 110 275 | 100 111 | 9 101 | — |
+| Chaco | test_2022 | M3 | 0.7711 | 0.2404 | 288 376 | 110 275 | 100 111 | 9 101 | +0.0030 (0.032) |
+| Chaco | test_2023 | M1 | 0.6334 | 0.1469 | 398 651 | 100 111 | 97 383 | 8 853 | — |
+| Chaco | test_2023 | M2 | 0.7813 | 0.2456 | 398 651 | 100 111 | 97 383 | 8 853 | — |
+| Chaco | test_2023 | M3 | 0.7842 | 0.2531 | 398 651 | 100 111 | 97 383 | 8 853 | +0.0029 (0.082) |
+| Chaco | test_2024 | M1 | 0.6556 | 0.1700 | 498 762 | 97 383 | 101 244 | 9 204 | — |
+| Chaco | test_2024 | M2 | 0.7993 | 0.2764 | 498 762 | 97 383 | 101 244 | 9 204 | — |
+| Chaco | test_2024 | M3 | 0.8030 | 0.2820 | 498 762 | 97 383 | 101 244 | 9 204 | +0.0038 (0.004) |
+| Chaco | test_2025 | M1 | 0.6277 | 0.1424 | 596 145 | 101 244 | 75 372 | 6 852 | — |
+| Chaco | test_2025 | M2 | 0.8001 | 0.2820 | 596 145 | 101 244 | 75 372 | 6 852 | — |
+| Chaco | test_2025 | M3 | 0.8021 | 0.2926 | 596 145 | 101 244 | 75 372 | 6 852 | +0.0019 (0.148) |
+| Oriental | test_2022 | M1 | 0.6862 | 0.1694 | 305 426 | 106 480 | 93 313 | 8 483 | — |
+| Oriental | test_2022 | M2 | 0.7418 | 0.2218 | 305 426 | 106 480 | 93 313 | 8 483 | — |
+| Oriental | test_2022 | M3 | 0.7477 | 0.2310 | 305 426 | 106 480 | 93 313 | 8 483 | +0.0059 (0.006) |
+| Oriental | test_2023 | M1 | 0.7028 | 0.1792 | 411 906 | 93 313 | 91 124 | 8 284 | — |
+| Oriental | test_2023 | M2 | 0.7488 | 0.2223 | 411 906 | 93 313 | 91 124 | 8 284 | — |
+| Oriental | test_2023 | M3 | 0.7608 | 0.2405 | 411 906 | 93 313 | 91 124 | 8 284 | +0.0120 (0.001) |
+| Oriental | test_2024 | M1 | 0.6798 | 0.1615 | 505 219 | 91 124 | 100 507 | 9 137 | — |
+| Oriental | test_2024 | M2 | 0.7366 | 0.2095 | 505 219 | 91 124 | 100 507 | 9 137 | — |
+| Oriental | test_2024 | M3 | 0.7532 | 0.2316 | 505 219 | 91 124 | 100 507 | 9 137 | +0.0166 (0.001) |
+| Oriental | test_2025 | M1 | 0.6896 | 0.1728 | 596 343 | 100 507 | 99 429 | 9 039 | — |
+| Oriental | test_2025 | M2 | 0.7476 | 0.2236 | 596 343 | 100 507 | 99 429 | 9 039 | — |
+| Oriental | test_2025 | M3 | 0.7560 | 0.2396 | 596 343 | 100 507 | 99 429 | 9 039 | +0.0084 (0.001) |
 
 ![**Figura S5.** ROC-AUC rolling-origin por año de test para M1, M2 y M3. Los números junto a M3 son ΔROC(M3−M2).](../../entregables/figuras/supp_fig05_rolling_origin.png){width="95%" fig-alt="ROC-AUC rolling-origin por fold"}
 
@@ -1116,51 +1116,51 @@ Variables (9): `temp_max_c`, `temp_min_c`, `vpd_max_kpa`, `viento_max_kmh`, `pre
 
 **Ignition**
 
-| Region | Subset | Model | n | n+ | Prev. (%) | ROC-AUC | ROC 95% CI | PR-AUC | PR 95% CI | Brier | BSS | Prec. | Rec. | F0.5 | FP | ΔROC | ΔF0.5 |
+| Región | Subconjunto | Modelo | n | n+ | Prev. (%) | ROC-AUC | ROC 95% CI | PR-AUC | PR 95% CI | Brier | BSS | Prec. | Rec. | F0.5 | FP | ΔROC | ΔF0.5 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | Full | M3 | 176616 | 16056 | 9.09 | 0.8021 | [0.797 - 0.807] | 0.2842 | [0.276 - 0.293] | 0.0733 | 0.1131 | 0.3282 | 0.3030 | 0.3228 | 9960 | — | — |
-| Chaco | Full | M2 | 176616 | 16056 | 9.09 | 0.7991 | [0.794 - 0.804] | 0.2766 | [0.269 - 0.285] | 0.0737 | 0.1083 | 0.3328 | 0.2725 | 0.3187 | 8773 | — | — |
-| Chaco | Full | Gated | 176616 | 16056 | 9.09 | 0.8035 | [0.799 - 0.809] | 0.2843 | [0.276 - 0.293] | 0.0733 | 0.1135 | 0.3270 | 0.3087 | 0.3232 | 10200 | — | — |
-| Chaco | Unseen cell | M3 | 23074 | 2115 | 9.17 | 0.7841 | [0.773 - 0.794] | 0.2757 | [0.257 - 0.295] | 0.0747 | 0.1023 | 0.3363 | 0.2652 | 0.3192 | 1107 | -0.0180 | -0.0036 |
-| Chaco | Unseen cell | M2 | 23074 | 2115 | 9.17 | 0.7781 | [0.768 - 0.788] | 0.2605 | [0.244 - 0.280] | 0.0754 | 0.0943 | 0.3076 | 0.2520 | 0.2946 | 1200 | -0.0210 | -0.0241 |
-| Chaco | Unseen cell | Gated | 23074 | 2115 | 9.17 | 0.7846 | [0.774 - 0.794] | 0.2750 | [0.257 - 0.295] | 0.0748 | 0.1022 | 0.3327 | 0.2695 | 0.3178 | 1143 | -0.0189 | -0.0054 |
-| Chaco | No train fire | M3 | 150696 | 11540 | 7.66 | 0.8118 | [0.806 - 0.818] | 0.2736 | [0.264 - 0.284] | 0.0626 | 0.1167 | 0.3384 | 0.2768 | 0.3240 | 6245 | +0.0097 | +0.0012 |
-| Chaco | No train fire | M2 | 150696 | 11540 | 7.66 | 0.8096 | [0.804 - 0.815] | 0.2623 | [0.252 - 0.273] | 0.0631 | 0.1106 | 0.3262 | 0.2548 | 0.3088 | 6074 | +0.0105 | -0.0099 |
-| Chaco | No train fire | Gated | 150696 | 11540 | 7.66 | 0.8136 | [0.808 - 0.819] | 0.2735 | [0.264 - 0.285] | 0.0626 | 0.1170 | 0.3355 | 0.2832 | 0.3235 | 6473 | +0.0101 | +0.0003 |
-| Chaco | No history | M3 | 132562 | 6619 | 4.99 | 0.7806 | [0.773 - 0.787] | 0.1659 | [0.158 - 0.175] | 0.0446 | 0.0923 | 0.3816 | 0.0577 | 0.1798 | 619 | -0.0215 | -0.1430 |
-| Chaco | No history | M2 | 132562 | 6619 | 4.99 | 0.7841 | [0.777 - 0.791] | 0.1677 | [0.159 - 0.178] | 0.0445 | 0.0931 | 0.3390 | 0.0778 | 0.2028 | 1004 | -0.0150 | -0.1159 |
-| Chaco | No history | Gated | 132562 | 6619 | 4.99 | 0.7841 | [0.777 - 0.791] | 0.1677 | [0.159 - 0.178] | 0.0445 | 0.0931 | 0.3550 | 0.0718 | 0.1984 | 863 | -0.0194 | -0.1248 |
-| Chaco | 2025 only | M3 | 75372 | 6852 | 9.09 | 0.8011 | [0.794 - 0.808] | 0.2874 | [0.277 - 0.300] | 0.0733 | 0.1133 | 0.3306 | 0.2904 | 0.3217 | 4030 | -0.0010 | -0.0011 |
-| Chaco | 2025 only | M2 | 75372 | 6852 | 9.09 | 0.7991 | [0.792 - 0.806] | 0.2780 | [0.267 - 0.290] | 0.0738 | 0.1075 | 0.3489 | 0.2583 | 0.3260 | 3303 | +0.0000 | +0.0073 |
-| Chaco | 2025 only | Gated | 75372 | 6852 | 9.09 | 0.8026 | [0.796 - 0.810] | 0.2869 | [0.277 - 0.300] | 0.0733 | 0.1135 | 0.3304 | 0.2947 | 0.3226 | 4092 | -0.0003 | -0.0006 |
-| Oriental | Full | M3 | 199936 | 18176 | 9.09 | 0.7534 | [0.747 - 0.759] | 0.2340 | [0.224 - 0.244] | 0.0765 | 0.0748 | 0.3013 | 0.1859 | 0.2680 | 7835 | — | — |
-| Oriental | Full | M2 | 199936 | 18176 | 9.09 | 0.7406 | [0.735 - 0.746] | 0.2146 | [0.207 - 0.224] | 0.0774 | 0.0640 | 0.2610 | 0.1958 | 0.2447 | 10075 | — | — |
-| Oriental | Full | Gated | 199936 | 18176 | 9.09 | 0.7502 | [0.744 - 0.756] | 0.2327 | [0.223 - 0.242] | 0.0766 | 0.0736 | 0.3015 | 0.1855 | 0.2679 | 7811 | — | — |
-| Oriental | Unseen cell | M3 | 9378 | 882 | 9.40 | 0.7148 | [0.697 - 0.735] | 0.2145 | [0.189 - 0.243] | 0.0803 | 0.0572 | 0.2783 | 0.1451 | 0.2351 | 332 | -0.0386 | -0.0329 |
-| Oriental | Unseen cell | M2 | 9378 | 882 | 9.40 | 0.7089 | [0.693 - 0.727] | 0.2012 | [0.178 - 0.231] | 0.0809 | 0.0504 | 0.2496 | 0.1927 | 0.2357 | 511 | -0.0317 | -0.0090 |
-| Oriental | Unseen cell | Gated | 9378 | 882 | 9.40 | 0.7129 | [0.695 - 0.734] | 0.2141 | [0.188 - 0.242] | 0.0804 | 0.0569 | 0.2783 | 0.1451 | 0.2351 | 332 | -0.0373 | -0.0328 |
-| Oriental | No train fire | M3 | 154948 | 11049 | 7.13 | 0.7557 | [0.750 - 0.761] | 0.1908 | [0.181 - 0.199] | 0.0621 | 0.0684 | 0.2739 | 0.1326 | 0.2258 | 3884 | +0.0023 | -0.0422 |
-| Oriental | No train fire | M2 | 154948 | 11049 | 7.13 | 0.7460 | [0.741 - 0.752] | 0.1769 | [0.169 - 0.185] | 0.0626 | 0.0601 | 0.2314 | 0.1569 | 0.2114 | 5759 | +0.0054 | -0.0333 |
-| Oriental | No train fire | Gated | 154948 | 11049 | 7.13 | 0.7514 | [0.746 - 0.757] | 0.1890 | [0.180 - 0.197] | 0.0622 | 0.0668 | 0.2740 | 0.1320 | 0.2255 | 3866 | +0.0012 | -0.0424 |
-| Oriental | No history | M3 | 116022 | 5104 | 4.40 | 0.7401 | [0.733 - 0.748] | 0.1104 | [0.105 - 0.117] | 0.0407 | 0.0815 | 0.2353 | 0.0016 | 0.0076 | 26 | -0.0133 | -0.2604 |
-| Oriental | No history | M2 | 116022 | 5104 | 4.40 | 0.7300 | [0.722 - 0.738] | 0.1018 | [0.097 - 0.108] | 0.0408 | 0.0776 | 0.1429 | 0.0004 | 0.0019 | 12 | -0.0106 | -0.2428 |
-| Oriental | No history | Gated | 116022 | 5104 | 4.40 | 0.7300 | [0.722 - 0.738] | 0.1018 | [0.097 - 0.108] | 0.0408 | 0.0776 | 0.0000 | 0.0000 | 0.0000 | 2 | -0.0202 | -0.2679 |
-| Oriental | 2025 only | M3 | 99429 | 9039 | 9.09 | 0.7539 | [0.746 - 0.762] | 0.2377 | [0.224 - 0.252] | 0.0764 | 0.0753 | 0.3189 | 0.1678 | 0.2702 | 3240 | +0.0005 | +0.0022 |
-| Oriental | 2025 only | M2 | 99429 | 9039 | 9.09 | 0.7451 | [0.736 - 0.753] | 0.2220 | [0.211 - 0.234] | 0.0771 | 0.0668 | 0.2836 | 0.1829 | 0.2554 | 4176 | +0.0045 | +0.0107 |
-| Oriental | 2025 only | Gated | 99429 | 9039 | 9.09 | 0.7515 | [0.743 - 0.760] | 0.2364 | [0.223 - 0.250] | 0.0765 | 0.0744 | 0.3188 | 0.1676 | 0.2701 | 3237 | +0.0015 | +0.0022 |
+| Chaco | Full | M3 | 176 616 | 16 056 | 9.09 | 0.8021 | [0.797 - 0.807] | 0.2842 | [0.276 - 0.293] | 0.0733 | 0.1131 | 0.3282 | 0.3030 | 0.3228 | 9 960 | — | — |
+| Chaco | Full | M2 | 176 616 | 16 056 | 9.09 | 0.7991 | [0.794 - 0.804] | 0.2766 | [0.269 - 0.285] | 0.0737 | 0.1083 | 0.3328 | 0.2725 | 0.3187 | 8 773 | — | — |
+| Chaco | Full | Gated | 176 616 | 16 056 | 9.09 | 0.8035 | [0.799 - 0.809] | 0.2843 | [0.276 - 0.293] | 0.0733 | 0.1135 | 0.3270 | 0.3087 | 0.3232 | 10 200 | — | — |
+| Chaco | Unseen cell | M3 | 23 074 | 2 115 | 9.17 | 0.7841 | [0.773 - 0.794] | 0.2757 | [0.257 - 0.295] | 0.0747 | 0.1023 | 0.3363 | 0.2652 | 0.3192 | 1 107 | -0.0180 | -0.0036 |
+| Chaco | Unseen cell | M2 | 23 074 | 2 115 | 9.17 | 0.7781 | [0.768 - 0.788] | 0.2605 | [0.244 - 0.280] | 0.0754 | 0.0943 | 0.3076 | 0.2520 | 0.2946 | 1 200 | -0.0210 | -0.0241 |
+| Chaco | Unseen cell | Gated | 23 074 | 2 115 | 9.17 | 0.7846 | [0.774 - 0.794] | 0.2750 | [0.257 - 0.295] | 0.0748 | 0.1022 | 0.3327 | 0.2695 | 0.3178 | 1 143 | -0.0189 | -0.0054 |
+| Chaco | No train fire | M3 | 150 696 | 11 540 | 7.66 | 0.8118 | [0.806 - 0.818] | 0.2736 | [0.264 - 0.284] | 0.0626 | 0.1167 | 0.3384 | 0.2768 | 0.3240 | 6 245 | +0.0097 | +0.0012 |
+| Chaco | No train fire | M2 | 150 696 | 11 540 | 7.66 | 0.8096 | [0.804 - 0.815] | 0.2623 | [0.252 - 0.273] | 0.0631 | 0.1106 | 0.3262 | 0.2548 | 0.3088 | 6 074 | +0.0105 | -0.0099 |
+| Chaco | No train fire | Gated | 150 696 | 11 540 | 7.66 | 0.8136 | [0.808 - 0.819] | 0.2735 | [0.264 - 0.285] | 0.0626 | 0.1170 | 0.3355 | 0.2832 | 0.3235 | 6 473 | +0.0101 | +0.0003 |
+| Chaco | No history | M3 | 132 562 | 6 619 | 4.99 | 0.7806 | [0.773 - 0.787] | 0.1659 | [0.158 - 0.175] | 0.0446 | 0.0923 | 0.3816 | 0.0577 | 0.1798 | 619 | -0.0215 | -0.1430 |
+| Chaco | No history | M2 | 132 562 | 6 619 | 4.99 | 0.7841 | [0.777 - 0.791] | 0.1677 | [0.159 - 0.178] | 0.0445 | 0.0931 | 0.3390 | 0.0778 | 0.2028 | 1 004 | -0.0150 | -0.1159 |
+| Chaco | No history | Gated | 132 562 | 6 619 | 4.99 | 0.7841 | [0.777 - 0.791] | 0.1677 | [0.159 - 0.178] | 0.0445 | 0.0931 | 0.3550 | 0.0718 | 0.1984 | 863 | -0.0194 | -0.1248 |
+| Chaco | 2025 only | M3 | 75 372 | 6 852 | 9.09 | 0.8011 | [0.794 - 0.808] | 0.2874 | [0.277 - 0.300] | 0.0733 | 0.1133 | 0.3306 | 0.2904 | 0.3217 | 4 030 | -0.0010 | -0.0011 |
+| Chaco | 2025 only | M2 | 75 372 | 6 852 | 9.09 | 0.7991 | [0.792 - 0.806] | 0.2780 | [0.267 - 0.290] | 0.0738 | 0.1075 | 0.3489 | 0.2583 | 0.3260 | 3 303 | +0.0000 | +0.0073 |
+| Chaco | 2025 only | Gated | 75 372 | 6 852 | 9.09 | 0.8026 | [0.796 - 0.810] | 0.2869 | [0.277 - 0.300] | 0.0733 | 0.1135 | 0.3304 | 0.2947 | 0.3226 | 4 092 | -0.0003 | -0.0006 |
+| Oriental | Full | M3 | 199 936 | 18 176 | 9.09 | 0.7534 | [0.747 - 0.759] | 0.2340 | [0.224 - 0.244] | 0.0765 | 0.0748 | 0.3013 | 0.1859 | 0.2680 | 7 835 | — | — |
+| Oriental | Full | M2 | 199 936 | 18 176 | 9.09 | 0.7406 | [0.735 - 0.746] | 0.2146 | [0.207 - 0.224] | 0.0774 | 0.0640 | 0.2610 | 0.1958 | 0.2447 | 10 075 | — | — |
+| Oriental | Full | Gated | 199 936 | 18 176 | 9.09 | 0.7502 | [0.744 - 0.756] | 0.2327 | [0.223 - 0.242] | 0.0766 | 0.0736 | 0.3015 | 0.1855 | 0.2679 | 7 811 | — | — |
+| Oriental | Unseen cell | M3 | 9 378 | 882 | 9.40 | 0.7148 | [0.697 - 0.735] | 0.2145 | [0.189 - 0.243] | 0.0803 | 0.0572 | 0.2783 | 0.1451 | 0.2351 | 332 | -0.0386 | -0.0329 |
+| Oriental | Unseen cell | M2 | 9 378 | 882 | 9.40 | 0.7089 | [0.693 - 0.727] | 0.2012 | [0.178 - 0.231] | 0.0809 | 0.0504 | 0.2496 | 0.1927 | 0.2357 | 511 | -0.0317 | -0.0090 |
+| Oriental | Unseen cell | Gated | 9 378 | 882 | 9.40 | 0.7129 | [0.695 - 0.734] | 0.2141 | [0.188 - 0.242] | 0.0804 | 0.0569 | 0.2783 | 0.1451 | 0.2351 | 332 | -0.0373 | -0.0328 |
+| Oriental | No train fire | M3 | 154 948 | 11 049 | 7.13 | 0.7557 | [0.750 - 0.761] | 0.1908 | [0.181 - 0.199] | 0.0621 | 0.0684 | 0.2739 | 0.1326 | 0.2258 | 3 884 | +0.0023 | -0.0422 |
+| Oriental | No train fire | M2 | 154 948 | 11 049 | 7.13 | 0.7460 | [0.741 - 0.752] | 0.1769 | [0.169 - 0.185] | 0.0626 | 0.0601 | 0.2314 | 0.1569 | 0.2114 | 5 759 | +0.0054 | -0.0333 |
+| Oriental | No train fire | Gated | 154 948 | 11 049 | 7.13 | 0.7514 | [0.746 - 0.757] | 0.1890 | [0.180 - 0.197] | 0.0622 | 0.0668 | 0.2740 | 0.1320 | 0.2255 | 3 866 | +0.0012 | -0.0424 |
+| Oriental | No history | M3 | 116 022 | 5 104 | 4.40 | 0.7401 | [0.733 - 0.748] | 0.1104 | [0.105 - 0.117] | 0.0407 | 0.0815 | 0.2353 | 0.0016 | 0.0076 | 26 | -0.0133 | -0.2604 |
+| Oriental | No history | M2 | 116 022 | 5 104 | 4.40 | 0.7300 | [0.722 - 0.738] | 0.1018 | [0.097 - 0.108] | 0.0408 | 0.0776 | 0.1429 | 0.0004 | 0.0019 | 12 | -0.0106 | -0.2428 |
+| Oriental | No history | Gated | 116 022 | 5 104 | 4.40 | 0.7300 | [0.722 - 0.738] | 0.1018 | [0.097 - 0.108] | 0.0408 | 0.0776 | 0.0000 | 0.0000 | 0.0000 | 2 | -0.0202 | -0.2679 |
+| Oriental | 2025 only | M3 | 99 429 | 9 039 | 9.09 | 0.7539 | [0.746 - 0.762] | 0.2377 | [0.224 - 0.252] | 0.0764 | 0.0753 | 0.3189 | 0.1678 | 0.2702 | 3 240 | +0.0005 | +0.0022 |
+| Oriental | 2025 only | M2 | 99 429 | 9 039 | 9.09 | 0.7451 | [0.736 - 0.753] | 0.2220 | [0.211 - 0.234] | 0.0771 | 0.0668 | 0.2836 | 0.1829 | 0.2554 | 4 176 | +0.0045 | +0.0107 |
+| Oriental | 2025 only | Gated | 99 429 | 9 039 | 9.09 | 0.7515 | [0.743 - 0.760] | 0.2364 | [0.223 - 0.250] | 0.0765 | 0.0744 | 0.3188 | 0.1676 | 0.2701 | 3 237 | +0.0015 | +0.0022 |
 
 **Propagation**
 
-| Region | Subset | Model | n | n+ | Prev. (%) | ROC-AUC | ROC 95% CI | PR-AUC | PR 95% CI | Brier | BSS | Prec. | Rec. | F0.5 | FP | ΔROC | ΔF0.5 |
+| Región | Subconjunto | Modelo | n | n+ | Prev. (%) | ROC-AUC | ROC 95% CI | PR-AUC | PR 95% CI | Brier | BSS | Prec. | Rec. | F0.5 | FP | ΔROC | ΔF0.5 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Chaco | Full | Propagation | 576455 | 52405 | 9.09 | 0.9039 | [0.899 - 0.909] | 0.6935 | [0.683 - 0.703] | 0.0442 | 0.4656 | 0.8369 | 0.5240 | 0.7476 | 5353 | — | — |
-| Chaco | No train fire | Propagation | 334981 | 22067 | 6.59 | 0.9289 | [0.924 - 0.934] | 0.7466 | [0.735 - 0.759] | 0.0277 | 0.5536 | 0.8611 | 0.6085 | 0.7951 | 2166 | +0.0250 | +0.0475 |
-| Chaco | No history | Propagation | 378637 | 20024 | 5.29 | 0.9094 | [0.901 - 0.918] | 0.6892 | [0.668 - 0.708] | 0.0249 | 0.5159 | 0.8428 | 0.5605 | 0.7657 | 2093 | +0.0055 | +0.0181 |
-| Chaco | 2025 only | Propagation | 164054 | 14914 | 9.09 | 0.8982 | [0.893 - 0.905] | 0.6915 | [0.678 - 0.707] | 0.0441 | 0.4661 | 0.8719 | 0.5091 | 0.7631 | 1115 | -0.0057 | +0.0155 |
-| Oriental | Full | Propagation | 860959 | 78269 | 9.09 | 0.7859 | [0.779 - 0.794] | 0.3752 | [0.359 - 0.395] | 0.0691 | 0.1633 | 0.6503 | 0.1984 | 0.4468 | 8351 | — | — |
-| Oriental | No train fire | Propagation | 305498 | 10005 | 3.28 | 0.7913 | [0.783 - 0.800] | 0.2964 | [0.277 - 0.319] | 0.0267 | 0.2383 | 0.6808 | 0.1989 | 0.4586 | 933 | +0.0054 | +0.0118 |
-| Oriental | No history | Propagation | 420420 | 16835 | 4.00 | 0.7705 | [0.760 - 0.783] | 0.2654 | [0.233 - 0.305] | 0.0334 | 0.1861 | 0.6542 | 0.1572 | 0.4008 | 1399 | -0.0154 | -0.0460 |
-| Oriental | 2025 only | Propagation | 346797 | 31527 | 9.09 | 0.7785 | [0.772 - 0.785] | 0.3578 | [0.345 - 0.371] | 0.0702 | 0.1503 | 0.6583 | 0.1776 | 0.4271 | 2907 | -0.0074 | -0.0197 |
+| Chaco | Full | Propagation | 576 455 | 52 405 | 9.09 | 0.9039 | [0.899 - 0.909] | 0.6935 | [0.683 - 0.703] | 0.0442 | 0.4656 | 0.8369 | 0.5240 | 0.7476 | 5 353 | — | — |
+| Chaco | No train fire | Propagation | 334 981 | 22 067 | 6.59 | 0.9289 | [0.924 - 0.934] | 0.7466 | [0.735 - 0.759] | 0.0277 | 0.5536 | 0.8611 | 0.6085 | 0.7951 | 2 166 | +0.0250 | +0.0475 |
+| Chaco | No history | Propagation | 378 637 | 20 024 | 5.29 | 0.9094 | [0.901 - 0.918] | 0.6892 | [0.668 - 0.708] | 0.0249 | 0.5159 | 0.8428 | 0.5605 | 0.7657 | 2 093 | +0.0055 | +0.0181 |
+| Chaco | 2025 only | Propagation | 164 054 | 14 914 | 9.09 | 0.8982 | [0.893 - 0.905] | 0.6915 | [0.678 - 0.707] | 0.0441 | 0.4661 | 0.8719 | 0.5091 | 0.7631 | 1 115 | -0.0057 | +0.0155 |
+| Oriental | Full | Propagation | 860 959 | 78 269 | 9.09 | 0.7859 | [0.779 - 0.794] | 0.3752 | [0.359 - 0.395] | 0.0691 | 0.1633 | 0.6503 | 0.1984 | 0.4468 | 8 351 | — | — |
+| Oriental | No train fire | Propagation | 305 498 | 10 005 | 3.28 | 0.7913 | [0.783 - 0.800] | 0.2964 | [0.277 - 0.319] | 0.0267 | 0.2383 | 0.6808 | 0.1989 | 0.4586 | 933 | +0.0054 | +0.0118 |
+| Oriental | No history | Propagation | 420 420 | 16 835 | 4.00 | 0.7705 | [0.760 - 0.783] | 0.2654 | [0.233 - 0.305] | 0.0334 | 0.1861 | 0.6542 | 0.1572 | 0.4008 | 1 399 | -0.0154 | -0.0460 |
+| Oriental | 2025 only | Propagation | 346 797 | 31 527 | 9.09 | 0.7785 | [0.772 - 0.785] | 0.3578 | [0.345 - 0.371] | 0.0702 | 0.1503 | 0.6583 | 0.1776 | 0.4271 | 2 907 | -0.0074 | -0.0197 |
 
 <!-- tablaS27:fin -->
 
@@ -1170,48 +1170,48 @@ Los intervalos son percentiles bootstrap del 95 % con 500 réplicas que remuestr
 
 <!-- tablaS27b:inicio -->
 
-| Region | Subset | n | n+ | ΔROC (M3 − M2) | 95% CI | p | ΔPR-AUC | 95% CI | p |
+| Región | Subconjunto | n | n+ | ΔROC (M3 − M2) | 95% CI | p | ΔPR-AUC | 95% CI | p |
 |---|---|---:|---:|---:|---|---:|---:|---|---:|
-| Chaco | Full | 176616 | 16056 | +0.0030 | [+0.0014, +0.0046] | ≤0.001 | +0.0076 | [+0.0026, +0.0128] | 0.004 |
-| Chaco | Unseen cell | 23074 | 2115 | +0.0059 | [+0.0022, +0.0093] | 0.004 | +0.0152 | [+0.0048, +0.0260] | 0.012 |
-| Chaco | No train fire | 150696 | 11540 | +0.0022 | [+0.0005, +0.0038] | 0.008 | +0.0113 | [+0.0054, +0.0164] | 0.002 |
-| Chaco | No history | 132562 | 6619 | -0.0035 | [-0.0056, -0.0014] | 0.002 | -0.0019 | [-0.0060, +0.0024] | 0.380 |
-| Chaco | 2025 only | 75372 | 6852 | +0.0020 | [-0.0006, +0.0044] | 0.120 | +0.0094 | [+0.0022, +0.0161] | 0.014 |
-| Oriental | Full | 199936 | 18176 | +0.0128 | [+0.0105, +0.0149] | ≤0.001 | +0.0194 | [+0.0160, +0.0226] | ≤0.001 |
-| Oriental | Unseen cell | 9378 | 882 | +0.0059 | [-0.0027, +0.0147] | 0.174 | +0.0133 | [+0.0023, +0.0237] | 0.018 |
-| Oriental | No train fire | 154948 | 11049 | +0.0097 | [+0.0075, +0.0120] | ≤0.001 | +0.0139 | [+0.0109, +0.0171] | ≤0.001 |
-| Oriental | No history | 116022 | 5104 | +0.0101 | [+0.0066, +0.0134] | ≤0.001 | +0.0086 | [+0.0054, +0.0118] | ≤0.001 |
-| Oriental | 2025 only | 99429 | 9039 | +0.0088 | [+0.0058, +0.0118] | ≤0.001 | +0.0157 | [+0.0112, +0.0209] | ≤0.001 |
+| Chaco | Full | 176 616 | 16 056 | +0.0030 | [+0.0014, +0.0046] | ≤0.001 | +0.0076 | [+0.0026, +0.0128] | 0.004 |
+| Chaco | Unseen cell | 23 074 | 2 115 | +0.0059 | [+0.0022, +0.0093] | 0.004 | +0.0152 | [+0.0048, +0.0260] | 0.012 |
+| Chaco | No train fire | 150 696 | 11 540 | +0.0022 | [+0.0005, +0.0038] | 0.008 | +0.0113 | [+0.0054, +0.0164] | 0.002 |
+| Chaco | No history | 132 562 | 6 619 | -0.0035 | [-0.0056, -0.0014] | 0.002 | -0.0019 | [-0.0060, +0.0024] | 0.380 |
+| Chaco | 2025 only | 75 372 | 6 852 | +0.0020 | [-0.0006, +0.0044] | 0.120 | +0.0094 | [+0.0022, +0.0161] | 0.014 |
+| Oriental | Full | 199 936 | 18 176 | +0.0128 | [+0.0105, +0.0149] | ≤0.001 | +0.0194 | [+0.0160, +0.0226] | ≤0.001 |
+| Oriental | Unseen cell | 9 378 | 882 | +0.0059 | [-0.0027, +0.0147] | 0.174 | +0.0133 | [+0.0023, +0.0237] | 0.018 |
+| Oriental | No train fire | 154 948 | 11 049 | +0.0097 | [+0.0075, +0.0120] | ≤0.001 | +0.0139 | [+0.0109, +0.0171] | ≤0.001 |
+| Oriental | No history | 116 022 | 5 104 | +0.0101 | [+0.0066, +0.0134] | ≤0.001 | +0.0086 | [+0.0054, +0.0118] | ≤0.001 |
+| Oriental | 2025 only | 99 429 | 9 039 | +0.0088 | [+0.0058, +0.0118] | ≤0.001 | +0.0157 | [+0.0112, +0.0209] | ≤0.001 |
 
 <!-- tablaS27b:fin -->
 
-**Tabla S28.** Sensibilidad a la razón de muestreo. La fila 1:5 submuestrea negativos de entrenamiento del muestreo 1:10 congelado; la fila 1:20 usa negativos independientes de un plan 20:1 generado desde el archivo candidato completo. Validación y test permanecen en 1:10 para que las métricas sean comparables. La precisión poblacional aplica la corrección por prevalencia.
+**Tabla S28.** Sensibilidad a la razón de muestreo. La fila 1:5 submuestrea negativos de entrenamiento del muestreo 1:10 congelado; la fila 1:20 usa negativos independientes de un plan 20:1 generado desde el archivo candidato completo. Validación y test permanecen en 1:10 para que las métricas sean comparables. La precisión poblacional se proyecta en el corte F0.5 muestral mediante escalado prior-odds para comparar razones de muestreo en un umbral común; la Tabla S6 evalúa cortes recalculados a prevalencia poblacional, por lo que las dos tablas difieren ligeramente.
 
-| Region | Ratio | Model | n train | Pos train | ROC-AUC | PR-AUC | Cutoff F0.5 | Population precision |
+| Región | Razón | Modelo | n entrenamiento | Positivos entrenamiento | ROC-AUC | PR-AUC | Corte F0.5 | Precisión poblacional |
 |---|---|---|---:|---:|---:|---:|---:|---:|
-| Chaco | 1:10 (baseline) | M2 | 498,762 | 45,342 | 0.7991 | 0.2766 | 0.2071 | 0.000861 |
-| Chaco | 1:10 (baseline) | M3 | 498,762 | 45,342 | 0.8021 | 0.2842 | 0.2218 | 0.000775 |
-| Chaco | 1:5 | M2 | 272,052 | 45,342 | 0.7984 | 0.2747 | 0.2060 | 0.000814 |
-| Chaco | 1:5 | M3 | 272,052 | 45,342 | 0.8016 | 0.2822 | 0.2266 | 0.000766 |
-| Chaco | 1:20 (independientes) | M2 | 952,182 | 45,342 | 0.7836 | 0.2379 | 0.2105 | 0.000651 |
-| Chaco | 1:20 (independientes) | M3 | 952,182 | 45,342 | 0.7926 | 0.2617 | 0.2285 | 0.000718 |
-| Oriental | 1:10 (baseline) | M2 | 505,219 | 45,929 | 0.7406 | 0.2146 | 0.1983 | 0.001723 |
-| Oriental | 1:10 (baseline) | M3 | 505,219 | 45,929 | 0.7534 | 0.2340 | 0.2186 | 0.002098 |
-| Oriental | 1:5 | M2 | 275,574 | 45,929 | 0.7405 | 0.2141 | 0.1986 | 0.001695 |
-| Oriental | 1:5 | M3 | 275,574 | 45,929 | 0.7534 | 0.2330 | 0.2274 | 0.002106 |
-| Oriental | 1:20 (independientes) | M2 | 964,509 | 45,929 | 0.7402 | 0.2099 | 0.2005 | 0.001715 |
-| Oriental | 1:20 (independientes) | M3 | 964,509 | 45,929 | 0.7526 | 0.2362 | 0.2002 | 0.001950 |
+| Chaco | 1:10 (baseline) | M2 | 498 762 | 45 342 | 0.7991 | 0.2766 | 0.2071 | 0.000861 |
+| Chaco | 1:10 (baseline) | M3 | 498 762 | 45 342 | 0.8021 | 0.2842 | 0.2218 | 0.000775 |
+| Chaco | 1:5 | M2 | 272 052 | 45 342 | 0.7984 | 0.2747 | 0.2060 | 0.000814 |
+| Chaco | 1:5 | M3 | 272 052 | 45 342 | 0.8016 | 0.2822 | 0.2266 | 0.000766 |
+| Chaco | 1:20 (independientes) | M2 | 952 182 | 45 342 | 0.7836 | 0.2379 | 0.2105 | 0.000651 |
+| Chaco | 1:20 (independientes) | M3 | 952 182 | 45 342 | 0.7926 | 0.2617 | 0.2285 | 0.000718 |
+| Oriental | 1:10 (baseline) | M2 | 505 219 | 45 929 | 0.7406 | 0.2146 | 0.1983 | 0.001723 |
+| Oriental | 1:10 (baseline) | M3 | 505 219 | 45 929 | 0.7534 | 0.2340 | 0.2186 | 0.002098 |
+| Oriental | 1:5 | M2 | 275 574 | 45 929 | 0.7405 | 0.2141 | 0.1986 | 0.001695 |
+| Oriental | 1:5 | M3 | 275 574 | 45 929 | 0.7534 | 0.2330 | 0.2274 | 0.002106 |
+| Oriental | 1:20 (independientes) | M2 | 964 509 | 45 929 | 0.7402 | 0.2099 | 0.2005 | 0.001715 |
+| Oriental | 1:20 (independientes) | M3 | 964 509 | 45 929 | 0.7526 | 0.2362 | 0.2002 | 0.001950 |
 
 **Tabla S29.** Validación adversarial entre filas de entrenamiento (2018–2022) y test (2024–2025) usando el conjunto de variables de M3. El AUC es la media de cinco folds estratificados; las variables principales se ordenan por ganancia media de LightGBM. Un AUC alto indica cambio de distribución, no desempeño del modelo.
 
-| Region | Adversarial AUC (mean ± SD) |
+| Región | Adversarial AUC (mean ± SD) |
 |---|---:|
 | Chaco | 0.8832 ± 0.0021 |
 | Oriental | 0.9241 ± 0.0019 |
 
 Top features by gain:
 
-| Region | Rank | Feature | Gain (%) |
+| Región | Rank | Feature | Gain (%) |
 |---|---:|---|---:|
 | Chaco | 1 | `dia_del_anio` | 14.50 |
 | Chaco | 2 | `densidad_hist_25km` | 13.82 |
@@ -1236,24 +1236,24 @@ Top features by gain:
 
 **Tabla S30.** Variantes de calidad de etiquetas VIIRS. `high_confidence` conserva detecciones de confianza alta; `frp_ge_10` conserva detecciones con FRP ≥ 10 MW. Las variantes se aplican a las filas positivas del muestreo 1:10 congelado; los negativos no cambian. La variante de nubosidad < 40 % no se reporta: FIRMS no contiene una máscara de nubes y la descarga del proxy de nubosidad total ERA5 no completó en la cola del CDS. Es una sensibilidad de etiquetas, no una reconstrucción completa de D2.
 
-| Region | Variant | Model | Pos train | Pos test | Pos retained | ROC-AUC | PR-AUC | Precision | Recall |
+| Región | Variant | Modelo | Pos train | Pos test | Pos retained | ROC-AUC | PR-AUC | Precisión | Recall |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|
-| Chaco | baseline | M2 | 45,342 | 16,056 | 1.000 | 0.7991 | 0.2766 | 0.3327 | 0.2726 |
-| Chaco | baseline | M3 | 45,342 | 16,056 | 1.000 | 0.8021 | 0.2842 | 0.3281 | 0.3031 |
-| Chaco | high_confidence | M2 | 5,849 | 1,957 | 0.122 | 0.8187 | 0.0701 | 0.1449 | 0.1119 |
-| Chaco | high_confidence | M3 | 5,849 | 1,957 | 0.122 | 0.8228 | 0.0719 | 0.1318 | 0.1124 |
-| Chaco | frp_ge_10 | M2 | 15,047 | 5,120 | 0.319 | 0.8096 | 0.1350 | 0.1904 | 0.2164 |
-| Chaco | frp_ge_10 | M3 | 15,047 | 5,120 | 0.319 | 0.8136 | 0.1404 | 0.2306 | 0.1658 |
-| Oriental | baseline | M2 | 45,929 | 18,176 | 1.000 | 0.7406 | 0.2146 | 0.2609 | 0.1959 |
-| Oriental | baseline | M3 | 45,929 | 18,176 | 1.000 | 0.7534 | 0.2340 | 0.3013 | 0.1859 |
-| Oriental | high_confidence | M2 | 2,935 | 1,178 | 0.065 | 0.7686 | 0.0220 | 0.0437 | 0.0365 |
-| Oriental | high_confidence | M3 | 2,935 | 1,178 | 0.065 | 0.7793 | 0.0246 | 0.0535 | 0.0416 |
-| Oriental | frp_ge_10 | M2 | 8,990 | 3,447 | 0.190 | 0.7654 | 0.0643 | 0.1194 | 0.0844 |
-| Oriental | frp_ge_10 | M3 | 8,990 | 3,447 | 0.190 | 0.7763 | 0.0688 | 0.1346 | 0.0702 |
+| Chaco | baseline | M2 | 45 342 | 16 056 | 1.000 | 0.7991 | 0.2766 | 0.3327 | 0.2726 |
+| Chaco | baseline | M3 | 45 342 | 16 056 | 1.000 | 0.8021 | 0.2842 | 0.3281 | 0.3031 |
+| Chaco | high_confidence | M2 | 5 849 | 1 957 | 0.122 | 0.8187 | 0.0701 | 0.1449 | 0.1119 |
+| Chaco | high_confidence | M3 | 5 849 | 1 957 | 0.122 | 0.8228 | 0.0719 | 0.1318 | 0.1124 |
+| Chaco | frp_ge_10 | M2 | 15 047 | 5 120 | 0.319 | 0.8096 | 0.1350 | 0.1904 | 0.2164 |
+| Chaco | frp_ge_10 | M3 | 15 047 | 5 120 | 0.319 | 0.8136 | 0.1404 | 0.2306 | 0.1658 |
+| Oriental | baseline | M2 | 45 929 | 18 176 | 1.000 | 0.7406 | 0.2146 | 0.2609 | 0.1959 |
+| Oriental | baseline | M3 | 45 929 | 18 176 | 1.000 | 0.7534 | 0.2340 | 0.3013 | 0.1859 |
+| Oriental | high_confidence | M2 | 2 935 | 1 178 | 0.065 | 0.7686 | 0.0220 | 0.0437 | 0.0365 |
+| Oriental | high_confidence | M3 | 2 935 | 1 178 | 0.065 | 0.7793 | 0.0246 | 0.0535 | 0.0416 |
+| Oriental | frp_ge_10 | M2 | 8 990 | 3 447 | 0.190 | 0.7654 | 0.0643 | 0.1194 | 0.0844 |
+| Oriental | frp_ge_10 | M3 | 8 990 | 3 447 | 0.190 | 0.7763 | 0.0688 | 0.1346 | 0.0702 |
 
 **Tabla S31.** Ablación del umbral del gate. El gate basal es VPD ≥ 0.8 kPa y lluvia 48 h < 10 mm; las variantes estrictas retienen 73–92 % de los positivos. La fila sin gate usa una muestra 1:10 independiente generada sin el filtro biofísico desde el archivo candidato completo. El FWI se evalúa en las mismas filas.
 
-| Region | Gate | Rows retained | Positives retained | M3 ROC | M2 ROC | FWI ROC | ΔROC M3−M2 |
+| Región | Gate | Rows retained | Positives retained | M3 ROC | M2 ROC | FWI ROC | ΔROC M3−M2 |
 |---|---|---:|---:|---:|---:|---:|---:|
 | Chaco | gate 0.8/10 (baseline) | 1.000 | 1.000 | 0.8021 | 0.7991 | 0.5059 | +0.0030 |
 | Chaco | sin gate | 0.975 | 1.000 | 0.7924 | 0.7833 | 0.4988 | +0.0091 |
@@ -1264,16 +1264,16 @@ Top features by gain:
 | Oriental | gate 1.0/5 | 0.882 | 0.915 | 0.7527 | 0.7400 | 0.5512 | +0.0127 |
 | Oriental | gate 1.2/2 | 0.727 | 0.783 | 0.7548 | 0.7416 | 0.5445 | +0.0131 |
 
-**Tabla S32.** Control negativo y permutation importance. El control negativo reentrena M3 con etiquetas de entrenamiento permutadas; el AUC debería ser ~0.5. La importancia es el ΔROC medio al permutar cada variable o familia en el test (tres repeticiones). El AUC del control sigue por encima de 0.5 en el Chaco, por lo que el score no debe leerse causalmente; las variables históricas dominan en el Chaco, mientras que la información estática de celda y el solapamiento train/test son fuentes adicionales. La Figura S7 muestra el ranking individual.
+**Tabla S32.** Control negativo e importancia por permutación. El control negativo reentrena M3 con etiquetas de entrenamiento permutadas (una permutación fija, semilla 123); el AUC debería ser ~0.5. La importancia es el ΔROC medio al permutar cada variable o familia en el test (tres repeticiones). El AUC del control sigue por encima de 0.5 en el Chaco, por lo que el score no debe leerse causalmente; las variables históricas dominan en el Chaco, mientras que la información estática de celda y el solapamiento train/test son fuentes adicionales. La Figura S7 muestra el ranking individual.
 
-| Region | Setting | Negative-control AUC |
+| Región | Configuración | Negative-control AUC |
 |---|---|---:|
 | Chaco | all features | 0.6297 |
 | Chaco | without historical | 0.6276 |
 | Oriental | all features | 0.5138 |
 | Oriental | without historical | 0.5168 |
 
-| Region | Family | Features | ΔROC |
+| Región | Family | Features | ΔROC |
 |---|---|---:|---:|
 | Chaco | weather | 18 | 0.0034 |
 | Chaco | fuel | 11 | 0.0282 |
@@ -1286,7 +1286,7 @@ Top features by gain:
 | Oriental | historical | 3 | 0.0342 |
 | Oriental | calendar | 6 | 0.0022 |
 
-| Region | Feature | ΔROC |
+| Región | Feature | ΔROC |
 |---|---|---:|
 | Chaco | `dist_foco_hist_km` | 0.1698 |
 | Chaco | `presion_desmonte_vpd` | 0.0096 |
@@ -1313,12 +1313,12 @@ Top features by gain:
 
 **Tabla S33.** Validación espacial externa en Boquerón. Boquerón y un buffer de 25 km se excluyeron de entrenamiento y validación; los priors causales se recalcularon sin esas celdas. M2/M3 se reentrenaron y calibraron en 2023 fuera del buffer; los cortes de FWI/INPE se seleccionaron en las mismas filas de 2023. Las métricas son en el corte F0.5 sobre las filas de Boquerón 2024–2025 (66 845 filas; 5 038 positivos). Se reportan métricas caso-control y poblacionales; los pesos poblacionales usan conteos D2 por departamento reconstruidos desde el archivo candidato completo. ΔROC es M3−M2 con bootstrap pareado agrupado por fecha (B = 1 000). La precisión poblacional es una fracción; multiplicar por 100 para %. 
 
-| Model | ROC-AUC [95 % CI] | PR-AUC | Brier | ECE | Cutoff | Precision | Recall | F0.5 | Precision pop. | Recall pop. | FP | ΔROC vs M2 (p) |
+| Modelo | ROC-AUC [95 % CI] | PR-AUC | Brier | ECE | Corte | Precisión | Recall | F0.5 | Precision pop. | Recall pop. | FP | ΔROC vs M2 (p) |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| M2 | 0.8104 [0.803–0.818] | 0.2440 | 0.0626 | 0.0124 | 0.2542 | 0.3512 | 0.1624 | 0.2849 | 0.000891 | 0.1624 | 1,511 | — |
-| M3 | 0.8120 [0.804–0.820] | 0.2505 | 0.0624 | 0.0104 | 0.2370 | 0.2911 | 0.2707 | 0.2868 | 0.000678 | 0.2705 | 3,322 | +0.0016 (0.254) |
-| FWI | 0.4708 [0.455–0.486] | 0.0674 | — | — | 15.6205 | 0.0730 | 0.6622 | 0.0888 | 0.000150 | 0.6622 | 42,342 | — |
-| INPE | 0.5817 [0.567–0.596] | 0.0924 | — | — | 0.0786 | 0.0785 | 0.9450 | 0.0961 | 0.000132 | 0.9450 | 55,914 | — |
+| M2 | 0.8104 [0.803–0.818] | 0.2440 | 0.0626 | 0.0124 | 0.2542 | 0.3512 | 0.1624 | 0.2849 | 0.000891 | 0.1624 | 1 511 | — |
+| M3 | 0.8120 [0.804–0.820] | 0.2505 | 0.0624 | 0.0104 | 0.2370 | 0.2911 | 0.2707 | 0.2868 | 0.000678 | 0.2705 | 3 322 | +0.0016 (0.254) |
+| FWI | 0.4708 [0.455–0.486] | 0.0674 | — | — | 15.6205 | 0.0730 | 0.6622 | 0.0888 | 0.000150 | 0.6622 | 42 342 | — |
+| INPE | 0.5817 [0.567–0.596] | 0.0924 | — | — | 0.0786 | 0.0785 | 0.9450 | 0.0961 | 0.000132 | 0.9450 | 55 914 | — |
 
 **Tabla S33b.** Sensibilidad al buffer en la validación externa de Boquerón. M2/M3 se reentrenaron con buffers de 20, 25 y 30 km; 25 km es la especificación primaria. El p de M3−M2 cambia con el buffer, por lo que la ventaja híbrida no es robusta a esta elección. FWI/INPE no cambian porque no se entrenan con el buffer. La precisión poblacional es una fracción.
 
