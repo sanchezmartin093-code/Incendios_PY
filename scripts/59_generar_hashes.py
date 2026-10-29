@@ -28,6 +28,7 @@ def main():
         commit = "unknown"
     patrones = [
         "entregables/tablas/*.csv",
+        "entregables/tablas/*.md",
         "entregables/figuras/*.pdf",
         "entregables/figuras/*.png",
         "entregables/*.docx",
@@ -40,6 +41,12 @@ def main():
         "CITATION.cff",
         ".zenodo.json",
         "requirements-lock.txt",
+        "docs/G0_PROTOCOLO.md",
+        "auditoria/G0/*.md",
+        "auditoria/G0/*.csv",
+        "auditoria/G0/*.json",
+        "auditoria/G0/*.png",
+        "auditoria/G0/*.parquet",
     ]
     archivos = sorted({p for patron in patrones for p in ROOT.glob(patron) if p.is_file()})
     lineas = [
