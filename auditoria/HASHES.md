@@ -1,7 +1,7 @@
 # Auditoría de hashes SHA-256
 
-- Generado: 2026-10-29T11:41:35
-- Commit: `ec9107a8e6f3e9e9024263046210e742e082c2a3`
+- Generado: 2026-10-29T11:56:14
+- Commit: `5c27ea136f10374d705b42f94f796b010da33309`
 - Archivos: 345
 
 | Archivo | SHA-256 |
@@ -34,7 +34,7 @@
 | `auditoria/G0/sensibilidad_buffer_g0.csv` | `4e054e370c802b42d559415e7a8a45b39d301b01f44f699ab3492c7f3a932c65` |
 | `cover_letter.qmd` | `e32dbd813423c0c9f32cc1dfa20faab68c83c9f9bab1fd9b44b1217daed9f0e4` |
 | `docs/ADR_AUDITORIA.md` | `3744e29bf8f802cc5dac23e4d001403530b5c3667dc372bef35752306bfdf047` |
-| `docs/CHECKLIST_ENVIO.md` | `689f552bbc14d4e204b71d2e7a7fc1e323e0f9bc9cbd2efbeb304fceca3a4a5d` |
+| `docs/CHECKLIST_ENVIO.md` | `94a3ba9d4c94f8df8b120b50ccd42ccd1d71c518dfface4464971dffd3dd5af6` |
 | `docs/G0_PROTOCOLO.md` | `06c4af93d4d89bc5a1cee81a09fa3fe735f3205060ec42f17a196a48fbfbfba0` |
 | `docs/IDEAS.md` | `8af4a0aee12b51e54f0dc2688553c0d2fa9b9c9076684b07dcad20c5669c035e` |
 | `docs/PROTOCOLO_BENCHMARKING.md` | `696a4086acddb6be04ca7bd4af6dda1fce95fc9a1025e5509f88a650803f57d9` |
@@ -97,14 +97,14 @@
 | `entregables/figuras/supp_fig10_external_formosa.pdf` | `99bd7742bfd556f3667626e9ea83e8d7504543fc2d1ac850265248cb674a24a6` |
 | `entregables/figuras/supp_fig10_external_formosa.png` | `6a1e4ff7e2e9e4b861d17e53e0c4219e89e9b91fcedc86b9359bdf0205c7af60` |
 | `entregables/highlights.docx` | `e99dcaaa6009fce09b77f0cae7b349721d41be06c35d49193c473c9abfc259e7` |
-| `entregables/manuscrito.docx` | `c8b25417b2f2aa281241bcf317b26b8b4e7afa14f553ec43bbea8d2ea03ff68a` |
-| `entregables/manuscrito.html` | `9e9c7c74ac5deec315d878188599e437b324e0ed79780a61171280d56bd9e006` |
-| `entregables/manuscrito_es.docx` | `92f507bf470bd71d3614d741cc801f3c4fa9c6ac061b0f51aab93e7aaa1b42c7` |
-| `entregables/manuscrito_es.html` | `aed751e6b2dd36c7c387f27924ebba9aa539576e91b1441dfb08a8883c798622` |
-| `entregables/material_suplementario.docx` | `dd437de5fdb11e79741d2ef6fa761f5328c4b06b9aa5ed5421e5839f538ced10` |
-| `entregables/material_suplementario.html` | `68f3a7494ed638d7e409532e88e6205de6dead15b8bebf3eb1fa792d0b5f42b5` |
-| `entregables/material_suplementario_es.docx` | `dae609d7a07799b61f053a56723df87b45651d3cf05b46adf154bd5b55051327` |
-| `entregables/material_suplementario_es.html` | `35183a8b67a16dc67104bcf361a8908fcc8ea8bbacf643c485bd8c645ec159ef` |
+| `entregables/manuscrito.docx` | `24e3c0cc40cb07465983bec91550761b26dbc46773bc156f3837c3a3f3cfa531` |
+| `entregables/manuscrito.html` | `77a01488952473a6dda68afb9e5f71e5d2e7afc72e76a32c91eef3952e2c3e47` |
+| `entregables/manuscrito_es.docx` | `e8dbcce29ae1b6c35752370c739a36524ea8fcbd570062db371df5b5fc89f78f` |
+| `entregables/manuscrito_es.html` | `e190554ec7fe4f5f556550d39f01727479c754e7ff06a6d45612cd1dd0fb50e6` |
+| `entregables/material_suplementario.docx` | `31e877e9806a33c9ae3d7698edd0ffb36a958144348935fa0838eecf0626c7f2` |
+| `entregables/material_suplementario.html` | `06149e9e7eae87126f918804738ff1feb37ac826c516c88cbd18451305955f95` |
+| `entregables/material_suplementario_es.docx` | `01032fccf838038a3da5ed13b7e6d38dabbb575993fe29e4a61d632fa5d968d8` |
+| `entregables/material_suplementario_es.html` | `bfff5554963743e6d4c5e345165cf82c297bda6b9eca874c310ee19281eb919d` |
 | `entregables/material_suplementario_navegable.docx` | `9a7ee5d09319ed738c6fa3c9e766cc2c5a43101e387450309e926a3a7805a5cd` |
 | `entregables/tablas/tabla00_validacion_datos.csv` | `6b7d9e1c62e7a41f4839a36885868dbea900cf73e81b1cacc81f17fc36f0597c` |
 | `entregables/tablas/tabla00_validacion_datos.md` | `6443d62597ea4e62bc80531eaee37e3f6f277628a067435ebf3c85f72893c893` |
@@ -224,17 +224,17 @@
 | `entregables/tablas/tablaS4_perfil_computacional.md` | `cc86b1dc3a1d3b843401971bdb09dff0d576699335f5749a4a12932c6fc1ef04` |
 | `entregables/tablas/tablaS5_prediccion_conforme.csv` | `c4d82a7a6ba11e30cfda27b3dc53ece7bc31a554494dae39fbf5472bea411c34` |
 | `entregables/tablas/tablaS5_prediccion_conforme.md` | `16edb27324261d04e6448e8abcb48578e7c053a0011d7152e4b7c22b11b50c54` |
-| `entregables/tablas_maestro.xlsx` | `3dfab31da88a802ac4c4d1d1bdd5474339316ca93c2ed0d248bb40c6fa218bb6` |
+| `entregables/tablas_maestro.xlsx` | `3698c6b89fccf9cf05bfb9aa265d0760bf1547bf287deda74d556cdb9771794b` |
 | `entregables/title_page.docx` | `17fbddcbff81a05f8f5036fa79f068e70ebfa84bab46cbfa22d3a21e45f2a298` |
 | `entregables/title_page.html` | `feee9af86fcda0473ea6bbd5d4514f2a101f2c02f5bdbc72c146cf3ba150717c` |
 | `highlights.md` | `6db3b59d92f3ccd3595150881c958d4509805ac486aef4bbede9875972bdd9f9` |
 | `manuscrito/assets/apa.csl` | `3917def5fc951b104d64216c3373096042368b9704ba269ca83c14ebaba889fc` |
 | `manuscrito/assets/elsevier-harvard.csl` | `71e5cbd5906f4c1a03f0772a3d8b014ac06fe3f87a848397b94c66139003568c` |
 | `manuscrito/assets/references.bib` | `d65698eb3393e8dc87b2f1c830bc7c3dd081d8b7adf8912b7285df2419ee99ab` |
-| `manuscrito/en/manuscrito.qmd` | `031336a0e9ba1e3044e1ff6075663be8be5578c1ec07c382fea94af3d95dc1ba` |
-| `manuscrito/en/material_suplementario.qmd` | `fd8c300e99e7329061f349ed1435f8691de86257b4ed053ad5e10e795c99c2c7` |
-| `manuscrito/es/manuscrito_es.qmd` | `d8fdd1187344a2c2f77368ab29ca83b9840e16c053e9ce81b86904598368723d` |
-| `manuscrito/es/material_suplementario_es.qmd` | `cb27d7d21339eac2715a94c353880d22f823f8661bd6b90359fec4dae2d17ce5` |
+| `manuscrito/en/manuscrito.qmd` | `d4f49390bd4e5b1e03d97456691e592e01c86902068ce71a2c330fdc621dd5a5` |
+| `manuscrito/en/material_suplementario.qmd` | `8d99a5f7544278f89edbd066810c876b72bdd7b6e62222785bad28aadf1bae05` |
+| `manuscrito/es/manuscrito_es.qmd` | `1e46287051dfe9fb7071b66f2701a0f2b1077a918766d01642cddfdb755f68a3` |
+| `manuscrito/es/material_suplementario_es.qmd` | `1ea5b863843c5b70cd533228a2cb45d50c75699580621b807e2ee443c46f7556` |
 | `requirements-lock.txt` | `dab3b46dac1f64b8cf94ea7b4e5cc997907a3ed20ca5b25aba65c0ba0beb6977` |
 | `scripts/00_generar_grilla_nacional.py` | `dd1c31e8a2dec10a408e7041cb256283685a2825b861c7de24559830d57084ea` |
 | `scripts/00_validar_datos.py` | `6afb27a086297bc0b352f8356a309f371ecf5da4b582d822636617c8103beb19` |
@@ -291,7 +291,7 @@
 | `scripts/37_validacion_confirmacion_2023.py` | `b606285d81f96cb4660647dfa913bbf54b82cfb63bffecb1837a43e83483605c` |
 | `scripts/38_coupled_baseline.py` | `e40253269e9c4132066387430918164cade9397f5aaa43cc769a4dc6c7347682` |
 | `scripts/39_sensibilidad_d2.py` | `da29ee4e8f5876211657f0c43e35b6c5628940ada93295dd242f6cb914aa7b43` |
-| `scripts/40_formatear_docx_cageo.py` | `9fb7100f79ea3aec4584c34618ad9803f32e8f9b8cf99c78b9b4c0348c14d6c8` |
+| `scripts/40_formatear_docx_cageo.py` | `868a201345d066d8c3de55d355fb705506c5eca508fc4dfaa2d887a040f6a2c1` |
 | `scripts/41_formatear_suplementario_docx.py` | `3d76502efa695c4fd89709c524fb3c4d45573f28d2baf1060cc344feba12e5a6` |
 | `scripts/43_benchmark_weather_only.py` | `766c4e77d972f53109879c2436ba44610db75d35d646f03316fcead597e98fab` |
 | `scripts/45_metricas_sin_solapamiento.py` | `6fec622c66aa3f700f4bcef0559b285bc3b937bb1da55309ec35619836e4a33d` |
@@ -328,7 +328,7 @@
 | `scripts/69g_entrenar_evaluar_g0.py` | `c53d766094e05ace78946e0d6dc77cbed4b218659675c7902e6cf41199e45d1c` |
 | `scripts/69h_sensibilidad_g0.py` | `ae395816cd943941ea893e5ce013867f024acce2fc60f88d7b2a24cb82929382` |
 | `scripts/69i_sensibilidad_buffer_g0.py` | `3282a4c75308881de3a554645a8604e174335f2dc3193eb33ce109098e72e6cb` |
-| `scripts/70_verificar_envio.py` | `a1b8704537e973db2b01d195ff0f97701a0ba1b2d1bdfdb9ea9e35432228bdab` |
+| `scripts/70_verificar_envio.py` | `23c3fd7c875cc09c420c77898490371e978e093de6e4a09c16e2f898b26cd2a0` |
 | `scripts/71_indice_suplementario.py` | `847972505f2cb014a97672e97cd1d10d7d7bccaed86eef7e98785b76592f4bf9` |
 | `scripts/fig01_contract.py` | `97c61d99bca6e315b1cf132368613463d7806cdc4ffa07cbb22784f43e482998` |
 | `src/__init__.py` | `efd54d37a0c2d1e59c2560ff196564e40100907906c65b3ad8d8f82d628bc27c` |
