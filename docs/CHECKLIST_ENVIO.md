@@ -13,6 +13,7 @@
 - [x] `entregables/submission/cover_letter.docx`
 - [x] `entregables/submission/figuras_maestro.pdf`
 - [x] `entregables/submission/tablas_maestro.xlsx`
+- [x] `entregables/submission/figures/` con 15 figuras individuales
 
 ## Metadatos
 
@@ -37,6 +38,7 @@
 - [x] Tablas S6, S17 y S28 tienen la nota de precisión poblacional.
 - [x] Separadores de miles uniformes con espacio.
 - [x] Figuras maestras: 15 páginas y 15 marcadores.
+- [x] Figuras individuales: Figure_1–Figure_5 y Figure_S1–Figure_S10.
 - [x] Tablas maestras: 50 hojas, incluida `Indice`.
 - [x] Table 3 y tablas S6/S8/S27/S28 legibles tras el formateo DOCX.
 

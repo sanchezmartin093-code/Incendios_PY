@@ -1,6 +1,6 @@
 ---
 title: "Cover Letter to the Editor-in-Chief"
-date: "2026-10-28"
+date: "2026-10-29"
 format:
   html:
     theme: cosmo
@@ -9,7 +9,7 @@ format:
     toc: false
 ---
 
-**Date:** October 28, 2026  
+**Date:** October 29, 2026  
 
 **To:**  
 The Editors-in-Chief  
