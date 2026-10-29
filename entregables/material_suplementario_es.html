@@ -2362,7 +2362,7 @@ window.Quarto = {
   <li><a href="#s5.2-estabilidad-a-semillas-y-capacidad" id="toc-s5.2-estabilidad-a-semillas-y-capacidad" class="nav-link" data-scroll-target="#s5.2-estabilidad-a-semillas-y-capacidad">S5.2 Estabilidad a semillas y capacidad</a></li>
   <li><a href="#s5.3-sensibilidad-a-umbral-y-métrica" id="toc-s5.3-sensibilidad-a-umbral-y-métrica" class="nav-link" data-scroll-target="#s5.3-sensibilidad-a-umbral-y-métrica">S5.3 Sensibilidad a umbral y métrica</a></li>
   <li><a href="#s5.4-validación-adversarial" id="toc-s5.4-validación-adversarial" class="nav-link" data-scroll-target="#s5.4-validación-adversarial">S5.4 Validación adversarial</a></li>
-  <li><a href="#s5.5-control-negativo-y-permutation-importance" id="toc-s5.5-control-negativo-y-permutation-importance" class="nav-link" data-scroll-target="#s5.5-control-negativo-y-permutation-importance">S5.5 Control negativo y permutation importance</a></li>
+  <li><a href="#s5.5-control-negativo-e-importancia-por-permutación" id="toc-s5.5-control-negativo-e-importancia-por-permutación" class="nav-link" data-scroll-target="#s5.5-control-negativo-e-importancia-por-permutación">S5.5 Control negativo e importancia por permutación</a></li>
   <li><a href="#s5.6-umbrales-del-gate-y-muestra-sin-gate" id="toc-s5.6-umbrales-del-gate-y-muestra-sin-gate" class="nav-link" data-scroll-target="#s5.6-umbrales-del-gate-y-muestra-sin-gate">S5.6 Umbrales del gate y muestra sin gate</a></li>
   <li><a href="#s5.7-sensibilidad-a-la-razón-de-muestreo" id="toc-s5.7-sensibilidad-a-la-razón-de-muestreo" class="nav-link" data-scroll-target="#s5.7-sensibilidad-a-la-razón-de-muestreo">S5.7 Sensibilidad a la razón de muestreo</a></li>
   <li><a href="#s5.8-variantes-de-calidad-de-etiquetas-viirs" id="toc-s5.8-variantes-de-calidad-de-etiquetas-viirs" class="nav-link" data-scroll-target="#s5.8-variantes-de-calidad-de-etiquetas-viirs">S5.8 Variantes de calidad de etiquetas VIIRS</a></li>
@@ -2438,7 +2438,7 @@ max-width: 100%;
 <p>Las detecciones de fuego activo VIIRS de Suomi-NPP, NOAA-20 y NOAA-21 se adquieren como franjas transversales de 375 m desde NASA FIRMS <span class="citation" data-cites="nasa_firms">(<a href="#ref-nasa_firms" role="doc-biblioref">NASA FIRMS, 2026</a>)</span>. En el borde de la franja, el píxel proyectado puede alcanzar aproximadamente 1.6 km en la dirección de escaneo y 0.8 km en la dirección de avance, produciendo el efecto geométrico Bow-Tie: detecciones repetidas del mismo incendio, dilución de la potencia radiativa del fuego (FRP) sobre un área aparente mayor y asignación incorrecta a la grilla nacional de 1 km² <span class="citation" data-cites="schroeder2014">(<a href="#ref-schroeder2014" role="doc-biblioref">Schroeder et al., 2014</a>)</span>. El filtro cinemático implementado es</p>
 <p><span class="math display">\[\mathcal{D}_{\text{filtered}} = \left\{ f \in \mathcal{D}_{\text{raw}} \mid \text{scan}(f) \le 1.5\ \text{km} \;\land\; \text{confidence}(f) \neq \text{&#39;low&#39;} \right\}.\]</span></p>
 <p>El máximo de escaneo observado en la ventana de estudio fue 0.8 km, por lo que la regla no eliminó registros, pero permanece activa para ventanas orbitales con ángulos de visión mayores. Los sobrepasos duplicados en la misma fecha civil se consolidan por celda de 1 km², conservando <code>num_focos_dia</code>, <code>max_frp_dia</code> y <code>sum_frp_dia</code>.</p>
-<p>D2 separa la ignición primaria de la propagación táctica. Sea <span class="math inline">\(F_t\)</span> el conjunto de celdas con una detección térmica en el día <span class="math inline">\(t\)</span>. La ignición D2 en la celda <span class="math inline">\(i\)</span> y el día <span class="math inline">\(t\)</span> requiere (i) <span class="math inline">\(i \in F_t\)</span>, (ii) ninguna celda en <span class="math inline">\(F_{t-1}\)</span> a menos de 25 km y (iii) ninguna detección en la celda <span class="math inline">\(i\)</span> durante los 10 días previos. La propagación D2 requiere <span class="math inline">\(i \in F_t\)</span> y al menos una celda en <span class="math inline">\(F_{t-1}\)</span> a menos de 25 km. Los dos conjuntos de objetivos son disjuntos. El umbral de 25 km define el dominio del objetivo y no es un buffer de muestreo negativo; no se aplica un buffer de 20 km al conjunto de test. El buffer de 20 km se usa solo en el holdout de bloques espaciales.</p>
+<p>D2 separa la ignición primaria de la propagación táctica. Sea <span class="math inline">\(F_t\)</span> el conjunto de celdas con una detección térmica en el día <span class="math inline">\(t\)</span>. La ignición D2 en la celda <span class="math inline">\(i\)</span> y el día <span class="math inline">\(t\)</span> requiere (i) <span class="math inline">\(i \in F_t\)</span>, (ii) ninguna celda en <span class="math inline">\(F_{t-1}\)</span> a menos de 25 km y (iii) ninguna detección en la celda <span class="math inline">\(i\)</span> durante los 10 días previos. La propagación D2 requiere <span class="math inline">\(i \in F_t\)</span> y al menos una celda en <span class="math inline">\(F_{t-1}\)</span> a menos de 25 km. Las detecciones recurrentes en la misma celda dentro de 2–10 días sin un vecino activo a menos de 25 km el día <span class="math inline">\(t-1\)</span> —típicamente brasas latentes multidiarias u omisiones satelitales por nubosidad— no se asignan a ninguno de los conjuntos positivos; permanecen como negativas candidatas, lo que evita que la persistencia de brasas contamine el objetivo de ignición. Los dos conjuntos de objetivos son disjuntos. El umbral de 25 km define el dominio del objetivo y no es un buffer de muestreo negativo; no se aplica un buffer de 20 km al conjunto de test. El buffer de 20 km se usa solo en el holdout de bloques espaciales.</p>
 <p>La muestra caso-control se extrae a 1:10 por tarea y región. El entrenamiento usa 2018–2022, la validación usa 2023 y el test es el período congelado 2024–2025. Los denominadores poblacionales se mantienen por separado y se usan para la corrección de prior. Las mismas filas de test se usan para cada modelo, FWI e INPE, por lo que las comparaciones son pareadas. Los conteos de muestreo y las proporciones de clase están en la Tabla S10. El diccionario de variables está en la Tabla S1; el registro completo de auditoría está en la Tabla S15.</p>
 <p>Las comprobaciones de calidad de datos colapsan sobrepasos VIIRS duplicados, eliminan detecciones de confianza <code>low</code>, reconstruyen la precipitación diaria a partir de incrementos subdiarios y rechazan valores imposibles por encima de 300 mm/día. Los nodos de ERA5-Land <span class="citation" data-cites="munoz2021era5land">(<a href="#ref-munoz2021era5land" role="doc-biblioref">Muñoz-Sabater et al., 2021</a>)</span> se mapean a celdas con un cKDTree precomputado. El archivo de datos procesados contiene los objetivos de test, las probabilidades, las capas de benchmark, los planes de muestreo y los artefactos entrenados, de modo que las tablas de resultados pueden regenerarse sin el archivo crudo de varios terabytes.</p>
 </section>
@@ -2503,7 +2503,7 @@ max-width: 100%;
 <p><span class="math display">\[b=\begin{cases}100/(0.5+0.3D_{t-1}), &amp; D_{t-1}\le33,\\14-1.3\ln D_{t-1}, &amp; 33&lt;D_{t-1}\le65,\\6.2\ln D_{t-1}-17.2, &amp; D_{t-1}&gt;65,\end{cases}\]</span></p>
 <p><span class="math display">\[m_r=m_0+\frac{1000r_e}{48.77+br_e},\qquad D&#39;=43.43(5.6348-\ln(m_r-20)),\]</span></p>
 <p>con <span class="math inline">\(D&#39;\)</span> limitado inferiormente a cero; cuando <span class="math inline">\(r\le1.5\)</span> mm, <span class="math inline">\(D&#39;=D_{t-1}\)</span>. La actualización diaria usa</p>
-<p><span class="math display">\[T_+=\max(T,-1.1),\qquad H_c=\operatorname{clip}(H,1,100),\]</span></p>
+<p><span class="math display">\[T_+=\max(T,-1.1),\qquad H_c=\operatorname{clip}(H,1 100),\]</span></p>
 <p><span class="math display">\[K=1.894(T_++1.1)(100-H_c)L_e10^{-4},\qquad D_t=D&#39;+K,\]</span></p>
 <p>donde <span class="math inline">\(L_e\)</span> es el factor de longitud efectiva del día. Para el dominio (20°S), los doce valores mensuales son <span class="math inline">\(L_e=(10.1,9.6,9.1,8.5,8.1,7.8,7.9,8.3,8.9,9.4,9.9,10.2)\)</span>.</p>
 <p>Para DC, cuando <span class="math inline">\(r&gt;2.8\)</span> mm,</p>
@@ -2539,7 +2539,7 @@ max-width: 100%;
 <p><span class="math display">\[R_k(t)=\sum_{j=t-k+1}^{t}r_j\]</span></p>
 <p>la lluvia acumulada en los <span class="math inline">\(k\)</span> días que terminan en <span class="math inline">\(t\)</span>, con los días anteriores al 1 de enero de 2018 tratados como cero. El PSE (período de secura; 0–105) es</p>
 <p><span class="math display">\[PSE_t=105\prod_{j=1}^{11}\exp\left[-\lambda_j\left(R_{k_j}(t)-R_{k_{j-1}}(t)\right)\right],\]</span></p>
-<p>con <span class="math inline">\(R_0=0\)</span>, ventanas <span class="math inline">\(k=(1,2,3,4,5,10,15,30,60,90,120)\)</span> y coeficientes</p>
+<p>con <span class="math inline">\(R_0=0\)</span>, ventanas <span class="math inline">\(k=(1,2,3,4,5,10,15,30,60,90 120)\)</span> y coeficientes</p>
 <p><span class="math display">\[\lambda=(0.14,0.07,0.04,0.03,0.02,0.01,0.008,0.004,0.002,0.001,0.0007).\]</span></p>
 <p>La ventana de 120 días se trunca por la izquierda al inicio de la serie de 2018 y queda completa después de 120 días. El PSE se impulsa con la lluvia del mismo día, no con <span class="math inline">\(t-1\)</span>.</p>
 </section>
@@ -2585,9 +2585,9 @@ max-width: 100%;
 <h2 class="anchored" data-anchor-id="s5.4-validación-adversarial">S5.4 Validación adversarial</h2>
 <p>Se entrenó un clasificador LightGBM para separar filas de entrenamiento (2018–2022) de test (2024–2025) usando el conjunto de variables de M3. Se usaron cinco folds estratificados, 100 rondas, 31 hojas, learning rate 0.05 e importancia por ganancia. El AUC reportado es la media entre folds; las variables principales se ordenan por ganancia media. El AUC adversarial mide cambio de distribución y no es una métrica de desempeño del modelo de fuego (Tabla S29).</p>
 </section>
-<section id="s5.5-control-negativo-y-permutation-importance" class="level2">
-<h2 class="anchored" data-anchor-id="s5.5-control-negativo-y-permutation-importance">S5.5 Control negativo y permutation importance</h2>
-<p>El control negativo reentrena M3 tras permutar aleatoriamente las etiquetas de entrenamiento, manteniendo las variables y las etiquetas de validación. Un pipeline correctamente especificado y sin fuga debería dar un AUC cercano a 0.5. El control se repitió con y sin las variables históricas (<code>dist_foco_hist_km</code>, <code>densidad_hist_25km</code>, <code>freq_hist_1km</code>). La importancia por permutación barre cada variable, o cada familia, en las filas de test y registra la caída media de ROC-AUC en tres repeticiones. Las familias son meteorología, combustible, antropogénicas, históricas y calendario. Los resultados están en la Tabla S32 y la Figura S7. Un AUC superior a 0.5 en el control indica información residual de celda o de variables; es un diagnóstico de lo que el score puede y no puede sostener, no un sustituto del ranking principal.</p>
+<section id="s5.5-control-negativo-e-importancia-por-permutación" class="level2">
+<h2 class="anchored" data-anchor-id="s5.5-control-negativo-e-importancia-por-permutación">S5.5 Control negativo e importancia por permutación</h2>
+<p>El control negativo reentrena M3 tras permutar aleatoriamente las etiquetas de entrenamiento, manteniendo las variables y las etiquetas de validación; cada valor reportado usa una permutación fija de las filas de entrenamiento (<code>semilla = 123</code>), con las etiquetas de validación sin cambios. Un pipeline correctamente especificado y sin fuga debería dar un AUC cercano a 0.5. El control se repitió con y sin las variables históricas (<code>dist_foco_hist_km</code>, <code>densidad_hist_25km</code>, <code>freq_hist_1km</code>). La importancia por permutación barre cada variable, o cada familia, en las filas de test y registra la caída media de ROC-AUC en tres repeticiones. Las familias son meteorología, combustible, antropogénicas, históricas y calendario. Los resultados están en la Tabla S32 y la Figura S7. Un AUC superior a 0.5 en el control indica información residual de celda o de variables; es un diagnóstico de lo que el score puede y no puede sostener, no un sustituto del ranking principal.</p>
 </section>
 <section id="s5.6-umbrales-del-gate-y-muestra-sin-gate" class="level2">
 <h2 class="anchored" data-anchor-id="s5.6-umbrales-del-gate-y-muestra-sin-gate">S5.6 Umbrales del gate y muestra sin gate</h2>
@@ -2617,9 +2617,9 @@ max-width: 100%;
 <thead>
 <tr class="header">
 <th>Variable</th>
-<th>Description</th>
-<th>Source</th>
-<th>Role</th>
+<th>Descripción</th>
+<th>Fuente</th>
+<th>Rol</th>
 </tr>
 </thead>
 <tbody>
@@ -3086,8 +3086,8 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Department</th>
-<th>Region</th>
+<th>Departamento</th>
+<th>Región</th>
 <th style="text-align: right;">Sovereign cells</th>
 <th style="text-align: right;">Test samples</th>
 <th style="text-align: right;">Test fires</th>
@@ -3363,7 +3363,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th style="text-align: right;"><span class="math inline">\(\hat{q}_{90}\)</span></th>
 <th style="text-align: right;">Coverage 90 (%)</th>
 <th style="text-align: right;"><span class="math inline">\(\hat{q}_{95}\)</span></th>
@@ -3411,22 +3411,22 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
-<th>Model</th>
-<th>Pop. prevalence</th>
-<th>Sample prevalence</th>
-<th>Pop. cutoff</th>
+<th>Región</th>
+<th>Tarea</th>
+<th>Modelo</th>
+<th>Prevalencia poblacional</th>
+<th>Prevalencia muestral</th>
+<th>Corte poblacional</th>
 <th>ROC-AUC</th>
 <th>PR-AUC</th>
-<th>Precision (%) [W; B]</th>
+<th>Precisión (%) [W; B]</th>
 <th>Recall (%) [W; B]</th>
 <th>F0.5</th>
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Pop. N</th>
-<th>Pop. positives</th>
+<th>N poblacional</th>
+<th>Positivos poblacionales</th>
 </tr>
 </thead>
 <tbody>
@@ -3445,8 +3445,8 @@ max-width: 100%;
 <td>0.000153</td>
 <td>0.0003</td>
 <td>0.0000</td>
-<td>104976526</td>
-<td>16056</td>
+<td>104 976 526</td>
+<td>16 056</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -3463,8 +3463,8 @@ max-width: 100%;
 <td>0.000153</td>
 <td>0.0003</td>
 <td>0.0000</td>
-<td>104976526</td>
-<td>16056</td>
+<td>104 976 526</td>
+<td>16 056</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -3481,8 +3481,8 @@ max-width: 100%;
 <td>0.001447</td>
 <td>0.0666</td>
 <td>0.0002</td>
-<td>33748163</td>
-<td>52405</td>
+<td>33 748 163</td>
+<td>52 405</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -3499,8 +3499,8 @@ max-width: 100%;
 <td>0.000414</td>
 <td>0.0005</td>
 <td>0.0001</td>
-<td>43887357</td>
-<td>18176</td>
+<td>43 887 357</td>
+<td>18 176</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -3517,8 +3517,8 @@ max-width: 100%;
 <td>0.000414</td>
 <td>0.0005</td>
 <td>0.0000</td>
-<td>43887357</td>
-<td>18176</td>
+<td>43 887 357</td>
+<td>18 176</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -3535,8 +3535,8 @@ max-width: 100%;
 <td>0.002069</td>
 <td>0.0135</td>
 <td>0.0004</td>
-<td>37235186</td>
-<td>78269</td>
+<td>37 235 186</td>
+<td>78 269</td>
 </tr>
 </tbody>
 </table>
@@ -3557,8 +3557,8 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
+<th>Región</th>
+<th>Tarea</th>
 <th>Comparison</th>
 <th>ΔROC</th>
 <th>p raw</th>
@@ -3576,7 +3576,7 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -3586,7 +3586,7 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -3596,7 +3596,7 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -3606,7 +3606,7 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -3616,7 +3616,7 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -3626,12 +3626,12 @@ max-width: 100%;
 <td>≤0.001</td>
 <td>0.0060</td>
 <td>0.0010</td>
-<td>1000</td>
+<td>1 000</td>
 </tr>
 </tbody>
 </table>
 <!-- tablaS7:fin -->
-<p>The family is pre-specified as the six confirmatory comparisons. With B = 1,000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.</p>
+<p>The family is pre-specified as the six confirmatory comparisons. With B = 1 000 the bootstrap resolution is 0.001, so the raw p-values sit at the resolution floor and the adjusted values are upper bounds. Values are retrospective diagnostics, not a blind confirmation.</p>
 <p><strong>Tabla S8.</strong> Resultados completos de bloques espaciales de desarrollo 2023.</p>
 <table class="caption-top table">
 <colgroup>
@@ -3654,9 +3654,9 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Model</th>
-<th>Split</th>
+<th>Región</th>
+<th>Modelo</th>
+<th>Partición</th>
 <th>n</th>
 <th>n positive</th>
 <th>Prevalence</th>
@@ -3665,7 +3665,7 @@ max-width: 100%;
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Precision</th>
+<th>Precisión</th>
 <th>Recall</th>
 <th>F0.5</th>
 <th>FP</th>
@@ -3677,8 +3677,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>M1_biofisico</td>
 <td>holdout_espacial_2023</td>
-<td>19304</td>
-<td>1758</td>
+<td>19 304</td>
+<td>1 758</td>
 <td>0.091069</td>
 <td>0.6456</td>
 <td>0.1668</td>
@@ -3688,15 +3688,15 @@ max-width: 100%;
 <td>0.1680</td>
 <td>0.2685</td>
 <td>0.1816</td>
-<td>2337</td>
-<td>1286</td>
+<td>2 337</td>
+<td>1 286</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
 <td>M1_biofisico</td>
 <td>heldin_referencia_2023</td>
-<td>78079</td>
-<td>7095</td>
+<td>78 079</td>
+<td>7 095</td>
 <td>0.090870</td>
 <td>0.6280</td>
 <td>0.1429</td>
@@ -3706,15 +3706,15 @@ max-width: 100%;
 <td>0.1611</td>
 <td>0.2280</td>
 <td>0.1712</td>
-<td>8423</td>
-<td>5477</td>
+<td>8 423</td>
+<td>5 477</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
 <td>M2_base</td>
 <td>holdout_espacial_2023</td>
-<td>19304</td>
-<td>1758</td>
+<td>19 304</td>
+<td>1 758</td>
 <td>0.091069</td>
 <td>0.6773</td>
 <td>0.1760</td>
@@ -3725,14 +3725,14 @@ max-width: 100%;
 <td>0.0080</td>
 <td>0.0374</td>
 <td>15</td>
-<td>1744</td>
+<td>1 744</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
 <td>M2_base</td>
 <td>heldin_referencia_2023</td>
-<td>78079</td>
-<td>7095</td>
+<td>78 079</td>
+<td>7 095</td>
 <td>0.090870</td>
 <td>0.7832</td>
 <td>0.2526</td>
@@ -3742,15 +3742,15 @@ max-width: 100%;
 <td>0.3344</td>
 <td>0.2148</td>
 <td>0.3009</td>
-<td>3033</td>
-<td>5571</td>
+<td>3 033</td>
+<td>5 571</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
 <td>M3_hibrido</td>
 <td>holdout_espacial_2023</td>
-<td>19304</td>
-<td>1758</td>
+<td>19 304</td>
+<td>1 758</td>
 <td>0.091069</td>
 <td>0.6496</td>
 <td>0.1630</td>
@@ -3761,14 +3761,14 @@ max-width: 100%;
 <td>0.0085</td>
 <td>0.0395</td>
 <td>20</td>
-<td>1743</td>
+<td>1 743</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
 <td>M3_hibrido</td>
 <td>heldin_referencia_2023</td>
-<td>78079</td>
-<td>7095</td>
+<td>78 079</td>
+<td>7 095</td>
 <td>0.090870</td>
 <td>0.7821</td>
 <td>0.2511</td>
@@ -3778,15 +3778,15 @@ max-width: 100%;
 <td>0.2761</td>
 <td>0.3326</td>
 <td>0.2858</td>
-<td>6189</td>
-<td>4735</td>
+<td>6 189</td>
+<td>4 735</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
 <td>M1_biofisico</td>
 <td>holdout_espacial_2023</td>
-<td>25961</td>
-<td>1998</td>
+<td>25 961</td>
+<td>1 998</td>
 <td>0.076962</td>
 <td>0.7176</td>
 <td>0.1574</td>
@@ -3796,15 +3796,15 @@ max-width: 100%;
 <td>0.1867</td>
 <td>0.1957</td>
 <td>0.1885</td>
-<td>1703</td>
-<td>1607</td>
+<td>1 703</td>
+<td>1 607</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
 <td>M1_biofisico</td>
 <td>heldin_referencia_2023</td>
-<td>65163</td>
-<td>6286</td>
+<td>65 163</td>
+<td>6 286</td>
 <td>0.096466</td>
 <td>0.6899</td>
 <td>0.1857</td>
@@ -3814,15 +3814,15 @@ max-width: 100%;
 <td>0.2430</td>
 <td>0.2140</td>
 <td>0.2366</td>
-<td>4190</td>
-<td>4941</td>
+<td>4 190</td>
+<td>4 941</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
 <td>M2_base</td>
 <td>holdout_espacial_2023</td>
-<td>25961</td>
-<td>1998</td>
+<td>25 961</td>
+<td>1 998</td>
 <td>0.076962</td>
 <td>0.7470</td>
 <td>0.1820</td>
@@ -3833,14 +3833,14 @@ max-width: 100%;
 <td>0.0015</td>
 <td>0.0074</td>
 <td>4</td>
-<td>1995</td>
+<td>1 995</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
 <td>M2_base</td>
 <td>heldin_referencia_2023</td>
-<td>65163</td>
-<td>6286</td>
+<td>65 163</td>
+<td>6 286</td>
 <td>0.096466</td>
 <td>0.7365</td>
 <td>0.2231</td>
@@ -3850,15 +3850,15 @@ max-width: 100%;
 <td>0.2628</td>
 <td>0.2719</td>
 <td>0.2646</td>
-<td>4794</td>
-<td>4577</td>
+<td>4 794</td>
+<td>4 577</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
 <td>M3_hibrido</td>
 <td>holdout_espacial_2023</td>
-<td>25961</td>
-<td>1998</td>
+<td>25 961</td>
+<td>1 998</td>
 <td>0.076962</td>
 <td>0.7277</td>
 <td>0.1608</td>
@@ -3869,14 +3869,14 @@ max-width: 100%;
 <td>0.0015</td>
 <td>0.0074</td>
 <td>5</td>
-<td>1995</td>
+<td>1 995</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
 <td>M3_hibrido</td>
 <td>heldin_referencia_2023</td>
-<td>65163</td>
-<td>6286</td>
+<td>65 163</td>
+<td>6 286</td>
 <td>0.096466</td>
 <td>0.7473</td>
 <td>0.2384</td>
@@ -3886,8 +3886,8 @@ max-width: 100%;
 <td>0.3087</td>
 <td>0.2151</td>
 <td>0.2840</td>
-<td>3028</td>
-<td>4934</td>
+<td>3 028</td>
+<td>4 934</td>
 </tr>
 </tbody>
 </table>
@@ -3911,8 +3911,8 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Model</th>
+<th>Región</th>
+<th>Modelo</th>
 <th>n</th>
 <th>n positive</th>
 <th>ROC-AUC</th>
@@ -3920,8 +3920,8 @@ max-width: 100%;
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Cutoff F0.5</th>
-<th>Precision</th>
+<th>Corte F0.5</th>
+<th>Precisión</th>
 <th>Recall</th>
 <th>F0.5</th>
 </tr>
@@ -3930,8 +3930,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>M1_biofisico_t1</td>
-<td>97383</td>
-<td>8853</td>
+<td>97 383</td>
+<td>8 853</td>
 <td>0.6342</td>
 <td>0.1467</td>
 <td>0.0810</td>
@@ -3945,8 +3945,8 @@ max-width: 100%;
 <tr class="even">
 <td>Chaco</td>
 <td>M2_base_t1</td>
-<td>97383</td>
-<td>8853</td>
+<td>97 383</td>
+<td>8 853</td>
 <td>0.7818</td>
 <td>0.2444</td>
 <td>0.0752</td>
@@ -3960,8 +3960,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>M3_hibrido_t1</td>
-<td>97383</td>
-<td>8853</td>
+<td>97 383</td>
+<td>8 853</td>
 <td>0.7831</td>
 <td>0.2523</td>
 <td>0.0749</td>
@@ -3975,8 +3975,8 @@ max-width: 100%;
 <tr class="even">
 <td>Oriental</td>
 <td>M1_biofisico_t1</td>
-<td>91124</td>
-<td>8284</td>
+<td>91 124</td>
+<td>8 284</td>
 <td>0.6965</td>
 <td>0.1765</td>
 <td>0.0792</td>
@@ -3990,8 +3990,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Oriental</td>
 <td>M2_base_t1</td>
-<td>91124</td>
-<td>8284</td>
+<td>91 124</td>
+<td>8 284</td>
 <td>0.7463</td>
 <td>0.2167</td>
 <td>0.0770</td>
@@ -4005,8 +4005,8 @@ max-width: 100%;
 <tr class="even">
 <td>Oriental</td>
 <td>M3_hibrido_t1</td>
-<td>91124</td>
-<td>8284</td>
+<td>91 124</td>
+<td>8 284</td>
 <td>0.7613</td>
 <td>0.2384</td>
 <td>0.0759</td>
@@ -4032,7 +4032,7 @@ max-width: 100%;
 <thead>
 <tr class="header">
 <th>Partition</th>
-<th>Task</th>
+<th>Tarea</th>
 <th style="text-align: right;">Positives</th>
 <th style="text-align: right;">Negatives</th>
 <th style="text-align: right;">Ratio</th>
@@ -4103,16 +4103,16 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
-<th>Model</th>
+<th>Región</th>
+<th>Tarea</th>
+<th>Modelo</th>
 <th>ROC-AUC</th>
 <th>PR-AUC</th>
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Cutoff</th>
-<th>Precision</th>
+<th>Corte</th>
+<th>Precisión</th>
 <th>Recall</th>
 <th>F0.5</th>
 <th>FP</th>
@@ -4132,7 +4132,7 @@ max-width: 100%;
 <td>0.3282</td>
 <td>0.3030</td>
 <td>0.3228</td>
-<td>9960</td>
+<td>9 960</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4147,7 +4147,7 @@ max-width: 100%;
 <td>0.3328</td>
 <td>0.2725</td>
 <td>0.3187</td>
-<td>8773</td>
+<td>8 773</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -4162,7 +4162,7 @@ max-width: 100%;
 <td>0.0925</td>
 <td>0.9573</td>
 <td>0.1130</td>
-<td>150705</td>
+<td>150 705</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4177,7 +4177,7 @@ max-width: 100%;
 <td>0.0924</td>
 <td>0.9247</td>
 <td>0.1126</td>
-<td>145918</td>
+<td>145 918</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -4192,7 +4192,7 @@ max-width: 100%;
 <td>0.1143</td>
 <td>0.1932</td>
 <td>0.1245</td>
-<td>24036</td>
+<td>24 036</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4222,7 +4222,7 @@ max-width: 100%;
 <td>0.8369</td>
 <td>0.5240</td>
 <td>0.7476</td>
-<td>5353</td>
+<td>5 353</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4252,7 +4252,7 @@ max-width: 100%;
 <td>0.3013</td>
 <td>0.1859</td>
 <td>0.2680</td>
-<td>7835</td>
+<td>7 835</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4267,7 +4267,7 @@ max-width: 100%;
 <td>0.2610</td>
 <td>0.1958</td>
 <td>0.2447</td>
-<td>10075</td>
+<td>10 075</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -4282,7 +4282,7 @@ max-width: 100%;
 <td>0.1222</td>
 <td>0.2185</td>
 <td>0.1340</td>
-<td>28526</td>
+<td>28 526</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4297,7 +4297,7 @@ max-width: 100%;
 <td>0.0924</td>
 <td>0.8256</td>
 <td>0.1123</td>
-<td>147439</td>
+<td>147 439</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -4312,7 +4312,7 @@ max-width: 100%;
 <td>0.1108</td>
 <td>0.4244</td>
 <td>0.1300</td>
-<td>61905</td>
+<td>61 905</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4342,7 +4342,7 @@ max-width: 100%;
 <td>0.6503</td>
 <td>0.1984</td>
 <td>0.4468</td>
-<td>8351</td>
+<td>8 351</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4381,15 +4381,15 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Model</th>
+<th>Región</th>
+<th>Modelo</th>
 <th>ROC-AUC [95 % CI]</th>
 <th style="text-align: right;">PR-AUC</th>
 <th style="text-align: right;">Brier</th>
 <th style="text-align: right;">BSS</th>
 <th style="text-align: right;">ECE</th>
-<th style="text-align: right;">Cutoff</th>
-<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Corte</th>
+<th style="text-align: right;">Precisión</th>
 <th style="text-align: right;">Recall</th>
 <th style="text-align: right;">F0.5</th>
 <th style="text-align: right;">FP</th>
@@ -4409,7 +4409,7 @@ max-width: 100%;
 <td style="text-align: right;">0.3702</td>
 <td style="text-align: right;">0.2352</td>
 <td style="text-align: right;">0.3320</td>
-<td style="text-align: right;">6,425</td>
+<td style="text-align: right;">6 425</td>
 <td style="text-align: right;">-0.0003 (0.612)</td>
 </tr>
 <tr class="even">
@@ -4424,12 +4424,12 @@ max-width: 100%;
 <td style="text-align: right;">0.3038</td>
 <td style="text-align: right;">0.1890</td>
 <td style="text-align: right;">0.2709</td>
-<td style="text-align: right;">7,870</td>
+<td style="text-align: right;">7 870</td>
 <td style="text-align: right;">+0.0015 (0.001)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Tabla S12.</strong> Ablación controlada de M1, M2 y M3 en el test retrospectivo 2024–2025.</p>
+<p><strong>Tabla S12.</strong> Ablación controlada de M1, M2 y M3 en el test retrospectivo 2024–2025. Los modelos se reentrenaron para esta ablación; las pequeñas diferencias con las Tablas 2 y 3 reflejan corridas de entrenamiento independientes.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 8%">
@@ -4447,7 +4447,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Architecture</th>
 <th>Variables</th>
 <th>ROC-AUC</th>
@@ -4455,7 +4455,7 @@ max-width: 100%;
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Precision (%)</th>
+<th>Precisión (%)</th>
 <th>Recall (%)</th>
 <th>F0.5</th>
 <th>FP</th>
@@ -4474,7 +4474,7 @@ max-width: 100%;
 <td>32.81</td>
 <td>30.31</td>
 <td>0.3228</td>
-<td>9963</td>
+<td>9 963</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4488,7 +4488,7 @@ max-width: 100%;
 <td>33.27</td>
 <td>27.26</td>
 <td>0.3187</td>
-<td>8778</td>
+<td>8 778</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -4502,7 +4502,7 @@ max-width: 100%;
 <td>17.78</td>
 <td>18.22</td>
 <td>0.1787</td>
-<td>13525</td>
+<td>13 525</td>
 </tr>
 <tr class="even">
 <td>Chaco</td>
@@ -4516,7 +4516,7 @@ max-width: 100%;
 <td>9.25</td>
 <td>95.73</td>
 <td>0.1130</td>
-<td>150705</td>
+<td>150 705</td>
 </tr>
 <tr class="odd">
 <td>Chaco</td>
@@ -4530,7 +4530,7 @@ max-width: 100%;
 <td>9.24</td>
 <td>92.47</td>
 <td>0.1126</td>
-<td>145918</td>
+<td>145 918</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4544,7 +4544,7 @@ max-width: 100%;
 <td>30.13</td>
 <td>18.59</td>
 <td>0.2680</td>
-<td>7835</td>
+<td>7 835</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -4558,7 +4558,7 @@ max-width: 100%;
 <td>26.09</td>
 <td>19.59</td>
 <td>0.2447</td>
-<td>10085</td>
+<td>10 085</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4572,7 +4572,7 @@ max-width: 100%;
 <td>19.17</td>
 <td>24.63</td>
 <td>0.2006</td>
-<td>18876</td>
+<td>18 876</td>
 </tr>
 <tr class="odd">
 <td>Oriental</td>
@@ -4586,7 +4586,7 @@ max-width: 100%;
 <td>12.22</td>
 <td>21.85</td>
 <td>0.1340</td>
-<td>28526</td>
+<td>28 526</td>
 </tr>
 <tr class="even">
 <td>Oriental</td>
@@ -4600,7 +4600,7 @@ max-width: 100%;
 <td>9.24</td>
 <td>82.56</td>
 <td>0.1123</td>
-<td>147439</td>
+<td>147 439</td>
 </tr>
 </tbody>
 </table>
@@ -4616,7 +4616,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Feature</th>
 <th>Description</th>
 <th style="text-align: right;">Mean abs. SHAP</th>
@@ -4791,9 +4791,9 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
-<th>Model</th>
+<th>Región</th>
+<th>Tarea</th>
+<th>Modelo</th>
 <th style="text-align: right;">α</th>
 <th style="text-align: right;">V(α)</th>
 <th style="text-align: right;">V low</th>
@@ -6916,12 +6916,12 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
-<th>Model</th>
+<th>Región</th>
+<th>Tarea</th>
+<th>Modelo</th>
 <th>Criterion</th>
-<th style="text-align: right;">Cutoff</th>
-<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Corte</th>
+<th style="text-align: right;">Precisión</th>
 <th style="text-align: right;">Recall</th>
 <th style="text-align: right;">F0.5</th>
 <th style="text-align: right;">F1</th>
@@ -7282,7 +7282,7 @@ max-width: 100%;
 <tr class="even">
 <td>Raw FIRMS</td>
 <td>Detections with type != 0</td>
-<td style="text-align: right;">5319</td>
+<td style="text-align: right;">5 319</td>
 <td>WARN</td>
 <td>Type was not filtered; review industrial/offshore sources.</td>
 </tr>
@@ -7546,7 +7546,7 @@ max-width: 100%;
 </tr>
 </tbody>
 </table>
-<p>Métricas poblacionales tras corrección de prior: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precisión 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precisión 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 muestra / 0.000436 población; Oriental 0.2186 muestra / 0.001158 población.</p>
+<p>Métricas poblacionales tras corrección de prior: Chaco ROC-AUC 0.8081, PR-AUC 0.0009, precisión 0.077 %, recall 30.873 %, F0.5 0.0010; Oriental ROC-AUC 0.7598, PR-AUC 0.0019, precisión 0.210 %, recall 18.546 %, F0.5 0.0026. Cutoffs: Chaco 0.2218 muestra / 0.000436 población; Oriental 0.2186 muestra / 0.001158 población. Los valores de precisión poblacional anteriores se proyectan en el corte muestral; la Tabla S6 usa cortes recalculados a prevalencia poblacional, lo que explica las pequeñas diferencias.</p>
 <p><strong>Tabla S18.</strong> Holdout espacial independiente de confirmación en 2023. Los modelos se reentrenaron excluyendo los 31 bloques de confirmación y su buffer de 20 km; el cutoff se seleccionó en celdas held-in de 2023 y se aplicó una vez a las celdas de confirmación.</p>
 <table class="caption-top table">
 <colgroup>
@@ -7784,12 +7784,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">139,139</td>
-<td style="text-align: right;">12,649</td>
+<td style="text-align: right;">139 139</td>
+<td style="text-align: right;">12 649</td>
 <td style="text-align: right;">0.7824</td>
 <td style="text-align: right;">0.2499</td>
-<td style="text-align: right;">250,470</td>
-<td style="text-align: right;">22,770</td>
+<td style="text-align: right;">250 470</td>
+<td style="text-align: right;">22 770</td>
 <td style="text-align: right;">0.7893</td>
 <td style="text-align: right;">0.2667</td>
 </tr>
@@ -7797,12 +7797,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">168,630</td>
-<td style="text-align: right;">15,330</td>
+<td style="text-align: right;">168 630</td>
+<td style="text-align: right;">15 330</td>
 <td style="text-align: right;">0.7630</td>
 <td style="text-align: right;">0.2491</td>
-<td style="text-align: right;">358,952</td>
-<td style="text-align: right;">32,632</td>
+<td style="text-align: right;">358 952</td>
+<td style="text-align: right;">32 632</td>
 <td style="text-align: right;">0.7525</td>
 <td style="text-align: right;">0.2384</td>
 </tr>
@@ -7810,12 +7810,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">135,300</td>
-<td style="text-align: right;">12,300</td>
+<td style="text-align: right;">135 300</td>
+<td style="text-align: right;">12 300</td>
 <td style="text-align: right;">0.7803</td>
 <td style="text-align: right;">0.2458</td>
-<td style="text-align: right;">243,518</td>
-<td style="text-align: right;">22,138</td>
+<td style="text-align: right;">243 518</td>
+<td style="text-align: right;">22 138</td>
 <td style="text-align: right;">0.7877</td>
 <td style="text-align: right;">0.2638</td>
 </tr>
@@ -7823,12 +7823,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">165,891</td>
-<td style="text-align: right;">15,081</td>
+<td style="text-align: right;">165 891</td>
+<td style="text-align: right;">15 081</td>
 <td style="text-align: right;">0.7613</td>
 <td style="text-align: right;">0.2464</td>
-<td style="text-align: right;">353,650</td>
-<td style="text-align: right;">32,150</td>
+<td style="text-align: right;">353 650</td>
+<td style="text-align: right;">32 150</td>
 <td style="text-align: right;">0.7515</td>
 <td style="text-align: right;">0.2341</td>
 </tr>
@@ -7836,12 +7836,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">131,549</td>
-<td style="text-align: right;">11,959</td>
+<td style="text-align: right;">131 549</td>
+<td style="text-align: right;">11 959</td>
 <td style="text-align: right;">0.7774</td>
 <td style="text-align: right;">0.2406</td>
-<td style="text-align: right;">236,368</td>
-<td style="text-align: right;">21,488</td>
+<td style="text-align: right;">236 368</td>
+<td style="text-align: right;">21 488</td>
 <td style="text-align: right;">0.7854</td>
 <td style="text-align: right;">0.2572</td>
 </tr>
@@ -7849,12 +7849,12 @@ max-width: 100%;
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">162,569</td>
-<td style="text-align: right;">14,779</td>
+<td style="text-align: right;">162 569</td>
+<td style="text-align: right;">14 779</td>
 <td style="text-align: right;">0.7592</td>
 <td style="text-align: right;">0.2402</td>
-<td style="text-align: right;">347,204</td>
-<td style="text-align: right;">31,564</td>
+<td style="text-align: right;">347 204</td>
+<td style="text-align: right;">31 564</td>
 <td style="text-align: right;">0.7501</td>
 <td style="text-align: right;">0.2312</td>
 </tr>
@@ -7862,12 +7862,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">100,408</td>
-<td style="text-align: right;">9,128</td>
+<td style="text-align: right;">100 408</td>
+<td style="text-align: right;">9 128</td>
 <td style="text-align: right;">0.7783</td>
 <td style="text-align: right;">0.2417</td>
-<td style="text-align: right;">181,852</td>
-<td style="text-align: right;">16,532</td>
+<td style="text-align: right;">181 852</td>
+<td style="text-align: right;">16 532</td>
 <td style="text-align: right;">0.7933</td>
 <td style="text-align: right;">0.2658</td>
 </tr>
@@ -7875,12 +7875,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">92,884</td>
-<td style="text-align: right;">8,444</td>
+<td style="text-align: right;">92 884</td>
+<td style="text-align: right;">8 444</td>
 <td style="text-align: right;">0.7664</td>
 <td style="text-align: right;">0.2555</td>
-<td style="text-align: right;">202,928</td>
-<td style="text-align: right;">18,448</td>
+<td style="text-align: right;">202 928</td>
+<td style="text-align: right;">18 448</td>
 <td style="text-align: right;">0.7548</td>
 <td style="text-align: right;">0.2420</td>
 </tr>
@@ -7888,12 +7888,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">8,853</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">8 853</td>
 <td style="text-align: right;">0.7763</td>
 <td style="text-align: right;">0.2422</td>
-<td style="text-align: right;">176,616</td>
-<td style="text-align: right;">16,056</td>
+<td style="text-align: right;">176 616</td>
+<td style="text-align: right;">16 056</td>
 <td style="text-align: right;">0.7923</td>
 <td style="text-align: right;">0.2600</td>
 </tr>
@@ -7901,12 +7901,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">8,284</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">8 284</td>
 <td style="text-align: right;">0.7622</td>
 <td style="text-align: right;">0.2433</td>
-<td style="text-align: right;">199,936</td>
-<td style="text-align: right;">18,176</td>
+<td style="text-align: right;">199 936</td>
+<td style="text-align: right;">18 176</td>
 <td style="text-align: right;">0.7526</td>
 <td style="text-align: right;">0.2360</td>
 </tr>
@@ -7914,12 +7914,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">94,468</td>
-<td style="text-align: right;">8,588</td>
+<td style="text-align: right;">94 468</td>
+<td style="text-align: right;">8 588</td>
 <td style="text-align: right;">0.7735</td>
 <td style="text-align: right;">0.2379</td>
-<td style="text-align: right;">171,281</td>
-<td style="text-align: right;">15,571</td>
+<td style="text-align: right;">171 281</td>
+<td style="text-align: right;">15 571</td>
 <td style="text-align: right;">0.7906</td>
 <td style="text-align: right;">0.2550</td>
 </tr>
@@ -7927,12 +7927,12 @@ max-width: 100%;
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">89,430</td>
-<td style="text-align: right;">8,130</td>
+<td style="text-align: right;">89 430</td>
+<td style="text-align: right;">8 130</td>
 <td style="text-align: right;">0.7608</td>
 <td style="text-align: right;">0.2410</td>
-<td style="text-align: right;">196,053</td>
-<td style="text-align: right;">17,823</td>
+<td style="text-align: right;">196 053</td>
+<td style="text-align: right;">17 823</td>
 <td style="text-align: right;">0.7505</td>
 <td style="text-align: right;">0.2317</td>
 </tr>
@@ -7940,12 +7940,12 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">73,051</td>
-<td style="text-align: right;">6,641</td>
+<td style="text-align: right;">73 051</td>
+<td style="text-align: right;">6 641</td>
 <td style="text-align: right;">0.7764</td>
 <td style="text-align: right;">0.2428</td>
-<td style="text-align: right;">130,449</td>
-<td style="text-align: right;">11,859</td>
+<td style="text-align: right;">130 449</td>
+<td style="text-align: right;">11 859</td>
 <td style="text-align: right;">0.7974</td>
 <td style="text-align: right;">0.2672</td>
 </tr>
@@ -7953,12 +7953,12 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">59,488</td>
-<td style="text-align: right;">5,408</td>
+<td style="text-align: right;">59 488</td>
+<td style="text-align: right;">5 408</td>
 <td style="text-align: right;">0.7676</td>
 <td style="text-align: right;">0.2513</td>
-<td style="text-align: right;">127,446</td>
-<td style="text-align: right;">11,586</td>
+<td style="text-align: right;">127 446</td>
+<td style="text-align: right;">11 586</td>
 <td style="text-align: right;">0.7531</td>
 <td style="text-align: right;">0.2447</td>
 </tr>
@@ -7966,12 +7966,12 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">70,598</td>
-<td style="text-align: right;">6,418</td>
+<td style="text-align: right;">70 598</td>
+<td style="text-align: right;">6 418</td>
 <td style="text-align: right;">0.7734</td>
 <td style="text-align: right;">0.2361</td>
-<td style="text-align: right;">126,357</td>
-<td style="text-align: right;">11,487</td>
+<td style="text-align: right;">126 357</td>
+<td style="text-align: right;">11 487</td>
 <td style="text-align: right;">0.7949</td>
 <td style="text-align: right;">0.2612</td>
 </tr>
@@ -7979,12 +7979,12 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">58,234</td>
-<td style="text-align: right;">5,294</td>
+<td style="text-align: right;">58 234</td>
+<td style="text-align: right;">5 294</td>
 <td style="text-align: right;">0.7634</td>
 <td style="text-align: right;">0.2445</td>
-<td style="text-align: right;">125,510</td>
-<td style="text-align: right;">11,410</td>
+<td style="text-align: right;">125 510</td>
+<td style="text-align: right;">11 410</td>
 <td style="text-align: right;">0.7523</td>
 <td style="text-align: right;">0.2406</td>
 </tr>
@@ -7992,12 +7992,12 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Chaco</td>
-<td style="text-align: right;">68,420</td>
-<td style="text-align: right;">6,220</td>
+<td style="text-align: right;">68 420</td>
+<td style="text-align: right;">6 220</td>
 <td style="text-align: right;">0.7710</td>
 <td style="text-align: right;">0.2342</td>
-<td style="text-align: right;">122,386</td>
-<td style="text-align: right;">11,126</td>
+<td style="text-align: right;">122 386</td>
+<td style="text-align: right;">11 126</td>
 <td style="text-align: right;">0.7936</td>
 <td style="text-align: right;">0.2548</td>
 </tr>
@@ -8005,18 +8005,18 @@ max-width: 100%;
 <td style="text-align: right;">35</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: left;">Oriental</td>
-<td style="text-align: right;">57,068</td>
-<td style="text-align: right;">5,188</td>
+<td style="text-align: right;">57 068</td>
+<td style="text-align: right;">5 188</td>
 <td style="text-align: right;">0.7616</td>
 <td style="text-align: right;">0.2434</td>
-<td style="text-align: right;">123,068</td>
-<td style="text-align: right;">11,188</td>
+<td style="text-align: right;">123 068</td>
+<td style="text-align: right;">11 188</td>
 <td style="text-align: right;">0.7499</td>
 <td style="text-align: right;">0.2376</td>
 </tr>
 </tbody>
 </table>
-<p>La tabla completa con M1, M2 y la política gated está en <code>tablas/tablaS20_sensibilidad_d2.csv</code>. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 10 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.</p>
+<p>La tabla completa con M1, M2 y la política gated está en <code>tablas/tablaS20_sensibilidad_d2.csv</code>. La fila 25 km/10 d reproduce la misma muestra y features que las particiones principales; su pequeña diferencia con la Tabla 2 refleja el reentrenamiento dentro de este arnés, no un target o muestra distintos. M3 superó a M2 en las 18 comparaciones región × evaluación (ΔROC +0.004 a +0.016). La ventana de 7 días tuvo el mayor ROC-AUC en cada par región × radio, y el efecto del radio fue pequeño: 35 km fue ligeramente mejor en Chaco y 25 km en Oriental. El ranking y la conclusión de D2 son estables.</p>
 <p><strong>Tabla S21.</strong> Línea base GBT solo meteorología en el test retrospectivo 2024–2025. El modelo usa el mismo aprendiz, capacidad, restricciones monótonas y calibración de Platt monótona que M1/M2/M3, pero solo el conjunto de información disponible para el FWI canadiense.</p>
 <table class="caption-top table">
 <colgroup>
@@ -8035,14 +8035,14 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>ROC-AUC [95 % CI]</th>
 <th>PR-AUC</th>
 <th>Brier</th>
 <th>BSS</th>
 <th>ECE</th>
-<th>Cutoff</th>
-<th>Precision</th>
+<th>Corte</th>
+<th>Precisión</th>
 <th>Recall</th>
 <th>F0.5</th>
 <th>FP</th>
@@ -8061,7 +8061,7 @@ max-width: 100%;
 <td>0.1143</td>
 <td>0.1932</td>
 <td>0.1245</td>
-<td>24036</td>
+<td>24 036</td>
 <td>+0.2509 (≤0.001)</td>
 </tr>
 <tr class="even">
@@ -8075,13 +8075,13 @@ max-width: 100%;
 <td>0.1108</td>
 <td>0.4244</td>
 <td>0.1300</td>
-<td>61905</td>
+<td>61 905</td>
 <td>+0.1889 (≤0.001)</td>
 </tr>
 </tbody>
 </table>
 <p>Variables (9): <code>temp_max_c</code>, <code>temp_min_c</code>, <code>vpd_max_kpa</code>, <code>viento_max_kmh</code>, <code>precipitacion_mm</code>, <code>precipitacion_48h_mm</code>, <code>dias_secos_consecutivos</code>, <code>ffmc</code>, <code>isi</code>. El BSS es relativo a la prevalencia de entrenamiento 2018–2022. ΔROC es M3 menos el GBT solo meteorología, con bootstrap pareado agrupado por fecha (B = 1 000). La tabla legible por máquina está en <code>tablas/tablaS21_benchmark_weather_only.csv</code>.</p>
-<p><strong>Tabla S22.</strong> Sensibilidad del INPE Risco de Fogo a la constante de flamabilidad A en el test retrospectivo 2024–2025. La versión primaria usa A ponderada por las fracciones de cobertura de MapBiomas (A local, específica por celda); la versión de sensibilidad fija A = 3.0, el coeficiente INPE de sabana abierta, para todas las celdas. Los cortes se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para 2024–2025, por lo que precisión, recall y F0.5 corresponden a puntos operativos distintos y no son directamente comparables entre filas. ΔROC es A fija menos A local, con bootstrap pareado agrupado por fecha (B = 1 000); los valores positivos favorecen la versión fija. Ambas versiones quedan muy por debajo de M3 (ROC-AUC 0.8021/0.7534; Tabla 4). En la muestra de test, la A local promedia 2.89 en el Chaco y 3.71 en Oriental.</p>
+<p><strong>Tabla S22.</strong> Sensibilidad del INPE Risco de Fogo a la constante de flamabilidad A en el test retrospectivo 2024–2025. La versión primaria usa A ponderada por las fracciones de cobertura de MapBiomas (A local, específica por celda); la versión de sensibilidad fija A = 3.0, el coeficiente INPE de sabana abierta, para todas las celdas. Los cortes se seleccionaron en la validación de 2023 maximizando F0.5 y se congelaron para 2024–2025, por lo que precisión, recall y F0.5 corresponden a puntos operativos distintos y no son directamente comparables entre filas. ΔROC es A fija menos A local, con bootstrap pareado agrupado por fecha (B = 1 000); los valores positivos favorecen la versión fija. Ambas versiones quedan muy por debajo de M3 (ROC-AUC 0.8021/0.7534; Tabla 2). En la muestra de test, la A local promedia 2.89 en el Chaco y 3.71 en Oriental.</p>
 <!-- tablaS22:inicio -->
 <table class="caption-top table">
 <colgroup>
@@ -8099,13 +8099,13 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>INPE version</th>
+<th>Región</th>
+<th>Versión INPE</th>
 <th>A</th>
 <th style="text-align: right;">ROC-AUC [95 % CI]</th>
 <th style="text-align: right;">PR-AUC</th>
-<th style="text-align: right;">Cutoff</th>
-<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Corte</th>
+<th style="text-align: right;">Precisión</th>
 <th style="text-align: right;">Recall</th>
 <th style="text-align: right;">F0.5</th>
 <th style="text-align: right;">FP</th>
@@ -8123,7 +8123,7 @@ max-width: 100%;
 <td style="text-align: right;">0.0924</td>
 <td style="text-align: right;">0.9247</td>
 <td style="text-align: right;">0.1126</td>
-<td style="text-align: right;">145,918</td>
+<td style="text-align: right;">145 918</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -8136,7 +8136,7 @@ max-width: 100%;
 <td style="text-align: right;">0.0913</td>
 <td style="text-align: right;">0.9889</td>
 <td style="text-align: right;">0.1115</td>
-<td style="text-align: right;">158,080</td>
+<td style="text-align: right;">158 080</td>
 <td style="text-align: right;">-0.0290 (0.001)</td>
 </tr>
 <tr class="odd">
@@ -8149,7 +8149,7 @@ max-width: 100%;
 <td style="text-align: right;">0.0924</td>
 <td style="text-align: right;">0.8256</td>
 <td style="text-align: right;">0.1123</td>
-<td style="text-align: right;">147,439</td>
+<td style="text-align: right;">147 439</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -8162,7 +8162,7 @@ max-width: 100%;
 <td style="text-align: right;">0.1229</td>
 <td style="text-align: right;">0.1163</td>
 <td style="text-align: right;">0.1216</td>
-<td style="text-align: right;">15,082</td>
+<td style="text-align: right;">15 082</td>
 <td style="text-align: right;">+0.0524 (0.001)</td>
 </tr>
 </tbody>
@@ -8173,9 +8173,9 @@ max-width: 100%;
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Task</th>
-<th>Model</th>
+<th>Región</th>
+<th>Tarea</th>
+<th>Modelo</th>
 <th style="text-align: right;"><span class="math inline">\(p_t\)</span></th>
 <th style="text-align: right;">NB per 1 000</th>
 </tr>
@@ -8499,8 +8499,8 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Model</th>
+<th>Región</th>
+<th>Modelo</th>
 <th style="text-align: right;">Alerts/day</th>
 <th style="text-align: right;">Prec. (op.) %</th>
 <th style="text-align: right;">Rec. (op.) %</th>
@@ -8663,7 +8663,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Comparison</th>
 <th style="text-align: right;">α</th>
 <th style="text-align: right;">V(M3)</th>
@@ -9397,7 +9397,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Capacity</th>
 <th style="text-align: right;">Runs</th>
 <th style="text-align: right;">M3 ROC (mean ± SD)</th>
@@ -9471,9 +9471,9 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Fold</th>
-<th>Model</th>
+<th>Modelo</th>
 <th style="text-align: right;">ROC-AUC</th>
 <th style="text-align: right;">PR-AUC</th>
 <th style="text-align: right;">n train</th>
@@ -9490,10 +9490,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6495</td>
 <td style="text-align: right;">0.1455</td>
-<td style="text-align: right;">288,376</td>
-<td style="text-align: right;">110,275</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">9,101</td>
+<td style="text-align: right;">288 376</td>
+<td style="text-align: right;">110 275</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">9 101</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9502,10 +9502,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7682</td>
 <td style="text-align: right;">0.2314</td>
-<td style="text-align: right;">288,376</td>
-<td style="text-align: right;">110,275</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">9,101</td>
+<td style="text-align: right;">288 376</td>
+<td style="text-align: right;">110 275</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">9 101</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9514,10 +9514,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7711</td>
 <td style="text-align: right;">0.2404</td>
-<td style="text-align: right;">288,376</td>
-<td style="text-align: right;">110,275</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">9,101</td>
+<td style="text-align: right;">288 376</td>
+<td style="text-align: right;">110 275</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">9 101</td>
 <td style="text-align: right;">+0.0030 (0.032)</td>
 </tr>
 <tr class="even">
@@ -9526,10 +9526,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6334</td>
 <td style="text-align: right;">0.1469</td>
-<td style="text-align: right;">398,651</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">8,853</td>
+<td style="text-align: right;">398 651</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">8 853</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9538,10 +9538,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7813</td>
 <td style="text-align: right;">0.2456</td>
-<td style="text-align: right;">398,651</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">8,853</td>
+<td style="text-align: right;">398 651</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">8 853</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9550,10 +9550,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7842</td>
 <td style="text-align: right;">0.2531</td>
-<td style="text-align: right;">398,651</td>
-<td style="text-align: right;">100,111</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">8,853</td>
+<td style="text-align: right;">398 651</td>
+<td style="text-align: right;">100 111</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">8 853</td>
 <td style="text-align: right;">+0.0029 (0.082)</td>
 </tr>
 <tr class="odd">
@@ -9562,10 +9562,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6556</td>
 <td style="text-align: right;">0.1700</td>
-<td style="text-align: right;">498,762</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">9,204</td>
+<td style="text-align: right;">498 762</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">9 204</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9574,10 +9574,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7993</td>
 <td style="text-align: right;">0.2764</td>
-<td style="text-align: right;">498,762</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">9,204</td>
+<td style="text-align: right;">498 762</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">9 204</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9586,10 +9586,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.8030</td>
 <td style="text-align: right;">0.2820</td>
-<td style="text-align: right;">498,762</td>
-<td style="text-align: right;">97,383</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">9,204</td>
+<td style="text-align: right;">498 762</td>
+<td style="text-align: right;">97 383</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">9 204</td>
 <td style="text-align: right;">+0.0038 (0.004)</td>
 </tr>
 <tr class="even">
@@ -9598,10 +9598,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6277</td>
 <td style="text-align: right;">0.1424</td>
-<td style="text-align: right;">596,145</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">75,372</td>
-<td style="text-align: right;">6,852</td>
+<td style="text-align: right;">596 145</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">75 372</td>
+<td style="text-align: right;">6 852</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9610,10 +9610,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.8001</td>
 <td style="text-align: right;">0.2820</td>
-<td style="text-align: right;">596,145</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">75,372</td>
-<td style="text-align: right;">6,852</td>
+<td style="text-align: right;">596 145</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">75 372</td>
+<td style="text-align: right;">6 852</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9622,10 +9622,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.8021</td>
 <td style="text-align: right;">0.2926</td>
-<td style="text-align: right;">596,145</td>
-<td style="text-align: right;">101,244</td>
-<td style="text-align: right;">75,372</td>
-<td style="text-align: right;">6,852</td>
+<td style="text-align: right;">596 145</td>
+<td style="text-align: right;">101 244</td>
+<td style="text-align: right;">75 372</td>
+<td style="text-align: right;">6 852</td>
 <td style="text-align: right;">+0.0019 (0.148)</td>
 </tr>
 <tr class="odd">
@@ -9634,10 +9634,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6862</td>
 <td style="text-align: right;">0.1694</td>
-<td style="text-align: right;">305,426</td>
-<td style="text-align: right;">106,480</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">8,483</td>
+<td style="text-align: right;">305 426</td>
+<td style="text-align: right;">106 480</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">8 483</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9646,10 +9646,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7418</td>
 <td style="text-align: right;">0.2218</td>
-<td style="text-align: right;">305,426</td>
-<td style="text-align: right;">106,480</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">8,483</td>
+<td style="text-align: right;">305 426</td>
+<td style="text-align: right;">106 480</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">8 483</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9658,10 +9658,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7477</td>
 <td style="text-align: right;">0.2310</td>
-<td style="text-align: right;">305,426</td>
-<td style="text-align: right;">106,480</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">8,483</td>
+<td style="text-align: right;">305 426</td>
+<td style="text-align: right;">106 480</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">8 483</td>
 <td style="text-align: right;">+0.0059 (0.006)</td>
 </tr>
 <tr class="even">
@@ -9670,10 +9670,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.7028</td>
 <td style="text-align: right;">0.1792</td>
-<td style="text-align: right;">411,906</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">8,284</td>
+<td style="text-align: right;">411 906</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">8 284</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9682,10 +9682,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7488</td>
 <td style="text-align: right;">0.2223</td>
-<td style="text-align: right;">411,906</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">8,284</td>
+<td style="text-align: right;">411 906</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">8 284</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9694,10 +9694,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7608</td>
 <td style="text-align: right;">0.2405</td>
-<td style="text-align: right;">411,906</td>
-<td style="text-align: right;">93,313</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">8,284</td>
+<td style="text-align: right;">411 906</td>
+<td style="text-align: right;">93 313</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">8 284</td>
 <td style="text-align: right;">+0.0120 (0.001)</td>
 </tr>
 <tr class="odd">
@@ -9706,10 +9706,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6798</td>
 <td style="text-align: right;">0.1615</td>
-<td style="text-align: right;">505,219</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">9,137</td>
+<td style="text-align: right;">505 219</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">9 137</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9718,10 +9718,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7366</td>
 <td style="text-align: right;">0.2095</td>
-<td style="text-align: right;">505,219</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">9,137</td>
+<td style="text-align: right;">505 219</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">9 137</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9730,10 +9730,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7532</td>
 <td style="text-align: right;">0.2316</td>
-<td style="text-align: right;">505,219</td>
-<td style="text-align: right;">91,124</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">9,137</td>
+<td style="text-align: right;">505 219</td>
+<td style="text-align: right;">91 124</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">9 137</td>
 <td style="text-align: right;">+0.0166 (0.001)</td>
 </tr>
 <tr class="even">
@@ -9742,10 +9742,10 @@ max-width: 100%;
 <td>M1</td>
 <td style="text-align: right;">0.6896</td>
 <td style="text-align: right;">0.1728</td>
-<td style="text-align: right;">596,343</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">99,429</td>
-<td style="text-align: right;">9,039</td>
+<td style="text-align: right;">596 343</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">99 429</td>
+<td style="text-align: right;">9 039</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
@@ -9754,10 +9754,10 @@ max-width: 100%;
 <td>M2</td>
 <td style="text-align: right;">0.7476</td>
 <td style="text-align: right;">0.2236</td>
-<td style="text-align: right;">596,343</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">99,429</td>
-<td style="text-align: right;">9,039</td>
+<td style="text-align: right;">596 343</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">99 429</td>
+<td style="text-align: right;">9 039</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -9766,10 +9766,10 @@ max-width: 100%;
 <td>M3</td>
 <td style="text-align: right;">0.7560</td>
 <td style="text-align: right;">0.2396</td>
-<td style="text-align: right;">596,343</td>
-<td style="text-align: right;">100,507</td>
-<td style="text-align: right;">99,429</td>
-<td style="text-align: right;">9,039</td>
+<td style="text-align: right;">596 343</td>
+<td style="text-align: right;">100 507</td>
+<td style="text-align: right;">99 429</td>
+<td style="text-align: right;">9 039</td>
 <td style="text-align: right;">+0.0084 (0.001)</td>
 </tr>
 </tbody>
@@ -9806,9 +9806,9 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Subset</th>
-<th>Model</th>
+<th>Región</th>
+<th>Subconjunto</th>
+<th>Modelo</th>
 <th>n</th>
 <th>n+</th>
 <th>Prev. (%)</th>
@@ -9831,8 +9831,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Full</td>
 <td>M3</td>
-<td>176616</td>
-<td>16056</td>
+<td>176 616</td>
+<td>16 056</td>
 <td>9.09</td>
 <td>0.8021</td>
 <td>[0.797 - 0.807]</td>
@@ -9843,7 +9843,7 @@ max-width: 100%;
 <td>0.3282</td>
 <td>0.3030</td>
 <td>0.3228</td>
-<td>9960</td>
+<td>9 960</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -9851,8 +9851,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Full</td>
 <td>M2</td>
-<td>176616</td>
-<td>16056</td>
+<td>176 616</td>
+<td>16 056</td>
 <td>9.09</td>
 <td>0.7991</td>
 <td>[0.794 - 0.804]</td>
@@ -9863,7 +9863,7 @@ max-width: 100%;
 <td>0.3328</td>
 <td>0.2725</td>
 <td>0.3187</td>
-<td>8773</td>
+<td>8 773</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -9871,8 +9871,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Full</td>
 <td>Gated</td>
-<td>176616</td>
-<td>16056</td>
+<td>176 616</td>
+<td>16 056</td>
 <td>9.09</td>
 <td>0.8035</td>
 <td>[0.799 - 0.809]</td>
@@ -9883,7 +9883,7 @@ max-width: 100%;
 <td>0.3270</td>
 <td>0.3087</td>
 <td>0.3232</td>
-<td>10200</td>
+<td>10 200</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -9891,8 +9891,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Unseen cell</td>
 <td>M3</td>
-<td>23074</td>
-<td>2115</td>
+<td>23 074</td>
+<td>2 115</td>
 <td>9.17</td>
 <td>0.7841</td>
 <td>[0.773 - 0.794]</td>
@@ -9903,7 +9903,7 @@ max-width: 100%;
 <td>0.3363</td>
 <td>0.2652</td>
 <td>0.3192</td>
-<td>1107</td>
+<td>1 107</td>
 <td>-0.0180</td>
 <td>-0.0036</td>
 </tr>
@@ -9911,8 +9911,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Unseen cell</td>
 <td>M2</td>
-<td>23074</td>
-<td>2115</td>
+<td>23 074</td>
+<td>2 115</td>
 <td>9.17</td>
 <td>0.7781</td>
 <td>[0.768 - 0.788]</td>
@@ -9923,7 +9923,7 @@ max-width: 100%;
 <td>0.3076</td>
 <td>0.2520</td>
 <td>0.2946</td>
-<td>1200</td>
+<td>1 200</td>
 <td>-0.0210</td>
 <td>-0.0241</td>
 </tr>
@@ -9931,8 +9931,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Unseen cell</td>
 <td>Gated</td>
-<td>23074</td>
-<td>2115</td>
+<td>23 074</td>
+<td>2 115</td>
 <td>9.17</td>
 <td>0.7846</td>
 <td>[0.774 - 0.794]</td>
@@ -9943,7 +9943,7 @@ max-width: 100%;
 <td>0.3327</td>
 <td>0.2695</td>
 <td>0.3178</td>
-<td>1143</td>
+<td>1 143</td>
 <td>-0.0189</td>
 <td>-0.0054</td>
 </tr>
@@ -9951,8 +9951,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No train fire</td>
 <td>M3</td>
-<td>150696</td>
-<td>11540</td>
+<td>150 696</td>
+<td>11 540</td>
 <td>7.66</td>
 <td>0.8118</td>
 <td>[0.806 - 0.818]</td>
@@ -9963,7 +9963,7 @@ max-width: 100%;
 <td>0.3384</td>
 <td>0.2768</td>
 <td>0.3240</td>
-<td>6245</td>
+<td>6 245</td>
 <td>+0.0097</td>
 <td>+0.0012</td>
 </tr>
@@ -9971,8 +9971,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No train fire</td>
 <td>M2</td>
-<td>150696</td>
-<td>11540</td>
+<td>150 696</td>
+<td>11 540</td>
 <td>7.66</td>
 <td>0.8096</td>
 <td>[0.804 - 0.815]</td>
@@ -9983,7 +9983,7 @@ max-width: 100%;
 <td>0.3262</td>
 <td>0.2548</td>
 <td>0.3088</td>
-<td>6074</td>
+<td>6 074</td>
 <td>+0.0105</td>
 <td>-0.0099</td>
 </tr>
@@ -9991,8 +9991,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No train fire</td>
 <td>Gated</td>
-<td>150696</td>
-<td>11540</td>
+<td>150 696</td>
+<td>11 540</td>
 <td>7.66</td>
 <td>0.8136</td>
 <td>[0.808 - 0.819]</td>
@@ -10003,7 +10003,7 @@ max-width: 100%;
 <td>0.3355</td>
 <td>0.2832</td>
 <td>0.3235</td>
-<td>6473</td>
+<td>6 473</td>
 <td>+0.0101</td>
 <td>+0.0003</td>
 </tr>
@@ -10011,8 +10011,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No history</td>
 <td>M3</td>
-<td>132562</td>
-<td>6619</td>
+<td>132 562</td>
+<td>6 619</td>
 <td>4.99</td>
 <td>0.7806</td>
 <td>[0.773 - 0.787]</td>
@@ -10031,8 +10031,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No history</td>
 <td>M2</td>
-<td>132562</td>
-<td>6619</td>
+<td>132 562</td>
+<td>6 619</td>
 <td>4.99</td>
 <td>0.7841</td>
 <td>[0.777 - 0.791]</td>
@@ -10043,7 +10043,7 @@ max-width: 100%;
 <td>0.3390</td>
 <td>0.0778</td>
 <td>0.2028</td>
-<td>1004</td>
+<td>1 004</td>
 <td>-0.0150</td>
 <td>-0.1159</td>
 </tr>
@@ -10051,8 +10051,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No history</td>
 <td>Gated</td>
-<td>132562</td>
-<td>6619</td>
+<td>132 562</td>
+<td>6 619</td>
 <td>4.99</td>
 <td>0.7841</td>
 <td>[0.777 - 0.791]</td>
@@ -10071,8 +10071,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>2025 only</td>
 <td>M3</td>
-<td>75372</td>
-<td>6852</td>
+<td>75 372</td>
+<td>6 852</td>
 <td>9.09</td>
 <td>0.8011</td>
 <td>[0.794 - 0.808]</td>
@@ -10083,7 +10083,7 @@ max-width: 100%;
 <td>0.3306</td>
 <td>0.2904</td>
 <td>0.3217</td>
-<td>4030</td>
+<td>4 030</td>
 <td>-0.0010</td>
 <td>-0.0011</td>
 </tr>
@@ -10091,8 +10091,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>2025 only</td>
 <td>M2</td>
-<td>75372</td>
-<td>6852</td>
+<td>75 372</td>
+<td>6 852</td>
 <td>9.09</td>
 <td>0.7991</td>
 <td>[0.792 - 0.806]</td>
@@ -10103,7 +10103,7 @@ max-width: 100%;
 <td>0.3489</td>
 <td>0.2583</td>
 <td>0.3260</td>
-<td>3303</td>
+<td>3 303</td>
 <td>+0.0000</td>
 <td>+0.0073</td>
 </tr>
@@ -10111,8 +10111,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>2025 only</td>
 <td>Gated</td>
-<td>75372</td>
-<td>6852</td>
+<td>75 372</td>
+<td>6 852</td>
 <td>9.09</td>
 <td>0.8026</td>
 <td>[0.796 - 0.810]</td>
@@ -10123,7 +10123,7 @@ max-width: 100%;
 <td>0.3304</td>
 <td>0.2947</td>
 <td>0.3226</td>
-<td>4092</td>
+<td>4 092</td>
 <td>-0.0003</td>
 <td>-0.0006</td>
 </tr>
@@ -10131,8 +10131,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Full</td>
 <td>M3</td>
-<td>199936</td>
-<td>18176</td>
+<td>199 936</td>
+<td>18 176</td>
 <td>9.09</td>
 <td>0.7534</td>
 <td>[0.747 - 0.759]</td>
@@ -10143,7 +10143,7 @@ max-width: 100%;
 <td>0.3013</td>
 <td>0.1859</td>
 <td>0.2680</td>
-<td>7835</td>
+<td>7 835</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -10151,8 +10151,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Full</td>
 <td>M2</td>
-<td>199936</td>
-<td>18176</td>
+<td>199 936</td>
+<td>18 176</td>
 <td>9.09</td>
 <td>0.7406</td>
 <td>[0.735 - 0.746]</td>
@@ -10163,7 +10163,7 @@ max-width: 100%;
 <td>0.2610</td>
 <td>0.1958</td>
 <td>0.2447</td>
-<td>10075</td>
+<td>10 075</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -10171,8 +10171,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Full</td>
 <td>Gated</td>
-<td>199936</td>
-<td>18176</td>
+<td>199 936</td>
+<td>18 176</td>
 <td>9.09</td>
 <td>0.7502</td>
 <td>[0.744 - 0.756]</td>
@@ -10183,7 +10183,7 @@ max-width: 100%;
 <td>0.3015</td>
 <td>0.1855</td>
 <td>0.2679</td>
-<td>7811</td>
+<td>7 811</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -10191,7 +10191,7 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Unseen cell</td>
 <td>M3</td>
-<td>9378</td>
+<td>9 378</td>
 <td>882</td>
 <td>9.40</td>
 <td>0.7148</td>
@@ -10211,7 +10211,7 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Unseen cell</td>
 <td>M2</td>
-<td>9378</td>
+<td>9 378</td>
 <td>882</td>
 <td>9.40</td>
 <td>0.7089</td>
@@ -10231,7 +10231,7 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Unseen cell</td>
 <td>Gated</td>
-<td>9378</td>
+<td>9 378</td>
 <td>882</td>
 <td>9.40</td>
 <td>0.7129</td>
@@ -10251,8 +10251,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No train fire</td>
 <td>M3</td>
-<td>154948</td>
-<td>11049</td>
+<td>154 948</td>
+<td>11 049</td>
 <td>7.13</td>
 <td>0.7557</td>
 <td>[0.750 - 0.761]</td>
@@ -10263,7 +10263,7 @@ max-width: 100%;
 <td>0.2739</td>
 <td>0.1326</td>
 <td>0.2258</td>
-<td>3884</td>
+<td>3 884</td>
 <td>+0.0023</td>
 <td>-0.0422</td>
 </tr>
@@ -10271,8 +10271,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No train fire</td>
 <td>M2</td>
-<td>154948</td>
-<td>11049</td>
+<td>154 948</td>
+<td>11 049</td>
 <td>7.13</td>
 <td>0.7460</td>
 <td>[0.741 - 0.752]</td>
@@ -10283,7 +10283,7 @@ max-width: 100%;
 <td>0.2314</td>
 <td>0.1569</td>
 <td>0.2114</td>
-<td>5759</td>
+<td>5 759</td>
 <td>+0.0054</td>
 <td>-0.0333</td>
 </tr>
@@ -10291,8 +10291,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No train fire</td>
 <td>Gated</td>
-<td>154948</td>
-<td>11049</td>
+<td>154 948</td>
+<td>11 049</td>
 <td>7.13</td>
 <td>0.7514</td>
 <td>[0.746 - 0.757]</td>
@@ -10303,7 +10303,7 @@ max-width: 100%;
 <td>0.2740</td>
 <td>0.1320</td>
 <td>0.2255</td>
-<td>3866</td>
+<td>3 866</td>
 <td>+0.0012</td>
 <td>-0.0424</td>
 </tr>
@@ -10311,8 +10311,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No history</td>
 <td>M3</td>
-<td>116022</td>
-<td>5104</td>
+<td>116 022</td>
+<td>5 104</td>
 <td>4.40</td>
 <td>0.7401</td>
 <td>[0.733 - 0.748]</td>
@@ -10331,8 +10331,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No history</td>
 <td>M2</td>
-<td>116022</td>
-<td>5104</td>
+<td>116 022</td>
+<td>5 104</td>
 <td>4.40</td>
 <td>0.7300</td>
 <td>[0.722 - 0.738]</td>
@@ -10351,8 +10351,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No history</td>
 <td>Gated</td>
-<td>116022</td>
-<td>5104</td>
+<td>116 022</td>
+<td>5 104</td>
 <td>4.40</td>
 <td>0.7300</td>
 <td>[0.722 - 0.738]</td>
@@ -10371,8 +10371,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>2025 only</td>
 <td>M3</td>
-<td>99429</td>
-<td>9039</td>
+<td>99 429</td>
+<td>9 039</td>
 <td>9.09</td>
 <td>0.7539</td>
 <td>[0.746 - 0.762]</td>
@@ -10383,7 +10383,7 @@ max-width: 100%;
 <td>0.3189</td>
 <td>0.1678</td>
 <td>0.2702</td>
-<td>3240</td>
+<td>3 240</td>
 <td>+0.0005</td>
 <td>+0.0022</td>
 </tr>
@@ -10391,8 +10391,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>2025 only</td>
 <td>M2</td>
-<td>99429</td>
-<td>9039</td>
+<td>99 429</td>
+<td>9 039</td>
 <td>9.09</td>
 <td>0.7451</td>
 <td>[0.736 - 0.753]</td>
@@ -10403,7 +10403,7 @@ max-width: 100%;
 <td>0.2836</td>
 <td>0.1829</td>
 <td>0.2554</td>
-<td>4176</td>
+<td>4 176</td>
 <td>+0.0045</td>
 <td>+0.0107</td>
 </tr>
@@ -10411,8 +10411,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>2025 only</td>
 <td>Gated</td>
-<td>99429</td>
-<td>9039</td>
+<td>99 429</td>
+<td>9 039</td>
 <td>9.09</td>
 <td>0.7515</td>
 <td>[0.743 - 0.760]</td>
@@ -10423,7 +10423,7 @@ max-width: 100%;
 <td>0.3188</td>
 <td>0.1676</td>
 <td>0.2701</td>
-<td>3237</td>
+<td>3 237</td>
 <td>+0.0015</td>
 <td>+0.0022</td>
 </tr>
@@ -10453,9 +10453,9 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Subset</th>
-<th>Model</th>
+<th>Región</th>
+<th>Subconjunto</th>
+<th>Modelo</th>
 <th>n</th>
 <th>n+</th>
 <th>Prev. (%)</th>
@@ -10478,8 +10478,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>Full</td>
 <td>Propagation</td>
-<td>576455</td>
-<td>52405</td>
+<td>576 455</td>
+<td>52 405</td>
 <td>9.09</td>
 <td>0.9039</td>
 <td>[0.899 - 0.909]</td>
@@ -10490,7 +10490,7 @@ max-width: 100%;
 <td>0.8369</td>
 <td>0.5240</td>
 <td>0.7476</td>
-<td>5353</td>
+<td>5 353</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -10498,8 +10498,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No train fire</td>
 <td>Propagation</td>
-<td>334981</td>
-<td>22067</td>
+<td>334 981</td>
+<td>22 067</td>
 <td>6.59</td>
 <td>0.9289</td>
 <td>[0.924 - 0.934]</td>
@@ -10510,7 +10510,7 @@ max-width: 100%;
 <td>0.8611</td>
 <td>0.6085</td>
 <td>0.7951</td>
-<td>2166</td>
+<td>2 166</td>
 <td>+0.0250</td>
 <td>+0.0475</td>
 </tr>
@@ -10518,8 +10518,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>No history</td>
 <td>Propagation</td>
-<td>378637</td>
-<td>20024</td>
+<td>378 637</td>
+<td>20 024</td>
 <td>5.29</td>
 <td>0.9094</td>
 <td>[0.901 - 0.918]</td>
@@ -10530,7 +10530,7 @@ max-width: 100%;
 <td>0.8428</td>
 <td>0.5605</td>
 <td>0.7657</td>
-<td>2093</td>
+<td>2 093</td>
 <td>+0.0055</td>
 <td>+0.0181</td>
 </tr>
@@ -10538,8 +10538,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>2025 only</td>
 <td>Propagation</td>
-<td>164054</td>
-<td>14914</td>
+<td>164 054</td>
+<td>14 914</td>
 <td>9.09</td>
 <td>0.8982</td>
 <td>[0.893 - 0.905]</td>
@@ -10550,7 +10550,7 @@ max-width: 100%;
 <td>0.8719</td>
 <td>0.5091</td>
 <td>0.7631</td>
-<td>1115</td>
+<td>1 115</td>
 <td>-0.0057</td>
 <td>+0.0155</td>
 </tr>
@@ -10558,8 +10558,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>Full</td>
 <td>Propagation</td>
-<td>860959</td>
-<td>78269</td>
+<td>860 959</td>
+<td>78 269</td>
 <td>9.09</td>
 <td>0.7859</td>
 <td>[0.779 - 0.794]</td>
@@ -10570,7 +10570,7 @@ max-width: 100%;
 <td>0.6503</td>
 <td>0.1984</td>
 <td>0.4468</td>
-<td>8351</td>
+<td>8 351</td>
 <td>—</td>
 <td>—</td>
 </tr>
@@ -10578,8 +10578,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No train fire</td>
 <td>Propagation</td>
-<td>305498</td>
-<td>10005</td>
+<td>305 498</td>
+<td>10 005</td>
 <td>3.28</td>
 <td>0.7913</td>
 <td>[0.783 - 0.800]</td>
@@ -10598,8 +10598,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>No history</td>
 <td>Propagation</td>
-<td>420420</td>
-<td>16835</td>
+<td>420 420</td>
+<td>16 835</td>
 <td>4.00</td>
 <td>0.7705</td>
 <td>[0.760 - 0.783]</td>
@@ -10610,7 +10610,7 @@ max-width: 100%;
 <td>0.6542</td>
 <td>0.1572</td>
 <td>0.4008</td>
-<td>1399</td>
+<td>1 399</td>
 <td>-0.0154</td>
 <td>-0.0460</td>
 </tr>
@@ -10618,8 +10618,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>2025 only</td>
 <td>Propagation</td>
-<td>346797</td>
-<td>31527</td>
+<td>346 797</td>
+<td>31 527</td>
 <td>9.09</td>
 <td>0.7785</td>
 <td>[0.772 - 0.785]</td>
@@ -10630,7 +10630,7 @@ max-width: 100%;
 <td>0.6583</td>
 <td>0.1776</td>
 <td>0.4271</td>
-<td>2907</td>
+<td>2 907</td>
 <td>-0.0074</td>
 <td>-0.0197</td>
 </tr>
@@ -10655,8 +10655,8 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Subset</th>
+<th>Región</th>
+<th>Subconjunto</th>
 <th style="text-align: right;">n</th>
 <th style="text-align: right;">n+</th>
 <th style="text-align: right;">ΔROC (M3 − M2)</th>
@@ -10671,8 +10671,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>Full</td>
-<td style="text-align: right;">176616</td>
-<td style="text-align: right;">16056</td>
+<td style="text-align: right;">176 616</td>
+<td style="text-align: right;">16 056</td>
 <td style="text-align: right;">+0.0030</td>
 <td>[+0.0014, +0.0046]</td>
 <td style="text-align: right;">≤0.001</td>
@@ -10683,8 +10683,8 @@ max-width: 100%;
 <tr class="even">
 <td>Chaco</td>
 <td>Unseen cell</td>
-<td style="text-align: right;">23074</td>
-<td style="text-align: right;">2115</td>
+<td style="text-align: right;">23 074</td>
+<td style="text-align: right;">2 115</td>
 <td style="text-align: right;">+0.0059</td>
 <td>[+0.0022, +0.0093]</td>
 <td style="text-align: right;">0.004</td>
@@ -10695,8 +10695,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>No train fire</td>
-<td style="text-align: right;">150696</td>
-<td style="text-align: right;">11540</td>
+<td style="text-align: right;">150 696</td>
+<td style="text-align: right;">11 540</td>
 <td style="text-align: right;">+0.0022</td>
 <td>[+0.0005, +0.0038]</td>
 <td style="text-align: right;">0.008</td>
@@ -10707,8 +10707,8 @@ max-width: 100%;
 <tr class="even">
 <td>Chaco</td>
 <td>No history</td>
-<td style="text-align: right;">132562</td>
-<td style="text-align: right;">6619</td>
+<td style="text-align: right;">132 562</td>
+<td style="text-align: right;">6 619</td>
 <td style="text-align: right;">-0.0035</td>
 <td>[-0.0056, -0.0014]</td>
 <td style="text-align: right;">0.002</td>
@@ -10719,8 +10719,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Chaco</td>
 <td>2025 only</td>
-<td style="text-align: right;">75372</td>
-<td style="text-align: right;">6852</td>
+<td style="text-align: right;">75 372</td>
+<td style="text-align: right;">6 852</td>
 <td style="text-align: right;">+0.0020</td>
 <td>[-0.0006, +0.0044]</td>
 <td style="text-align: right;">0.120</td>
@@ -10731,8 +10731,8 @@ max-width: 100%;
 <tr class="even">
 <td>Oriental</td>
 <td>Full</td>
-<td style="text-align: right;">199936</td>
-<td style="text-align: right;">18176</td>
+<td style="text-align: right;">199 936</td>
+<td style="text-align: right;">18 176</td>
 <td style="text-align: right;">+0.0128</td>
 <td>[+0.0105, +0.0149]</td>
 <td style="text-align: right;">≤0.001</td>
@@ -10743,7 +10743,7 @@ max-width: 100%;
 <tr class="odd">
 <td>Oriental</td>
 <td>Unseen cell</td>
-<td style="text-align: right;">9378</td>
+<td style="text-align: right;">9 378</td>
 <td style="text-align: right;">882</td>
 <td style="text-align: right;">+0.0059</td>
 <td>[-0.0027, +0.0147]</td>
@@ -10755,8 +10755,8 @@ max-width: 100%;
 <tr class="even">
 <td>Oriental</td>
 <td>No train fire</td>
-<td style="text-align: right;">154948</td>
-<td style="text-align: right;">11049</td>
+<td style="text-align: right;">154 948</td>
+<td style="text-align: right;">11 049</td>
 <td style="text-align: right;">+0.0097</td>
 <td>[+0.0075, +0.0120]</td>
 <td style="text-align: right;">≤0.001</td>
@@ -10767,8 +10767,8 @@ max-width: 100%;
 <tr class="odd">
 <td>Oriental</td>
 <td>No history</td>
-<td style="text-align: right;">116022</td>
-<td style="text-align: right;">5104</td>
+<td style="text-align: right;">116 022</td>
+<td style="text-align: right;">5 104</td>
 <td style="text-align: right;">+0.0101</td>
 <td>[+0.0066, +0.0134]</td>
 <td style="text-align: right;">≤0.001</td>
@@ -10779,8 +10779,8 @@ max-width: 100%;
 <tr class="even">
 <td>Oriental</td>
 <td>2025 only</td>
-<td style="text-align: right;">99429</td>
-<td style="text-align: right;">9039</td>
+<td style="text-align: right;">99 429</td>
+<td style="text-align: right;">9 039</td>
 <td style="text-align: right;">+0.0088</td>
 <td>[+0.0058, +0.0118]</td>
 <td style="text-align: right;">≤0.001</td>
@@ -10791,7 +10791,7 @@ max-width: 100%;
 </tbody>
 </table>
 <!-- tablaS27b:fin -->
-<p><strong>Tabla S28.</strong> Sensibilidad a la razón de muestreo. La fila 1:5 submuestrea negativos de entrenamiento del muestreo 1:10 congelado; la fila 1:20 usa negativos independientes de un plan 20:1 generado desde el archivo candidato completo. Validación y test permanecen en 1:10 para que las métricas sean comparables. La precisión poblacional aplica la corrección por prevalencia.</p>
+<p><strong>Tabla S28.</strong> Sensibilidad a la razón de muestreo. La fila 1:5 submuestrea negativos de entrenamiento del muestreo 1:10 congelado; la fila 1:20 usa negativos independientes de un plan 20:1 generado desde el archivo candidato completo. Validación y test permanecen en 1:10 para que las métricas sean comparables. La precisión poblacional se proyecta en el corte F0.5 muestral mediante escalado prior-odds para comparar razones de muestreo en un umbral común; la Tabla S6 evalúa cortes recalculados a prevalencia poblacional, por lo que las dos tablas difieren ligeramente.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 9%">
@@ -10806,15 +10806,15 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Ratio</th>
-<th>Model</th>
-<th style="text-align: right;">n train</th>
-<th style="text-align: right;">Pos train</th>
+<th>Región</th>
+<th>Razón</th>
+<th>Modelo</th>
+<th style="text-align: right;">n entrenamiento</th>
+<th style="text-align: right;">Positivos entrenamiento</th>
 <th style="text-align: right;">ROC-AUC</th>
 <th style="text-align: right;">PR-AUC</th>
-<th style="text-align: right;">Cutoff F0.5</th>
-<th style="text-align: right;">Population precision</th>
+<th style="text-align: right;">Corte F0.5</th>
+<th style="text-align: right;">Precisión poblacional</th>
 </tr>
 </thead>
 <tbody>
@@ -10822,8 +10822,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:10 (baseline)</td>
 <td>M2</td>
-<td style="text-align: right;">498,762</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">498 762</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.7991</td>
 <td style="text-align: right;">0.2766</td>
 <td style="text-align: right;">0.2071</td>
@@ -10833,8 +10833,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:10 (baseline)</td>
 <td>M3</td>
-<td style="text-align: right;">498,762</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">498 762</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.8021</td>
 <td style="text-align: right;">0.2842</td>
 <td style="text-align: right;">0.2218</td>
@@ -10844,8 +10844,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:5</td>
 <td>M2</td>
-<td style="text-align: right;">272,052</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">272 052</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.7984</td>
 <td style="text-align: right;">0.2747</td>
 <td style="text-align: right;">0.2060</td>
@@ -10855,8 +10855,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:5</td>
 <td>M3</td>
-<td style="text-align: right;">272,052</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">272 052</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.8016</td>
 <td style="text-align: right;">0.2822</td>
 <td style="text-align: right;">0.2266</td>
@@ -10866,8 +10866,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:20 (independientes)</td>
 <td>M2</td>
-<td style="text-align: right;">952,182</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">952 182</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.7836</td>
 <td style="text-align: right;">0.2379</td>
 <td style="text-align: right;">0.2105</td>
@@ -10877,8 +10877,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>1:20 (independientes)</td>
 <td>M3</td>
-<td style="text-align: right;">952,182</td>
-<td style="text-align: right;">45,342</td>
+<td style="text-align: right;">952 182</td>
+<td style="text-align: right;">45 342</td>
 <td style="text-align: right;">0.7926</td>
 <td style="text-align: right;">0.2617</td>
 <td style="text-align: right;">0.2285</td>
@@ -10888,8 +10888,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:10 (baseline)</td>
 <td>M2</td>
-<td style="text-align: right;">505,219</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">505 219</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7406</td>
 <td style="text-align: right;">0.2146</td>
 <td style="text-align: right;">0.1983</td>
@@ -10899,8 +10899,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:10 (baseline)</td>
 <td>M3</td>
-<td style="text-align: right;">505,219</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">505 219</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7534</td>
 <td style="text-align: right;">0.2340</td>
 <td style="text-align: right;">0.2186</td>
@@ -10910,8 +10910,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:5</td>
 <td>M2</td>
-<td style="text-align: right;">275,574</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">275 574</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7405</td>
 <td style="text-align: right;">0.2141</td>
 <td style="text-align: right;">0.1986</td>
@@ -10921,8 +10921,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:5</td>
 <td>M3</td>
-<td style="text-align: right;">275,574</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">275 574</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7534</td>
 <td style="text-align: right;">0.2330</td>
 <td style="text-align: right;">0.2274</td>
@@ -10932,8 +10932,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:20 (independientes)</td>
 <td>M2</td>
-<td style="text-align: right;">964,509</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">964 509</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7402</td>
 <td style="text-align: right;">0.2099</td>
 <td style="text-align: right;">0.2005</td>
@@ -10943,8 +10943,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>1:20 (independientes)</td>
 <td>M3</td>
-<td style="text-align: right;">964,509</td>
-<td style="text-align: right;">45,929</td>
+<td style="text-align: right;">964 509</td>
+<td style="text-align: right;">45 929</td>
 <td style="text-align: right;">0.7526</td>
 <td style="text-align: right;">0.2362</td>
 <td style="text-align: right;">0.2002</td>
@@ -10956,7 +10956,7 @@ max-width: 100%;
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th style="text-align: right;">Adversarial AUC (mean ± SD)</th>
 </tr>
 </thead>
@@ -10975,7 +10975,7 @@ max-width: 100%;
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th style="text-align: right;">Rank</th>
 <th>Feature</th>
 <th style="text-align: right;">Gain (%)</th>
@@ -11120,15 +11120,15 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Variant</th>
-<th>Model</th>
+<th>Modelo</th>
 <th style="text-align: right;">Pos train</th>
 <th style="text-align: right;">Pos test</th>
 <th style="text-align: right;">Pos retained</th>
 <th style="text-align: right;">ROC-AUC</th>
 <th style="text-align: right;">PR-AUC</th>
-<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Precisión</th>
 <th style="text-align: right;">Recall</th>
 </tr>
 </thead>
@@ -11137,8 +11137,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>baseline</td>
 <td>M2</td>
-<td style="text-align: right;">45,342</td>
-<td style="text-align: right;">16,056</td>
+<td style="text-align: right;">45 342</td>
+<td style="text-align: right;">16 056</td>
 <td style="text-align: right;">1.000</td>
 <td style="text-align: right;">0.7991</td>
 <td style="text-align: right;">0.2766</td>
@@ -11149,8 +11149,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>baseline</td>
 <td>M3</td>
-<td style="text-align: right;">45,342</td>
-<td style="text-align: right;">16,056</td>
+<td style="text-align: right;">45 342</td>
+<td style="text-align: right;">16 056</td>
 <td style="text-align: right;">1.000</td>
 <td style="text-align: right;">0.8021</td>
 <td style="text-align: right;">0.2842</td>
@@ -11161,8 +11161,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>high_confidence</td>
 <td>M2</td>
-<td style="text-align: right;">5,849</td>
-<td style="text-align: right;">1,957</td>
+<td style="text-align: right;">5 849</td>
+<td style="text-align: right;">1 957</td>
 <td style="text-align: right;">0.122</td>
 <td style="text-align: right;">0.8187</td>
 <td style="text-align: right;">0.0701</td>
@@ -11173,8 +11173,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>high_confidence</td>
 <td>M3</td>
-<td style="text-align: right;">5,849</td>
-<td style="text-align: right;">1,957</td>
+<td style="text-align: right;">5 849</td>
+<td style="text-align: right;">1 957</td>
 <td style="text-align: right;">0.122</td>
 <td style="text-align: right;">0.8228</td>
 <td style="text-align: right;">0.0719</td>
@@ -11185,8 +11185,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>frp_ge_10</td>
 <td>M2</td>
-<td style="text-align: right;">15,047</td>
-<td style="text-align: right;">5,120</td>
+<td style="text-align: right;">15 047</td>
+<td style="text-align: right;">5 120</td>
 <td style="text-align: right;">0.319</td>
 <td style="text-align: right;">0.8096</td>
 <td style="text-align: right;">0.1350</td>
@@ -11197,8 +11197,8 @@ max-width: 100%;
 <td>Chaco</td>
 <td>frp_ge_10</td>
 <td>M3</td>
-<td style="text-align: right;">15,047</td>
-<td style="text-align: right;">5,120</td>
+<td style="text-align: right;">15 047</td>
+<td style="text-align: right;">5 120</td>
 <td style="text-align: right;">0.319</td>
 <td style="text-align: right;">0.8136</td>
 <td style="text-align: right;">0.1404</td>
@@ -11209,8 +11209,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>baseline</td>
 <td>M2</td>
-<td style="text-align: right;">45,929</td>
-<td style="text-align: right;">18,176</td>
+<td style="text-align: right;">45 929</td>
+<td style="text-align: right;">18 176</td>
 <td style="text-align: right;">1.000</td>
 <td style="text-align: right;">0.7406</td>
 <td style="text-align: right;">0.2146</td>
@@ -11221,8 +11221,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>baseline</td>
 <td>M3</td>
-<td style="text-align: right;">45,929</td>
-<td style="text-align: right;">18,176</td>
+<td style="text-align: right;">45 929</td>
+<td style="text-align: right;">18 176</td>
 <td style="text-align: right;">1.000</td>
 <td style="text-align: right;">0.7534</td>
 <td style="text-align: right;">0.2340</td>
@@ -11233,8 +11233,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>high_confidence</td>
 <td>M2</td>
-<td style="text-align: right;">2,935</td>
-<td style="text-align: right;">1,178</td>
+<td style="text-align: right;">2 935</td>
+<td style="text-align: right;">1 178</td>
 <td style="text-align: right;">0.065</td>
 <td style="text-align: right;">0.7686</td>
 <td style="text-align: right;">0.0220</td>
@@ -11245,8 +11245,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>high_confidence</td>
 <td>M3</td>
-<td style="text-align: right;">2,935</td>
-<td style="text-align: right;">1,178</td>
+<td style="text-align: right;">2 935</td>
+<td style="text-align: right;">1 178</td>
 <td style="text-align: right;">0.065</td>
 <td style="text-align: right;">0.7793</td>
 <td style="text-align: right;">0.0246</td>
@@ -11257,8 +11257,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>frp_ge_10</td>
 <td>M2</td>
-<td style="text-align: right;">8,990</td>
-<td style="text-align: right;">3,447</td>
+<td style="text-align: right;">8 990</td>
+<td style="text-align: right;">3 447</td>
 <td style="text-align: right;">0.190</td>
 <td style="text-align: right;">0.7654</td>
 <td style="text-align: right;">0.0643</td>
@@ -11269,8 +11269,8 @@ max-width: 100%;
 <td>Oriental</td>
 <td>frp_ge_10</td>
 <td>M3</td>
-<td style="text-align: right;">8,990</td>
-<td style="text-align: right;">3,447</td>
+<td style="text-align: right;">8 990</td>
+<td style="text-align: right;">3 447</td>
 <td style="text-align: right;">0.190</td>
 <td style="text-align: right;">0.7763</td>
 <td style="text-align: right;">0.0688</td>
@@ -11293,7 +11293,7 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Gate</th>
 <th style="text-align: right;">Rows retained</th>
 <th style="text-align: right;">Positives retained</th>
@@ -11386,12 +11386,12 @@ max-width: 100%;
 </tr>
 </tbody>
 </table>
-<p><strong>Tabla S32.</strong> Control negativo y permutation importance. El control negativo reentrena M3 con etiquetas de entrenamiento permutadas; el AUC debería ser ~0.5. La importancia es el ΔROC medio al permutar cada variable o familia en el test (tres repeticiones). El AUC del control sigue por encima de 0.5 en el Chaco, por lo que el score no debe leerse causalmente; las variables históricas dominan en el Chaco, mientras que la información estática de celda y el solapamiento train/test son fuentes adicionales. La Figura S7 muestra el ranking individual.</p>
+<p><strong>Tabla S32.</strong> Control negativo e importancia por permutación. El control negativo reentrena M3 con etiquetas de entrenamiento permutadas (una permutación fija, semilla 123); el AUC debería ser ~0.5. La importancia es el ΔROC medio al permutar cada variable o familia en el test (tres repeticiones). El AUC del control sigue por encima de 0.5 en el Chaco, por lo que el score no debe leerse causalmente; las variables históricas dominan en el Chaco, mientras que la información estática de celda y el solapamiento train/test son fuentes adicionales. La Figura S7 muestra el ranking individual.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
-<th>Setting</th>
+<th>Región</th>
+<th>Configuración</th>
 <th style="text-align: right;">Negative-control AUC</th>
 </tr>
 </thead>
@@ -11421,7 +11421,7 @@ max-width: 100%;
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Family</th>
 <th style="text-align: right;">Features</th>
 <th style="text-align: right;">ΔROC</th>
@@ -11493,7 +11493,7 @@ max-width: 100%;
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Region</th>
+<th>Región</th>
 <th>Feature</th>
 <th style="text-align: right;">ΔROC</th>
 </tr>
@@ -11626,13 +11626,13 @@ max-width: 100%;
 </colgroup>
 <thead>
 <tr class="header">
-<th>Model</th>
+<th>Modelo</th>
 <th>ROC-AUC [95 % CI]</th>
 <th style="text-align: right;">PR-AUC</th>
 <th style="text-align: right;">Brier</th>
 <th style="text-align: right;">ECE</th>
-<th style="text-align: right;">Cutoff</th>
-<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Corte</th>
+<th style="text-align: right;">Precisión</th>
 <th style="text-align: right;">Recall</th>
 <th style="text-align: right;">F0.5</th>
 <th style="text-align: right;">Precision pop.</th>
@@ -11654,7 +11654,7 @@ max-width: 100%;
 <td style="text-align: right;">0.2849</td>
 <td style="text-align: right;">0.000891</td>
 <td style="text-align: right;">0.1624</td>
-<td style="text-align: right;">1,511</td>
+<td style="text-align: right;">1 511</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -11669,7 +11669,7 @@ max-width: 100%;
 <td style="text-align: right;">0.2868</td>
 <td style="text-align: right;">0.000678</td>
 <td style="text-align: right;">0.2705</td>
-<td style="text-align: right;">3,322</td>
+<td style="text-align: right;">3 322</td>
 <td style="text-align: right;">+0.0016 (0.254)</td>
 </tr>
 <tr class="odd">
@@ -11684,7 +11684,7 @@ max-width: 100%;
 <td style="text-align: right;">0.0888</td>
 <td style="text-align: right;">0.000150</td>
 <td style="text-align: right;">0.6622</td>
-<td style="text-align: right;">42,342</td>
+<td style="text-align: right;">42 342</td>
 <td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
@@ -11699,7 +11699,7 @@ max-width: 100%;
 <td style="text-align: right;">0.0961</td>
 <td style="text-align: right;">0.000132</td>
 <td style="text-align: right;">0.9450</td>
-<td style="text-align: right;">55,914</td>
+<td style="text-align: right;">55 914</td>
 <td style="text-align: right;">—</td>
 </tr>
 </tbody>
