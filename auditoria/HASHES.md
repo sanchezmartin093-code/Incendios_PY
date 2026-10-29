@@ -1,8 +1,8 @@
 # Auditoría de hashes SHA-256
 
-- Generado: 2026-10-29T08:33:18
-- Commit: `7473647f7ebeca8c4b7a7c7e4c15f998db473ba1 (working tree with uncommitted changes)`
-- Archivos: 339
+- Generado: 2026-10-29T11:11:34
+- Commit: `d69690335e3a2de15b4824f975435f2e2ff8d02f (working tree with uncommitted changes)`
+- Archivos: 343
 
 | Archivo | SHA-256 |
 |---|---|
@@ -34,7 +34,7 @@
 | `auditoria/G0/sensibilidad_buffer_g0.csv` | `4e054e370c802b42d559415e7a8a45b39d301b01f44f699ab3492c7f3a932c65` |
 | `cover_letter.qmd` | `0ce44fbb4657c24d1d3579e30bbfcba380c06c99e338bfb7c8036429fda5345a` |
 | `docs/ADR_AUDITORIA.md` | `3744e29bf8f802cc5dac23e4d001403530b5c3667dc372bef35752306bfdf047` |
-| `docs/CHECKLIST_ENVIO.md` | `4a7cb19b034488d0774201d57b6e613ba3ee2ade0ee6e808f552fbe1e4630d28` |
+| `docs/CHECKLIST_ENVIO.md` | `593643cb4ff1f6b825260c5d10cd935d2ea4147c6cde69c8091baf0ef81a7f73` |
 | `docs/G0_PROTOCOLO.md` | `06c4af93d4d89bc5a1cee81a09fa3fe735f3205060ec42f17a196a48fbfbfba0` |
 | `docs/IDEAS.md` | `8af4a0aee12b51e54f0dc2688553c0d2fa9b9c9076684b07dcad20c5669c035e` |
 | `docs/PROTOCOLO_BENCHMARKING.md` | `696a4086acddb6be04ca7bd4af6dda1fce95fc9a1025e5509f88a650803f57d9` |
@@ -48,8 +48,8 @@
 | `entregables/dashboard_alerta_interactivo.html` | `a30b60a2cd074cee0deffe58b1fe2e9822ce46c502c0bb627efe0d6da8a4b982` |
 | `entregables/figuras/fig01_arquitectura_impacto_nature.pdf` | `31da6a38ae7278f9b5db146cf19564e3289ab082c38e693f13af5e1d4fd85efb` |
 | `entregables/figuras/fig01_arquitectura_impacto_nature.png` | `07bed0a42c5e5af24e4738afb4dbb369102ca8cb54cea13156577180877e8ea4` |
-| `entregables/figuras/fig01_framework_conceptual.pdf` | `606cfc200e424c6befc0f7332dd6584688514c18fb3f2f4888cf70572910844a` |
-| `entregables/figuras/fig01_framework_conceptual.png` | `73ef8f187394916170c734d063a49b77f08721aa5458761fc2c68aba96e3e17b` |
+| `entregables/figuras/fig01_framework_conceptual.pdf` | `eda2a4530d604f0cf199a908f020129c0164e2b158e2616bfd065abb0ad9f624` |
+| `entregables/figuras/fig01_framework_conceptual.png` | `28a8a5a48ca1cd16720fe904d22c92870dacc6ed3b1d1844f5d94672ff9bac08` |
 | `entregables/figuras/fig01_macro_regiones_cobertura.pdf` | `bf8a00317690e08a5bceef223071b79312ff000120a7e3f4ac4c2990615449c0` |
 | `entregables/figuras/fig01_macro_regiones_cobertura.png` | `78134ca3c36f189071bdfd758005c3115a2cbcaefec217f8f69ab7cfceb56ab0` |
 | `entregables/figuras/fig02_curvas_roc_pr_test.pdf` | `93c6788b685027469488322b7de18db798de7563f087e11910dfbb07e21a8ff4` |
@@ -68,8 +68,12 @@
 | `entregables/figuras/fig07_ablacion_biofisico_vs_hibrido.png` | `d45850b1f816095bd0d17138a5b3c9253a863d6ed28421001de7265365fb831d` |
 | `entregables/figuras/fig08_cost_loss.pdf` | `d91eb52d26c9005002efd54e11e925ae05c1b43296a7c1aea0d97fe028b3a01a` |
 | `entregables/figuras/fig08_cost_loss.png` | `dd07963a1ffac6981587bbda8c459276f060c0559863bf5673523bd67973739c` |
-| `entregables/figuras/graphical_abstract.pdf` | `d8bc41bd768735f18b2d5094faba3669e67f02652624719eae6304ee5d346656` |
-| `entregables/figuras/graphical_abstract.png` | `0fb70d5dc0b8aff8e7959c5ddbe972b24a8e323f100136f1215acb958818de06` |
+| `entregables/figuras/graphical_abstract.pdf` | `65f866e2e39d2f561f3ea3e6b517bc7b88bdbab74ae0dccdd3e569c4f9b98e3d` |
+| `entregables/figuras/graphical_abstract.png` | `3f2196b2725d4da89f8ecfdaa6f9a04ba84d08b6663a802ad837d856c2ddae63` |
+| `entregables/figuras/graphical_abstract_v1.pdf` | `d8bc41bd768735f18b2d5094faba3669e67f02652624719eae6304ee5d346656` |
+| `entregables/figuras/graphical_abstract_v1.png` | `0fb70d5dc0b8aff8e7959c5ddbe972b24a8e323f100136f1215acb958818de06` |
+| `entregables/figuras/graphical_abstract_v2.pdf` | `65f866e2e39d2f561f3ea3e6b517bc7b88bdbab74ae0dccdd3e569c4f9b98e3d` |
+| `entregables/figuras/graphical_abstract_v2.png` | `3f2196b2725d4da89f8ecfdaa6f9a04ba84d08b6663a802ad837d856c2ddae63` |
 | `entregables/figuras/modo1_regional.png` | `2801f53c7ca7d3ff84c134ec1c643a23fd028bc00176202f0361828ef0ff3c80` |
 | `entregables/figuras/modo2_truecolor_viirs.png` | `9b02830b6c5a8b60e7f3f6c847d695826978b31b60e70b94be12f329828dc997` |
 | `entregables/figuras/modo3_swir_viirs.png` | `653f05ce31610ce6fb9899cac078222fd92f061ca190275acd6d42c853299db1` |
@@ -93,14 +97,14 @@
 | `entregables/figuras/supp_fig10_external_formosa.pdf` | `99bd7742bfd556f3667626e9ea83e8d7504543fc2d1ac850265248cb674a24a6` |
 | `entregables/figuras/supp_fig10_external_formosa.png` | `6a1e4ff7e2e9e4b861d17e53e0c4219e89e9b91fcedc86b9359bdf0205c7af60` |
 | `entregables/highlights.docx` | `e99dcaaa6009fce09b77f0cae7b349721d41be06c35d49193c473c9abfc259e7` |
-| `entregables/manuscrito.docx` | `f3ad31b74f958a3babef0503b6925322fad02405993319983e417e1d455fc59f` |
-| `entregables/manuscrito.html` | `7a2a80fec7b5835ee4a4e54c40f70fc18a3c239de37e243ba425fbeff418ffea` |
-| `entregables/manuscrito_es.docx` | `df13c371e5e3725532497482e894bed5010e58094a8e4bb57ac3b25a5e1d8fe6` |
-| `entregables/manuscrito_es.html` | `21fe0ad7a5351e83039ed9a6db2ea3c5575435f2e44fde89ddccf5318ad4703e` |
-| `entregables/material_suplementario.docx` | `cf5b915ac5c6562bbcf95578199c37ae29ef29436b51ca2fb7d1bfbbd2636df5` |
-| `entregables/material_suplementario.html` | `a3ab257ba801b3cddf5cefa57d30b40f8c0b9ed4c531ffe5e290081817226861` |
-| `entregables/material_suplementario_es.docx` | `cfbeddefbac1e2110af482a4f3019d5bc4bd49a25a646a28a39502882e8c5aa7` |
-| `entregables/material_suplementario_es.html` | `2bd56e2eb7c5915dc112de9dc8443a178a6a74d765714255295cc6eec7a12204` |
+| `entregables/manuscrito.docx` | `99fcf4972b4dd307dd6d9eedc3b1ad7a5cc283f52e658522aa7624344156b6f2` |
+| `entregables/manuscrito.html` | `cdf6bdcc7f4c271b3b6edbe2476d57ad35517ecc1c0d36ba94a72b60b4227ed2` |
+| `entregables/manuscrito_es.docx` | `08b1174a9ae46a6af6bc2c6c373ba3c8f75fad77055798895834bb2416c205f5` |
+| `entregables/manuscrito_es.html` | `94a7da377a2af176db477663d41be3524a59b9a7b1078fd8e4a5f34817c2125a` |
+| `entregables/material_suplementario.docx` | `0d667ec9d1bc4cd6a31dce6f7e51b3fc6813ae3c312ce367a5cc7bbdee965254` |
+| `entregables/material_suplementario.html` | `349d0b8a2064e6a1a78fa1b1881a00317f33e9d0c626a812b5d85c418b41c06f` |
+| `entregables/material_suplementario_es.docx` | `9108d265b5d390f5d77d15da8da3a338859a0a601223e1057954a4cda8fdeafb` |
+| `entregables/material_suplementario_es.html` | `390b26020ded19899f37bb0e9a168d4e6e03c2d13ac2f491f11707b1366cf93b` |
 | `entregables/material_suplementario_navegable.docx` | `9a7ee5d09319ed738c6fa3c9e766cc2c5a43101e387450309e926a3a7805a5cd` |
 | `entregables/tablas/tabla00_validacion_datos.csv` | `6b7d9e1c62e7a41f4839a36885868dbea900cf73e81b1cacc81f17fc36f0597c` |
 | `entregables/tablas/tabla00_validacion_datos.md` | `6443d62597ea4e62bc80531eaee37e3f6f277628a067435ebf3c85f72893c893` |
@@ -226,10 +230,10 @@
 | `manuscrito/assets/apa.csl` | `3917def5fc951b104d64216c3373096042368b9704ba269ca83c14ebaba889fc` |
 | `manuscrito/assets/elsevier-harvard.csl` | `71e5cbd5906f4c1a03f0772a3d8b014ac06fe3f87a848397b94c66139003568c` |
 | `manuscrito/assets/references.bib` | `d65698eb3393e8dc87b2f1c830bc7c3dd081d8b7adf8912b7285df2419ee99ab` |
-| `manuscrito/en/manuscrito.qmd` | `9d5a0c3fba746b801b21368aad8f7c1ee32e6d25a0e20338c4f8cdfeb9d68880` |
-| `manuscrito/en/material_suplementario.qmd` | `e8abe8b08ac4e282171fd6930c060d88afcc580619a6091c512c7de3dbf95b4f` |
-| `manuscrito/es/manuscrito_es.qmd` | `5805161e6de8d204b231ba754825411f6f898352eef0d8e7b7c78ae658975144` |
-| `manuscrito/es/material_suplementario_es.qmd` | `384a5589a1870db39edb1eeb6590c570e669779c07ca51baa00a83155071a92a` |
+| `manuscrito/en/manuscrito.qmd` | `f1519976c8204a41f81a82b12a5030e92609dca68a2331af24d1e22ac141adb5` |
+| `manuscrito/en/material_suplementario.qmd` | `a40376a89b135919cab5139355904b2955a66c992edf8b2b098c7fd73f8ae4fe` |
+| `manuscrito/es/manuscrito_es.qmd` | `67fd72c48ef70f88f5e8a446afbdcd2c4753f193474bb36c4dabfeaf65450234` |
+| `manuscrito/es/material_suplementario_es.qmd` | `ca4e07dfc2dd17a959804068f55cb0b891a364283a2316b458b862784add422c` |
 | `requirements-lock.txt` | `dab3b46dac1f64b8cf94ea7b4e5cc997907a3ed20ca5b25aba65c0ba0beb6977` |
 | `scripts/00_generar_grilla_nacional.py` | `dd1c31e8a2dec10a408e7041cb256283685a2825b861c7de24559830d57084ea` |
 | `scripts/00_validar_datos.py` | `6afb27a086297bc0b352f8356a309f371ecf5da4b582d822636617c8103beb19` |
@@ -270,9 +274,9 @@
 | `scripts/21_evaluacion_lead_time.py` | `4095bb42114aa6c0d3737e0f8a4addc8e383566c1db661171653f15626796810` |
 | `scripts/22_analisis_cost_loss.py` | `12e30a4c7a70dd870d4d9ffc20745c05d372e70289ba32e5fa1cc4521c1b6557` |
 | `scripts/23_benchmark_computacional.py` | `917494d0111bb99e8592377b2d4c3a06cbab75f22455936673d214cfc7ebb3b5` |
-| `scripts/23_generar_figura_framework.py` | `07e80a28b141cde848bccdcb450066f6e820494462e97f321769aa4ca7097254` |
+| `scripts/23_generar_figura_framework.py` | `6bf3ed67475868043c0211600dc89a8b4c3631ee528fb9496bac6959d4d8d7ff` |
 | `scripts/24_entrenar_m1.py` | `ed5946ac996aaa1892de27f07bd5316d31fc9a2404b92bd43d6922402c3a16e0` |
-| `scripts/24_generar_graphical_abstract.py` | `5050e1389654b415dd4506ec4485e1632158cf0c4e3eadb4e4d3fc98bb879e83` |
+| `scripts/24_generar_graphical_abstract.py` | `59e3710f45545fa80690b851f446194d08be1d80e076d83a701023a2322e3946` |
 | `scripts/25_definir_holdout_confirmacion.py` | `36de69705a5d702ea8e88959877d71e64a88c0fb2bf7d1256d903f5a4988cbd7` |
 | `scripts/26_validacion_2023.py` | `af0a76c126c06d441dd42ffcaa0a7218c7a83404ad5af72b69987edccf21fc2a` |
 | `scripts/27_validacion_espacial_2023.py` | `861c2533f15b2da5539660562e316f34bc35110f4ef300a8ee17d7d58f0df79a` |
@@ -286,7 +290,7 @@
 | `scripts/37_validacion_confirmacion_2023.py` | `b606285d81f96cb4660647dfa913bbf54b82cfb63bffecb1837a43e83483605c` |
 | `scripts/38_coupled_baseline.py` | `e40253269e9c4132066387430918164cade9397f5aaa43cc769a4dc6c7347682` |
 | `scripts/39_sensibilidad_d2.py` | `da29ee4e8f5876211657f0c43e35b6c5628940ada93295dd242f6cb914aa7b43` |
-| `scripts/40_formatear_docx_cageo.py` | `0f92c32052e0a394a3de481daeecca53866d926b4b68dc6e2191e0fb4c5f1d3b` |
+| `scripts/40_formatear_docx_cageo.py` | `6d1980c7d820d7a29cf0dbcffdfc48cc1fcb861d528ad7325ca0bcd86852d8d7` |
 | `scripts/43_benchmark_weather_only.py` | `766c4e77d972f53109879c2436ba44610db75d35d646f03316fcead597e98fab` |
 | `scripts/45_metricas_sin_solapamiento.py` | `6fec622c66aa3f700f4bcef0559b285bc3b937bb1da55309ec35619836e4a33d` |
 | `scripts/46_bootstrap_pareado_m3m2.py` | `f50923f4fed36e669ac435cc4ee30a02e7f396638e2cecafbe63499769492f97` |
@@ -322,7 +326,7 @@
 | `scripts/69g_entrenar_evaluar_g0.py` | `c53d766094e05ace78946e0d6dc77cbed4b218659675c7902e6cf41199e45d1c` |
 | `scripts/69h_sensibilidad_g0.py` | `ae395816cd943941ea893e5ce013867f024acce2fc60f88d7b2a24cb82929382` |
 | `scripts/69i_sensibilidad_buffer_g0.py` | `3282a4c75308881de3a554645a8604e174335f2dc3193eb33ce109098e72e6cb` |
-| `scripts/70_verificar_envio.py` | `9c97e8bd3cc2ab0ecf22a2b6b5b909b71024c196dd596e8d10807985a1160215` |
+| `scripts/70_verificar_envio.py` | `931c9515c2175b22df51ea2e3b762ed0f17c1b0b81beb018010649e0fb32ff18` |
 | `scripts/71_indice_suplementario.py` | `847972505f2cb014a97672e97cd1d10d7d7bccaed86eef7e98785b76592f4bf9` |
 | `scripts/fig01_contract.py` | `97c61d99bca6e315b1cf132368613463d7806cdc4ffa07cbb22784f43e482998` |
 | `src/__init__.py` | `efd54d37a0c2d1e59c2560ff196564e40100907906c65b3ad8d8f82d628bc27c` |

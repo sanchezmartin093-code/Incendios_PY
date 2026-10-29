@@ -144,7 +144,7 @@ def panel_a(ax, x, y):
     text(ax, gx + gw / 2, gy + gh - 4.5, "Biophysical gate", size=7.0, weight="bold", ha="center")
     text(ax, gx + gw / 2, gy + gh - 10.0, "Fuel = 1", size=6.8, ha="center")
     text(ax, gx + gw / 2, gy + gh - 15.0, "VPD ≥ 0.8 kPa", size=6.8, ha="center")
-    text(ax, gx + gw / 2, gy + gh - 20.0, r"$P_{48h}<10\ \mathrm{mm}$", size=6.8, ha="center")
+    text(ax, gx + gw / 2, gy + gh - 20.0, r"$R_{48h}<10\ \mathrm{mm}$", size=6.8, ha="center")
     text(
         ax,
         gx + gw / 2,
@@ -223,9 +223,10 @@ def panel_c(ax, x, y):
 
     cal_x, cal_y, cal_w, cal_h = x + 66.0, y + 8.0, 16.0, 32.0
     box(ax, cal_x, cal_y, cal_w, cal_h, edge=MUTED, face=GREY_T)
-    text(ax, cal_x + cal_w / 2, y + 28.0, "Platt", size=7.0, weight="bold", ha="center")
-    text(ax, cal_x + cal_w / 2, y + 24.5, "prior correction", size=6.2, ha="center", color=MUTED)
-    text(ax, cal_x + cal_w / 2, y + 21.0, "F0.5 frozen", size=6.2, ha="center", color=MUTED)
+    text(ax, cal_x + cal_w / 2, y + 29.0, "Platt 2023", size=6.8, weight="bold", ha="center")
+    text(ax, cal_x + cal_w / 2, y + 25.5, "per task", size=6.0, ha="center", color=MUTED)
+    text(ax, cal_x + cal_w / 2, y + 22.3, "prior correction", size=6.0, ha="center", color=MUTED)
+    text(ax, cal_x + cal_w / 2, y + 19.2, "F0.5 frozen", size=6.0, ha="center", color=MUTED)
 
     arrow(ax, [(mx + mw - 0.2, y + 46.5), (x + 64.0, y + 46.5), (x + 64.0, y + 40.0), (cal_x - 0.3, y + 40.0)], color=MUTED)
     arrow(ax, [(mx + mw - 0.2, y + 22.5), (x + 64.0, y + 22.5), (x + 64.0, y + 35.0), (cal_x - 0.3, y + 35.0)], color=MUTED)
@@ -243,6 +244,7 @@ def panel_d(ax, x, y):
 
     bx = x + 4.0
     text(ax, bx, y + 48.0, "Temporal split", size=7.0, weight="bold")
+    text(ax, x + 80.0, y + 48.0, "1:10 case–control", size=6.0, color=FAINT, ha="right")
 
     total = 76.0
     widths = [47.0, 11.0, 18.0]
@@ -256,7 +258,7 @@ def panel_d(ax, x, y):
         xx += w
     text(ax, bx, y + 36.5, "Train", size=6.2, color=MUTED, ha="left")
     text(ax, bx + widths[0], y + 36.5, "Val", size=6.2, color=MUTED, ha="center")
-    text(ax, bx + widths[0] + widths[1], y + 36.5, "Test", size=6.2, color=MUTED, ha="center")
+    text(ax, bx + widths[0] + widths[1], y + 36.5, "Test frozen", size=5.8, color=MUTED, ha="center")
 
     text(ax, bx, y + 29.5, "Spatial holdout", size=6.8, weight="bold")
     gx, gy, cell = bx + 1.0, y + 12.0, 3.2

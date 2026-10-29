@@ -1,9 +1,4 @@
-"""Generate the graphical abstract from a clean, metric-aware brief.
-
-The layout is deliberately simple: separate the targets, show the gated
-decoupled pipeline, and report only the current retrospective test benchmark. It does
-not reuse the legacy architecture graphic or its obsolete percentages.
-"""
+"""Generate the Elsevier/Computers & Geosciences graphical abstract."""
 
 from pathlib import Path
 import sys
@@ -13,140 +8,178 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Rectangle
+from matplotlib.patches import Circle, FancyArrowPatch, Polygon, Rectangle
+from PIL import Image
 
 from src.constantes import DIR_FIGURAS
 
+W, H = 1328, 531
+INK = "#111827"
+MUTED = "#4B5563"
+FAINT = "#6B7280"
+RULE = "#D1D5DB"
+WHITE = "#FFFFFF"
+BLUE = "#0072B2"
+BLUE_T = "#EAF3F8"
+ORANGE = "#D55E00"
+ORANGE_T = "#FBEFE8"
+GREY_T = "#F6F7F8"
 
-INK = "#1f2d3d"
-MUTED = "#5b6b7c"
-TEAL = "#2a9d8f"
-ORANGE = "#e9a23b"
-BLUE = "#2c7fb8"
-PURPLE = "#6a4c93"
-RED = "#c44536"
-PANEL = "#f7f9fb"
-LINE = "#9aa7b4"
-WHITE = "#ffffff"
+plt.rcParams.update(
+    {
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+        "font.size": 10,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "svg.fonttype": "none",
+        "mathtext.fontset": "custom",
+        "mathtext.rm": "Arial",
+        "mathtext.it": "Arial:italic",
+        "mathtext.bf": "Arial:bold",
+    }
+)
 
 
-def box(ax, x, y, w, h, fc, ec="#d6dee6", lw=1.0, r=0.7, z=1):
-    ax.add_patch(
-        FancyBboxPatch(
-            (x, y), w, h,
-            boxstyle=f"round,pad=0.25,rounding_size={r}",
-            linewidth=lw, edgecolor=ec, facecolor=fc, zorder=z,
-        )
+def text(ax, x, y, s, size=10, weight="normal", color=INK, ha="left", va="center", style="normal"):
+    ax.text(x, y, s, fontsize=size, fontweight=weight, color=color, ha=ha, va=va, style=style, zorder=5)
+
+
+def rule(ax, x0, x1, y, color=RULE, lw=0.7):
+    ax.plot([x0, x1], [y, y], color=color, lw=lw, solid_capstyle="butt", zorder=1)
+
+
+def box(ax, x, y, w, h, edge, face, lw=0.8):
+    ax.add_patch(Rectangle((x, y), w, h, facecolor=face, edgecolor=edge, linewidth=lw, zorder=2))
+
+
+def arrow(ax, points, color=MUTED, lw=1.0):
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    if len(points) > 2:
+        ax.plot(xs[:-1], ys[:-1], color=color, lw=lw, solid_capstyle="round", zorder=3)
+    ax.annotate(
+        "",
+        xy=points[-1],
+        xytext=points[-2],
+        arrowprops=dict(arrowstyle="-|>", mutation_scale=9, lw=lw, color=color, shrinkA=0, shrinkB=0),
+        zorder=4,
     )
 
 
-def label(ax, x, y, text, size=8.0, color=INK, weight="normal", ha="left", va="center", **kw):
-    ax.text(x, y, text, ha=ha, va=va, fontsize=size, color=color,
-            fontweight=weight, zorder=5, **kw)
-
-
-def arrow(ax, x0, y0, x1, y1, color=LINE):
-    ax.add_patch(
-        FancyArrowPatch(
-            (x0, y0), (x1, y1), arrowstyle="-|>", mutation_scale=10,
-            linewidth=1.2, color=color, shrinkA=0, shrinkB=0, zorder=4,
-        )
-    )
-
-
-def main():
-    fig, ax = plt.subplots(figsize=(13, 5.2), dpi=300)
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 40)
-    ax.axis("off")
-    fig.patch.set_facecolor(WHITE)
-
-    label(ax, 1.5, 38.2,
-          "Decoupled ignition and propagation benchmarking for operational wildfire nowcasting",
-          size=10.8, weight="bold")
-    label(ax, 1.5, 35.9,
-          "A reproducible computational framework — not a new boosting algorithm",
-          size=7.2, color=MUTED)
-
-    # Panels
-    for x, w, color, title in [
-        (1.0, 29.5, TEAL, "1 | SEPARATE THE TARGETS"),
-        (32.5, 32.5, PURPLE, "2 | GATE AND DECOUPLE"),
-        (67.0, 32.0, RED, "3 | BLIND BENCHMARK"),
-    ]:
-        box(ax, x, 4.5, w, 29.5, PANEL, "#dbe3ea", 0.9)
-        box(ax, x, 29.7, w, 4.3, color, color, 0.0, 0.5)
-        label(ax, x + 1.3, 31.9, title, size=7.4, color=WHITE, weight="bold")
-
-    # Panel 1: problem and D2
-    label(ax, 2.5, 27.6, "Primary ignition", size=7.6, color=TEAL, weight="bold")
-    label(ax, 2.5, 25.1, "fire at (i,t) without t-1\nfire within 25 km", size=6.8, color=INK)
-    label(ax, 2.5, 20.8, "Tactical propagation", size=7.6, color=ORANGE, weight="bold")
-    label(ax, 2.5, 18.3, "fire at (i,t) within\n25 km of a t-1 fire", size=6.8, color=INK)
-    box(ax, 2.5, 12.4, 26.0, 3.3, "#eef6f4", TEAL, 0.8, 0.4)
-    label(ax, 3.2, 14.05, "No persistence leakage", size=6.6, color=TEAL, weight="bold")
-    label(ax, 2.5, 8.7,
-          "Same fire, two tasks.\nD2 keeps the labels disjoint.",
-          size=6.4, color=MUTED, linespacing=1.2)
-
-    # Panel 2: pipeline
-    label(ax, 34.0, 26.9, "Inputs", size=6.4, color=MUTED)
-    box(ax, 34.0, 22.8, 29.5, 3.3, "#eef3f8", BLUE, 0.8, 0.4)
-    label(ax, 34.8, 24.45, "VIIRS  ·  ERA5-Land  ·  MapBiomas  ·  history",
-          size=6.2, color=INK)
-
-    arrow(ax, 48.7, 22.5, 48.7, 20.3, BLUE)
-    box(ax, 34.0, 17.3, 29.5, 3.0, "#fdf3e3", ORANGE, 0.8, 0.4)
-    label(ax, 34.8, 18.8, "Biophysical gate", size=6.3, color=ORANGE, weight="bold")
-
-    arrow(ax, 48.7, 17.0, 48.7, 14.8, ORANGE)
-    box(ax, 34.0, 11.7, 14.0, 3.1, "#f0ecf7", PURPLE, 0.8, 0.4)
-    label(ax, 34.7, 13.25, "M3 hybrid\n(no t-1 fire)", size=5.9, color=INK)
-    box(ax, 49.5, 11.7, 14.0, 3.1, "#f0ecf7", PURPLE, 0.8, 0.4)
-    label(ax, 50.2, 13.25, "M2 fallback\n(no history)", size=5.9, color=INK)
-    arrow(ax, 48.7, 11.4, 48.7, 9.2, PURPLE)
-    label(ax, 34.0, 8.0,
-          "Causal t-1 propagation\n+ frozen evaluation harness",
-          size=6.1, color=MUTED, linespacing=1.2)
-
-    # Panel 3: benchmark bars
-    label(ax, 68.5, 27.2, "ROC-AUC | Chaco | retrospective 2024–2025",
-          size=6.2, color=MUTED)
-    bars = [
-        ("M3 hybrid", 0.802, PURPLE),
-        ("Full FWI", 0.517, BLUE),
-        ("INPE", 0.539, ORANGE),
+def flame(ax, cx, cy, scale=1.0):
+    pts = [
+        (cx - 12 * scale, cy - 32 * scale),
+        (cx - 25 * scale, cy - 2 * scale),
+        (cx - 18 * scale, cy + 24 * scale),
+        (cx - 4 * scale, cy + 40 * scale),
+        (cx + 2 * scale, cy + 22 * scale),
+        (cx + 8 * scale, cy + 32 * scale),
+        (cx + 16 * scale, cy + 8 * scale),
+        (cx + 12 * scale, cy - 12 * scale),
+        (cx + 22 * scale, cy - 2 * scale),
+        (cx + 13 * scale, cy - 30 * scale),
     ]
-    y = 23.0
-    x0 = 75.0
-    scale = 24.0 / 0.85
-    for name, value, color in bars:
-        ax.add_patch(Rectangle((x0, y - 0.9), value * scale, 1.8,
-                               facecolor=color, edgecolor="none", zorder=3))
-        label(ax, 68.5, y, name, size=6.3, color=INK)
-        label(ax, x0 + value * scale + 0.6, y, f"{value:.3f}",
-              size=6.1, color=INK, weight="bold")
-        y -= 5.1
-    ax.plot([x0, x0], [13.0, 25.1], color="#d6dee6", lw=0.8, zorder=2)
-    label(ax, 68.5, 11.3,
-          "M3 is stronger on the 2023 validation;\nM2 is the fallback for unseen cells.",
-          size=6.1, color=MUTED, linespacing=1.2)
+    ax.add_patch(
+        Polygon(pts, closed=True, facecolor=ORANGE_T, edgecolor=ORANGE, linewidth=1.1, zorder=3)
+    )
+    ax.add_patch(
+        Polygon(
+            [
+                (cx - 4 * scale, cy - 28 * scale),
+                (cx - 10 * scale, cy - 4 * scale),
+                (cx - 4 * scale, cy + 14 * scale),
+                (cx + 4 * scale, cy + 2 * scale),
+                (cx + 10 * scale, cy + 10 * scale),
+                (cx + 8 * scale, cy - 14 * scale),
+                (cx + 2 * scale, cy - 28 * scale),
+            ],
+            closed=True,
+            facecolor=ORANGE,
+            edgecolor="none",
+            zorder=4,
+        )
+    )
 
-    # Footer
-    box(ax, 1.0, 0.8, 98.0, 2.4, INK, INK, 0.0, 0.4)
-    label(ax, 50, 2.0,
-          "D2 targets  ·  M3/M2  ·  causal propagation  ·  open benchmark",
-          size=6.6, color=WHITE, weight="bold", ha="center")
 
-    plt.tight_layout()
-    DIR_FIGURAS.mkdir(parents=True, exist_ok=True)
-    png = DIR_FIGURAS / "graphical_abstract.png"
-    pdf = DIR_FIGURAS / "graphical_abstract.pdf"
-    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor=fig.get_facecolor())
-    fig.savefig(pdf, bbox_inches="tight", facecolor=fig.get_facecolor())
+def main() -> None:
+    fig = plt.figure(figsize=(W / 300, H / 300), dpi=300, facecolor=WHITE)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, W)
+    ax.set_ylim(0, H)
+    ax.axis("off")
+
+    text(ax, 40, 482, "Temporal skill is not spatial skill", size=10.2, weight="bold")
+    rule(ax, 40, 1294, 460, lw=0.55)
+    text(ax, 40, 430, "D2 split", size=6.8, weight="bold")
+    text(ax, 40, 398, "I  ignition", size=6.5, weight="bold", color=BLUE)
+    text(ax, 40, 372, "no fire ≤25 km t−1", size=6.3, color=MUTED)
+    text(ax, 40, 342, "no same-cell 10 d", size=6.3, color=MUTED)
+    text(ax, 40, 285, "P  propagation", size=6.5, weight="bold", color=ORANGE)
+    text(ax, 40, 259, "fire ≤25 km t−1", size=6.3, color=MUTED)
+
+    cx, cy, r = 250.0, 170.0, 52.0
+    ax.add_patch(Circle((cx, cy), r, fill=False, edgecolor=ORANGE, lw=0.7, linestyle=(0, (2.0, 1.8)), zorder=3))
+    ax.add_patch(Rectangle((cx - 4, cy - 4), 8, 8, facecolor=ORANGE, edgecolor="none", zorder=4))
+    for dx, dy in [(-28, 20), (26, 20), (-20, -30), (28, -24)]:
+        ax.add_patch(Rectangle((cx + dx - 3, cy + dy - 3), 6, 6, facecolor=ORANGE_T, edgecolor=ORANGE, lw=0.4, zorder=3))
+    for dx, dy in [(-62, 38), (60, 38), (-62, -42), (60, -42)]:
+        ax.add_patch(Rectangle((cx + dx - 3, cy + dy - 3), 6, 6, facecolor=BLUE_T, edgecolor=BLUE, lw=0.4, zorder=3))
+    text(ax, cx, cy + 8, "t−1", size=5.6, color=ORANGE, ha="center", weight="bold")
+    text(ax, cx, 92, "25 km · 10 d", size=6.3, color=MUTED, ha="center")
+
+    x_axis0, x_axis1 = 720.0, 1260.0
+    axis_y = 105.0
+    ax.plot([x_axis0, x_axis1], [axis_y, axis_y], color=RULE, lw=0.6, zorder=2)
+    for tick in (0.5, 0.7, 0.9):
+        x = x_axis0 + (tick - 0.4) / 0.55 * (x_axis1 - x_axis0)
+        ax.plot([x, x], [axis_y, axis_y + 5], color=MUTED, lw=0.5, zorder=2)
+        text(ax, x, 88, f"{tick:.1f}", size=5.9, color=FAINT, ha="center")
+
+    x_chance = x_axis0 + (0.5 - 0.4) / 0.55 * (x_axis1 - x_axis0)
+    ax.plot([x_chance, x_chance], [axis_y, 420], color="#9CA3AF", lw=0.6, linestyle=(0, (2.2, 2.0)), zorder=1)
+    text(ax, x_chance, 430, "chance", size=5.8, color=FAINT, ha="center")
+
+    def xpos(value: float) -> float:
+        return x_axis0 + (value - 0.4) / 0.55 * (x_axis1 - x_axis0)
+
+    def pair(y: float, a: float, b: float, color: str) -> None:
+        xa, xb = xpos(a), xpos(b)
+        ax.plot([xa, xb], [y, y], color=color, lw=1.1, zorder=3)
+        ax.plot(xa, y, "o", ms=3.2, color=color, zorder=4)
+        ax.plot(xb, y, "o", ms=3.2, color=color, zorder=4)
+
+    text(ax, 400, 420, "Temporal · 2024–25", size=6.8, weight="bold")
+    text(ax, 460, 388, "M3", size=6.1, color=BLUE)
+    text(ax, 460, 358, "FWI", size=6.1, color=FAINT)
+    text(ax, 460, 328, "INPE", size=6.1, color=FAINT)
+    pair(388, 0.7534, 0.8021, BLUE)
+    pair(358, 0.5059, 0.5611, FAINT)
+    pair(328, 0.4973, 0.5266, FAINT)
+
+    text(ax, 400, 285, "Spatial · 2023", size=6.8, weight="bold")
+    text(ax, 460, 253, "M2", size=6.1, color=FAINT)
+    text(ax, 460, 223, "M3", size=6.1, color=BLUE)
+    pair(253, 0.6773, 0.7470, FAINT)
+    pair(223, 0.6496, 0.7277, BLUE)
+
+    text(ax, 400, 180, "Propagation · 2024–25", size=6.8, weight="bold")
+    pair(150, 0.7859, 0.9039, ORANGE)
+
+    text(ax, 720, 55, "ROC-AUC · Chaco/Oriental", size=6.0, color=MUTED)
+    text(ax, 40, 48, "Ignition: screening only · 0.08–0.20% · lift 5×", size=6.1, color=FAINT)
+    text(ax, 1294, 430, "Propagation: V=0.63/0.40 · α=0.002", size=5.8, color=ORANGE, ha="right")
+    text(ax, 40, 20, "Gran Chaco · 1 km² · 2018–2025 · open benchmark", size=6.2, color=FAINT)
+
+    out = DIR_FIGURAS / "graphical_abstract_v2"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(f"{out}.pdf", facecolor=WHITE, edgecolor="none", bbox_inches=None)
+    fig.savefig(f"{out}.svg", facecolor=WHITE, edgecolor="none", bbox_inches=None)
+    fig.savefig(f"{out}.png", dpi=600, facecolor=WHITE, edgecolor="none", bbox_inches=None)
     plt.close(fig)
-    print(f"Wrote {png}")
-    print(f"Wrote {pdf}")
+    with Image.open(f"{out}.png") as im:
+        im.convert("RGB").save(f"{out}.tiff", dpi=(600, 600), compression="tiff_lzw")
+    print(f"Wrote {out}.pdf/.svg/.png/.tiff")
 
 
 if __name__ == "__main__":
