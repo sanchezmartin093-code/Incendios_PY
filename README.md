@@ -317,3 +317,25 @@ See `CITATION.cff`. Cite the v2.1.0 release (2026-10-28) and the concept DOIs.
 ## License
 
 Code: MIT. See `LICENSE`.
+
+## Datos pesados (archivados fuera del disco, 2026-10-30)
+
+`datos/processed/` y `03_archivo/*.tar.zst` **no viven en el disco**: están archivados en
+Google Drive (14,3 GiB, 123 archivos) para no cargar el SSD. Perdieron 11 GiB + 2,9 GiB locales;
+el proyecto pasó de 24 GiB a 9,4 GiB.
+
+Antes de correr cualquier script que lea `datos/processed/`, hay que traerlos:
+
+```bash
+~/.mac_backup/traer_datos.sh                      # todo (~11 GB)
+~/.mac_backup/traer_datos.sh --solo dataset_2024  # sólo un año
+~/.mac_backup/traer_datos.sh --listar             # ver qué hay en Drive
+~/.mac_backup/soltar_datos.sh                     # liberar el disco otra vez (verifica antes de borrar)
+```
+
+Si la carpeta se ve vacía, no se perdió nada: hay un `LEEME.txt` adentro con estos mismos comandos.
+Ubicación en Drive: `Otros / Datos / Incendios_PY`.
+
+`datos/raw/` (5 GiB) **se queda local a propósito**: volver a bajarlo de FIRMS/ERA5 cuesta horas
+de API. Y `datos/processed/` es regenerable desde `raw` con `scripts/04_construir_dataset.py` y los
+`05*`, así que su copia única en Drive es aceptable por diseño.
