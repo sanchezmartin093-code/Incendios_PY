@@ -127,3 +127,6 @@ build/
 _privado/
 
 # <<< REPO SLIM POLICY <<<
+
+# Serialized model arrays (regenerate with make pipeline)
+modelos/*.npy
