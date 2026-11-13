@@ -52,3 +52,78 @@ dist/submission/
 # Salidas anidadas de Quarto (usar scripts/render_manuscrito.sh para aplanar)
 entregables/manuscrito/
 entregables/entregables/
+
+# >>> REPO SLIM POLICY (managed block, do not edit by hand) >>>
+# Source of truth: docs/REPO_POLICY.md
+# Track only source code, the compact analysis database and final article
+# docs. Everything rendered/compiled is regenerated with `make all`.
+
+# --- Quarto / Pandoc / site build output ---
+.quarto/
+*_files/
+site_libs/
+*.html.md
+*_cache/
+**/*.quarto_ipynb
+
+# --- Rendered web and consolidated artifacts ---
+entregables/web/
+entregables/maestros/
+entregables/fuentes/figuras/
+entregables/fuentes/figures/
+revision_anonima/
+
+# --- External source documents (move to Zenodo / GitHub Releases) ---
+fuentes/**/*.pdf
+fuentes/**/*.xlsx
+fuentes/**/*.xls
+fuentes/**/*.zip
+datos/raw/pdfs/**/*.pdf
+auditoria/**/*.asreview
+
+# --- Heavy data/model formats (never in Git) ---
+*.parquet
+*.feather
+*.arrow
+*.nc
+*.hdf5
+*.h5
+*.tif
+*.tiff
+*.rds
+*.pkl
+*.joblib
+*.pt
+*.onnx
+*.booster
+
+# --- Language / environment caches ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.Rhistory
+.RData
+.Rproj.user/
+renv/library/
+renv/staging/
+.pixi/
+.venv/
+
+# --- OS / editor ---
+.DS_Store
+._*
+*~
+~$*.docx
+
+# --- Build / packaging ---
+dist/
+build/
+*.zip
+*.tar.gz
+*.tar.zst
+
+# --- Private data ---
+_privado/
+
+# <<< REPO SLIM POLICY <<<

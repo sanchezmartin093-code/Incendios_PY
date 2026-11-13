@@ -1,0 +1,8 @@
+# Repo Slim Policy: block accidental large binaries and merge markers.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=10240"]
+      - id: check-merge-conflict
