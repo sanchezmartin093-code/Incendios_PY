@@ -52,6 +52,10 @@ dist/submission/
 # Salidas anidadas de Quarto (usar scripts/render_manuscrito.sh para aplanar)
 entregables/manuscrito/
 entregables/entregables/
+!entregables/en/
+!entregables/es/
+!entregables/fuentes/
+!entregables/maestros/
 
 # >>> REPO SLIM POLICY (managed block, do not edit by hand) >>>
 # Source of truth: docs/REPO_POLICY.md

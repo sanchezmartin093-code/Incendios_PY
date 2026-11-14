@@ -1,12 +1,12 @@
 project:
-  post-render:
-    - bash scripts/run_post_render.sh
   type: default
   output-dir: entregables
-  render:
-    - manuscrito/en/manuscrito_en.qmd
-    - manuscrito/en/material_suplementario_en.qmd
-    - manuscrito/en/cover_letter.qmd
-    - manuscrito/es/manuscrito.qmd
-    - manuscrito/es/material_suplementario.qmd
-    - manuscrito/es/title_page.qmd
+  execute-dir: project
+  post-render:
+    - bash scripts/run_post_render.sh
+
+format:
+  docx:
+    resource-path: ['.']
+  html:
+    resource-path: ['.']
