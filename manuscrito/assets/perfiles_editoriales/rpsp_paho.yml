@@ -1,0 +1,29 @@
+journal: "Revista Panamericana de Salud Pública"
+slug: "rpsp_paho"
+descripcion: "Revista Panamericana de Salud Pública / Pan American Journal of Public Health (OPS/OMS)"
+posicion_artefactos: "incrustada"
+estilo_citas: "vancouver"
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # Doble espacio estricto
+  margen_cm: 2.54
+  lineas_numeradas: true     # Numeración continua de líneas
+  tablas_apa: true           # En español: 'Cuadro', tres líneas horizontales
+  running_head: "Revista Panamericana de Salud Pública"
+
+limites:
+  abstract_tipo: "estructurado"
+  abstract_secciones: ["Objetivo", "Métodos", "Resultados", "Conclusiones"]
+  abstract_min_palabras: 150
+  abstract_max_palabras: 250     # Máximo 250 palabras en RPSP
+  cuerpo_max_palabras: 3500      # 3000 a 3500 palabras para artículos originales
+  max_figuras_tablas_total: 5    # Máximo 5 cuadros y figuras en total
+  max_referencias: 40            # Límite habitual de referencias en RPSP
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  idiomas_permitidos: ["es", "en", "pt"]
+  denominacion_tablas: "Cuadro"  # Exigencia formal RPSP
+  title_page_separada: true

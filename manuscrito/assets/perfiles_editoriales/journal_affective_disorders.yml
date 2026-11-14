@@ -1,0 +1,30 @@
+journal: "Journal of Affective Disorders"
+slug: "journal_affective_disorders"
+descripcion: "Journal of Affective Disorders (Elsevier) - Research Papers"
+posicion_artefactos: "incrustada"
+estilo_citas: "elsevier-harvard" # o apa
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # Double line spacing
+  margen_cm: 2.54            # 1 inch margins
+  lineas_numeradas: true     # Continuous line numbering required
+  tablas_apa: true           # 3 horizontal lines, no vertical lines
+  running_head: "Journal of Affective Disorders Submission"
+
+limites:
+  abstract_tipo: "estructurado"
+  abstract_secciones: ["Background", "Methods", "Results", "Limitations", "Conclusions"]
+  abstract_min_palabras: 150
+  abstract_max_palabras: 250
+  cuerpo_max_palabras: 5000      # Excluye abstract, tablas y referencias
+  max_figuras_tablas_total: 6
+  max_referencias: 60
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  highlights: true               # 3 to 5 bullet points (max 85 characters each)
+  title_page_separada: true      # Title page with full affiliations and corresponding author
+  author_statement: true         # CRediT authorship statement
+  role_of_funding_source: true

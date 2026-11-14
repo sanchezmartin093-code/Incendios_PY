@@ -1,0 +1,28 @@
+journal: "Taylor & Francis Peer Review Standard"
+slug: "taylor_francis_criminology"
+descripcion: "Taylor & Francis Journals (Criminology, Quantitative Policy & Social Sciences)"
+posicion_artefactos: "incrustada"
+estilo_citas: "taylor-and-francis-chicago-author-date"
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # Double space throughout
+  margen_cm: 2.54            # 1 inch (2.54 cm) margins
+  lineas_numeradas: true     # Continuous line numbering
+  tablas_apa: true           # 3 horizontal lines, no vertical lines
+  running_head: "Taylor & Francis Manuscript Submission"
+
+limites:
+  abstract_tipo: "no-estructurado"
+  abstract_min_palabras: 150
+  abstract_max_palabras: 250
+  cuerpo_max_palabras: 8000
+  max_figuras_tablas_total: 8
+  max_referencias: 60
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  title_page_separada: true      # Title, author bios, correspondence
+  anonymized_review: true        # Double-blind review (Taylor & Francis anonymous requirements)
+  data_availability: true

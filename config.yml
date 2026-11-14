@@ -1,0 +1,29 @@
+study_id: Incendios_PY
+diseno_estudio: observacional
+editorial:
+  journal: International Journal of Biometeorology
+  slug: springer_ijb
+  descripcion: International Journal of Biometeorology (Springer Nature) - Original
+    Paper
+  posicion_artefactos: incrustada
+  estilo_citas: springer-basic-author-date
+  formato_docx:
+    fuente: Times New Roman
+    tamano_pt: 12
+    interlineado: 2.0
+    margen_cm: 2.54
+    lineas_numeradas: true
+    tablas_apa: true
+    running_head: Int J Biometeorol Submission
+  limites:
+    abstract_tipo: no-estructurado
+    abstract_min_palabras: 150
+    abstract_max_palabras: 250
+    cuerpo_max_palabras: 5500
+    max_figuras_tablas_total: 8
+    max_referencias: 60
+    accion_limites: advertencia
+  requisitos_adicionales:
+    title_page_separada: true
+    blinded_manuscript: true
+    declarations: true

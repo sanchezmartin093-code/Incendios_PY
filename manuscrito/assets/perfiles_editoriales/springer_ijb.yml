@@ -1,0 +1,28 @@
+journal: "International Journal of Biometeorology"
+slug: "springer_ijb"
+descripcion: "International Journal of Biometeorology (Springer Nature) - Original Paper"
+posicion_artefactos: "incrustada"
+estilo_citas: "springer-basic-author-date"
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # Double line spacing mandatory
+  margen_cm: 2.54            # 1 inch (2.54 cm) margins
+  lineas_numeradas: true     # Continuous line numbering mandatory for peer review
+  tablas_apa: true           # Clean tables without vertical lines
+  running_head: "Int J Biometeorol Submission"
+
+limites:
+  abstract_tipo: "no-estructurado" # Springer IJB uses 1 unstructured abstract paragraph
+  abstract_min_palabras: 150
+  abstract_max_palabras: 250
+  cuerpo_max_palabras: 5500      # Excludes title page, abstract, tables, and references
+  max_figuras_tablas_total: 8
+  max_referencias: 60
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  title_page_separada: true      # Title, authors, affiliations, corresponding author, ORCIDs
+  blinded_manuscript: true       # Blinded main text without authors or direct funding references
+  declarations: true             # Funding, Conflicts of interest, Availability of data, Code availability

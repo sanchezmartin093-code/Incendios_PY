@@ -1,0 +1,21 @@
+journal: "generic_q1"
+descripcion: "Perfil editorial genérico Q1 biomédico y cuantitativo"
+posicion_artefactos: "incrustada" # incrustada | final
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # 2.0 = doble espacio estándar para revisión
+  margen_cm: 2.54            # 1 pulgada (2.54 cm) a los 4 lados
+  lineas_numeradas: true     # Continuous line numbering en margen izquierdo
+  tablas_apa: true           # Solo 3 líneas horizontales, cero verticales
+
+limites:
+  abstract_tipo: "estructurado"  # estructurado | no-estructurado
+  abstract_secciones: ["Background", "Methods", "Findings", "Interpretation"]
+  abstract_min_palabras: 150
+  abstract_max_palabras: 300
+  cuerpo_max_palabras: 3500      # Excluye título, abstract, tablas y referencias
+  max_figuras_tablas_total: 5    # Suma de figuras + tablas en el cuerpo
+  max_referencias: 50
+  accion_limites: "advertencia"  # advertencia (permite compilar y acortar) | estricto (código 1)

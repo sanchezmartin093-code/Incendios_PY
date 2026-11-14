@@ -1,0 +1,29 @@
+journal: "The Lancet Regional Health - Americas"
+slug: "lancet_regional_health_americas"
+descripcion: "The Lancet Regional Health - Americas (Elsevier) - Artículos de investigación original"
+posicion_artefactos: "incrustada" # incrustada | final
+estilo_citas: "vancouver"
+
+formato_docx:
+  fuente: "Times New Roman"
+  tamano_pt: 12
+  interlineado: 2.0           # Doble espacio estricto para revisión
+  margen_cm: 2.54            # 1 pulgada (2.54 cm)
+  lineas_numeradas: true     # Continuous line numbering obligatorio
+  tablas_apa: true           # 3 líneas horizontales, sin rejilla vertical
+  running_head: "The Lancet Regional Health - Americas Submission"
+
+limites:
+  abstract_tipo: "estructurado"
+  abstract_secciones: ["Background", "Methods", "Findings", "Interpretation"]
+  abstract_min_palabras: 150
+  abstract_max_palabras: 300
+  cuerpo_max_palabras: 3500      # Excluye título, abstract, tablas, leyendas y referencias
+  max_figuras_tablas_total: 5    # Tope estricto de 5 items combinados en cuerpo
+  max_referencias: 50
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  research_in_context: true      # Panel obligatorio: Evidence before this study, Added value of this study, Implications of all the available evidence
+  title_page_separada: true      # Title page separada con datos de autores y correspondencia
+  desidentificacion_doble_ciego: true

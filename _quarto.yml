@@ -1,4 +1,6 @@
 project:
+  post-render:
+    - bash scripts/run_post_render.sh
   type: default
   output-dir: entregables
   render:

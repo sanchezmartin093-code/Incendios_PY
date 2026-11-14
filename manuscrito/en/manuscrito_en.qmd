@@ -35,7 +35,7 @@ Corresponding author. E-mail: sanchez.martin093@gmail.com · Telephone: +595 971
 
 **ABSTRACT**
 
-Wildfire machine learning often suffers from spatial leakage and the limited transferability of boreal fire-weather indices to subtropical biomes. For Paraguay's 1-km² Chaco–Oriental grid (2018–2025), we introduce D2, a computational target operator that formally separates primary ignition from tactical propagation, and a gated inference and evaluation framework that makes target construction, leakage control and model comparison explicit. D2 defines ignition as fire on day *t* with no fire within 25 km on day *t*−1 and no same-cell fire in the previous 10 days; propagation is evaluated within 25 km of a day *t*−1 fire. A biophysical gate removes non-combustible and wet cell-days. A hybrid LightGBM model (M3) predicts ignition without day *t*−1 fire inputs, using M2 as a fallback for cells without history and M1 as a biophysical baseline. On 2023 validation, M3 reaches ROC-AUC 0.7844/0.7628 (Chaco/Oriental) versus 0.7817/0.7496 for M2. In 2023 spatial blocks, M2 is most robust (0.6773/0.7470); M1 does not beat M2 on cells without history. An independent confirmation holdout also retained M2 (0.6871/0.6621). On the retrospective 2024–2025 test, M3 reaches 0.8021/0.7534 versus 0.5059/0.5611 for the Canadian Forest Fire Weather Index (FWI) and 0.5266/0.4973 for the INPE Risco de Fogo; propagation reaches 0.9039/0.7859. Population-level ignition precision is 0.082 %/0.198 % (95 % CI 0.075–0.088/0.178–0.222), and decision value is concentrated in propagation, confirming a screening-and-prioritization role rather than a stand-alone warning system. The contribution is the open D2 operator, gated inference and evaluation harness, released as reproducible software.
+Wildfire machine learning often suffers from spatial leakage and poor transferability of boreal indices to subtropical biomes. Across Paraguay (2018–2025), we introduce D2, an open computational operator decoupling primary ignition from tactical propagation, paired with biophysical gating and two-stage LightGBM inference (M3 nowcasting; M2 fallback). On the frozen 2024–2025 test, M3 achieves ROC-AUC of 0.8021/0.7534 (Chaco/Oriental), outperforming the Canadian Fire Weather Index (0.5059/0.5611) and INPE Risco de Fogo (0.5266/0.4973); propagation reaches 0.9039/0.7859. Spatial block validation demonstrates that the hybrid gain is temporal rather than spatial. Low population ignition precision (0.08 %/0.20 %) confirms an operational role in screening and prioritization rather than stand-alone warnings. The D2 operator, inference architecture, and evaluation harness are released as open, reproducible software.
 
 # 1. Introduction
 
@@ -293,7 +293,7 @@ Processed data, test predictions, trained models and derived tables are archived
 
 We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas, Hansen/UMD and geoBoundaries for open data. The author is responsible for all interpretations and errors.
 
-# Computer Code Availability
+# Software availability
 
 - **Name of code:** `Incendios_PY` (v2.1.0)
 - **Developer and contact address:** Martín Sánchez Insfrán, Independent Researcher, Asunción, Paraguay.
@@ -309,21 +309,21 @@ We thank NASA FIRMS, the Copernicus Climate Data Store, MapBiomas, Hansen/UMD an
 - **Tests:** 76 tests pass with `python -m pytest -q tests`.
 
 
-**Authorship contribution statement**
+# CRediT authorship contribution statement
 
-Martín Sánchez Insfrán: conceptualization, methodology, software, data curation, formal analysis, validation, visualization, writing—original draft, writing—review and editing, project administration.
+Martín Sánchez Insfrán: Conceptualization, Methodology, Software, Data curation, Formal analysis, Validation, Visualization, Writing – original draft, Writing – review & editing, Project administration.
 
 # Funding
 
 This research received no specific grant from public, commercial or not-for-profit funding agencies.
 
-# Competing interests
+# Declaration of competing interest
 
-The author declares no competing financial or non-financial interests.
+The author declares that he has no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 # Generative AI declaration
 
-During the preparation of this work the author used Google Gemini for language editing and code assistance. After using this tool/service, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+During the preparation of this work the author used Google Gemini for English language editing, code assistance, and data analysis support. The author determined all modeling strategies, verified all analytical procedures, made all final interpretations, and takes full responsibility for the content and integrity of the published article.
 
 # References {.unnumbered}
 ::: {#refs}

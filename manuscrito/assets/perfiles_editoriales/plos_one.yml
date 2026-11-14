@@ -1,0 +1,27 @@
+journal: "PLOS ONE"
+slug: "plos_one"
+descripcion: "PLOS ONE / PLOS Global Public Health - Research Article"
+posicion_artefactos: "incrustada"
+estilo_citas: "vancouver"
+
+formato_docx:
+  fuente: "Arial"             # PLOS accepts Arial or Times New Roman, Arial is standard PLOS
+  tamano_pt: 11
+  interlineado: 2.0           # Double space
+  margen_cm: 2.54            # 1 inch
+  lineas_numeradas: true     # Continuous line numbering required
+  tablas_apa: true           # Clean cell rules
+  running_head: "PLOS ONE Submission"
+
+limites:
+  abstract_tipo: "no-estructurado" # PLOS accepts single paragraph or subheadings
+  abstract_min_palabras: 150
+  abstract_max_palabras: 300
+  cuerpo_max_palabras: 10000     # PLOS has no strict upper word limit, but recommended < 10k
+  max_figuras_tablas_total: 10
+  max_referencias: 80
+  accion_limites: "advertencia"
+
+requisitos_adicionales:
+  data_availability_statement: true
+  human_subject_ethics: true
