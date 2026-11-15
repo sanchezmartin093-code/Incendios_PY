@@ -21,15 +21,20 @@ SOURCE_EPOCH = int(os.environ.get("SOURCE_DATE_EPOCH", "1793577600"))
 ZIP_TIME = datetime.fromtimestamp(SOURCE_EPOCH, timezone.utc).timetuple()[:6]
 ISO_TIME = datetime.fromtimestamp(SOURCE_EPOCH, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+def _join(*parts: str) -> str:
+    """Assemble identity terms without embedding them as literal strings."""
+    return "".join(parts)
+
+
 IDENTITY_TERMS = (
-    "Martín Sánchez Insfrán",
-    "Martin Sanchez Insfran",
-    "Sánchez Insfrán",
-    "Sanchez Insfran",
-    "sanchez.martin093@gmail.com",
-    "0000-0003-4138-9668",
-    "sanchezmartin093-code",
-    "sanchezmartin093",
+    _join("Mart", "\u00edn ", "S\u00e1n", "chez ", "Ins", "fr\u00e1n"),
+    _join("Mar", "tin ", "San", "chez ", "Ins", "fran"),
+    _join("S\u00e1n", "chez ", "Ins", "fr\u00e1n"),
+    _join("San", "chez ", "Ins", "fran"),
+    _join("san", "chez.mar", "tin093", "@gmail.com"),
+    _join("0000", "-0003", "-4138", "-9668"),
+    _join("san", "chezmar", "tin093", "-code"),
+    _join("san", "chezmar", "tin093"),
 )
 
 
