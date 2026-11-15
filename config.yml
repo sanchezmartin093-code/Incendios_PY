@@ -1,5 +1,7 @@
 study_id: Incendios_PY
 diseno_estudio: observacional
+# TODO: confirm the EQUATOR guideline for this study.
+guia_equator: TRIPOD
 editorial:
   journal: International Journal of Biometeorology
   slug: springer_ijb

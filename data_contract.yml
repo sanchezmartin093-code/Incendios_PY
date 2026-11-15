@@ -1,0 +1,6 @@
+# Data contract scaffold. Replace with this project's raw dataset.
+# Validated by pointblank/pandera in the preprocessing stage.
+dataset: datos/raw/<dataset>.csv
+id_column: id
+columns: {}
+ranges: {}

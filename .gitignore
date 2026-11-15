@@ -75,6 +75,14 @@ entregables/web/
 entregables/maestros/
 entregables/fuentes/figuras/
 entregables/fuentes/figures/
+entregables/figuras/
+entregables/**/*.html
+entregables/**/*.html.md
+entregables/**/*.png
+entregables/**/*.jpg
+entregables/**/*.jpeg
+entregables/**/*.svg
+entregables/**/*.gif
 revision_anonima/
 
 # --- External source documents (move to Zenodo / GitHub Releases) ---
@@ -82,8 +90,18 @@ fuentes/**/*.pdf
 fuentes/**/*.xlsx
 fuentes/**/*.xls
 fuentes/**/*.zip
+fuentes/**/*.html
+fuentes/**/*.json
 datos/raw/pdfs/**/*.pdf
 auditoria/**/*.asreview
+auditoria/**/*.png
+auditoria/**/*.jpg
+auditoria/**/*.pdf
+docs/evidencia/**/*.png
+
+# --- Generated figures inside portal/notebook trees ---
+**/figuras/*.html
+**/figuras/*.gif
 
 # --- Heavy data/model formats (never in Git) ---
 *.parquet
@@ -100,6 +118,7 @@ auditoria/**/*.asreview
 *.pt
 *.onnx
 *.booster
+*.npy
 
 # --- Language / environment caches ---
 __pycache__/
